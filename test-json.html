@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON Test</title>
+</head>
+<body>
+    <h1>Testing JSON Load</h1>
+    <div id="result"></div>
+    <script>
+        console.log('Testing JSON fetch...');
+        fetch('gameshistory.json')
+            .then(response => {
+                console.log('Response:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data loaded:', data);
+                document.getElementById('result').innerHTML = 'SUCCESS! Loaded ' + data.length + ' games';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'ERROR: ' + error.message;
+            });
+    </script>
+</body>
+</html>

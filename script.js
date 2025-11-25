@@ -11,22 +11,93 @@ async function loadGamesData() {
     const statsArea = document.getElementById('statsArea');
     const mainHeader = document.getElementById('mainHeader');
     
+    console.log('[DEBUG] Starting to load games data...');
+    console.log('[DEBUG] Current URL:', window.location.href);
+    console.log('[DEBUG] Protocol:', window.location.protocol);
+    console.log('[DEBUG] Fetch URL: gameshistory.json');
+    
+    // Check if running from file:// protocol
+    if (window.location.protocol === 'file:') {
+        console.error('[ERROR] Running from file:// protocol - this will not work!');
+        loadingArea.innerHTML = `
+            <div class="loading-message" style="max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                [ CANNOT RUN FROM FILE SYSTEM ]<br>
+                <span style="font-size: 14px; margin-top: 20px; display: block;">
+                    You must serve this site via HTTP/HTTPS.<br><br>
+                    Quick fix:<br>
+                    1. Open terminal in this folder<br>
+                    2. Run: <code style="background: rgba(0,217,255,0.1); padding: 2px 6px;">python -m http.server 8000</code><br>
+                    3. Visit: <code style="background: rgba(0,217,255,0.1); padding: 2px 6px;">http://localhost:8000</code><br><br>
+                    See README.md for more options.
+                </span>
+            </div>
+        `;
+        return;
+    }
+    
     try {
+        console.log('[DEBUG] Attempting fetch...');
         const response = await fetch('gameshistory.json');
-        gamesData = await response.json();
         
-        console.log(`Loaded ${gamesData.length} games`);
+        console.log('[DEBUG] Response status:', response.status);
+        console.log('[DEBUG] Response ok:', response.ok);
+        console.log('[DEBUG] Response type:', response.type);
+        console.log('[DEBUG] Response URL:', response.url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+        }
+        
+        console.log('[DEBUG] Parsing JSON...');
+        const text = await response.text();
+        console.log('[DEBUG] Response size:', text.length, 'bytes');
+        
+        gamesData = JSON.parse(text);
+        
+        console.log('[DEBUG] Games loaded successfully!');
+        console.log('[DEBUG] Number of games:', gamesData.length);
+        console.log('[DEBUG] First game:', gamesData[0]);
         
         loadingArea.style.display = 'none';
         statsArea.style.display = 'block';
         mainHeader.classList.add('loaded');
         
+        console.log('[DEBUG] Rendering games list...');
         renderGamesList();
+        
+        console.log('[DEBUG] Rendering leaderboard...');
         renderLeaderboard();
+        
+        console.log('[DEBUG] Initializing search...');
         initializeSearch();
+        
+        console.log('[DEBUG] All rendering complete!');
     } catch (error) {
-        console.error('Error loading games data:', error);
-        loadingArea.innerHTML = '<div class="loading-message">[ ERROR LOADING GAME DATA ]</div>';
+        console.error('[ERROR] Failed to load games data:', error);
+        console.error('[ERROR] Error name:', error.name);
+        console.error('[ERROR] Error message:', error.message);
+        console.error('[ERROR] Error stack:', error.stack);
+        
+        let errorMessage = error.message;
+        let helpText = 'Check browser console (F12) for details';
+        
+        if (error.message.includes('404') || error.message.includes('Not Found')) {
+            helpText = 'File gameshistory.json not found. Make sure it\'s in the same directory as index.html';
+        } else if (error.message.includes('Failed to fetch')) {
+            helpText = 'Cannot load file. Are you running from file:// ? You need to use a web server (see README.md)';
+        } else if (error.name === 'SyntaxError') {
+            helpText = 'JSON file is corrupted or invalid';
+        }
+        
+        loadingArea.innerHTML = `
+            <div class="loading-message">
+                [ ERROR LOADING GAME DATA ]<br>
+                <span style="font-size: 14px; margin-top: 10px; display: block;">
+                    ${errorMessage}<br><br>
+                    ${helpText}
+                </span>
+            </div>
+        `;
     }
 }
 
@@ -49,21 +120,34 @@ function switchMainTab(tabName) {
 }
 
 function renderGamesList() {
+    console.log('[DEBUG] renderGamesList() called');
     const gamesList = document.getElementById('gamesList');
-    if (!gamesList) return;
+    
+    if (!gamesList) {
+        console.error('[ERROR] gamesList element not found!');
+        return;
+    }
+    
+    console.log('[DEBUG] gamesList element found');
+    console.log('[DEBUG] gamesData length:', gamesData.length);
     
     if (gamesData.length === 0) {
+        console.log('[DEBUG] No games data, showing message');
         gamesList.innerHTML = '<div class="loading-message">No games to display</div>';
         return;
     }
     
     gamesList.innerHTML = '';
     
+    console.log('[DEBUG] Creating game items...');
     gamesData.forEach((game, index) => {
         const gameNumber = gamesData.length - index;
+        console.log(`[DEBUG] Creating game ${gameNumber}:`, game.details);
         const gameItem = createGameItem(game, gameNumber);
         gamesList.appendChild(gameItem);
     });
+    
+    console.log('[DEBUG] All game items created');
 }
 
 function createGameItem(game, gameNumber) {
