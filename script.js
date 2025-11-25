@@ -1,40 +1,132 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const historyDiv = document.getElementById("history");
-  const leaderboardDiv = document.getElementById("leaderboard");
-  const historyBtn = document.getElementById("historyBtn");
-  const leaderboardBtn = document.getElementById("leaderboardBtn");
+// Initialize empty games data array
+let gamesData = [];
 
-  // Show/hide sections
-  historyBtn.addEventListener("click", () => {
-    document.getElementById("game-history").style.display = "block";
-    document.getElementById("leaderboard-section").style.display = "none";
-  });
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    initializePage();
+});
 
-  leaderboardBtn.addEventListener("click", () => {
-    document.getElementById("game-history").style.display = "none";
-    document.getElementById("leaderboard-section").style.display = "block";
-  });
+function initializePage() {
+    const loadingArea = document.getElementById('loadingArea');
+    const statsArea = document.getElementById('statsArea');
+    const mainHeader = document.getElementById('mainHeader');
+    
+    // Simulate loading
+    setTimeout(() => {
+        if (gamesData.length === 0) {
+            loadingArea.innerHTML = '<div class="loading-message">[ NO GAME DATA AVAILABLE ]</div>';
+        } else {
+            loadingArea.style.display = 'none';
+            statsArea.style.display = 'block';
+            mainHeader.classList.add('loaded');
+            renderGamesList();
+            renderLeaderboard();
+            initializeSearch();
+        }
+    }, 1000);
+}
 
-  // Fetch and render game history
-  fetch("GameJSON/GameHistory.json")
-    .then((res) => res.json())
-    .then((data) => {
-      historyDiv.textContent = JSON.stringify(data, null, 2);
-    })
-    .catch((err) => {
-      historyDiv.textContent = "Error loading game history: " + err;
+function switchMainTab(tabName) {
+    // Hide all main tabs
+    const allMainTabs = document.querySelectorAll('.main-tab-content');
+    allMainTabs.forEach(tab => tab.style.display = 'none');
+    
+    // Remove active class from all buttons
+    const allMainBtns = document.querySelectorAll('.main-tab-btn');
+    allMainBtns.forEach(btn => btn.classList.remove('active'));
+    
+    // Show selected tab
+    const selectedTab = document.getElementById('main-tab-' + tabName);
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+    }
+    
+    // Add active class to clicked button
+    const selectedBtn = document.getElementById('btn-main-' + tabName);
+    if (selectedBtn) {
+        selectedBtn.classList.add('active');
+    }
+}
+
+function renderGamesList() {
+    const gamesList = document.getElementById('gamesList');
+    if (!gamesList) return;
+    
+    if (gamesData.length === 0) {
+        gamesList.innerHTML = '<div class="loading-message">No games to display</div>';
+        return;
+    }
+    
+    // Render games list logic would go here
+    gamesList.innerHTML = '';
+    // Implementation for rendering games...
+}
+
+function renderLeaderboard() {
+    const leaderboardContainer = document.getElementById('leaderboardContainer');
+    if (!leaderboardContainer) return;
+    
+    if (gamesData.length === 0) {
+        leaderboardContainer.innerHTML = '<div class="loading-message">No leaderboard data available</div>';
+        return;
+    }
+    
+    // Render leaderboard logic would go here
+    leaderboardContainer.innerHTML = '';
+    // Implementation for rendering leaderboard...
+}
+
+function initializeSearch() {
+    const searchInput = document.getElementById('playerSearch');
+    const searchResults = document.getElementById('searchResults');
+    
+    if (!searchInput || !searchResults) return;
+    
+    searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        
+        if (query.length < 2) {
+            searchResults.classList.remove('active');
+            return;
+        }
+        
+        // Search logic would go here
+        searchResults.classList.add('active');
+        // Implementation for search...
     });
-
-  // Fetch and render leaderboard
-  fetch("GameJSON/Leaderboard.json")
-    .then((res) => res.json())
-    .then((data) => {
-      leaderboardDiv.textContent = JSON.stringify(data, null, 2);
-    })
-    .catch((err) => {
-      leaderboardDiv.textContent = "Error loading leaderboard: " + err;
+    
+    // Close search results when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.remove('active');
+        }
     });
+}
 
-  // Init: show history by default
-  historyBtn.click();
+function closePlayerModal() {
+    const modal = document.getElementById('playerModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function openPlayerModal(playerName) {
+    const modal = document.getElementById('playerModal');
+    const modalPlayerName = document.getElementById('modalPlayerName');
+    const modalPlayerStats = document.getElementById('modalPlayerStats');
+    
+    if (!modal || !modalPlayerName || !modalPlayerStats) return;
+    
+    modalPlayerName.textContent = playerName;
+    modalPlayerStats.innerHTML = '<div class="loading-message">No player data available</div>';
+    
+    modal.classList.add('active');
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('playerModal');
+    if (modal && e.target === modal) {
+        closePlayerModal();
+    }
 });
