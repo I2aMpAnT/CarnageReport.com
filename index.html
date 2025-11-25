@@ -3,31 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H2 Carnage Report</title>
+    <title>H2 Carnage Report - Matchmaking History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- Correct CSS filename -->
-    <link rel="stylesheet" href="styles.css">
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 0, 0.03) 2px,
+                    rgba(0, 255, 0, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border: 2px solid #00ff00;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            position: relative;
+        }
+
+        .header::before,
+        .header::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ff00;
+        }
+
+        .header::before {
+            top: -2px;
+            left: -2px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .header::after {
+            bottom: -2px;
+            right: -2px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00;
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00; }
+            50% { text-shadow: 0 0 30px #00ff00, 0 0 60px #00ff00, 0 0 80px #00ff00; }
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #00cc00;
+            letter-spacing: 2px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            position: relative;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            border: 2px solid #00ff00;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .stat-box h3 {
+            font-size: 0.9em;
+            color: #00cc00;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stat-box .number {
+            font-size: 2.5em;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        /* Match Cards */
+        .match-list {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .match {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            padding: 25px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .match::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .match-title {
+            font-size: 1.5em;
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .match-winner {
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 0 0 15px currentColor;
+        }
+
+        .match-winner.red {
+            color: #ff4444;
+        }
+
+        .match-winner.blue {
+            color: #4444ff;
+        }
+
+        /* Score Section */
+        .score-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+        }
+
+        .team-score {
+            text-align: center;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .team-name {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .team-name.red {
+            color: #ff4444;
+        }
+
+        .team-name.blue {
+            color: #4444ff;
+        }
+
+        .score {
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        .score.red {
+            color: #ff4444;
+        }
+
+        .score.blue {
+            color: #4444ff;
+        }
+
+        .vs {
+            font-size: 2em;
+            color: #00ff00;
+        }
+
+        /* Teams Grid */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .team-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid;
+            padding: 20px;
+        }
+
+        .team-box.red {
+            border-color: #ff4444;
+        }
+
+        .team-box.blue {
+            border-color: #4444ff;
+        }
+
+        .team-box h4 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .team-box.red h4 {
+            color: #ff4444;
+        }
+
+        .team-box.blue h4 {
+            color: #4444ff;
+        }
+
+        .player {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(0, 255, 0, 0.05);
+            border-left: 3px solid #00ff00;
+            font-size: 0.95em;
+            color: #00cc00;
+        }
+
+        /* Games List */
+        .games-section {
+            margin-top: 20px;
+        }
+
+        .games-header {
+            font-size: 1.2em;
+            color: #00ff00;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 10px;
+        }
+
+        .game-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(0, 0, 0, 0.6);
+            border-left: 4px solid;
+        }
+
+        .game-item.red-win {
+            border-left-color: #ff4444;
+        }
+
+        .game-item.blue-win {
+            border-left-color: #4444ff;
+        }
+
+        .game-number {
+            font-size: 1.1em;
+            color: #00ff00;
+        }
+
+        .game-winner-text {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .game-winner-text.red {
+            color: #ff4444;
+            text-shadow: 0 0 10px #ff4444;
+        }
+
+        .game-winner-text.blue {
+            color: #4444ff;
+            text-shadow: 0 0 10px #4444ff;
+        }
+
+        .game-map {
+            color: #00cc00;
+            font-size: 0.9em;
+        }
+
+        /* Timestamp */
+        .timestamp {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #00ff00;
+            color: #00cc00;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.5em;
+            color: #00ff00;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .teams-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .score-section {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .game-item {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>H2 Carnage Report</h1>
+            <p>Halo 2 MLG 2007 Matchmaking History</p>
+        </div>
 
-    <nav>
-        <button id="historyBtn">GAME HISTORY</button>
-        <button id="leaderboardBtn">LEADERBOARD</button>
-    </nav>
+        <div class="stats-bar">
+            <div class="stat-box">
+                <h3>Total Matches</h3>
+                <div class="number" id="total-matches">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Total Games Played</h3>
+                <div class="number" id="total-games">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Red Wins</h3>
+                <div class="number" id="red-wins">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Blue Wins</h3>
+                <div class="number" id="blue-wins">0</div>
+            </div>
+        </div>
 
-    <main id="content">
-        <section id="game-history">
-            <h1>Game History</h1>
-            <div id="history"></div>
-        </section>
+        <div id="match-history" class="match-list">
+            <p class="loading">LOADING MATCH HISTORY...</p>
+        </div>
+    </div>
 
-        <section id="leaderboard-section">
-            <h1>Leaderboard</h1>
-            <div id="leaderboard"></div>
-        </section>
-    </main>
+    <script>
+        async function loadMatchHistory() {
+            try {
+                const response = await fetch('matchhistory.json');
+                const data = await response.json();
+                displayMatches(data);
+            } catch (error) {
+                console.error('Failed to load match history:', error);
+                document.getElementById('match-history').innerHTML = 
+                    '<p class="loading">CONNECTION FAILED - RETRY IN 30 SECONDS...</p>';
+            }
+        }
 
-    <!-- Correct JS filename -->
-    <script src="script.js"></script>
+        function displayMatches(data) {
+            const container = document.getElementById('match-history');
+            
+            // Update stats
+            const totalMatches = data.total_ranked_matches || 0;
+            document.getElementById('total-matches').textContent = totalMatches;
+            
+            let totalGames = 0;
+            let redWins = 0;
+            let blueWins = 0;
+            
+            data.matches.forEach(match => {
+                totalGames += match.total_games_played || 0;
+                if (match.winner === 'RED') redWins++;
+                if (match.winner === 'BLUE') blueWins++;
+            });
+            
+            document.getElementById('total-games').textContent = totalGames;
+            document.getElementById('red-wins').textContent = redWins;
+            document.getElementById('blue-wins').textContent = blueWins;
+            
+            if (!data.matches || data.matches.length === 0) {
+                container.innerHTML = '<p class="loading">NO MATCHES RECORDED</p>';
+                return;
+            }
+            
+            let html = '';
+            const sortedMatches = [...data.matches].reverse();
+            
+            sortedMatches.forEach(match => {
+                const winnerClass = match.winner.toLowerCase();
+                
+                html += `
+                    <div class="match">
+                        <div class="match-header">
+                            <div class="match-title">${match.series_label}</div>
+                            <div class="match-winner ${winnerClass}">
+                                ${match.winner} WINS
+                            </div>
+                        </div>
+
+                        <div class="score-section">
+                            <div class="team-score">
+                                <div class="team-name red">RED TEAM</div>
+                                <div class="score red">${match.final_score.red}</div>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team-score">
+                                <div class="team-name blue">BLUE TEAM</div>
+                                <div class="score blue">${match.final_score.blue}</div>
+                            </div>
+                        </div>
+
+                        <div class="teams-grid">
+                            <div class="team-box red">
+                                <h4>🔴 Red Team</h4>
+                                ${match.teams.red.players.map(p => 
+                                    `<div class="player">Player ${p}</div>`
+                                ).join('')}
+                            </div>
+                            <div class="team-box blue">
+                                <h4>🔵 Blue Team</h4>
+                                ${match.teams.blue.players.map(p => 
+                                    `<div class="player">Player ${p}</div>`
+                                ).join('')}
+                            </div>
+                        </div>
+
+                        <div class="games-section">
+                            <div class="games-header">Game Results</div>
+                            ${match.games.map(game => {
+                                const gameWinnerClass = game.winner.toLowerCase();
+                                return `
+                                    <div class="game-item ${gameWinnerClass}-win">
+                                        <span class="game-number">Game ${game.game_number}</span>
+                                        <span class="game-winner-text ${gameWinnerClass}">
+                                            ${game.winner} WINS
+                                        </span>
+                                        ${game.map ? `<span class="game-map">${game.map} - ${game.gametype}</span>` : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <div class="timestamp">
+                            MATCH COMPLETED: ${match.timestamp_display}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Load on page load
+        window.addEventListener('DOMContentLoaded', loadMatchHistory);
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadMatchHistory, 30000);
+    </script>
 </body>
 </html>
