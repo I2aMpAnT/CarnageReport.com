@@ -16,14 +16,19 @@
         </header>
 
         <div class="search-section">
-            <div class="search-box">
-                <input type="text" id="playerSearch" class="search-input" placeholder="Search for player, game type, or map...">
-                <div id="searchResults" class="search-results"></div>
+            <div class="search-container-dual">
+                <div class="search-box">
+                    <input type="text" id="playerSearch" class="search-input" placeholder="Search player...">
+                    <div id="searchResults" class="search-results"></div>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="playerSearch2" class="search-input" placeholder="Compare with...">
+                    <div id="searchResults2" class="search-results"></div>
+                </div>
             </div>
         </div>
 
         <div id="loadingArea">
-            <div class="loading-spinner"></div>
             <div class="loading-message">[ INITIALIZING COMBAT STATS ]</div>
         </div>
 
@@ -31,7 +36,6 @@
             <div class="main-tab-navigation">
                 <button class="main-tab-btn active" id="btn-main-gamehistory" onclick="switchMainTab('gamehistory')">Game History</button>
                 <button class="main-tab-btn" id="btn-main-leaderboard" onclick="switchMainTab('leaderboard')">Leaderboard</button>
-                <button class="main-tab-btn" id="btn-main-pvp" onclick="switchMainTab('pvp')">Player vs Player</button>
             </div>
 
             <div id="main-tab-gamehistory" class="main-tab-content" style="display: block;">
@@ -41,35 +45,15 @@
             <div id="main-tab-leaderboard" class="main-tab-content" style="display: none;">
                 <div id="leaderboardContainer"></div>
             </div>
+        </div>
 
-            <div id="main-tab-pvp" class="main-tab-content" style="display: none;">
-                <div class="pvp-container">
-                    <div class="pvp-header">
-                        <h2>PLAYER VS PLAYER COMPARISON</h2>
-                        <p>Select two players to compare their head-to-head statistics</p>
-                    </div>
-
-                    <div class="pvp-selectors">
-                        <div class="pvp-selector">
-                            <label>Player 1</label>
-                            <select id="pvpPlayer1" onchange="updatePVPComparison()">
-                                <option value="">-- Select Player --</option>
-                            </select>
-                        </div>
-                        <div class="pvp-vs">VS</div>
-                        <div class="pvp-selector">
-                            <label>Player 2</label>
-                            <select id="pvpPlayer2" onchange="updatePVPComparison()">
-                                <option value="">-- Select Player --</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div id="pvpResults" class="pvp-results">
-                        <div class="pvp-placeholder">Select two players above to see their comparison</div>
-                    </div>
-                </div>
+        <!-- Search Results Page -->
+        <div id="searchResultsPage" class="search-results-page" style="display: none;">
+            <div class="search-results-header">
+                <button class="back-btn" onclick="closeSearchResults()">← Back</button>
+                <h2 id="searchResultsTitle"></h2>
             </div>
+            <div id="searchResultsContent"></div>
         </div>
     </div>
 
@@ -78,7 +62,7 @@
         <div class="modal-content">
             <span class="modal-close" onclick="closePlayerModal()">&times;</span>
             <div class="modal-header" id="modalPlayerName"></div>
-            <div id="modalPlayerStats"></div>
+            <div class="stats-grid" id="modalPlayerStats"></div>
         </div>
     </div>
 
