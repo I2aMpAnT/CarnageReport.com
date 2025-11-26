@@ -46,12 +46,15 @@
                         <option value="gametype">Game Type</option>
                     </select>
                     <span class="sort-label">Filter:</span>
-                    <select id="filterMap" class="sort-select" onchange="filterGames()">
-                        <option value="">All Maps</option>
-                    </select>
-                    <select id="filterGametype" class="sort-select" onchange="filterGames()">
-                        <option value="">All Game Types</option>
-                    </select>
+                    <div class="filter-search-box">
+                        <input type="text" id="filterMapInput" class="filter-input" placeholder="All Maps" onfocus="showFilterDropdown('map')" oninput="filterDropdownOptions('map')">
+                        <div id="filterMapDropdown" class="filter-dropdown"></div>
+                    </div>
+                    <div class="filter-search-box">
+                        <input type="text" id="filterGametypeInput" class="filter-input" placeholder="All Game Types" onfocus="showFilterDropdown('gametype')" oninput="filterDropdownOptions('gametype')">
+                        <div id="filterGametypeDropdown" class="filter-dropdown"></div>
+                    </div>
+                    <button class="clear-filters-btn" onclick="clearAllFilters()">Clear</button>
                 </div>
                 <div class="game-list" id="gamesList"></div>
             </div>
@@ -113,12 +116,15 @@
                             <option value="kills">Kills</option>
                         </select>
                         <span class="sort-label">Filter:</span>
-                        <select id="profileFilterMap" class="sort-select" onchange="filterPlayerGames()">
-                            <option value="">All Maps</option>
-                        </select>
-                        <select id="profileFilterGametype" class="sort-select" onchange="filterPlayerGames()">
-                            <option value="">All Game Types</option>
-                        </select>
+                        <div class="filter-search-box">
+                            <input type="text" id="profileFilterMapInput" class="filter-input" placeholder="All Maps" onfocus="showFilterDropdown('profileMap')" oninput="filterDropdownOptions('profileMap')">
+                            <div id="profileFilterMapDropdown" class="filter-dropdown"></div>
+                        </div>
+                        <div class="filter-search-box">
+                            <input type="text" id="profileFilterGametypeInput" class="filter-input" placeholder="All Game Types" onfocus="showFilterDropdown('profileGametype')" oninput="filterDropdownOptions('profileGametype')">
+                            <div id="profileFilterGametypeDropdown" class="filter-dropdown"></div>
+                        </div>
+                        <button class="clear-filters-btn" onclick="clearProfileFilters()">Clear</button>
                     </div>
                 </div>
                 <div id="profileGamesList" class="game-list"></div>

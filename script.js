@@ -2161,31 +2161,42 @@ function getPlayerGames(playerName) {
 }
 
 function populateProfileFilters() {
-    const maps = new Set();
-    const gametypes = new Set();
+    const maps = new Map();
+    const gametypes = new Map();
     
     currentProfileGames.forEach(game => {
         const mapName = game.details['Map Name'];
         const gameType = game.details['Variant Name'] || game.details['Game Type'];
-        if (mapName) maps.add(mapName);
-        if (gameType) gametypes.add(gameType);
+        if (mapName) {
+            maps.set(mapName, (maps.get(mapName) || 0) + 1);
+        }
+        if (gameType) {
+            gametypes.set(gameType, (gametypes.get(gameType) || 0) + 1);
+        }
     });
     
-    const mapSelect = document.getElementById('profileFilterMap');
-    mapSelect.innerHTML = '<option value="">All Maps</option>';
-    [...maps].sort().forEach(map => {
-        mapSelect.innerHTML += `<option value="${map}">${map}</option>`;
-    });
+    // Sort by name and store with counts
+    profileAvailableMaps = [...maps.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    profileAvailableGametypes = [...gametypes.entries()].sort((a, b) => a[0].localeCompare(b[0]));
     
-    const typeSelect = document.getElementById('profileFilterGametype');
-    typeSelect.innerHTML = '<option value="">All Game Types</option>';
-    [...gametypes].sort().forEach(type => {
-        typeSelect.innerHTML += `<option value="${type}">${type}</option>`;
-    });
+    // Reset filter values
+    profileCurrentMapFilter = '';
+    profileCurrentGametypeFilter = '';
+    
+    const mapInput = document.getElementById('profileFilterMapInput');
+    const typeInput = document.getElementById('profileFilterGametypeInput');
+    if (mapInput) {
+        mapInput.value = '';
+        mapInput.classList.remove('has-value');
+    }
+    if (typeInput) {
+        typeInput.value = '';
+        typeInput.classList.remove('has-value');
+    }
 }
 
 function sortPlayerGames() {
-    const sortBy = document.getElementById('profileSortBy').value;
+    const sortBy = document.getElementById('profileSortBy')?.value || 'date-desc';
     let games = [...currentProfileGames];
     
     switch(sortBy) {
@@ -2215,14 +2226,11 @@ function sortPlayerGames() {
 function filterPlayerGames(preFilteredGames = null) {
     let games = preFilteredGames || [...currentProfileGames];
     
-    const mapFilter = document.getElementById('profileFilterMap').value;
-    const typeFilter = document.getElementById('profileFilterGametype').value;
-    
-    if (mapFilter) {
-        games = games.filter(g => g.details['Map Name'] === mapFilter);
+    if (profileCurrentMapFilter) {
+        games = games.filter(g => g.details['Map Name'] === profileCurrentMapFilter);
     }
-    if (typeFilter) {
-        games = games.filter(g => (g.details['Variant Name'] || g.details['Game Type']) === typeFilter);
+    if (profileCurrentGametypeFilter) {
+        games = games.filter(g => (g.details['Variant Name'] || g.details['Game Type']) === profileCurrentGametypeFilter);
     }
     
     renderProfileGames(games);
@@ -2245,36 +2253,218 @@ function renderProfileGames(games) {
 
 // ==================== MAIN PAGE SORTING FUNCTIONS ====================
 
+// Store available maps and gametypes globally
+let availableMaps = [];
+let availableGametypes = [];
+let currentMapFilter = '';
+let currentGametypeFilter = '';
+
+// Profile page filters
+let profileAvailableMaps = [];
+let profileAvailableGametypes = [];
+let profileCurrentMapFilter = '';
+let profileCurrentGametypeFilter = '';
+
 function populateMainFilters() {
-    const maps = new Set();
-    const gametypes = new Set();
+    const maps = new Map();
+    const gametypes = new Map();
     
     gamesData.forEach(game => {
         const mapName = game.details['Map Name'];
         const gameType = game.details['Variant Name'] || game.details['Game Type'];
-        if (mapName) maps.add(mapName);
-        if (gameType) gametypes.add(gameType);
+        if (mapName) {
+            maps.set(mapName, (maps.get(mapName) || 0) + 1);
+        }
+        if (gameType) {
+            gametypes.set(gameType, (gametypes.get(gameType) || 0) + 1);
+        }
     });
     
-    const mapSelect = document.getElementById('filterMap');
-    if (mapSelect) {
-        mapSelect.innerHTML = '<option value="">All Maps</option>';
-        [...maps].sort().forEach(map => {
-            mapSelect.innerHTML += `<option value="${map}">${map}</option>`;
-        });
+    // Sort by name and store with counts
+    availableMaps = [...maps.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    availableGametypes = [...gametypes.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+function showFilterDropdown(type) {
+    const dropdown = document.getElementById(`filter${capitalize(type)}Dropdown`);
+    if (!dropdown) return;
+    
+    // Close other dropdowns first
+    document.querySelectorAll('.filter-dropdown').forEach(d => {
+        if (d !== dropdown) d.classList.remove('active');
+    });
+    
+    // Populate and show dropdown
+    filterDropdownOptions(type);
+    dropdown.classList.add('active');
+}
+
+function filterDropdownOptions(type) {
+    let dropdown, input, items, currentFilter;
+    
+    if (type === 'map') {
+        dropdown = document.getElementById('filterMapDropdown');
+        input = document.getElementById('filterMapInput');
+        items = availableMaps;
+        currentFilter = currentMapFilter;
+    } else if (type === 'gametype') {
+        dropdown = document.getElementById('filterGametypeDropdown');
+        input = document.getElementById('filterGametypeInput');
+        items = availableGametypes;
+        currentFilter = currentGametypeFilter;
+    } else if (type === 'profileMap') {
+        dropdown = document.getElementById('profileFilterMapDropdown');
+        input = document.getElementById('profileFilterMapInput');
+        items = profileAvailableMaps;
+        currentFilter = profileCurrentMapFilter;
+    } else if (type === 'profileGametype') {
+        dropdown = document.getElementById('profileFilterGametypeDropdown');
+        input = document.getElementById('profileFilterGametypeInput');
+        items = profileAvailableGametypes;
+        currentFilter = profileCurrentGametypeFilter;
     }
     
-    const typeSelect = document.getElementById('filterGametype');
-    if (typeSelect) {
-        typeSelect.innerHTML = '<option value="">All Game Types</option>';
-        [...gametypes].sort().forEach(type => {
-            typeSelect.innerHTML += `<option value="${type}">${type}</option>`;
-        });
+    if (!dropdown || !input) return;
+    
+    const searchTerm = input.value.toLowerCase();
+    
+    // Filter items based on search
+    const filtered = items.filter(([name]) => 
+        name.toLowerCase().includes(searchTerm)
+    );
+    
+    // Build dropdown HTML
+    let html = '';
+    
+    // Add "All" option
+    const allLabel = type.includes('map') ? 'All Maps' : 'All Game Types';
+    html += `<div class="filter-dropdown-item clear-option${!currentFilter ? ' selected' : ''}" onclick="selectFilter('${type}', '')">${allLabel}</div>`;
+    
+    // Add filtered items
+    filtered.forEach(([name, count]) => {
+        const isSelected = name === currentFilter;
+        html += `<div class="filter-dropdown-item${isSelected ? ' selected' : ''}" onclick="selectFilter('${type}', '${escapeHtml(name)}')">
+            <span>${name}</span>
+            <span class="game-count">${count} games</span>
+        </div>`;
+    });
+    
+    if (filtered.length === 0) {
+        html += '<div class="filter-dropdown-item" style="color: var(--text-secondary); pointer-events: none;">No matches found</div>';
+    }
+    
+    dropdown.innerHTML = html;
+}
+
+function selectFilter(type, value) {
+    let input, dropdown;
+    
+    if (type === 'map') {
+        input = document.getElementById('filterMapInput');
+        dropdown = document.getElementById('filterMapDropdown');
+        currentMapFilter = value;
+        if (input) {
+            input.value = value;
+            input.classList.toggle('has-value', !!value);
+        }
+    } else if (type === 'gametype') {
+        input = document.getElementById('filterGametypeInput');
+        dropdown = document.getElementById('filterGametypeDropdown');
+        currentGametypeFilter = value;
+        if (input) {
+            input.value = value;
+            input.classList.toggle('has-value', !!value);
+        }
+    } else if (type === 'profileMap') {
+        input = document.getElementById('profileFilterMapInput');
+        dropdown = document.getElementById('profileFilterMapDropdown');
+        profileCurrentMapFilter = value;
+        if (input) {
+            input.value = value;
+            input.classList.toggle('has-value', !!value);
+        }
+    } else if (type === 'profileGametype') {
+        input = document.getElementById('profileFilterGametypeInput');
+        dropdown = document.getElementById('profileFilterGametypeDropdown');
+        profileCurrentGametypeFilter = value;
+        if (input) {
+            input.value = value;
+            input.classList.toggle('has-value', !!value);
+        }
+    }
+    
+    // Close dropdown
+    if (dropdown) dropdown.classList.remove('active');
+    
+    // Apply filters
+    if (type === 'map' || type === 'gametype') {
+        sortGames();
+    } else {
+        sortPlayerGames();
     }
 }
 
+function capitalize(str) {
+    if (str === 'profileMap') return 'ProfileMap';
+    if (str === 'profileGametype') return 'ProfileGametype';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function clearAllFilters() {
+    currentMapFilter = '';
+    currentGametypeFilter = '';
+    
+    const mapInput = document.getElementById('filterMapInput');
+    const typeInput = document.getElementById('filterGametypeInput');
+    const sortBy = document.getElementById('sortBy');
+    
+    if (mapInput) {
+        mapInput.value = '';
+        mapInput.classList.remove('has-value');
+    }
+    if (typeInput) {
+        typeInput.value = '';
+        typeInput.classList.remove('has-value');
+    }
+    if (sortBy) {
+        sortBy.value = 'date-desc';
+    }
+    
+    renderFilteredGames(gamesData);
+}
+
+function clearProfileFilters() {
+    profileCurrentMapFilter = '';
+    profileCurrentGametypeFilter = '';
+    
+    const mapInput = document.getElementById('profileFilterMapInput');
+    const typeInput = document.getElementById('profileFilterGametypeInput');
+    const sortBy = document.getElementById('profileSortBy');
+    
+    if (mapInput) {
+        mapInput.value = '';
+        mapInput.classList.remove('has-value');
+    }
+    if (typeInput) {
+        typeInput.value = '';
+        typeInput.classList.remove('has-value');
+    }
+    if (sortBy) {
+        sortBy.value = 'date-desc';
+    }
+    
+    filterPlayerGames();
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.filter-search-box')) {
+        document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('active'));
+    }
+});
+
 function sortGames() {
-    const sortBy = document.getElementById('sortBy').value;
+    const sortBy = document.getElementById('sortBy')?.value || 'date-desc';
     let games = [...gamesData];
     
     switch(sortBy) {
@@ -2298,14 +2488,11 @@ function sortGames() {
 function filterGames(preFilteredGames = null) {
     let games = preFilteredGames || [...gamesData];
     
-    const mapFilter = document.getElementById('filterMap')?.value;
-    const typeFilter = document.getElementById('filterGametype')?.value;
-    
-    if (mapFilter) {
-        games = games.filter(g => g.details['Map Name'] === mapFilter);
+    if (currentMapFilter) {
+        games = games.filter(g => g.details['Map Name'] === currentMapFilter);
     }
-    if (typeFilter) {
-        games = games.filter(g => (g.details['Variant Name'] || g.details['Game Type']) === typeFilter);
+    if (currentGametypeFilter) {
+        games = games.filter(g => (g.details['Variant Name'] || g.details['Game Type']) === currentGametypeFilter);
     }
     
     renderFilteredGames(games);

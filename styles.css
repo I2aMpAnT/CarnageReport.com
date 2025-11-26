@@ -2813,6 +2813,123 @@ header {
     color: var(--text-primary);
 }
 
+/* Searchable Filter Boxes */
+.filter-search-box {
+    position: relative;
+    min-width: 150px;
+}
+
+.filter-input {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    padding: 8px 12px;
+    background: var(--background-dark);
+    border: 1px solid rgba(168, 212, 255, 0.3);
+    color: var(--text-primary);
+    cursor: text;
+    width: 100%;
+    min-width: 150px;
+}
+
+.filter-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.filter-input:hover {
+    border-color: var(--unsc-blue);
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: var(--unsc-blue);
+    box-shadow: 0 0 10px rgba(168, 212, 255, 0.2);
+}
+
+.filter-input.has-value {
+    border-color: var(--unsc-blue);
+    background: rgba(168, 212, 255, 0.05);
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--background-dark);
+    border: 1px solid rgba(168, 212, 255, 0.3);
+    border-top: none;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.filter-dropdown.active {
+    display: block;
+}
+
+.filter-dropdown-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(168, 212, 255, 0.1);
+}
+
+.filter-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.filter-dropdown-item:hover {
+    background: rgba(168, 212, 255, 0.1);
+}
+
+.filter-dropdown-item.selected {
+    background: rgba(168, 212, 255, 0.15);
+    color: var(--unsc-blue);
+}
+
+.filter-dropdown-item .game-count {
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: rgba(168, 212, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.filter-dropdown-item.clear-option {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.filter-dropdown-item.clear-option:hover {
+    color: var(--text-primary);
+}
+
+.clear-filters-btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 15px;
+    background: transparent;
+    border: 1px solid rgba(168, 212, 255, 0.3);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.clear-filters-btn:hover {
+    border-color: var(--unsc-blue);
+    color: var(--unsc-blue);
+    background: rgba(168, 212, 255, 0.1);
+}
+
 /* ==================== PLAYER PROFILE PAGE ==================== */
 .player-profile-page {
     padding: 20px 0;
