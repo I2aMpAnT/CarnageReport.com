@@ -396,11 +396,11 @@ header {
 }
 
 .game-meta-tag.score-tag-ffa {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.8);
     color: #ffffff;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4), inset 0 0 8px rgba(255, 255, 255, 0.2);
-    text-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 1);
 }
 
 .expand-icon {
@@ -1615,6 +1615,272 @@ header {
     
     .medal-count {
         font-size: 10px;
+    }
+}
+
+/* Weapons Scoreboard - like medals */
+.weapons-scoreboard {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.weapons-header {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 20px;
+    padding: 12px 16px;
+    background: rgba(0, 100, 180, 0.15);
+    border-bottom: 1px solid rgba(0, 217, 255, 0.3);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--unsc-blue);
+    letter-spacing: 1px;
+}
+
+.weapons-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 20px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    align-items: center;
+}
+
+.weapons-row[data-team="Red"] {
+    background: linear-gradient(90deg, rgba(220, 20, 60, 0.15) 0%, transparent 50%);
+    border-left: 3px solid rgba(220, 20, 60, 0.6);
+}
+
+.weapons-row[data-team="Blue"] {
+    background: linear-gradient(90deg, rgba(50, 120, 220, 0.15) 0%, transparent 50%);
+    border-left: 3px solid rgba(50, 120, 220, 0.6);
+}
+
+.weapons-player-col {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.weapons-kills-col {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.weapon-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: transparent;
+    border-radius: 4px;
+    position: relative;
+    cursor: default;
+}
+
+.weapon-badge::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    background: rgba(10, 20, 35, 0.95);
+    color: #00d9ff;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    white-space: nowrap;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 217, 255, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+    margin-bottom: 5px;
+}
+
+.weapon-badge:hover::after {
+    opacity: 1;
+}
+
+.weapon-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 3px rgba(0, 217, 255, 0.4));
+    border-radius: 3px;
+}
+
+.weapon-placeholder {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(100, 100, 100, 0.3);
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+.weapon-count {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--unsc-blue);
+    text-shadow: 0 0 6px rgba(0, 217, 255, 0.6);
+}
+
+.no-kills {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Accuracy Scoreboard */
+.accuracy-scoreboard {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.accuracy-header {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 20px;
+    padding: 12px 16px;
+    background: rgba(0, 100, 180, 0.15);
+    border-bottom: 1px solid rgba(0, 217, 255, 0.3);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--unsc-blue);
+    letter-spacing: 1px;
+}
+
+.accuracy-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 20px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    align-items: center;
+}
+
+.accuracy-row[data-team="Red"] {
+    background: linear-gradient(90deg, rgba(220, 20, 60, 0.15) 0%, transparent 50%);
+    border-left: 3px solid rgba(220, 20, 60, 0.6);
+}
+
+.accuracy-row[data-team="Blue"] {
+    background: linear-gradient(90deg, rgba(50, 120, 220, 0.15) 0%, transparent 50%);
+    border-left: 3px solid rgba(50, 120, 220, 0.6);
+}
+
+.accuracy-player-col {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.accuracy-stats-col {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.accuracy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(0, 50, 100, 0.3);
+    border: 1px solid rgba(0, 217, 255, 0.2);
+    border-radius: 4px;
+    position: relative;
+    cursor: default;
+}
+
+.accuracy-badge::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    background: rgba(10, 20, 35, 0.95);
+    color: #00d9ff;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    white-space: nowrap;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 217, 255, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+    margin-bottom: 5px;
+}
+
+.accuracy-badge:hover::after {
+    opacity: 1;
+}
+
+.weapon-icon-small {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 2px rgba(0, 217, 255, 0.3));
+    border-radius: 2px;
+}
+
+.weapon-name-small {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+.accuracy-percent {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: #00ff88;
+    text-shadow: 0 0 6px rgba(0, 255, 136, 0.5);
+}
+
+.no-data {
+    padding: 40px;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .weapons-header,
+    .weapons-row,
+    .accuracy-header,
+    .accuracy-row {
+        grid-template-columns: 140px 1fr;
+        gap: 10px;
+        padding: 10px 12px;
+    }
+    
+    .weapon-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .weapon-icon-small {
+        width: 22px;
+        height: 22px;
     }
 }
 

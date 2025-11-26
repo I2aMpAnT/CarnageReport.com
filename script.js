@@ -80,6 +80,40 @@ const medalIcons = {
     'bomb_carrier_kill': 'h2icons/Bomb Carrier Kill.bmp'
 };
 
+// Weapon icons from StrategyWiki
+const weaponIcons = {
+    'battle rifle': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/4/4e/Halo_2_BR.jpg/300px-Halo_2_BR.jpg',
+    'br': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/4/4e/Halo_2_BR.jpg/300px-Halo_2_BR.jpg',
+    'magnum': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/9/99/Halo_2_Magnum.jpg/300px-Halo_2_Magnum.jpg',
+    'pistol': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/9/99/Halo_2_Magnum.jpg/300px-Halo_2_Magnum.jpg',
+    'shotgun': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/c/c8/Halo_2_Shotgun.jpg/300px-Halo_2_Shotgun.jpg',
+    'plasma pistol': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/1/11/Halo_2_Plasma_Pistol.jpg/300px-Halo_2_Plasma_Pistol.jpg',
+    'smg': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/4/40/Halo_2_SMG.jpg/300px-Halo_2_SMG.jpg',
+    'sub machine gun': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/4/40/Halo_2_SMG.jpg/300px-Halo_2_SMG.jpg',
+    'brute shot': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/8/80/Halo_2_BS.jpg/300px-Halo_2_BS.jpg',
+    'carbine': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/d/d4/Halo_2_Carbine.jpg/300px-Halo_2_Carbine.jpg',
+    'plasma rifle': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/c/c4/Halo_2_Plasma_Rifle.jpg/300px-Halo_2_Plasma_Rifle.jpg',
+    'sniper rifle': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/5/5d/Halo_2_sniper.jpg/300px-Halo_2_sniper.jpg',
+    'sniper': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/5/5d/Halo_2_sniper.jpg/300px-Halo_2_sniper.jpg',
+    'rocket launcher': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/7/7b/Halo_2_rocket.jpg/300px-Halo_2_rocket.jpg',
+    'rockets': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/7/7b/Halo_2_rocket.jpg/300px-Halo_2_rocket.jpg',
+    'energy sword': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/a/a9/Halo_2_sword.jpg/300px-Halo_2_sword.jpg',
+    'sword': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/a/a9/Halo_2_sword.jpg/300px-Halo_2_sword.jpg',
+    'needler': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/e/ec/Halo_2_needler.jpg/300px-Halo_2_needler.jpg',
+    'beam rifle': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/b/b5/Halo_2_beam.jpg/300px-Halo_2_beam.jpg',
+    'sentinel beam': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/f/f1/Halo_2_sentinel.jpg/300px-Halo_2_sentinel.jpg',
+    'frag grenade': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/3/3e/Halo_2_frag.jpg/300px-Halo_2_frag.jpg',
+    'grenade': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/3/3e/Halo_2_frag.jpg/300px-Halo_2_frag.jpg',
+    'plasma grenade': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/5/5a/Halo_2_plasma_nade.jpg/300px-Halo_2_plasma_nade.jpg',
+    'melee': 'https://cdn.wikimg.net/en/strategywiki/images/thumb/9/99/Halo_2_Magnum.jpg/300px-Halo_2_Magnum.jpg'
+};
+
+// Helper function to get weapon icon
+function getWeaponIcon(weaponName) {
+    const key = weaponName.toLowerCase().trim();
+    return weaponIcons[key] || null;
+}
+
 // Helper function to get medal icon path
 function getMedalIcon(medalName) {
     // Convert medal name to key format (lowercase, spaces to underscores)
@@ -426,6 +460,7 @@ function renderGameContent(game) {
     html += '<div class="tab-navigation">';
     html += '<button class="tab-btn active" onclick="switchGameTab(this, \'scoreboard\')">Scoreboard</button>';
     html += '<button class="tab-btn" onclick="switchGameTab(this, \'stats\')">Detailed Stats</button>';
+    html += '<button class="tab-btn" onclick="switchGameTab(this, \'accuracy\')">Accuracy</button>';
     html += '<button class="tab-btn" onclick="switchGameTab(this, \'medals\')">Medals</button>';
     html += '<button class="tab-btn" onclick="switchGameTab(this, \'weapons\')">Weapons</button>';
     html += '<button class="tab-btn" onclick="switchGameTab(this, \'twitch\')">Twitch</button>';
@@ -437,6 +472,10 @@ function renderGameContent(game) {
     
     html += '<div class="tab-content">';
     html += renderDetailedStats(game);
+    html += '</div>';
+    
+    html += '<div class="tab-content">';
+    html += renderAccuracy(game);
     html += '</div>';
     
     html += '<div class="tab-content">';
@@ -720,18 +759,22 @@ function renderMedals(game) {
     return html;
 }
 
-function renderWeapons(game) {
+function renderAccuracy(game) {
     const weapons = game.weapons;
     const players = game.players;
     
+    if (!weapons || weapons.length === 0) {
+        return '<div class="no-data">No accuracy data available</div>';
+    }
+    
     const playerTeams = {};
     players.forEach(p => {
-        if (p.team && p.team !== 'none') {
+        if (p.team && p.team !== 'none' && p.team !== 'None') {
             playerTeams[p.name] = p.team;
         }
     });
     
-    // Sort weapons by team (Red first, then Blue)
+    // Sort by team
     const sortedWeapons = [...weapons].sort((a, b) => {
         const teamOrder = { 'Red': 0, 'Blue': 1 };
         const teamA = teamOrder[playerTeams[a.Player]] !== undefined ? teamOrder[playerTeams[a.Player]] : 2;
@@ -749,44 +792,135 @@ function renderWeapons(game) {
         weaponTypes.add(weaponName);
     });
     
-    let html = '<div class="detailed-stats">';
+    let html = '<div class="accuracy-scoreboard">';
     
-    Array.from(weaponTypes).forEach(weaponName => {
-        const killsCol = weaponCols.find(c => c.includes(weaponName) && c.includes('kills'));
-        const firedCol = weaponCols.find(c => c.includes(weaponName) && c.includes('fired'));
-        const hitCol = weaponCols.find(c => c.includes(weaponName) && c.includes('hit'));
+    // Header
+    html += '<div class="accuracy-header">';
+    html += '<div class="accuracy-player-col">PLAYER</div>';
+    html += '<div class="accuracy-stats-col">WEAPON ACCURACY</div>';
+    html += '</div>';
+    
+    // Player rows
+    sortedWeapons.forEach(weaponData => {
+        const playerName = weaponData.Player;
+        const team = playerTeams[playerName];
+        const teamAttr = team ? `data-team="${team}"` : '';
         
-        if (killsCol) {
-            html += `<div class="stats-category">${weaponName}</div>`;
-            html += '<table class="stats-table">';
-            html += '<thead><tr>';
-            html += '<th>Player</th><th>Kills</th>';
-            if (firedCol) html += '<th>Shots Fired</th>';
-            if (hitCol) html += '<th>Shots Hit</th>';
-            if (firedCol && hitCol) html += '<th>Accuracy</th>';
-            html += '</tr></thead>';
-            html += '<tbody>';
+        html += `<div class="accuracy-row" ${teamAttr}>`;
+        html += `<div class="accuracy-player-col">`;
+        html += getPlayerRankIcon(playerName, 'small');
+        html += `<span class="player-name-text">${playerName}</span>`;
+        html += `</div>`;
+        html += `<div class="accuracy-stats-col">`;
+        
+        // Show accuracy for each weapon with data
+        Array.from(weaponTypes).forEach(weaponName => {
+            const firedCol = weaponCols.find(c => c.includes(weaponName) && c.toLowerCase().includes('fired'));
+            const hitCol = weaponCols.find(c => c.includes(weaponName) && c.toLowerCase().includes('hit'));
             
-            sortedWeapons.forEach(weapon => {
-                const team = playerTeams[weapon.Player];
-                const teamAttr = team ? `data-team="${team}"` : '';
+            if (firedCol && hitCol) {
+                const fired = parseInt(weaponData[firedCol]) || 0;
+                const hit = parseInt(weaponData[hitCol]) || 0;
                 
-                const kills = weapon[killsCol] || 0;
-                const fired = weapon[firedCol] || 0;
-                const hit = weapon[hitCol] || 0;
-                const accuracy = fired > 0 ? ((hit / fired) * 100).toFixed(1) : '0.0';
-                
-                html += `<tr ${teamAttr}>`;
-                html += `<td><span class="player-with-rank">${getPlayerRankIcon(weapon.Player, 'small')}<span>${weapon.Player}</span></span></td>`;
-                html += `<td>${kills}</td>`;
-                if (firedCol) html += `<td>${fired}</td>`;
-                if (hitCol) html += `<td>${hit}</td>`;
-                if (firedCol && hitCol) html += `<td>${accuracy}%</td>`;
-                html += `</tr>`;
-            });
-            
-            html += '</tbody></table>';
+                if (fired > 0) {
+                    const accuracy = ((hit / fired) * 100).toFixed(1);
+                    const iconUrl = getWeaponIcon(weaponName);
+                    
+                    html += `<div class="accuracy-badge" title="${weaponName}: ${hit}/${fired} shots">`;
+                    if (iconUrl) {
+                        html += `<img src="${iconUrl}" alt="${weaponName}" class="weapon-icon-small">`;
+                    } else {
+                        html += `<span class="weapon-name-small">${weaponName}</span>`;
+                    }
+                    html += `<span class="accuracy-percent">${accuracy}%</span>`;
+                    html += `</div>`;
+                }
+            }
+        });
+        
+        html += `</div>`;
+        html += `</div>`;
+    });
+    
+    html += '</div>';
+    return html;
+}
+
+function renderWeapons(game) {
+    const weapons = game.weapons;
+    const players = game.players;
+    
+    if (!weapons || weapons.length === 0) {
+        return '<div class="no-data">No weapon data available</div>';
+    }
+    
+    const playerTeams = {};
+    players.forEach(p => {
+        if (p.team && p.team !== 'none' && p.team !== 'None') {
+            playerTeams[p.name] = p.team;
         }
+    });
+    
+    // Sort by team
+    const sortedWeapons = [...weapons].sort((a, b) => {
+        const teamOrder = { 'Red': 0, 'Blue': 1 };
+        const teamA = teamOrder[playerTeams[a.Player]] !== undefined ? teamOrder[playerTeams[a.Player]] : 2;
+        const teamB = teamOrder[playerTeams[b.Player]] !== undefined ? teamOrder[playerTeams[b.Player]] : 2;
+        return teamA - teamB;
+    });
+    
+    // Get all weapon columns with kills
+    const weaponCols = Object.keys(weapons[0] || {}).filter(k => k !== 'Player');
+    const killCols = weaponCols.filter(c => c.toLowerCase().includes('kills'));
+    
+    let html = '<div class="weapons-scoreboard">';
+    
+    // Header
+    html += '<div class="weapons-header">';
+    html += '<div class="weapons-player-col">PLAYER</div>';
+    html += '<div class="weapons-kills-col">WEAPON KILLS</div>';
+    html += '</div>';
+    
+    // Player rows
+    sortedWeapons.forEach(weaponData => {
+        const playerName = weaponData.Player;
+        const team = playerTeams[playerName];
+        const teamAttr = team ? `data-team="${team}"` : '';
+        
+        html += `<div class="weapons-row" ${teamAttr}>`;
+        html += `<div class="weapons-player-col">`;
+        html += getPlayerRankIcon(playerName, 'small');
+        html += `<span class="player-name-text">${playerName}</span>`;
+        html += `</div>`;
+        html += `<div class="weapons-kills-col">`;
+        
+        let hasKills = false;
+        
+        // Show kills for each weapon
+        killCols.forEach(killCol => {
+            const kills = parseInt(weaponData[killCol]) || 0;
+            if (kills > 0) {
+                hasKills = true;
+                const weaponName = killCol.replace(/ kills/gi, '').trim();
+                const iconUrl = getWeaponIcon(weaponName);
+                
+                html += `<div class="weapon-badge" title="${weaponName}">`;
+                if (iconUrl) {
+                    html += `<img src="${iconUrl}" alt="${weaponName}" class="weapon-icon">`;
+                } else {
+                    html += `<span class="weapon-placeholder">${weaponName.substring(0, 2).toUpperCase()}</span>`;
+                }
+                html += `<span class="weapon-count">x${kills}</span>`;
+                html += `</div>`;
+            }
+        });
+        
+        if (!hasKills) {
+            html += `<span class="no-kills">No kills</span>`;
+        }
+        
+        html += `</div>`;
+        html += `</div>`;
     });
     
     html += '</div>';
