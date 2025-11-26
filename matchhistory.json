@@ -1,5 +1,5 @@
 {
-  "total_ranked_matches": 4,
+  "total_ranked_matches": 5,
   "total_test_matches": 0,
   "matches": [
     {
@@ -228,6 +228,79 @@
       "match_id": 1,
       "timestamp": "2025-11-26T12:04:28.394101",
       "timestamp_display": "2025-11-26 12:04:28",
+      "winner": "BLUE",
+      "final_score": {
+        "red": 3,
+        "blue": 4
+      },
+      "teams_final": {
+        "red": {
+          "players": [
+            740276491618746419,
+            155302533345050624,
+            173928028173369345,
+            156973309722886144
+          ],
+          "voice_channel_id": 1443179871798038620
+        },
+        "blue": {
+          "players": [
+            653079696552099849,
+            1371933711607533680,
+            334212655613214721,
+            1222926448084520970
+          ],
+          "voice_channel_id": 1443179875274854473
+        }
+      },
+      "games": [
+        {
+          "game_number": 1,
+          "winner": "RED",
+          "loser": "BLUE"
+        },
+        {
+          "game_number": 2,
+          "winner": "RED",
+          "loser": "BLUE"
+        },
+        {
+          "game_number": 3,
+          "winner": "RED",
+          "loser": "BLUE"
+        },
+        {
+          "game_number": 4,
+          "winner": "BLUE",
+          "loser": "RED"
+        },
+        {
+          "game_number": 5,
+          "winner": "BLUE",
+          "loser": "RED"
+        },
+        {
+          "game_number": 6,
+          "winner": "BLUE",
+          "loser": "RED"
+        },
+        {
+          "game_number": 7,
+          "winner": "BLUE",
+          "loser": "RED"
+        }
+      ],
+      "total_games_played": 7,
+      "stats_recorded": true,
+      "swap_history": []
+    },
+    {
+      "type": "SERIES",
+      "match_type": "RANKED",
+      "series_label": "Series 1",
+      "match_id": 1,
+      "timestamp": "2025-11-26T12:04:30.004776",
+      "timestamp_display": "2025-11-26 12:04:30",
       "winner": "BLUE",
       "final_score": {
         "red": 3,
