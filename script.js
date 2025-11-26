@@ -316,10 +316,12 @@ function createGameItem(game, gameNumber) {
             .join(' - ');
         teamScoreDisplay = `<span class="game-meta-tag ${scoreTagClass}">${teamScores}</span>`;
     } else {
-        // FFA game - find winner by place
-        const winner = players.find(p => p.place === '1st');
+        // FFA game - find winner by place or highest score
+        const sortedPlayers = [...players].sort((a, b) => (parseInt(b.score) || 0) - (parseInt(a.score) || 0));
+        const winner = players.find(p => p.place === '1st') || sortedPlayers[0];
         if (winner) {
             winnerClass = 'winner-ffa';
+            teamScoreDisplay = `<span class="game-meta-tag score-tag-ffa">${winner.name}: ${winner.score}</span>`;
         }
     }
     
@@ -696,9 +698,9 @@ function renderMedals(game) {
                 }
                 html += `</div>`;
             } else {
-                // Fallback for unknown medals
+                // Fallback for unknown medals - show ? icon with tooltip
                 html += `<div class="medal-badge medal-unknown" title="${medalName}">`;
-                html += `<span class="medal-fallback">${medalName}</span>`;
+                html += `<span class="medal-placeholder">?</span>`;
                 if (count > 1) {
                     html += `<span class="medal-count">x${count}</span>`;
                 }

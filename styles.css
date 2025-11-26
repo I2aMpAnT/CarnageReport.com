@@ -395,6 +395,14 @@ header {
     text-shadow: 0 0 6px rgba(220, 20, 60, 0.8);
 }
 
+.game-meta-tag.score-tag-ffa {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4), inset 0 0 8px rgba(255, 255, 255, 0.2);
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
 .expand-icon {
     font-family: 'Orbitron', sans-serif;
     font-size: 24px;
@@ -1505,11 +1513,42 @@ header {
     border-radius: 4px;
     border: none;
     transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
 }
 
 .medal-badge:hover {
     background: rgba(0, 217, 255, 0.15);
     transform: translateY(-2px);
+}
+
+/* Custom tooltip for medals */
+.medal-badge::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(10, 20, 35, 0.95);
+    color: #00d9ff;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(0, 217, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+    z-index: 100;
+    pointer-events: none;
+}
+
+.medal-badge:hover::after {
+    opacity: 1;
+    visibility: visible;
+    bottom: calc(100% + 5px);
 }
 
 .medal-icon {
@@ -1531,11 +1570,18 @@ header {
     background: rgba(100, 100, 100, 0.3);
 }
 
-.medal-fallback {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 10px;
+.medal-placeholder {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--text-secondary);
-    text-transform: uppercase;
+    background: rgba(100, 100, 100, 0.4);
+    border-radius: 4px;
 }
 
 .no-medals {
