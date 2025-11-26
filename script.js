@@ -2302,6 +2302,10 @@ function renderProfileStats(stats) {
             <div class="stat-value">${stats.winRate}%</div>
             <div class="stat-label">Win Rate</div>
         </div>
+        <div class="profile-stat-card highlight">
+            <div class="stat-value">${stats.kd}</div>
+            <div class="stat-label">K/D Ratio</div>
+        </div>
         <div class="profile-stat-card clickable-stat" onclick="showWeaponBreakdown()">
             <div class="stat-value">${stats.kills}</div>
             <div class="stat-label">Total Kills</div>
@@ -2310,17 +2314,9 @@ function renderProfileStats(stats) {
             <div class="stat-value">${stats.deaths}</div>
             <div class="stat-label">Total Deaths</div>
         </div>
-        <div class="profile-stat-card highlight">
-            <div class="stat-value">${stats.kd}</div>
-            <div class="stat-label">K/D Ratio</div>
-        </div>
         <div class="profile-stat-card">
             <div class="stat-value">${stats.kpg}</div>
             <div class="stat-label">Kills/Game</div>
-        </div>
-        <div class="profile-stat-card">
-            <div class="stat-value">${stats.avgScore}</div>
-            <div class="stat-label">Avg Score</div>
         </div>
     `;
 }
