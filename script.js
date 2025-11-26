@@ -285,69 +285,47 @@ function createGameItem(game, gameNumber) {
     // Get map image for background
     const mapImage = mapImages[mapName] || defaultMapImage;
     
-    // Check if this is an Oddball game (use ball time instead of score)
-    const isOddball = displayGameType.toLowerCase().includes('oddball') || 
-                      displayGameType.toLowerCase().includes('ball');
-    
     // Calculate team scores for team games
     let teamScoreDisplay = '';
     const teams = {};
     players.forEach(player => {
         const team = player.team;
-        if (team && team !== 'None') {
+        if (team && team !== 'None' && team !== 'none' && team !== '') {
             if (!teams[team]) {
                 teams[team] = 0;
             }
-            // For Oddball, use ball time; otherwise use score
-            if (isOddball && player.ball_time) {
-                // Parse ball time (format like "1:23" or "0:45")
-                const timeParts = player.ball_time.split(':');
-                const seconds = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1] || 0);
-                teams[team] += seconds;
-            } else {
-                teams[team] += parseInt(player.score) || 0;
-            }
+            teams[team] += parseInt(player.score) || 0;
         }
     });
     
     // Determine winner
     let winnerClass = '';
     let scoreTagClass = '';
-    if (Object.keys(teams).length > 0) {
+    
+    if (Object.keys(teams).length > 1) {
         // Team game - find winning team
         const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
         if (sortedTeams.length > 0 && sortedTeams[0][1] > 0) {
             const winningTeam = sortedTeams[0][0].toLowerCase();
-            if (sortedTeams.length === 1 || sortedTeams[0][1] > sortedTeams[1][1]) {
+            if (sortedTeams[0][1] > sortedTeams[1][1]) {
                 winnerClass = `winner-${winningTeam}`;
                 scoreTagClass = `score-tag-${winningTeam}`;
             }
             // If it's a tie, no winner highlighting
         }
         
-        // For display, convert back to time format for Oddball
-        let teamScores;
-        if (isOddball) {
-            teamScores = sortedTeams
-                .map(([team, seconds]) => {
-                    const mins = Math.floor(seconds / 60);
-                    const secs = seconds % 60;
-                    return `${team}: ${mins}:${secs.toString().padStart(2, '0')}`;
-                })
-                .join(' - ');
-        } else {
-            teamScores = sortedTeams
-                .map(([team, score]) => `${team}: ${score}`)
-                .join(' - ');
-        }
+        const teamScores = sortedTeams
+            .map(([team, score]) => `${team}: ${score}`)
+            .join(' - ');
         teamScoreDisplay = `<span class="game-meta-tag ${scoreTagClass}">${teamScores}</span>`;
     } else {
-        // FFA game - find winner by place or highest score
+        // FFA game - find winner by highest score
         const sortedPlayers = [...players].sort((a, b) => (parseInt(b.score) || 0) - (parseInt(a.score) || 0));
-        const winner = players.find(p => p.place === '1st') || sortedPlayers[0];
-        if (winner) {
+        if (sortedPlayers.length > 0 && sortedPlayers[0]) {
+            const winner = sortedPlayers[0];
             winnerClass = 'winner-ffa';
-            teamScoreDisplay = `<span class="game-meta-tag score-tag-ffa">${winner.name}: ${winner.score}</span>`;
+            scoreTagClass = 'score-tag-ffa';
+            teamScoreDisplay = `<span class="game-meta-tag ${scoreTagClass}">${winner.name}: ${winner.score}</span>`;
         }
     }
     
