@@ -2275,6 +2275,70 @@ function closeWeaponBreakdown() {
     }
 }
 
+function showMedalBreakdown() {
+    if (!currentProfilePlayer) return;
+    
+    // Calculate medal stats for the player
+    const medalStats = {};
+    
+    currentProfileGames.forEach(game => {
+        const player = game.players.find(p => p.name === currentProfilePlayer);
+        if (player && player.medals) {
+            Object.entries(player.medals).forEach(([medal, count]) => {
+                const medalCount = parseInt(count) || 0;
+                if (medalCount > 0) {
+                    medalStats[medal] = (medalStats[medal] || 0) + medalCount;
+                }
+            });
+        }
+    });
+    
+    // Sort by most earned
+    const sortedMedals = Object.entries(medalStats).sort((a, b) => b[1] - a[1]);
+    
+    // Create modal to show medal breakdown
+    let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
+    html += '<div class="weapon-breakdown-modal" onclick="event.stopPropagation()">';
+    html += `<div class="weapon-breakdown-header">`;
+    html += `<h2>${currentProfilePlayer} - Medal Breakdown</h2>`;
+    html += `<button class="modal-close" onclick="closeMedalBreakdown()">&times;</button>`;
+    html += `</div>`;
+    html += '<div class="weapon-breakdown-grid">';
+    
+    sortedMedals.forEach(([medal, count]) => {
+        const iconUrl = medalIcons[medal] || medalIcons[medal.toLowerCase()];
+        const percentage = ((count / Object.values(medalStats).reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+        
+        html += `<div class="weapon-breakdown-item">`;
+        if (iconUrl) {
+            html += `<img src="assets/medals/${iconUrl}" alt="${medal}" class="weapon-breakdown-icon">`;
+        } else {
+            html += `<div class="weapon-breakdown-placeholder">${medal.substring(0, 2).toUpperCase()}</div>`;
+        }
+        html += `<div class="weapon-breakdown-info">`;
+        html += `<div class="weapon-breakdown-name">${formatMedalName(medal)}</div>`;
+        html += `<div class="weapon-breakdown-stats">${count} medals (${percentage}%)</div>`;
+        html += `</div>`;
+        html += `</div>`;
+    });
+    
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+    
+    // Add to page
+    const overlay = document.createElement('div');
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay.firstChild);
+}
+
+function closeMedalBreakdown() {
+    const overlay = document.querySelector('.weapon-breakdown-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
 // ==================== PLAYER PROFILE FUNCTIONS ====================
 
 function openPlayerProfile(playerName) {
@@ -2312,7 +2376,7 @@ function closePlayerProfile() {
 }
 
 function calculatePlayerOverallStats(playerName) {
-    let games = 0, wins = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0;
+    let games = 0, wins = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
     
     gamesData.forEach(game => {
         const player = game.players.find(p => p.name === playerName);
@@ -2322,6 +2386,13 @@ function calculatePlayerOverallStats(playerName) {
             deaths += player.deaths || 0;
             assists += player.assists || 0;
             totalScore += parseInt(player.score) || 0;
+            
+            // Count total medals
+            if (player.medals) {
+                Object.values(player.medals).forEach(count => {
+                    totalMedals += parseInt(count) || 0;
+                });
+            }
             
             // Check if player won
             const hasTeams = game.players.some(p => isValidTeam(p.team));
@@ -2361,7 +2432,8 @@ function calculatePlayerOverallStats(playerName) {
         kpg: games > 0 ? (kills / games).toFixed(1) : 0,
         dpg: games > 0 ? (deaths / games).toFixed(1) : 0,
         totalScore,
-        avgScore: games > 0 ? Math.round(totalScore / games) : 0
+        avgScore: games > 0 ? Math.round(totalScore / games) : 0,
+        totalMedals
     };
 }
 
@@ -2399,6 +2471,10 @@ function renderProfileStats(stats) {
         <div class="profile-stat-card">
             <div class="stat-value">${stats.kpg}</div>
             <div class="stat-label">Kills/Game</div>
+        </div>
+        <div class="profile-stat-card clickable-stat" onclick="showMedalBreakdown()">
+            <div class="stat-value">${stats.totalMedals}</div>
+            <div class="stat-label">Total Medals</div>
         </div>
     `;
 }
