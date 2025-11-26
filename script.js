@@ -36,6 +36,54 @@ const mapImages = {
 // Default map image if not found
 const defaultMapImage = 'mapimages/Midship.jpeg';
 
+// Medal icons - local files from h2icons folder (25 medals)
+const medalIcons = {
+    // Kill streaks (within 4 seconds)
+    'double_kill': 'h2icons/Double Kill.png',
+    'triple_kill': 'h2icons/Triple Kill.png',
+    'killtacular': 'h2icons/Killtacular.png',
+    'kill_frenzy': 'h2icons/Kill Frenzy.png',
+    'killtrocity': 'h2icons/Killtrocity.png',
+    'killamanjaro': 'h2icons/Killamanjaro.png',
+    
+    // Spree medals (kills without dying)
+    'killing_spree': 'h2icons/Killing Spree.png',
+    'running_riot': 'h2icons/Running Riot.png',
+    'rampage': 'h2icons/Rampage.png',
+    'berserker': 'h2icons/Berserker.png',
+    'overkill': 'h2icons/Overkill.png',
+    
+    // Special kills
+    'assassin': 'h2icons/Assassin.png',
+    'assassinate': 'h2icons/Assassin.png',
+    'bonecracker': 'h2icons/Bonecracker.png',
+    'sniper_kill': 'h2icons/Sniper Kill.png',
+    'stick_it': 'h2icons/Stick It.png',
+    'stick': 'h2icons/Stick It.png',
+    'roadkill': 'h2icons/Roadkill.png',
+    'splatter': 'h2icons/Roadkill.png',
+    'carjacking': 'h2icons/Carjacking.png',
+    
+    // Flag objectives
+    'flag_taken': 'h2icons/Flag Taken.png',
+    'flag_captured': 'h2icons/Flag Captured.png',
+    'flag_returned': 'h2icons/Flag Returned.png',
+    'flag_carrier_kill': 'h2icons/Flag Carrier Kill.png',
+    
+    // Bomb objectives
+    'bomb_planted': 'h2icons/Bomb Planted.png',
+    'bomb_taken': 'h2icons/Bomb Taken.png',
+    'bomb_returned': 'h2icons/Bomb Returned.png',
+    'bomb_carrier_kill': 'h2icons/Bomb Carrier Kill.png'
+};
+
+// Helper function to get medal icon path
+function getMedalIcon(medalName) {
+    // Convert medal name to key format (lowercase, spaces to underscores)
+    const key = medalName.toLowerCase().replace(/\s+/g, '_');
+    return medalIcons[key] || null;
+}
+
 // Generate random ranks for all players
 function generatePlayerRanks() {
     const allPlayers = new Set();
@@ -231,6 +279,9 @@ function createGameItem(game, gameNumber) {
     let mapName = details['Map Name'] || 'Unknown Map';
     let duration = details['Duration'] || '0:00';
     
+    // Get map image for background
+    const mapImage = mapImages[mapName] || defaultMapImage;
+    
     // Calculate team scores for team games
     let teamScoreDisplay = '';
     const teams = {};
@@ -254,7 +305,7 @@ function createGameItem(game, gameNumber) {
     }
     
     gameDiv.innerHTML = `
-        <div class="game-header-bar" onclick="toggleGameDetails(${gameNumber})">
+        <div class="game-header-bar" onclick="toggleGameDetails(${gameNumber})" style="--map-bg: url('${mapImage}')">
             <div class="game-header-left">
                 <div class="game-number">${displayGameType}</div>
                 <div class="game-info">
@@ -590,37 +641,48 @@ function renderMedals(game) {
         return teamA - teamB;
     });
     
-    const medalTypes = new Set();
-    medals.forEach(m => {
-        Object.keys(m).forEach(key => {
-            if (key !== 'player') medalTypes.add(key);
-        });
-    });
+    let html = '<div class="medals-display">';
     
-    let html = '<div class="detailed-stats">';
-    html += '<table class="stats-table">';
-    html += '<thead><tr>';
-    html += '<th>Player</th>';
-    
-    Array.from(medalTypes).sort().forEach(medal => {
-        html += `<th>${formatMedalName(medal)}</th>`;
-    });
-    html += '</tr></thead>';
-    html += '<tbody>';
-    
-    sortedMedals.forEach(medal => {
-        const team = playerTeams[medal.player];
-        const teamAttr = team ? `data-team="${team}"` : '';
+    sortedMedals.forEach(playerMedals => {
+        const team = playerTeams[playerMedals.player];
+        const teamClass = team ? `team-${team.toLowerCase()}` : '';
         
-        html += `<tr ${teamAttr}>`;
-        html += `<td><span class="player-with-rank">${getPlayerRankIcon(medal.player, 'small')}<span>${medal.player}</span></span></td>`;
-        Array.from(medalTypes).sort().forEach(type => {
-            html += `<td>${medal[type] || 0}</td>`;
+        html += `<div class="player-medals-row ${teamClass}">`;
+        html += `<div class="player-medals-name">`;
+        html += getPlayerRankIcon(playerMedals.player, 'small');
+        html += `<span>${playerMedals.player}</span>`;
+        html += `</div>`;
+        html += `<div class="player-medals-icons">`;
+        
+        // Get all medals for this player (excluding the 'player' key)
+        Object.entries(playerMedals).forEach(([medalKey, count]) => {
+            if (medalKey === 'player' || count === 0) return;
+            
+            const iconPath = getMedalIcon(medalKey);
+            const medalName = formatMedalName(medalKey);
+            
+            if (iconPath) {
+                html += `<div class="medal-item" title="${medalName}">`;
+                html += `<img src="${iconPath}" alt="${medalName}" class="medal-icon">`;
+                if (count > 1) {
+                    html += `<span class="medal-count">x${count}</span>`;
+                }
+                html += `</div>`;
+            } else {
+                // Fallback if no icon found - show text
+                html += `<div class="medal-item medal-text" title="${medalName}">`;
+                html += `<span class="medal-name-fallback">${medalName}</span>`;
+                if (count > 1) {
+                    html += `<span class="medal-count">x${count}</span>`;
+                }
+                html += `</div>`;
+            }
         });
-        html += `</tr>`;
+        
+        html += `</div>`;
+        html += `</div>`;
     });
     
-    html += '</tbody></table>';
     html += '</div>';
     return html;
 }
@@ -1569,5 +1631,3 @@ document.addEventListener('click', function(e) {
         closePlayerModal();
     }
 });
-
-
