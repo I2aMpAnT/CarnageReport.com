@@ -36,25 +36,28 @@
             </div>
 
             <div id="main-tab-gamehistory" class="main-tab-content" style="display: block;">
-                <!-- Sorting Controls -->
-                <div class="sort-controls">
-                    <span class="sort-label">Sort by:</span>
-                    <select id="sortBy" class="sort-select" onchange="sortGames()">
-                        <option value="date-desc">Date (Newest)</option>
-                        <option value="date-asc">Date (Oldest)</option>
-                        <option value="map">Map</option>
-                        <option value="gametype">Game Type</option>
-                    </select>
-                    <span class="sort-label">Filter:</span>
-                    <div class="filter-search-box">
-                        <input type="text" id="filterMapInput" class="filter-input" placeholder="All Maps" onfocus="showFilterDropdown('map')" oninput="filterDropdownOptions('map')">
-                        <div id="filterMapDropdown" class="filter-dropdown"></div>
+                <!-- Header with controls -->
+                <div class="games-header-bar">
+                    <h2 class="games-title">Recent Games</h2>
+                    <div class="sort-controls">
+                        <span class="sort-label">Sort by:</span>
+                        <select id="sortBy" class="sort-select" onchange="sortGames()">
+                            <option value="date-desc">Date (Newest)</option>
+                            <option value="date-asc">Date (Oldest)</option>
+                            <option value="map">Map</option>
+                            <option value="gametype">Game Type</option>
+                        </select>
+                        <span class="sort-label">Filter:</span>
+                        <div class="filter-search-box">
+                            <input type="text" id="filterMapInput" class="filter-input" placeholder="All Maps" onfocus="showFilterDropdown('map')" oninput="filterDropdownOptions('map')">
+                            <div id="filterMapDropdown" class="filter-dropdown"></div>
+                        </div>
+                        <div class="filter-search-box">
+                            <input type="text" id="filterGametypeInput" class="filter-input" placeholder="All Game Types" onfocus="showFilterDropdown('gametype')" oninput="filterDropdownOptions('gametype')">
+                            <div id="filterGametypeDropdown" class="filter-dropdown"></div>
+                        </div>
+                        <button class="clear-filters-btn" onclick="clearAllFilters()">CLEAR</button>
                     </div>
-                    <div class="filter-search-box">
-                        <input type="text" id="filterGametypeInput" class="filter-input" placeholder="All Game Types" onfocus="showFilterDropdown('gametype')" oninput="filterDropdownOptions('gametype')">
-                        <div id="filterGametypeDropdown" class="filter-dropdown"></div>
-                    </div>
-                    <button class="clear-filters-btn" onclick="clearAllFilters()">Clear</button>
                 </div>
                 <div class="game-list" id="gamesList"></div>
             </div>
