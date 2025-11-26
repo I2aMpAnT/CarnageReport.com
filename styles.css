@@ -844,6 +844,178 @@ header {
     border-left: 6px solid #5599ff;
 }
 
+/* PVP Kill Matrix Styles */
+.pvp-matrix {
+    background: rgba(10, 14, 23, 0.8);
+    border: 1px solid rgba(0, 217, 255, 0.3);
+    overflow-x: auto;
+    padding: 15px;
+}
+
+.pvp-header {
+    border-bottom: 2px solid rgba(0, 217, 255, 0.4);
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+}
+
+.pvp-corner {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+
+.pvp-col-header {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    padding: 5px 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pvp-col-header.red {
+    color: #ff6b6b;
+}
+
+.pvp-col-header.blue {
+    color: #6bb3ff;
+}
+
+.pvp-row {
+    border-bottom: 1px solid rgba(0, 217, 255, 0.1);
+    transition: background 0.2s ease;
+}
+
+.pvp-row:hover {
+    background: rgba(0, 217, 255, 0.05);
+}
+
+.pvp-row.red {
+    background: linear-gradient(90deg, rgba(180, 30, 30, 0.15) 0%, transparent 50%);
+}
+
+.pvp-row.blue {
+    background: linear-gradient(90deg, rgba(30, 80, 180, 0.15) 0%, transparent 50%);
+}
+
+.pvp-row.red:hover {
+    background: linear-gradient(90deg, rgba(180, 30, 30, 0.25) 0%, rgba(0, 217, 255, 0.05) 50%);
+}
+
+.pvp-row.blue:hover {
+    background: linear-gradient(90deg, rgba(30, 80, 180, 0.25) 0%, rgba(0, 217, 255, 0.05) 50%);
+}
+
+.pvp-row-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 5px;
+    font-weight: 500;
+}
+
+.pvp-row-header .player-name-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pvp-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 2px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.pvp-cell.pvp-self {
+    color: #444;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.pvp-cell.pvp-teammate {
+    color: #555;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 0, 0, 0.1) 3px,
+        rgba(0, 0, 0, 0.1) 6px
+    );
+}
+
+.pvp-cell.pvp-cool {
+    color: #7eb8da;
+    text-shadow: 0 0 5px rgba(126, 184, 218, 0.3);
+}
+
+.pvp-cell.pvp-warm {
+    color: #ffaa00;
+    text-shadow: 0 0 8px rgba(255, 170, 0, 0.4);
+    font-weight: 600;
+}
+
+.pvp-cell.pvp-hot {
+    color: #ff4444;
+    text-shadow: 0 0 12px rgba(255, 68, 68, 0.6);
+    font-weight: 700;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { text-shadow: 0 0 12px rgba(255, 68, 68, 0.6); }
+    50% { text-shadow: 0 0 20px rgba(255, 68, 68, 0.9); }
+}
+
+.pvp-legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+.pvp-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.pvp-legend-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.pvp-legend-box.pvp-hot {
+    background: rgba(255, 68, 68, 0.4);
+    border-color: #ff4444;
+}
+
+.pvp-legend-box.pvp-warm {
+    background: rgba(255, 170, 0, 0.3);
+    border-color: #ffaa00;
+}
+
+.pvp-legend-box.pvp-cool {
+    background: rgba(126, 184, 218, 0.2);
+    border-color: #7eb8da;
+}
+
 .players-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

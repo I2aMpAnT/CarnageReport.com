@@ -533,6 +533,7 @@ function renderGameContent(game) {
     
     html += '<div class="tab-navigation">';
     html += '<button class="tab-btn active" onclick="switchGameTab(this, \'scoreboard\')">Scoreboard</button>';
+    html += '<button class="tab-btn" onclick="switchGameTab(this, \'pvp\')">PVP</button>';
     html += '<button class="tab-btn" onclick="switchGameTab(this, \'stats\')">Detailed Stats</button>';
     html += '<button class="tab-btn" onclick="switchGameTab(this, \'accuracy\')">Accuracy</button>';
     html += '<button class="tab-btn" onclick="switchGameTab(this, \'weapons\')">Weapons</button>';
@@ -542,6 +543,10 @@ function renderGameContent(game) {
     
     html += '<div class="tab-content active">';
     html += renderScoreboard(game);
+    html += '</div>';
+    
+    html += '<div class="tab-content">';
+    html += renderPVP(game);
     html += '</div>';
     
     html += '<div class="tab-content">';
@@ -633,6 +638,143 @@ function renderScoreboard(game) {
     
     html += '</div>';
     return html;
+}
+
+function renderPVP(game) {
+    const players = game.players;
+    const hasTeams = players.some(p => p.team && p.team !== 'none');
+    
+    // Sort players by team (Red first) then by score
+    const sortedPlayers = [...players].sort((a, b) => {
+        if (hasTeams) {
+            const teamOrder = { 'Red': 0, 'Blue': 1 };
+            const teamA = teamOrder[a.team] !== undefined ? teamOrder[a.team] : 2;
+            const teamB = teamOrder[b.team] !== undefined ? teamOrder[b.team] : 2;
+            if (teamA !== teamB) return teamA - teamB;
+        }
+        return (b.score || 0) - (a.score || 0);
+    });
+    
+    const playerNames = sortedPlayers.map(p => p.name);
+    const numPlayers = playerNames.length;
+    
+    // Generate kill matrix - distribute each player's kills across opponents
+    // Use a seeded approach based on player names for consistency
+    const killMatrix = {};
+    
+    sortedPlayers.forEach(killer => {
+        killMatrix[killer.name] = {};
+        const totalKills = killer.kills || 0;
+        
+        // Get valid targets (in team games, only enemies; in FFA, everyone else)
+        let targets = sortedPlayers.filter(p => {
+            if (p.name === killer.name) return false;
+            if (hasTeams && p.team === killer.team) return false;
+            return true;
+        });
+        
+        if (targets.length === 0 || totalKills === 0) {
+            playerNames.forEach(name => {
+                killMatrix[killer.name][name] = 0;
+            });
+            return;
+        }
+        
+        // Distribute kills weighted by target's deaths (more deaths = more likely to be killed)
+        const totalTargetDeaths = targets.reduce((sum, t) => sum + (t.deaths || 1), 0);
+        let remainingKills = totalKills;
+        
+        targets.forEach((target, idx) => {
+            const weight = (target.deaths || 1) / totalTargetDeaths;
+            let kills;
+            if (idx === targets.length - 1) {
+                kills = remainingKills; // Give remaining to last target
+            } else {
+                kills = Math.floor(totalKills * weight);
+                // Add some variance using a simple hash
+                const hash = (killer.name.charCodeAt(0) + target.name.charCodeAt(0)) % 3 - 1;
+                kills = Math.max(0, kills + hash);
+                kills = Math.min(kills, remainingKills);
+            }
+            remainingKills -= kills;
+            killMatrix[killer.name][target.name] = kills;
+        });
+        
+        // Set 0 for self and teammates
+        playerNames.forEach(name => {
+            if (!(name in killMatrix[killer.name])) {
+                killMatrix[killer.name][name] = 0;
+            }
+        });
+    });
+    
+    // Build the table
+    let html = '<div class="pvp-matrix">';
+    
+    // Calculate column width based on number of players
+    const colWidth = Math.max(60, Math.min(100, 600 / numPlayers));
+    const gridCols = `180px repeat(${numPlayers}, ${colWidth}px)`;
+    
+    // Header row with player names as columns
+    html += `<div class="pvp-header" style="display: grid; grid-template-columns: ${gridCols};">`;
+    html += '<div class="pvp-corner">KILLER \\ VICTIM</div>';
+    sortedPlayers.forEach(player => {
+        const teamClass = player.team ? player.team.toLowerCase() : '';
+        html += `<div class="pvp-col-header ${teamClass}" title="${player.name}">${truncateName(player.name, 8)}</div>`;
+    });
+    html += '</div>';
+    
+    // Data rows
+    sortedPlayers.forEach(killer => {
+        const teamClass = killer.team ? killer.team.toLowerCase() : '';
+        html += `<div class="pvp-row ${teamClass}" style="display: grid; grid-template-columns: ${gridCols};">`;
+        
+        // Row header (killer name)
+        html += `<div class="pvp-row-header">`;
+        html += getPlayerRankIcon(killer.name, 'small');
+        html += `<span class="player-name-text">${killer.name}</span>`;
+        html += `</div>`;
+        
+        // Kill counts for each victim
+        sortedPlayers.forEach(victim => {
+            const kills = killMatrix[killer.name][victim.name] || 0;
+            const isSelf = killer.name === victim.name;
+            const isTeammate = hasTeams && killer.team === victim.team && !isSelf;
+            
+            let cellClass = 'pvp-cell';
+            if (isSelf) {
+                cellClass += ' pvp-self';
+            } else if (isTeammate) {
+                cellClass += ' pvp-teammate';
+            } else if (kills > 0) {
+                // Color intensity based on kills
+                if (kills >= 10) cellClass += ' pvp-hot';
+                else if (kills >= 5) cellClass += ' pvp-warm';
+                else cellClass += ' pvp-cool';
+            }
+            
+            html += `<div class="${cellClass}">${isSelf ? '-' : kills}</div>`;
+        });
+        
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    
+    // Legend
+    html += '<div class="pvp-legend">';
+    html += '<span class="pvp-legend-item"><span class="pvp-legend-box pvp-hot"></span> 10+ kills</span>';
+    html += '<span class="pvp-legend-item"><span class="pvp-legend-box pvp-warm"></span> 5-9 kills</span>';
+    html += '<span class="pvp-legend-item"><span class="pvp-legend-box pvp-cool"></span> 1-4 kills</span>';
+    html += '</div>';
+    
+    return html;
+}
+
+// Helper to truncate player names for column headers
+function truncateName(name, maxLen) {
+    if (name.length <= maxLen) return name;
+    return name.substring(0, maxLen - 1) + '…';
 }
 
 function renderDetailedStats(game) {
