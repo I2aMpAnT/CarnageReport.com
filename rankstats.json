@@ -458,5 +458,15 @@
     "total_games": 0,
     "total_series": 0,
     "mmr": 1500
+  },
+  "1126793395461951549": {
+    "xp": 0,
+    "wins": 0,
+    "losses": 0,
+    "series_wins": 0,
+    "series_losses": 0,
+    "total_games": 0,
+    "total_series": 0,
+    "mmr": 1500
   }
 }
