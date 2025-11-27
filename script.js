@@ -1717,12 +1717,16 @@ function closeSearchResults() {
 
 function renderPlayerSearchResults(playerName) {
     const stats = calculatePlayerStats(playerName);
-    const playerGames = gamesData.filter(game => 
+    const playerGames = gamesData.filter(game =>
         game.players.some(p => p.name === playerName)
     );
-    
+
+    // Store medal breakdown for modal
+    window.currentSearchMedalBreakdown = stats.medalBreakdown;
+    window.currentSearchContext = playerName;
+
     let html = '<div class="search-results-container">';
-    
+
     // Player stats summary
     html += '<div class="player-stats-summary">';
     html += '<div class="stats-grid">';
@@ -1732,6 +1736,7 @@ function renderPlayerSearchResults(playerName) {
     html += `<div class="stat-card"><div class="stat-label">Deaths</div><div class="stat-value">${stats.deaths}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">K/D</div><div class="stat-value">${stats.kd}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Assists</div><div class="stat-value">${stats.assists}</div></div>`;
+    html += `<div class="stat-card clickable-stat" onclick="showSearchMedalBreakdown()"><div class="stat-label">Total Medals</div><div class="stat-value">${stats.totalMedals}</div></div>`;
     html += '</div>';
     html += '</div>';
     
@@ -1752,22 +1757,43 @@ function renderPlayerSearchResults(playerName) {
 function renderMapSearchResults(mapName) {
     const mapGames = gamesData.filter(game => game.details['Map Name'] === mapName);
     const mapImage = mapImages[mapName] || defaultMapImage;
-    
-    // Calculate map stats
+
+    // Calculate map stats including medals
     let totalGames = mapGames.length;
     let gametypeCounts = {};
+    let totalMedals = 0;
+    let medalBreakdown = {};
+
     mapGames.forEach(game => {
         const gt = game.details['Variant Name'] || 'Unknown';
         gametypeCounts[gt] = (gametypeCounts[gt] || 0) + 1;
+
+        // Count all medals in this game
+        if (game.medals) {
+            game.medals.forEach(playerMedals => {
+                Object.entries(playerMedals).forEach(([medal, count]) => {
+                    if (medal !== 'player') {
+                        const medalCount = parseInt(count) || 0;
+                        totalMedals += medalCount;
+                        medalBreakdown[medal] = (medalBreakdown[medal] || 0) + medalCount;
+                    }
+                });
+            });
+        }
     });
-    
+
+    // Store for modal
+    window.currentSearchMedalBreakdown = medalBreakdown;
+    window.currentSearchContext = mapName;
+
     let html = '<div class="search-results-container">';
-    
+
     // Map info header
     html += '<div class="map-info-header">';
     html += `<div class="map-large-image"><img src="${mapImage}" alt="${mapName}"></div>`;
     html += '<div class="map-stats">';
     html += `<div class="stat-card"><div class="stat-label">Total Games</div><div class="stat-value">${totalGames}</div></div>`;
+    html += `<div class="stat-card clickable-stat" onclick="showSearchMedalBreakdown()"><div class="stat-label">Total Medals</div><div class="stat-value">${totalMedals}</div></div>`;
     html += '<div class="gametype-breakdown">';
     html += '<div class="stat-label">Game Types Played</div>';
     Object.entries(gametypeCounts).sort((a, b) => b[1] - a[1]).forEach(([gt, count]) => {
@@ -1793,21 +1819,42 @@ function renderMapSearchResults(mapName) {
 
 function renderGametypeSearchResults(gametypeName) {
     const gametypeGames = gamesData.filter(game => game.details['Variant Name'] === gametypeName);
-    
-    // Calculate gametype stats
+
+    // Calculate gametype stats including medals
     let totalGames = gametypeGames.length;
     let mapCounts = {};
+    let totalMedals = 0;
+    let medalBreakdown = {};
+
     gametypeGames.forEach(game => {
         const map = game.details['Map Name'] || 'Unknown';
         mapCounts[map] = (mapCounts[map] || 0) + 1;
+
+        // Count all medals in this game
+        if (game.medals) {
+            game.medals.forEach(playerMedals => {
+                Object.entries(playerMedals).forEach(([medal, count]) => {
+                    if (medal !== 'player') {
+                        const medalCount = parseInt(count) || 0;
+                        totalMedals += medalCount;
+                        medalBreakdown[medal] = (medalBreakdown[medal] || 0) + medalCount;
+                    }
+                });
+            });
+        }
     });
-    
+
+    // Store for modal
+    window.currentSearchMedalBreakdown = medalBreakdown;
+    window.currentSearchContext = gametypeName;
+
     let html = '<div class="search-results-container">';
-    
+
     // Gametype stats
     html += '<div class="gametype-info-header">';
     html += '<div class="gametype-stats">';
     html += `<div class="stat-card"><div class="stat-label">Total Games</div><div class="stat-value">${totalGames}</div></div>`;
+    html += `<div class="stat-card clickable-stat" onclick="showSearchMedalBreakdown()"><div class="stat-label">Total Medals</div><div class="stat-value">${totalMedals}</div></div>`;
     html += '<div class="map-breakdown">';
     html += '<div class="stat-label">Maps Played</div>';
     Object.entries(mapCounts).sort((a, b) => b[1] - a[1]).forEach(([map, count]) => {
@@ -1845,10 +1892,10 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     let teamScoreHtml = '';
     const teams = {};
     const isOddball = gameType.toLowerCase().includes('oddball');
-    
+
     players.forEach(player => {
         const team = player.team;
-        if (team && team !== 'None') {
+        if (team && team !== 'None' && team !== 'none' && team.toLowerCase() !== 'none') {
             if (!teams[team]) teams[team] = 0;
             // For Oddball, sum time values; for other games, sum scores
             if (isOddball) {
@@ -1858,8 +1905,8 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
             }
         }
     });
-    
-    if (Object.keys(teams).length > 0) {
+
+    if (Object.keys(teams).length >= 2) {
         const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
         teamScoreHtml = '<div class="card-team-scores">';
         sortedTeams.forEach(([team, score], index) => {
@@ -1903,19 +1950,6 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     }
     html += '</div>';
     html += '</div>';
-
-    // Show highlighted player stats if specified
-    if (highlightPlayer) {
-        const playerData = players.find(p => p.name === highlightPlayer);
-        if (playerData) {
-            html += '<div class="search-card-player-stats">';
-            html += `<span class="player-stat-item">K: ${playerData.kills || 0}</span>`;
-            html += `<span class="player-stat-item">D: ${playerData.deaths || 0}</span>`;
-            html += `<span class="player-stat-item">A: ${playerData.assists || 0}</span>`;
-            html += '</div>';
-        }
-    }
-
     html += '</div>';
     return html;
 }
@@ -1972,9 +2006,11 @@ function calculatePlayerStats(playerName) {
         bestSpree: 0,
         totalDamage: 0,
         accuracy: 0,
-        accuracyCount: 0
+        accuracyCount: 0,
+        totalMedals: 0,
+        medalBreakdown: {}
     };
-    
+
     gamesData.forEach(game => {
         const player = game.players.find(p => p.name === playerName);
         if (player) {
@@ -1983,24 +2019,38 @@ function calculatePlayerStats(playerName) {
             stats.kills += player.kills || 0;
             stats.deaths += player.deaths || 0;
             stats.assists += player.assists || 0;
-            
+
             if (player.accuracy) {
                 stats.accuracy += player.accuracy;
                 stats.accuracyCount++;
             }
+
+            // Count medals from game.medals array
+            if (game.medals) {
+                const playerMedals = game.medals.find(m => m.player === playerName);
+                if (playerMedals) {
+                    Object.entries(playerMedals).forEach(([medal, count]) => {
+                        if (medal !== 'player') {
+                            const medalCount = parseInt(count) || 0;
+                            stats.totalMedals += medalCount;
+                            stats.medalBreakdown[medal] = (stats.medalBreakdown[medal] || 0) + medalCount;
+                        }
+                    });
+                }
+            }
         }
-        
-        const gameStat = game.stats.find(s => s.Player === playerName);
+
+        const gameStat = game.stats ? game.stats.find(s => s.Player === playerName) : null;
         if (gameStat && gameStat.best_spree > stats.bestSpree) {
             stats.bestSpree = gameStat.best_spree;
         }
     });
-    
+
     stats.kd = stats.deaths > 0 ? (stats.kills / stats.deaths).toFixed(2) : stats.kills.toFixed(2);
     stats.winrate = stats.games > 0 ? ((stats.wins / stats.games) * 100).toFixed(1) : '0.0';
     stats.avgAccuracy = stats.accuracyCount > 0 ? (stats.accuracy / stats.accuracyCount).toFixed(1) : '0.0';
     stats.kpg = stats.games > 0 ? (stats.kills / stats.games).toFixed(1) : '0.0';
-    
+
     return stats;
 }
 
@@ -2382,6 +2432,54 @@ function closeMedalBreakdown() {
     if (overlay) {
         overlay.remove();
     }
+}
+
+function showSearchMedalBreakdown() {
+    const medalBreakdown = window.currentSearchMedalBreakdown || {};
+    const context = window.currentSearchContext || 'Unknown';
+
+    // Sort by most earned
+    const sortedMedals = Object.entries(medalBreakdown).sort((a, b) => b[1] - a[1]);
+    const totalMedals = Object.values(medalBreakdown).reduce((a, b) => a + b, 0);
+
+    // Create modal
+    let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
+    html += '<div class="weapon-breakdown-modal" onclick="event.stopPropagation()">';
+    html += `<div class="weapon-breakdown-header">`;
+    html += `<h2>${context} - Medal Breakdown</h2>`;
+    html += `<button class="modal-close" onclick="closeMedalBreakdown()">&times;</button>`;
+    html += `</div>`;
+    html += '<div class="weapon-breakdown-grid">';
+
+    if (sortedMedals.length === 0) {
+        html += '<div class="no-data">No medal data available</div>';
+    }
+
+    sortedMedals.forEach(([medal, count]) => {
+        const iconUrl = getMedalIcon(medal);
+        const percentage = totalMedals > 0 ? ((count / totalMedals) * 100).toFixed(1) : '0.0';
+
+        html += `<div class="weapon-breakdown-item">`;
+        if (iconUrl) {
+            html += `<img src="${iconUrl}" alt="${medal}" class="weapon-breakdown-icon">`;
+        } else {
+            html += `<div class="weapon-breakdown-placeholder">${medal.substring(0, 2).toUpperCase()}</div>`;
+        }
+        html += `<div class="weapon-breakdown-info">`;
+        html += `<div class="weapon-breakdown-name">${formatMedalName(medal)}</div>`;
+        html += `<div class="weapon-breakdown-stats">${count} medals (${percentage}%)</div>`;
+        html += `</div>`;
+        html += `</div>`;
+    });
+
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    // Add to page
+    const overlay = document.createElement('div');
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay.firstChild);
 }
 
 // ==================== PLAYER PROFILE FUNCTIONS ====================
