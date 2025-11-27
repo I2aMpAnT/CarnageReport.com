@@ -2801,6 +2801,28 @@ header {
     color: var(--text-secondary);
 }
 
+.weapon-breakdown-stats.pvp-stats {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.pvp-stats .pvp-kills {
+    color: var(--kills-green);
+    font-weight: 600;
+}
+
+.pvp-stats .pvp-deaths {
+    color: var(--team-red);
+    font-weight: 600;
+}
+
+.pvp-stats .pvp-kd {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
 /* ===== MOBILE RESPONSIVE FIXES ===== */
 @media (max-width: 1200px) {
     .games-header-bar {

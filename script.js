@@ -2452,7 +2452,7 @@ function showPlayersFacedBreakdown() {
     const playerName = window.currentSearchContext;
     if (!playerName) return;
 
-    // Calculate players faced
+    // Calculate players faced with estimated kills
     const playersFaced = {};
     const playerGames = gamesData.filter(game =>
         game.players.some(p => p.name === playerName)
@@ -2460,33 +2460,72 @@ function showPlayersFacedBreakdown() {
 
     playerGames.forEach(game => {
         const thisPlayer = game.players.find(p => p.name === playerName);
+        if (!thisPlayer) return;
+
+        const hasTeams = game.players.some(p => p.team && p.team !== 'none' && p.team !== 'None');
+
+        // Get valid targets for this game
+        const targets = game.players.filter(p => {
+            if (p.name === playerName) return false;
+            if (hasTeams && thisPlayer.team && p.team &&
+                thisPlayer.team !== 'none' && thisPlayer.team !== 'None' &&
+                p.team !== 'none' && p.team !== 'None' &&
+                thisPlayer.team === p.team) return false;
+            return true;
+        });
+
         game.players.forEach(p => {
             if (p.name !== playerName) {
                 if (!playersFaced[p.name]) {
                     playersFaced[p.name] = {
                         games: 0,
                         asTeammate: 0,
-                        asOpponent: 0
+                        asOpponent: 0,
+                        estimatedKills: 0,
+                        estimatedDeaths: 0
                     };
                 }
                 playersFaced[p.name].games++;
 
                 // Check if teammate or opponent
-                if (thisPlayer && thisPlayer.team && p.team &&
+                const isTeammate = hasTeams && thisPlayer.team && p.team &&
                     thisPlayer.team !== 'none' && thisPlayer.team !== 'None' &&
-                    p.team !== 'none' && p.team !== 'None') {
-                    if (thisPlayer.team === p.team) {
-                        playersFaced[p.name].asTeammate++;
-                    } else {
-                        playersFaced[p.name].asOpponent++;
+                    p.team !== 'none' && p.team !== 'None' &&
+                    thisPlayer.team === p.team;
+
+                if (isTeammate) {
+                    playersFaced[p.name].asTeammate++;
+                } else {
+                    playersFaced[p.name].asOpponent++;
+
+                    // Estimate kills against this opponent (weighted by their deaths)
+                    if (targets.length > 0 && thisPlayer.kills > 0) {
+                        const totalTargetDeaths = targets.reduce((sum, t) => sum + (t.deaths || 1), 0);
+                        const weight = (p.deaths || 1) / totalTargetDeaths;
+                        playersFaced[p.name].estimatedKills += Math.round(thisPlayer.kills * weight);
+                    }
+
+                    // Estimate deaths from this opponent (weighted by their kills)
+                    const enemyTargets = game.players.filter(ep => {
+                        if (ep.name === p.name) return false;
+                        if (hasTeams && p.team && ep.team &&
+                            p.team !== 'none' && p.team !== 'None' &&
+                            ep.team !== 'none' && ep.team !== 'None' &&
+                            p.team === ep.team) return false;
+                        return true;
+                    });
+                    if (enemyTargets.length > 0 && p.kills > 0) {
+                        const totalEnemyTargetDeaths = enemyTargets.reduce((sum, t) => sum + (t.deaths || 1), 0);
+                        const deathWeight = (thisPlayer.deaths || 1) / totalEnemyTargetDeaths;
+                        playersFaced[p.name].estimatedDeaths += Math.round(p.kills * deathWeight);
                     }
                 }
             }
         });
     });
 
-    // Sort by most games played together
-    const sortedPlayers = Object.entries(playersFaced).sort((a, b) => b[1].games - a[1].games);
+    // Sort by estimated kills (most killed first)
+    const sortedPlayers = Object.entries(playersFaced).sort((a, b) => b[1].estimatedKills - a[1].estimatedKills);
 
     // Create modal
     let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
@@ -2502,13 +2541,23 @@ function showPlayersFacedBreakdown() {
     }
 
     sortedPlayers.forEach(([name, data]) => {
+        const kd = data.estimatedDeaths > 0 ? (data.estimatedKills / data.estimatedDeaths).toFixed(2) : data.estimatedKills.toFixed(2);
         html += `<div class="weapon-breakdown-item player-faced-item">`;
         html += `<div class="player-faced-rank">${getPlayerRankIcon(name, 'small')}</div>`;
         html += `<div class="weapon-breakdown-info">`;
         html += `<div class="weapon-breakdown-name clickable-player" data-player="${name}" onclick="event.stopPropagation(); closeMedalBreakdown(); openSearchResultsPage('player', '${name}')">${name}</div>`;
+        if (data.asOpponent > 0) {
+            html += `<div class="weapon-breakdown-stats pvp-stats">`;
+            html += `<span class="pvp-kills">${data.estimatedKills} kills</span>`;
+            html += `<span class="pvp-deaths">${data.estimatedDeaths} deaths</span>`;
+            html += `<span class="pvp-kd">${kd} K/D</span>`;
+            html += `</div>`;
+        }
         html += `<div class="weapon-breakdown-stats">${data.games} games`;
-        if (data.asTeammate > 0 || data.asOpponent > 0) {
-            html += ` (${data.asTeammate} as teammate, ${data.asOpponent} as opponent)`;
+        if (data.asTeammate > 0 && data.asOpponent > 0) {
+            html += ` (${data.asOpponent} vs, ${data.asTeammate} with)`;
+        } else if (data.asTeammate > 0) {
+            html += ` (teammate only)`;
         }
         html += `</div>`;
         html += `</div>`;
