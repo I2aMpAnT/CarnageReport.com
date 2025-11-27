@@ -1734,7 +1734,7 @@ function renderPlayerSearchResults(playerName) {
     html += `<div class="stat-card"><div class="stat-label">Wins</div><div class="stat-value">${stats.wins}</div><div class="stat-sublabel">${stats.winrate}% Win Rate</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Kills</div><div class="stat-value">${stats.kills}</div><div class="stat-sublabel">${stats.kpg} per game</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Deaths</div><div class="stat-value">${stats.deaths}</div></div>`;
-    html += `<div class="stat-card"><div class="stat-label">K/D</div><div class="stat-value">${stats.kd}</div></div>`;
+    html += `<div class="stat-card clickable-stat" onclick="showPlayersFacedBreakdown()"><div class="stat-label">K/D</div><div class="stat-value">${stats.kd}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Assists</div><div class="stat-value">${stats.assists}</div></div>`;
     html += `<div class="stat-card clickable-stat" onclick="showSearchMedalBreakdown()"><div class="stat-label">Total Medals</div><div class="stat-value">${stats.totalMedals}</div></div>`;
     html += '</div>';
@@ -1883,11 +1883,9 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     const details = game.details;
     const players = game.players;
     const mapName = details['Map Name'] || 'Unknown';
-    const mapImage = mapImages[mapName] || defaultMapImage;
     const gameType = details['Variant Name'] || 'Unknown';
-    const duration = formatDuration(details['Duration'] || '0:00');
     const startTime = details['Start Time'] || '';
-    
+
     // Calculate team scores
     let teamScoreHtml = '';
     const teams = {};
@@ -1897,7 +1895,6 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
         const team = player.team;
         if (team && team !== 'None' && team !== 'none' && team.toLowerCase() !== 'none') {
             if (!teams[team]) teams[team] = 0;
-            // For Oddball, sum time values; for other games, sum scores
             if (isOddball) {
                 teams[team] += timeToSeconds(player.score);
             } else {
@@ -1908,23 +1905,15 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
 
     if (Object.keys(teams).length >= 2) {
         const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
-        teamScoreHtml = '<div class="card-team-scores">';
+        teamScoreHtml = '<span class="game-meta-tag score-tag">';
         sortedTeams.forEach(([team, score], index) => {
             const displayScore = isOddball ? secondsToTime(score) : score;
             teamScoreHtml += `<span class="team-score-${team.toLowerCase()}">${team}: ${displayScore}</span>`;
-            if (index < sortedTeams.length - 1) teamScoreHtml += '<span class="score-vs">vs</span>';
+            if (index < sortedTeams.length - 1) teamScoreHtml += ' vs ';
         });
-        teamScoreHtml += '</div>';
+        teamScoreHtml += '</span>';
     }
-    
-    // Sort players by team
-    const sortedPlayers = [...players].sort((a, b) => {
-        const teamOrder = { 'Red': 0, 'Blue': 1 };
-        const teamA = teamOrder[a.team] !== undefined ? teamOrder[a.team] : 2;
-        const teamB = teamOrder[b.team] !== undefined ? teamOrder[b.team] : 2;
-        return teamA - teamB;
-    });
-    
+
     // Determine winner class
     let winnerClass = '';
     if (Object.keys(teams).length >= 2) {
@@ -1934,24 +1923,49 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
         }
     }
 
-    let html = `<div class="search-game-card ${winnerClass}" onclick="scrollToGame(${gameNumber})">`;
-    html += '<div class="search-card-content">';
-    html += '<div class="search-card-left">';
-    html += `<div class="search-card-gametype">${gameType}</div>`;
-    html += '<div class="search-card-tags">';
-    html += `<span class="game-meta-tag">Game ${gameNumber}</span>`;
+    const searchCardId = `search-game-${gameNumber}`;
+
+    let html = `<div class="game-item" id="${searchCardId}">`;
+    html += `<div class="game-header-bar ${winnerClass}" onclick="toggleSearchGameDetails('${searchCardId}', ${gameNumber})">`;
+    html += '<div class="game-header-left">';
+    html += `<div class="game-number">${gameType}</div>`;
+    html += '<div class="game-info">';
+    html += `<span class="game-meta-tag game-num-tag">Game ${gameNumber}</span>`;
     html += `<span class="game-meta-tag">${mapName}</span>`;
     html += teamScoreHtml;
     html += '</div>';
     html += '</div>';
-    html += '<div class="search-card-right">';
+    html += '<div class="game-header-right">';
     if (startTime) {
         html += `<span class="game-meta-tag date-tag">${startTime}</span>`;
     }
+    html += '<div class="expand-icon">▶</div>';
     html += '</div>';
     html += '</div>';
+    html += `<div class="game-details"><div class="game-details-content" id="${searchCardId}-content"></div></div>`;
     html += '</div>';
     return html;
+}
+
+function toggleSearchGameDetails(searchCardId, gameNumber) {
+    const gameItem = document.getElementById(searchCardId);
+    const gameContent = document.getElementById(`${searchCardId}-content`);
+
+    if (!gameItem || !gameContent) return;
+
+    const isExpanded = gameItem.classList.contains('expanded');
+
+    if (isExpanded) {
+        gameItem.classList.remove('expanded');
+        gameContent.innerHTML = '';
+    } else {
+        // Find the game data
+        const game = gamesData[gamesData.length - gameNumber];
+        if (game) {
+            gameItem.classList.add('expanded');
+            gameContent.innerHTML = renderGameContent(game);
+        }
+    }
 }
 
 function scrollToGame(gameNumber) {
@@ -2432,6 +2446,132 @@ function closeMedalBreakdown() {
     if (overlay) {
         overlay.remove();
     }
+}
+
+function showPlayersFacedBreakdown() {
+    const playerName = window.currentSearchContext;
+    if (!playerName) return;
+
+    // Calculate players faced with estimated kills
+    const playersFaced = {};
+    const playerGames = gamesData.filter(game =>
+        game.players.some(p => p.name === playerName)
+    );
+
+    playerGames.forEach(game => {
+        const thisPlayer = game.players.find(p => p.name === playerName);
+        if (!thisPlayer) return;
+
+        const hasTeams = game.players.some(p => p.team && p.team !== 'none' && p.team !== 'None');
+
+        // Get valid targets for this game
+        const targets = game.players.filter(p => {
+            if (p.name === playerName) return false;
+            if (hasTeams && thisPlayer.team && p.team &&
+                thisPlayer.team !== 'none' && thisPlayer.team !== 'None' &&
+                p.team !== 'none' && p.team !== 'None' &&
+                thisPlayer.team === p.team) return false;
+            return true;
+        });
+
+        game.players.forEach(p => {
+            if (p.name !== playerName) {
+                if (!playersFaced[p.name]) {
+                    playersFaced[p.name] = {
+                        games: 0,
+                        asTeammate: 0,
+                        asOpponent: 0,
+                        estimatedKills: 0,
+                        estimatedDeaths: 0
+                    };
+                }
+                playersFaced[p.name].games++;
+
+                // Check if teammate or opponent
+                const isTeammate = hasTeams && thisPlayer.team && p.team &&
+                    thisPlayer.team !== 'none' && thisPlayer.team !== 'None' &&
+                    p.team !== 'none' && p.team !== 'None' &&
+                    thisPlayer.team === p.team;
+
+                if (isTeammate) {
+                    playersFaced[p.name].asTeammate++;
+                } else {
+                    playersFaced[p.name].asOpponent++;
+
+                    // Estimate kills against this opponent (weighted by their deaths)
+                    if (targets.length > 0 && thisPlayer.kills > 0) {
+                        const totalTargetDeaths = targets.reduce((sum, t) => sum + (t.deaths || 1), 0);
+                        const weight = (p.deaths || 1) / totalTargetDeaths;
+                        playersFaced[p.name].estimatedKills += Math.round(thisPlayer.kills * weight);
+                    }
+
+                    // Estimate deaths from this opponent (weighted by their kills)
+                    const enemyTargets = game.players.filter(ep => {
+                        if (ep.name === p.name) return false;
+                        if (hasTeams && p.team && ep.team &&
+                            p.team !== 'none' && p.team !== 'None' &&
+                            ep.team !== 'none' && ep.team !== 'None' &&
+                            p.team === ep.team) return false;
+                        return true;
+                    });
+                    if (enemyTargets.length > 0 && p.kills > 0) {
+                        const totalEnemyTargetDeaths = enemyTargets.reduce((sum, t) => sum + (t.deaths || 1), 0);
+                        const deathWeight = (thisPlayer.deaths || 1) / totalEnemyTargetDeaths;
+                        playersFaced[p.name].estimatedDeaths += Math.round(p.kills * deathWeight);
+                    }
+                }
+            }
+        });
+    });
+
+    // Sort by estimated kills (most killed first)
+    const sortedPlayers = Object.entries(playersFaced).sort((a, b) => b[1].estimatedKills - a[1].estimatedKills);
+
+    // Create modal
+    let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
+    html += '<div class="weapon-breakdown-modal" onclick="event.stopPropagation()">';
+    html += `<div class="weapon-breakdown-header">`;
+    html += `<h2>${playerName} - Players Faced</h2>`;
+    html += `<button class="modal-close" onclick="closeMedalBreakdown()">&times;</button>`;
+    html += `</div>`;
+    html += '<div class="weapon-breakdown-grid">';
+
+    if (sortedPlayers.length === 0) {
+        html += '<div class="no-data">No player data available</div>';
+    }
+
+    sortedPlayers.forEach(([name, data]) => {
+        const kd = data.estimatedDeaths > 0 ? (data.estimatedKills / data.estimatedDeaths).toFixed(2) : data.estimatedKills.toFixed(2);
+        html += `<div class="weapon-breakdown-item player-faced-item">`;
+        html += `<div class="player-faced-rank">${getPlayerRankIcon(name, 'small')}</div>`;
+        html += `<div class="weapon-breakdown-info">`;
+        html += `<div class="weapon-breakdown-name clickable-player" data-player="${name}" onclick="event.stopPropagation(); closeMedalBreakdown(); openSearchResultsPage('player', '${name}')">${name}</div>`;
+        if (data.asOpponent > 0) {
+            html += `<div class="weapon-breakdown-stats pvp-stats">`;
+            html += `<span class="pvp-kills">${data.estimatedKills} kills</span>`;
+            html += `<span class="pvp-deaths">${data.estimatedDeaths} deaths</span>`;
+            html += `<span class="pvp-kd">${kd} K/D</span>`;
+            html += `</div>`;
+        }
+        html += `<div class="weapon-breakdown-stats">${data.games} games`;
+        if (data.asTeammate > 0 && data.asOpponent > 0) {
+            html += ` (${data.asOpponent} vs, ${data.asTeammate} with)`;
+        } else if (data.asTeammate > 0) {
+            html += ` (teammate only)`;
+        }
+        html += `</div>`;
+        html += `</div>`;
+        html += `</div>`;
+    });
+
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    // Add to page
+    const overlay = document.createElement('div');
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay.firstChild);
 }
 
 function showSearchMedalBreakdown() {

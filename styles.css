@@ -2748,6 +2748,24 @@ header {
     border-color: var(--primary-color);
 }
 
+.player-faced-item {
+    cursor: pointer;
+}
+
+.player-faced-rank {
+    flex-shrink: 0;
+}
+
+.player-faced-item .weapon-breakdown-name {
+    color: var(--shield-blue);
+    cursor: pointer;
+}
+
+.player-faced-item .weapon-breakdown-name:hover {
+    color: var(--unsc-blue);
+    text-decoration: underline;
+}
+
 .weapon-breakdown-icon {
     width: 60px;
     height: 60px;
@@ -2781,6 +2799,28 @@ header {
 .weapon-breakdown-stats {
     font-size: 14px;
     color: var(--text-secondary);
+}
+
+.weapon-breakdown-stats.pvp-stats {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.pvp-stats .pvp-kills {
+    color: var(--kills-green);
+    font-weight: 600;
+}
+
+.pvp-stats .pvp-deaths {
+    color: var(--team-red);
+    font-weight: 600;
+}
+
+.pvp-stats .pvp-kd {
+    color: var(--primary-color);
+    font-weight: 600;
 }
 
 /* ===== MOBILE RESPONSIVE FIXES ===== */
