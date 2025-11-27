@@ -48,15 +48,24 @@ const medalIcons = {
     'killtrocity': 'assets/medals/Killtrocity.png',
     'killamanjaro': 'assets/medals/Killimanjaro.png',
     'killimanjaro': 'assets/medals/Killimanjaro.png',
-    
+    'killpocalypse': 'assets/medals/Killimanjaro.png',
+    'killionaire': 'assets/medals/Killimanjaro.png',
+    'overkill': 'assets/medals/Overkill.png',
+
     // Spree medals (kills without dying)
     'killing_spree': 'assets/medals/Killing Spree.png',
     'running_riot': 'assets/medals/Running Riot.png',
     'rampage': 'assets/medals/Rampage.png',
     'untouchable': 'assets/medals/Berserker.png',
+    'invincible': 'assets/medals/Berserker.png',
     'berserker': 'assets/medals/Berserker.png',
-    'overkill': 'assets/medals/Overkill.png',
-    
+
+    // Sniper medals
+    'sniper_kill': 'assets/medals/Sniper Kill.png',
+    'sniper': 'assets/medals/Sniper Kill.png',
+    'sniper_spree': 'assets/medals/Sniper Kill.png',
+    'sharpshooter': 'assets/medals/Sniper Kill.png',
+
     // Special kills
     'beat_down': 'assets/medals/Bone Cracker.png',
     'beatdown': 'assets/medals/Bone Cracker.png',
@@ -65,8 +74,7 @@ const medalIcons = {
     'pummel': 'assets/medals/Bone Cracker.png',
     'assassin': 'assets/medals/Assassin.png',
     'assassination': 'assets/medals/Assassin.png',
-    'sniper_kill': 'assets/medals/Sniper Kill.png',
-    'sniper': 'assets/medals/Sniper Kill.png',
+    'assassinate': 'assets/medals/Assassin.png',
     'grenade_stick': 'assets/medals/Stick It.png',
     'stick_it': 'assets/medals/Stick It.png',
     'stick': 'assets/medals/Stick It.png',
@@ -74,14 +82,19 @@ const medalIcons = {
     'roadkill': 'assets/medals/Roadkill.png',
     'hijack': 'assets/medals/Hijack.png',
     'carjacking': 'assets/medals/Hijack.png',
-    
+
+    // Other combat medals (no specific icons, use generic)
+    'from_the_grave': 'assets/medals/Double Kill.png',
+    'killjoy': 'assets/medals/Double Kill.png',
+    'revenge': 'assets/medals/Double Kill.png',
+
     // Flag objectives
     'flag_taken': 'assets/medals/Flag Taken.png',
     'flag_score': 'assets/medals/Flag Score.png',
     'flag_captured': 'assets/medals/Flag Score.png',
     'flag_returned': 'assets/medals/Flag Returned.png',
     'flag_carrier_kill': 'assets/medals/Flag Carrier Kill.png',
-    
+
     // Bomb objectives
     'bomb_planted': 'assets/medals/Bomb Planted.png',
     'bomb_carrier_kill': 'assets/medals/Bomb Carrier Kill.png'
@@ -2303,19 +2316,23 @@ function closeWeaponBreakdown() {
 
 function showMedalBreakdown() {
     if (!currentProfilePlayer) return;
-    
-    // Calculate medal stats for the player
+
+    // Calculate medal stats for the player from game.medals array
     const medalStats = {};
-    
+
     currentProfileGames.forEach(game => {
-        const player = game.players.find(p => p.name === currentProfilePlayer);
-        if (player && player.medals) {
-            Object.entries(player.medals).forEach(([medal, count]) => {
-                const medalCount = parseInt(count) || 0;
-                if (medalCount > 0) {
-                    medalStats[medal] = (medalStats[medal] || 0) + medalCount;
-                }
-            });
+        if (game.medals) {
+            const playerMedals = game.medals.find(m => m.player === currentProfilePlayer);
+            if (playerMedals) {
+                Object.entries(playerMedals).forEach(([medal, count]) => {
+                    if (medal !== 'player') {
+                        const medalCount = parseInt(count) || 0;
+                        if (medalCount > 0) {
+                            medalStats[medal] = (medalStats[medal] || 0) + medalCount;
+                        }
+                    }
+                });
+            }
         }
     });
     
@@ -2413,11 +2430,16 @@ function calculatePlayerOverallStats(playerName) {
             assists += player.assists || 0;
             totalScore += parseInt(player.score) || 0;
             
-            // Count total medals
-            if (player.medals) {
-                Object.values(player.medals).forEach(count => {
-                    totalMedals += parseInt(count) || 0;
-                });
+            // Count total medals from game.medals array
+            if (game.medals) {
+                const playerMedals = game.medals.find(m => m.player === playerName);
+                if (playerMedals) {
+                    Object.entries(playerMedals).forEach(([key, count]) => {
+                        if (key !== 'player') {
+                            totalMedals += parseInt(count) || 0;
+                        }
+                    });
+                }
             }
             
             // Check if player won
