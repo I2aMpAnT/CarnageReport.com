@@ -1,5 +1,5 @@
 {
-  "total_test_matches": 5,
+  "total_test_matches": 6,
   "matches": [
     {
       "type": "SERIES",
@@ -322,6 +322,64 @@
         }
       ],
       "total_games_played": 7,
+      "stats_recorded": false,
+      "swap_history": []
+    },
+    {
+      "type": "SERIES",
+      "match_type": "TEST",
+      "series_label": "Test 1",
+      "match_id": 1,
+      "timestamp": "2025-11-27T03:29:29.079906",
+      "timestamp_display": "2025-11-27 03:29:29",
+      "winner": "RED",
+      "final_score": {
+        "red": 4,
+        "blue": 0
+      },
+      "teams_final": {
+        "red": {
+          "players": [
+            283293015135748097,
+            168795626442588160,
+            299324247770398721,
+            653385687852253215
+          ],
+          "voice_channel_id": 1443413006825422922
+        },
+        "blue": {
+          "players": [
+            884896715432411178,
+            198564445105029120,
+            269983920299180035,
+            488445981663297536
+          ],
+          "voice_channel_id": 1443413009069506600
+        }
+      },
+      "games": [
+        {
+          "game_number": 1,
+          "winner": "RED",
+          "loser": "BLUE"
+        },
+        {
+          "game_number": 2,
+          "winner": "RED",
+          "loser": "BLUE"
+        },
+        {
+          "game_number": 3,
+          "winner": "RED",
+          "loser": "BLUE"
+        },
+        {
+          "game_number": 4,
+          "winner": "RED",
+          "loser": "BLUE"
+        }
+      ],
+      "total_games_played": 4,
       "stats_recorded": false,
       "swap_history": []
     }
