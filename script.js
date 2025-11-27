@@ -90,37 +90,46 @@ const medalIcons = {
 // Weapon icons - Using local cached images in assets/weapons/
 const weaponIcons = {
     // UNSC Weapons
-    'battle rifle': 'assets/weapons/battle_rifle.png',
-    'br': 'assets/weapons/battle_rifle.png',
-    'magnum': 'assets/weapons/magnum.png',
-    'pistol': 'assets/weapons/magnum.png',
-    'shotgun': 'assets/weapons/shotgun.png',
-    'smg': 'assets/weapons/smg.png',
-    'sub machine gun': 'assets/weapons/smg.png',
-    'sniper rifle': 'assets/weapons/sniper_rifle.png',
-    'sniper': 'assets/weapons/sniper_rifle.png',
-    'rocket launcher': 'assets/weapons/rocket_launcher.png',
-    'rockets': 'assets/weapons/rocket_launcher.png',
-    'frag grenade': 'assets/weapons/frag_grenade.png',
-    'grenade': 'assets/weapons/frag_grenade.png',
-    
+    'battle rifle': 'assets/weapons/BattleRifle.png',
+    'br': 'assets/weapons/BattleRifle.png',
+    'magnum': 'assets/weapons/Magnum.png',
+    'pistol': 'assets/weapons/Magnum.png',
+    'shotgun': 'assets/weapons/Shotgun.png',
+    'smg': 'assets/weapons/SmG.png',
+    'sub machine gun': 'assets/weapons/SmG.png',
+    'sniper rifle': 'assets/weapons/SniperRifle.png',
+    'sniper': 'assets/weapons/SniperRifle.png',
+    'rocket launcher': 'assets/weapons/RocketLauncher.png',
+    'rockets': 'assets/weapons/RocketLauncher.png',
+    'frag grenade': 'assets/weapons/H2-M9HEDPFragmentationGrenade.png',
+    'grenade': 'assets/weapons/H2-M9HEDPFragmentationGrenade.png',
+    'fragmentation grenade': 'assets/weapons/H2-M9HEDPFragmentationGrenade.png',
+
     // Covenant Weapons
-    'plasma pistol': 'assets/weapons/plasma_pistol.png',
-    'plasma rifle': 'assets/weapons/plasma_rifle.png',
-    'brute plasma rifle': 'assets/weapons/plasma_rifle.png',
-    'carbine': 'assets/weapons/carbine.png',
-    'covenant carbine': 'assets/weapons/carbine.png',
-    'needler': 'assets/weapons/needler.png',
-    'beam rifle': 'assets/weapons/beam_rifle.png',
-    'particle beam rifle': 'assets/weapons/beam_rifle.png',
-    'brute shot': 'assets/weapons/brute_shot.png',
-    'energy sword': 'assets/weapons/energy_sword.png',
-    'sword': 'assets/weapons/energy_sword.png',
-    'plasma grenade': 'assets/weapons/plasma_grenade.png',
-    
+    'plasma pistol': 'assets/weapons/PlasmaPistol.png',
+    'plasma rifle': 'assets/weapons/PlasmaRifle.png',
+    'brute plasma rifle': 'assets/weapons/BrutePlasmaRifle.png',
+    'carbine': 'assets/weapons/Carbine.png',
+    'covenant carbine': 'assets/weapons/Carbine.png',
+    'needler': 'assets/weapons/Needler.png',
+    'beam rifle': 'assets/weapons/BeamRifle.png',
+    'particle beam rifle': 'assets/weapons/BeamRifle.png',
+    'brute shot': 'assets/weapons/BruteShot.png',
+    'energy sword': 'assets/weapons/EnergySword.png',
+    'sword': 'assets/weapons/EnergySword.png',
+    'fuel rod': 'assets/weapons/FuelRod.png',
+    'fuel rod gun': 'assets/weapons/FuelRod.png',
+
+    // Objective Items
+    'flag': 'assets/weapons/Flag.png',
+    'oddball': 'assets/weapons/OddBall.png',
+    'ball': 'assets/weapons/OddBall.png',
+    'assault bomb': 'assets/weapons/AssaultBomb.png',
+    'bomb': 'assets/weapons/AssaultBomb.png',
+
     // Other
-    'sentinel beam': 'assets/weapons/sentinel_beam.png',
-    'melee': 'assets/weapons/magnum.png'
+    'sentinel beam': 'assets/weapons/SentinelBeam.png',
+    'melee': 'assets/weapons/Magnum.png'
 };
 
 // Helper function to get weapon icon
