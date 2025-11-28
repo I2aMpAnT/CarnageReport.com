@@ -36,10 +36,10 @@ const mapImages = {
 // Default map image if not found
 const defaultMapImage = 'mapimages/Midship.jpeg';
 
-// Medal icons - Original Halo 2 medals
+// Medal icons - Official Halo 2 medals only
 // Using local cached images in assets/medals/
 const medalIcons = {
-    // Multi-kills (within 4 seconds)
+    // Consecutive Kills (multi-kills within 4 seconds)
     'double_kill': 'assets/medals/Double Kill.png',
     'triple_kill': 'assets/medals/Triple Kill.png',
     'killtacular': 'assets/medals/Killtacular.png',
@@ -48,33 +48,17 @@ const medalIcons = {
     'killtrocity': 'assets/medals/Killtrocity.png',
     'killamanjaro': 'assets/medals/Killimanjaro.png',
     'killimanjaro': 'assets/medals/Killimanjaro.png',
-    'killpocalypse': 'assets/medals/Killimanjaro.png',
-    'killionaire': 'assets/medals/Killimanjaro.png',
-    'overkill': 'assets/medals/Overkill.png',
 
-    // Spree medals (kills without dying)
+    // Sprees (kills without dying)
     'killing_spree': 'assets/medals/Killing Spree.png',
     'running_riot': 'assets/medals/Running Riot.png',
     'rampage': 'assets/medals/Rampage.png',
-    'untouchable': 'assets/medals/Berserker.png',
-    'invincible': 'assets/medals/Berserker.png',
     'berserker': 'assets/medals/Berserker.png',
+    'overkill': 'assets/medals/Overkill.png',
 
-    // Sniper medals
+    // Special Kills
     'sniper_kill': 'assets/medals/Sniper Kill.png',
     'sniper': 'assets/medals/Sniper Kill.png',
-    'sniper_spree': 'assets/medals/Sniper Kill.png',
-    'sharpshooter': 'assets/medals/Sniper Kill.png',
-
-    // Special kills
-    'beat_down': 'assets/medals/Bone Cracker.png',
-    'beatdown': 'assets/medals/Bone Cracker.png',
-    'bone_cracker': 'assets/medals/Bone Cracker.png',
-    'bonecracker': 'assets/medals/Bone Cracker.png',
-    'pummel': 'assets/medals/Bone Cracker.png',
-    'assassin': 'assets/medals/Assassin.png',
-    'assassination': 'assets/medals/Assassin.png',
-    'assassinate': 'assets/medals/Assassin.png',
     'grenade_stick': 'assets/medals/Stick It.png',
     'stick_it': 'assets/medals/Stick It.png',
     'stick': 'assets/medals/Stick It.png',
@@ -82,22 +66,23 @@ const medalIcons = {
     'roadkill': 'assets/medals/Roadkill.png',
     'hijack': 'assets/medals/Hijack.png',
     'carjacking': 'assets/medals/Hijack.png',
+    'assassin': 'assets/medals/Assassin.png',
+    'assassination': 'assets/medals/Assassin.png',
+    'assassinate': 'assets/medals/Assassin.png',
+    'beat_down': 'assets/medals/Bone Cracker.png',
+    'beatdown': 'assets/medals/Bone Cracker.png',
+    'bone_cracker': 'assets/medals/Bone Cracker.png',
+    'bonecracker': 'assets/medals/Bone Cracker.png',
+    'pummel': 'assets/medals/Bone Cracker.png',
 
-    // Other combat medals (no specific icons, use generic)
-    'from_the_grave': 'assets/medals/Double Kill.png',
-    'killjoy': 'assets/medals/Double Kill.png',
-    'revenge': 'assets/medals/Double Kill.png',
-
-    // Flag objectives
-    'flag_taken': 'assets/medals/Flag Taken.png',
-    'flag_score': 'assets/medals/Flag Score.png',
-    'flag_captured': 'assets/medals/Flag Score.png',
-    'flag_returned': 'assets/medals/Flag Returned.png',
-    'flag_carrier_kill': 'assets/medals/Flag Carrier Kill.png',
-
-    // Bomb objectives
+    // Objectives
+    'bomb_carrier_kill': 'assets/medals/Bomb Carrier Kill.png',
     'bomb_planted': 'assets/medals/Bomb Planted.png',
-    'bomb_carrier_kill': 'assets/medals/Bomb Carrier Kill.png'
+    'flag_carrier_kill': 'assets/medals/Flag Carrier Kill.png',
+    'flag_captured': 'assets/medals/Flag Score.png',
+    'flag_score': 'assets/medals/Flag Score.png',
+    'flag_taken': 'assets/medals/Flag Taken.png',
+    'flag_returned': 'assets/medals/Flag Returned.png'
 };
 
 // Weapon icons - Using local cached images in assets/weapons/
@@ -2010,11 +1995,16 @@ function renderMedalSearchResults(medalName) {
     // Find all games where this medal was earned
     const medalGames = [];
     let playerMedalCounts = {};
+    let mapMedalCounts = {};
+    let gametypeMedalCounts = {};
     let totalEarned = 0;
 
     gamesData.forEach(game => {
         if (game.medals) {
             let gameMedalCount = 0;
+            const mapName = game.details['Map Name'] || 'Unknown';
+            const gametype = game.details['Variant Name'] || 'Unknown';
+
             game.medals.forEach(playerMedals => {
                 if (playerMedals[medalName]) {
                     const count = parseInt(playerMedals[medalName]) || 0;
@@ -2028,8 +2018,11 @@ function renderMedalSearchResults(medalName) {
                     playerMedalCounts[playerName] += count;
                 }
             });
+
             if (gameMedalCount > 0) {
                 medalGames.push({ game, count: gameMedalCount });
+                mapMedalCounts[mapName] = (mapMedalCounts[mapName] || 0) + gameMedalCount;
+                gametypeMedalCounts[gametype] = (gametypeMedalCounts[gametype] || 0) + gameMedalCount;
             }
         }
     });
@@ -2052,28 +2045,62 @@ function renderMedalSearchResults(medalName) {
     html += '<div class="medal-stats">';
     html += `<div class="stat-card"><div class="stat-label">Total Earned</div><div class="stat-value">${totalEarned}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Games With Medal</div><div class="stat-value">${medalGames.length}</div></div>`;
-    html += `<div class="stat-card clickable-stat" onclick="showMedalLeadersBreakdown()"><div class="stat-label">Top Earners</div><div class="stat-value">${Object.keys(playerMedalCounts).length} players</div></div>`;
+    html += `<div class="stat-card"><div class="stat-label">Players</div><div class="stat-value">${Object.keys(playerMedalCounts).length}</div></div>`;
     html += '</div>';
     html += '</div>';
 
-    // Top earners list
-    const sortedPlayers = Object.entries(playerMedalCounts).sort((a, b) => b[1] - a[1]).slice(0, 10);
-    if (sortedPlayers.length > 0) {
-        html += '<div class="section-header">Top Earners</div>';
-        html += '<div class="top-earners-list">';
-        sortedPlayers.forEach(([name, count], index) => {
-            const rankIcon = getRankIcon(name);
-            html += `<div class="top-earner-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
-            html += `<span class="earner-rank">#${index + 1}</span>`;
-            if (rankIcon) {
-                html += `<img src="${rankIcon}" class="earner-rank-icon" alt="rank">`;
-            }
-            html += `<span class="earner-name">${name}</span>`;
-            html += `<span class="earner-count">${count} earned</span>`;
-            html += '</div>';
-        });
+    // Breakdowns section
+    html += '<div class="breakdowns-container">';
+
+    // By Player
+    html += '<div class="breakdown-section">';
+    html += '<div class="section-header">By Player</div>';
+    html += '<div class="breakdown-list">';
+    Object.entries(playerMedalCounts).sort((a, b) => b[1] - a[1]).forEach(([name, count], index) => {
+        const rankIcon = getRankIcon(name);
+        const pct = ((count / totalEarned) * 100).toFixed(1);
+        html += `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
+        html += `<span class="breakdown-rank">#${index + 1}</span>`;
+        if (rankIcon) {
+            html += `<img src="${rankIcon}" class="breakdown-icon" alt="rank">`;
+        }
+        html += `<span class="breakdown-name">${name}</span>`;
+        html += `<span class="breakdown-count">${count} (${pct}%)</span>`;
         html += '</div>';
-    }
+    });
+    html += '</div></div>';
+
+    // By Map
+    html += '<div class="breakdown-section">';
+    html += '<div class="section-header">By Map</div>';
+    html += '<div class="breakdown-list">';
+    Object.entries(mapMedalCounts).sort((a, b) => b[1] - a[1]).forEach(([map, count], index) => {
+        const mapImg = mapImages[map] || defaultMapImage;
+        const pct = ((count / totalEarned) * 100).toFixed(1);
+        html += `<div class="breakdown-item" onclick="openSearchResultsPage('map', '${map.replace(/'/g, "\\'")}')">`;
+        html += `<span class="breakdown-rank">#${index + 1}</span>`;
+        html += `<img src="${mapImg}" class="breakdown-icon map-icon" alt="${map}">`;
+        html += `<span class="breakdown-name">${map}</span>`;
+        html += `<span class="breakdown-count">${count} (${pct}%)</span>`;
+        html += '</div>';
+    });
+    html += '</div></div>';
+
+    // By Gametype
+    html += '<div class="breakdown-section">';
+    html += '<div class="section-header">By Gametype</div>';
+    html += '<div class="breakdown-list">';
+    Object.entries(gametypeMedalCounts).sort((a, b) => b[1] - a[1]).forEach(([gt, count], index) => {
+        const pct = ((count / totalEarned) * 100).toFixed(1);
+        html += `<div class="breakdown-item" onclick="openSearchResultsPage('gametype', '${gt.replace(/'/g, "\\'")}')">`;
+        html += `<span class="breakdown-rank">#${index + 1}</span>`;
+        html += `<span class="breakdown-name">${gt}</span>`;
+        html += `<span class="breakdown-count">${count} (${pct}%)</span>`;
+        html += '</div>';
+    });
+    html += '</div></div>';
+
+    html += '</div>'; // End breakdowns-container
 
     // Games header
     html += `<div class="section-header">Games with ${formatMedalName(medalName)} (${medalGames.length})</div>`;
@@ -2093,10 +2120,15 @@ function renderWeaponSearchResults(weaponName) {
     // Find all games where this weapon was used
     const weaponGames = [];
     let playerWeaponStats = {};
+    let mapWeaponKills = {};
+    let gametypeWeaponKills = {};
     let totalKills = 0;
 
     gamesData.forEach(game => {
         let gameWeaponKills = 0;
+        const mapName = game.details['Map Name'] || 'Unknown';
+        const gametype = game.details['Variant Name'] || 'Unknown';
+
         game.players.forEach(player => {
             if (player.weapons) {
                 player.weapons.forEach(w => {
@@ -2114,8 +2146,11 @@ function renderWeaponSearchResults(weaponName) {
                 });
             }
         });
+
         if (gameWeaponKills > 0) {
             weaponGames.push({ game, kills: gameWeaponKills });
+            mapWeaponKills[mapName] = (mapWeaponKills[mapName] || 0) + gameWeaponKills;
+            gametypeWeaponKills[gametype] = (gametypeWeaponKills[gametype] || 0) + gameWeaponKills;
         }
     });
 
@@ -2137,28 +2172,62 @@ function renderWeaponSearchResults(weaponName) {
     html += '<div class="weapon-stats">';
     html += `<div class="stat-card"><div class="stat-label">Total Kills</div><div class="stat-value">${totalKills}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Games With Weapon</div><div class="stat-value">${weaponGames.length}</div></div>`;
-    html += `<div class="stat-card clickable-stat" onclick="showWeaponLeadersBreakdown()"><div class="stat-label">Top Users</div><div class="stat-value">${Object.keys(playerWeaponStats).length} players</div></div>`;
+    html += `<div class="stat-card"><div class="stat-label">Players</div><div class="stat-value">${Object.keys(playerWeaponStats).length}</div></div>`;
     html += '</div>';
     html += '</div>';
 
-    // Top users list
-    const sortedPlayers = Object.entries(playerWeaponStats).sort((a, b) => b[1].kills - a[1].kills).slice(0, 10);
-    if (sortedPlayers.length > 0) {
-        html += '<div class="section-header">Top Users</div>';
-        html += '<div class="top-earners-list">';
-        sortedPlayers.forEach(([name, stats], index) => {
-            const rankIcon = getRankIcon(name);
-            html += `<div class="top-earner-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
-            html += `<span class="earner-rank">#${index + 1}</span>`;
-            if (rankIcon) {
-                html += `<img src="${rankIcon}" class="earner-rank-icon" alt="rank">`;
-            }
-            html += `<span class="earner-name">${name}</span>`;
-            html += `<span class="earner-count">${stats.kills} kills</span>`;
-            html += '</div>';
-        });
+    // Breakdowns section
+    html += '<div class="breakdowns-container">';
+
+    // By Player
+    html += '<div class="breakdown-section">';
+    html += '<div class="section-header">By Player</div>';
+    html += '<div class="breakdown-list">';
+    Object.entries(playerWeaponStats).sort((a, b) => b[1].kills - a[1].kills).forEach(([name, stats], index) => {
+        const rankIcon = getRankIcon(name);
+        const pct = ((stats.kills / totalKills) * 100).toFixed(1);
+        html += `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
+        html += `<span class="breakdown-rank">#${index + 1}</span>`;
+        if (rankIcon) {
+            html += `<img src="${rankIcon}" class="breakdown-icon" alt="rank">`;
+        }
+        html += `<span class="breakdown-name">${name}</span>`;
+        html += `<span class="breakdown-count">${stats.kills} (${pct}%)</span>`;
         html += '</div>';
-    }
+    });
+    html += '</div></div>';
+
+    // By Map
+    html += '<div class="breakdown-section">';
+    html += '<div class="section-header">By Map</div>';
+    html += '<div class="breakdown-list">';
+    Object.entries(mapWeaponKills).sort((a, b) => b[1] - a[1]).forEach(([map, kills], index) => {
+        const mapImg = mapImages[map] || defaultMapImage;
+        const pct = ((kills / totalKills) * 100).toFixed(1);
+        html += `<div class="breakdown-item" onclick="openSearchResultsPage('map', '${map.replace(/'/g, "\\'")}')">`;
+        html += `<span class="breakdown-rank">#${index + 1}</span>`;
+        html += `<img src="${mapImg}" class="breakdown-icon map-icon" alt="${map}">`;
+        html += `<span class="breakdown-name">${map}</span>`;
+        html += `<span class="breakdown-count">${kills} (${pct}%)</span>`;
+        html += '</div>';
+    });
+    html += '</div></div>';
+
+    // By Gametype
+    html += '<div class="breakdown-section">';
+    html += '<div class="section-header">By Gametype</div>';
+    html += '<div class="breakdown-list">';
+    Object.entries(gametypeWeaponKills).sort((a, b) => b[1] - a[1]).forEach(([gt, kills], index) => {
+        const pct = ((kills / totalKills) * 100).toFixed(1);
+        html += `<div class="breakdown-item" onclick="openSearchResultsPage('gametype', '${gt.replace(/'/g, "\\'")}')">`;
+        html += `<span class="breakdown-rank">#${index + 1}</span>`;
+        html += `<span class="breakdown-name">${gt}</span>`;
+        html += `<span class="breakdown-count">${kills} (${pct}%)</span>`;
+        html += '</div>';
+    });
+    html += '</div></div>';
+
+    html += '</div>'; // End breakdowns-container
 
     // Games header
     html += `<div class="section-header">Games with ${weaponName.charAt(0).toUpperCase() + weaponName.slice(1)} Kills (${weaponGames.length})</div>`;
