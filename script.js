@@ -1618,17 +1618,18 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
 
             matchedWeapons.forEach(weapon => {
                 // Count total kills with this weapon across all games
+                // Weapons are stored at game.weapons[] with keys like "Sniper Rifle kills"
                 let totalKills = 0;
                 gamesData.forEach(game => {
-                    game.players.forEach(player => {
-                        if (player.weapons) {
-                            player.weapons.forEach(w => {
-                                if (w.name && w.name.toLowerCase().includes(weapon.toLowerCase())) {
-                                    totalKills += parseInt(w.kills) || 0;
+                    if (game.weapons) {
+                        game.weapons.forEach(playerWeapons => {
+                            Object.keys(playerWeapons).forEach(key => {
+                                if (key.toLowerCase().includes(weapon.toLowerCase()) && key.toLowerCase().includes('kills')) {
+                                    totalKills += parseInt(playerWeapons[key]) || 0;
                                 }
                             });
-                        }
-                    });
+                        });
+                    }
                 });
                 if (totalKills > 0) {
                     results.push({
@@ -2097,6 +2098,7 @@ function renderMedalSearchResults(medalName) {
 
 function renderWeaponSearchResults(weaponName) {
     // Find all games where this weapon was used
+    // Weapons are stored at game.weapons[] with keys like "Sniper Rifle kills"
     const weaponGames = [];
     let playerWeaponStats = {};
     let mapWeaponKills = {};
@@ -2108,23 +2110,26 @@ function renderWeaponSearchResults(weaponName) {
         const mapName = game.details['Map Name'] || 'Unknown';
         const gametype = game.details['Variant Name'] || 'Unknown';
 
-        game.players.forEach(player => {
-            if (player.weapons) {
-                player.weapons.forEach(w => {
-                    if (w.name && w.name.toLowerCase().includes(weaponName.toLowerCase())) {
-                        const kills = parseInt(w.kills) || 0;
+        if (game.weapons) {
+            game.weapons.forEach(playerWeapons => {
+                const playerName = playerWeapons.Player;
+                Object.keys(playerWeapons).forEach(key => {
+                    if (key.toLowerCase().includes(weaponName.toLowerCase()) && key.toLowerCase().includes('kills')) {
+                        const kills = parseInt(playerWeapons[key]) || 0;
                         gameWeaponKills += kills;
                         totalKills += kills;
 
-                        if (!playerWeaponStats[player.name]) {
-                            playerWeaponStats[player.name] = { kills: 0, games: 0 };
+                        if (playerName) {
+                            if (!playerWeaponStats[playerName]) {
+                                playerWeaponStats[playerName] = { kills: 0, games: 0 };
+                            }
+                            playerWeaponStats[playerName].kills += kills;
+                            playerWeaponStats[playerName].games += 1;
                         }
-                        playerWeaponStats[player.name].kills += kills;
-                        playerWeaponStats[player.name].games += 1;
                     }
                 });
-            }
-        });
+            });
+        }
 
         if (gameWeaponKills > 0) {
             weaponGames.push({ game, kills: gameWeaponKills });
