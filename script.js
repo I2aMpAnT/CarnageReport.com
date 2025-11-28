@@ -1847,11 +1847,11 @@ function renderMapSearchResults(mapName) {
         const gt = game.details['Variant Name'] || 'Unknown';
         gametypeCounts[gt] = (gametypeCounts[gt] || 0) + 1;
 
-        // Count all medals in this game
+        // Count all medals in this game (only Halo 2 medals)
         if (game.medals) {
             game.medals.forEach(playerMedals => {
                 Object.entries(playerMedals).forEach(([medal, count]) => {
-                    if (medal !== 'player') {
+                    if (medal !== 'player' && medalIcons[medal]) {
                         const medalCount = parseInt(count) || 0;
                         totalMedals += medalCount;
                         medalBreakdown[medal] = (medalBreakdown[medal] || 0) + medalCount;
@@ -1889,12 +1889,6 @@ function renderMapSearchResults(mapName) {
     html += `<div class="stat-card"><div class="stat-label">Total Games</div><div class="stat-value">${totalGames}</div></div>`;
     html += `<div class="stat-card clickable-stat" onclick="showSearchKillsBreakdown()"><div class="stat-label">Total Kills</div><div class="stat-value">${totalKills}</div></div>`;
     html += `<div class="stat-card clickable-stat" onclick="showSearchMedalBreakdown()"><div class="stat-label">Total Medals</div><div class="stat-value">${totalMedals}</div></div>`;
-    html += '<div class="gametype-breakdown">';
-    html += '<div class="stat-label">Game Types Played</div>';
-    Object.entries(gametypeCounts).sort((a, b) => b[1] - a[1]).forEach(([gt, count]) => {
-        html += `<div class="gametype-stat">${gt}: ${count}</div>`;
-    });
-    html += '</div>';
     html += '</div>';
     html += '</div>';
     
@@ -1926,11 +1920,11 @@ function renderGametypeSearchResults(gametypeName) {
         const map = game.details['Map Name'] || 'Unknown';
         mapCounts[map] = (mapCounts[map] || 0) + 1;
 
-        // Count all medals in this game
+        // Count all medals in this game (only Halo 2 medals)
         if (game.medals) {
             game.medals.forEach(playerMedals => {
                 Object.entries(playerMedals).forEach(([medal, count]) => {
-                    if (medal !== 'player') {
+                    if (medal !== 'player' && medalIcons[medal]) {
                         const medalCount = parseInt(count) || 0;
                         totalMedals += medalCount;
                         medalBreakdown[medal] = (medalBreakdown[medal] || 0) + medalCount;
@@ -2824,6 +2818,7 @@ function showMedalBreakdown() {
     if (!currentProfilePlayer) return;
 
     // Calculate medal stats for the player from game.medals array
+    // Only count medals that are in the official Halo 2 medalIcons list
     const medalStats = {};
 
     currentProfileGames.forEach(game => {
@@ -2831,7 +2826,7 @@ function showMedalBreakdown() {
             const playerMedals = game.medals.find(m => m.player === currentProfilePlayer);
             if (playerMedals) {
                 Object.entries(playerMedals).forEach(([medal, count]) => {
-                    if (medal !== 'player') {
+                    if (medal !== 'player' && medalIcons[medal]) {
                         const medalCount = parseInt(count) || 0;
                         if (medalCount > 0) {
                             medalStats[medal] = (medalStats[medal] || 0) + medalCount;
@@ -2841,7 +2836,7 @@ function showMedalBreakdown() {
             }
         }
     });
-    
+
     // Sort by most earned
     const sortedMedals = Object.entries(medalStats).sort((a, b) => b[1] - a[1]);
 
@@ -3022,9 +3017,11 @@ function showSearchMedalBreakdown() {
     const medalBreakdown = window.currentSearchMedalBreakdown || {};
     const context = window.currentSearchContext || 'Unknown';
 
-    // Sort by most earned
-    const sortedMedals = Object.entries(medalBreakdown).sort((a, b) => b[1] - a[1]);
-    const totalMedals = Object.values(medalBreakdown).reduce((a, b) => a + b, 0);
+    // Filter to only Halo 2 medals and sort by most earned
+    const sortedMedals = Object.entries(medalBreakdown)
+        .filter(([medal]) => medalIcons[medal])
+        .sort((a, b) => b[1] - a[1]);
+    const totalMedals = sortedMedals.reduce((sum, [, count]) => sum + count, 0);
 
     // Create modal
     let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
@@ -3175,12 +3172,12 @@ function calculatePlayerOverallStats(playerName) {
             assists += player.assists || 0;
             totalScore += parseInt(player.score) || 0;
             
-            // Count total medals from game.medals array
+            // Count total medals from game.medals array (only Halo 2 medals)
             if (game.medals) {
                 const playerMedals = game.medals.find(m => m.player === playerName);
                 if (playerMedals) {
                     Object.entries(playerMedals).forEach(([key, count]) => {
-                        if (key !== 'player') {
+                        if (key !== 'player' && medalIcons[key]) {
                             totalMedals += parseInt(count) || 0;
                         }
                     });
