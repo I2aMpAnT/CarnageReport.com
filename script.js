@@ -146,57 +146,42 @@ function getMedalIcon(medalName) {
 // Helper function to format date/time consistently
 function formatDateTime(startTime) {
     if (!startTime) return '';
-    
+
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
+    // Get ordinal suffix for day
+    function getOrdinal(n) {
+        if (n > 3 && n < 21) return 'th';
+        switch (n % 10) {
+            case 1: return 'st';
+            case 2: return 'nd';
+            case 3: return 'rd';
+            default: return 'th';
+        }
+    }
+
     // Try to parse MM/DD/YYYY format first
     const dateMatch = startTime.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
     // Also try ISO format (YYYY-MM-DDTHH:MM:SS)
     const isoMatch = startTime.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-    const timeMatch = startTime.match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?/i);
-    
+
     if (dateMatch) {
         // MM/DD/YYYY format
         const month = parseInt(dateMatch[1]) - 1;
         const day = parseInt(dateMatch[2]);
+        let year = parseInt(dateMatch[3]);
+        if (year < 100) year += 2000;
         const monthName = months[month] || dateMatch[1];
-        let result = `${monthName} ${day}`;
-        
-        if (timeMatch) {
-            let hour = parseInt(timeMatch[1]);
-            const minutes = timeMatch[2];
-            const ampm = timeMatch[3] ? timeMatch[3].toUpperCase() : '';
-            
-            // Format time cleanly (drop :00 minutes, keep AM/PM)
-            if (minutes === '00') {
-                result += ` · ${hour}${ampm}`;
-            } else {
-                result += ` · ${hour}:${minutes}${ampm}`;
-            }
-        }
-        return result + ' EST';
+        return `${monthName} ${day}${getOrdinal(day)} ${year}`;
     } else if (isoMatch) {
         // ISO format: 2025-11-23T08:35:00-05:00
+        const year = parseInt(isoMatch[1]);
         const month = parseInt(isoMatch[2]) - 1;
         const day = parseInt(isoMatch[3]);
-        let hour = parseInt(isoMatch[4]);
-        const minutes = isoMatch[5];
         const monthName = months[month];
-        
-        // Convert to 12-hour format
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        if (hour > 12) hour -= 12;
-        if (hour === 0) hour = 12;
-        
-        let result = `${monthName} ${day}`;
-        if (minutes === '00') {
-            result += ` · ${hour}${ampm}`;
-        } else {
-            result += ` · ${hour}:${minutes}${ampm}`;
-        }
-        return result + ' EST';
+        return `${monthName} ${day}${getOrdinal(day)} ${year}`;
     }
-    
+
     return startTime;
 }
 
