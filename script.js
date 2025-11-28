@@ -1638,7 +1638,7 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
                     game.players.forEach(player => {
                         if (player.weapons) {
                             player.weapons.forEach(w => {
-                                if (w.name && w.name.toLowerCase() === weapon.toLowerCase()) {
+                                if (w.name && w.name.toLowerCase().includes(weapon.toLowerCase())) {
                                     totalKills += parseInt(w.kills) || 0;
                                 }
                             });
@@ -2132,7 +2132,7 @@ function renderWeaponSearchResults(weaponName) {
         game.players.forEach(player => {
             if (player.weapons) {
                 player.weapons.forEach(w => {
-                    if (w.name && w.name.toLowerCase() === weaponName.toLowerCase()) {
+                    if (w.name && w.name.toLowerCase().includes(weaponName.toLowerCase())) {
                         const kills = parseInt(w.kills) || 0;
                         gameWeaponKills += kills;
                         totalKills += kills;
