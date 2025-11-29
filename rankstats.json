@@ -58,7 +58,7 @@
     "rank": 1
   },
   "136324687926919168": {
-    "xp": 130,
+    "xp": 230,
     "wins": 2,
     "losses": 3,
     "series_wins": 0,
@@ -69,15 +69,15 @@
     "discord_name": "roasted",
     "twitch_name": "h2roasted",
     "twitch_url": "https://twitch.tv/h2roasted",
-    "rank": 2,
+    "rank": 3,
     "kills": 64,
     "deaths": 111,
     "assists": 57,
     "headshots": 37,
-    "MLG 4v4": 2
+    "MLG 4v4": 3
   },
   "426757496557010948": {
-    "xp": 130,
+    "xp": 230,
     "wins": 2,
     "losses": 3,
     "series_wins": 0,
@@ -88,12 +88,12 @@
     "discord_name": "Rocky",
     "twitch_name": "c6rocky",
     "twitch_url": "https://twitch.tv/c6rocky",
-    "rank": 2,
+    "rank": 3,
     "kills": 94,
     "deaths": 95,
     "assists": 47,
     "headshots": 55,
-    "MLG 4v4": 2
+    "MLG 4v4": 3
   },
   "412829053603807232": {
     "xp": 0,
@@ -134,7 +134,7 @@
     "rank": 1
   },
   "293507586131492864": {
-    "xp": 170,
+    "xp": 320,
     "wins": 3,
     "losses": 2,
     "series_wins": 0,
@@ -145,12 +145,12 @@
     "discord_name": "Prince KidMode",
     "twitch_name": "kidm0de",
     "twitch_url": "https://twitch.tv/kidm0de",
-    "rank": 2,
+    "rank": 4,
     "kills": 104,
     "deaths": 79,
     "assists": 49,
     "headshots": 72,
-    "MLG 4v4": 2
+    "MLG 4v4": 4
   },
   "284010072504270849": {
     "xp": 0,
@@ -1174,7 +1174,7 @@
     "rank": 1
   },
   "111190770756657152": {
-    "xp": 170,
+    "xp": 320,
     "wins": 3,
     "losses": 2,
     "series_wins": 0,
@@ -1185,12 +1185,12 @@
     "discord_name": "EpiiiC",
     "twitch_name": "e212",
     "twitch_url": "https://twitch.tv/e212",
-    "rank": 2,
+    "rank": 4,
     "kills": 124,
     "deaths": 85,
     "assists": 66,
     "headshots": 90,
-    "MLG 4v4": 2
+    "MLG 4v4": 4
   },
   "84785392234012672": {
     "xp": 0,
@@ -1341,25 +1341,8 @@
     "discord_name": "AfroMaN",
     "rank": 1
   },
-  "449344331426203546": {
-    "xp": 170,
-    "wins": 3,
-    "losses": 2,
-    "series_wins": 0,
-    "series_losses": 0,
-    "total_games": 5,
-    "total_series": 0,
-    "mmr": 750,
-    "discord_name": "2D",
-    "kills": 74,
-    "deaths": 102,
-    "assists": 57,
-    "headshots": 50,
-    "rank": 2,
-    "MLG 4v4": 2
-  },
-  "460394656304217571": {
-    "xp": 170,
+  "487996385250069885": {
+    "xp": 320,
     "wins": 3,
     "losses": 2,
     "series_wins": 0,
@@ -1368,15 +1351,32 @@
     "total_series": 0,
     "mmr": 750,
     "discord_name": "Tetracide",
+    "rank": 4,
     "kills": 97,
     "deaths": 79,
     "assists": 48,
     "headshots": 69,
-    "rank": 2,
-    "MLG 4v4": 2
+    "MLG 4v4": 4
   },
-  "467006237617687770": {
-    "xp": 130,
+  "128917343702802995": {
+    "xp": 320,
+    "wins": 3,
+    "losses": 2,
+    "series_wins": 0,
+    "series_losses": 0,
+    "total_games": 5,
+    "total_series": 0,
+    "mmr": 750,
+    "discord_name": "2D",
+    "rank": 4,
+    "kills": 74,
+    "deaths": 102,
+    "assists": 57,
+    "headshots": 50,
+    "MLG 4v4": 4
+  },
+  "849664140769236827": {
+    "xp": 230,
     "wins": 2,
     "losses": 3,
     "series_wins": 0,
@@ -1385,15 +1385,15 @@
     "total_series": 0,
     "mmr": 750,
     "discord_name": "Ralph Port",
+    "rank": 3,
     "kills": 80,
     "deaths": 104,
     "assists": 56,
     "headshots": 49,
-    "rank": 2,
-    "MLG 4v4": 2
+    "MLG 4v4": 3
   },
-  "270437833351157432": {
-    "xp": 130,
+  "629725134607888696": {
+    "xp": 230,
     "wins": 2,
     "losses": 3,
     "series_wins": 0,
@@ -1402,11 +1402,11 @@
     "total_series": 0,
     "mmr": 750,
     "discord_name": "getitoutdaFLUD",
+    "rank": 3,
     "kills": 105,
     "deaths": 90,
     "assists": 50,
     "headshots": 70,
-    "rank": 2,
-    "MLG 4v4": 2
+    "MLG 4v4": 3
   }
 }

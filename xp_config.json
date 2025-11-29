@@ -1,5 +1,5 @@
 {
-  "game_win": 50,
+  "game_win": 100,
   "game_loss": 10,
   "rank_thresholds": {
     "1": [
