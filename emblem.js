@@ -123,4 +123,24 @@
     } else {
         loadSprites();
     }
+
+    // Re-render when emblem tab becomes visible
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                const emblemTab = document.getElementById('main-tab-emblem');
+                if (emblemTab && emblemTab.style.display !== 'none' && spritesLoaded) {
+                    updateEmblem();
+                }
+            }
+        });
+    });
+
+    // Observe the emblem tab for visibility changes
+    setTimeout(() => {
+        const emblemTab = document.getElementById('main-tab-emblem');
+        if (emblemTab) {
+            observer.observe(emblemTab, { attributes: true, attributeFilter: ['style'] });
+        }
+    }, 100);
 })();

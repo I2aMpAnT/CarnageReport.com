@@ -3679,15 +3679,31 @@ header {
 /* EMBLEM GENERATOR STYLES */
 /* ========================================= */
 
+#main-tab-emblem h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 30px 0;
+    letter-spacing: 1px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
 .emblem-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
-    margin-top: 20px;
+    margin: 20px auto 0 auto;
+    max-width: 900px;
 }
 
 .emblem-preview {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 #emblemCanvas {
