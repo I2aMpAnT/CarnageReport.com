@@ -79,7 +79,7 @@
         const backgroundCols = 4;
 
         // Sprite sheet dimensions:
-        // Foregrounds: 1030 x 6028, 58 items (15 rows), has title header
+        // Foregrounds: 1030 x 6028, 58 items in 4 columns (16 rows including numbers)
         // Backgrounds: 1030 x 2088, 27 items (7 rows), has title header
 
         // Background sprite dimensions (title header ~24px)
@@ -87,10 +87,16 @@
         const bgHeaderOffset = 24;
         const bgCellHeight = Math.floor((2088 - bgHeaderOffset) / 7);  // ~295
 
-        // Foreground sprite dimensions (title header ~18px)
+        // Foreground sprite dimensions
+        // 15 rows of emblems (58 items total: 48 symbols + 10 numbers)
+        // Header text takes ~24px, footer attribution ~140px
         const fgCellWidth = Math.floor(1030 / 4);           // 257
-        const fgHeaderOffset = 18;
-        const fgCellHeight = Math.floor((6028 - fgHeaderOffset) / 15); // ~400
+        const fgHeaderOffset = 24;
+        const fgFooterOffset = 140;
+        const fgContentHeight = 6028 - fgHeaderOffset - fgFooterOffset; // ~5864
+        const fgCellHeight = Math.floor(fgContentHeight / 15);  // ~390
+        // Crop to centered square for better emblem extraction
+        const fgEmblemSize = Math.min(fgCellWidth, fgCellHeight);
 
         // Draw background first (primary color on blue areas, secondary on white areas)
         const bgRow = Math.floor(emblemBackground / backgroundCols);
@@ -100,15 +106,15 @@
 
         drawBackground(ctx, bgX, bgY, bgCellWidth, bgCellHeight, colorPalette[emblemPrimary], colorPalette[emblemSecondary]);
 
-        // Draw foreground on top (if not toggled off)
-        if (emblemToggle === 0) {
-            const fgRow = Math.floor(emblemForeground / foregroundCols);
-            const fgCol = emblemForeground % foregroundCols;
-            const fgX = fgCol * fgCellWidth;
-            const fgY = fgHeaderOffset + fgRow * fgCellHeight;
+        // Draw foreground on top
+        const fgRow = Math.floor(emblemForeground / foregroundCols);
+        const fgCol = emblemForeground % foregroundCols;
+        // Extract square region from each cell (emblems are roughly square)
+        const fgX = fgCol * fgCellWidth;
+        const fgY = fgHeaderOffset + fgRow * fgCellHeight;
 
-            drawForeground(ctx, fgX, fgY, fgCellWidth, fgCellHeight, colorPalette[emblemPrimary], colorPalette[emblemSecondary]);
-        }
+        // Toggle only hides the primary color, secondary still shows
+        drawForeground(ctx, fgX, fgY, fgEmblemSize, fgEmblemSize, colorPalette[emblemPrimary], colorPalette[emblemSecondary], emblemToggle);
     }
 
     // Draw background - blue pixels get primary color, white areas get secondary color
@@ -159,7 +165,8 @@
     }
 
     // Draw foreground - yellow pixels get primary color, blue pixels get secondary color
-    function drawForeground(ctx, sx, sy, width, height, primaryColor, secondaryColor) {
+    // When toggle is 1, only show secondary color (hide primary)
+    function drawForeground(ctx, sx, sy, width, height, primaryColor, secondaryColor, toggle) {
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = width;
         tempCanvas.height = height;
@@ -184,13 +191,18 @@
                 continue;
             }
 
-            // Yellow pixels (high R, high G, low B) -> Primary color
+            // Yellow pixels (high R, high G, low B) -> Primary color (or transparent if toggled)
             if (r > 150 && g > 150 && b < 100) {
-                const intensity = (r + g) / (255 * 2);
-                data[i] = primaryColor.r * intensity;
-                data[i + 1] = primaryColor.g * intensity;
-                data[i + 2] = primaryColor.b * intensity;
-                data[i + 3] = 255;
+                if (toggle === 1) {
+                    // Hide primary color when toggled
+                    data[i + 3] = 0;
+                } else {
+                    const intensity = (r + g) / (255 * 2);
+                    data[i] = primaryColor.r * intensity;
+                    data[i + 1] = primaryColor.g * intensity;
+                    data[i + 2] = primaryColor.b * intensity;
+                    data[i + 3] = 255;
+                }
             }
             // Blue pixels (low R, low G, high B) -> Secondary color
             else if (b > 150 && r < 100 && g < 100) {
@@ -207,13 +219,25 @@
                 const total = yellowIntensity + blueIntensity;
 
                 if (total > 0) {
-                    const yellowRatio = yellowIntensity / total;
-                    const blueRatio = blueIntensity / total;
+                    if (toggle === 1) {
+                        // Only show secondary (blue) portion when toggled
+                        if (blueIntensity > 0.1) {
+                            data[i] = secondaryColor.r * blueIntensity;
+                            data[i + 1] = secondaryColor.g * blueIntensity;
+                            data[i + 2] = secondaryColor.b * blueIntensity;
+                            data[i + 3] = Math.floor(blueIntensity * 255);
+                        } else {
+                            data[i + 3] = 0;
+                        }
+                    } else {
+                        const yellowRatio = yellowIntensity / total;
+                        const blueRatio = blueIntensity / total;
 
-                    data[i] = (primaryColor.r * yellowRatio + secondaryColor.r * blueRatio) * (total / 1.5);
-                    data[i + 1] = (primaryColor.g * yellowRatio + secondaryColor.g * blueRatio) * (total / 1.5);
-                    data[i + 2] = (primaryColor.b * yellowRatio + secondaryColor.b * blueRatio) * (total / 1.5);
-                    data[i + 3] = 255;
+                        data[i] = (primaryColor.r * yellowRatio + secondaryColor.r * blueRatio) * (total / 1.5);
+                        data[i + 1] = (primaryColor.g * yellowRatio + secondaryColor.g * blueRatio) * (total / 1.5);
+                        data[i + 2] = (primaryColor.b * yellowRatio + secondaryColor.b * blueRatio) * (total / 1.5);
+                        data[i + 3] = 255;
+                    }
                 } else {
                     data[i + 3] = 0; // Make transparent
                 }
