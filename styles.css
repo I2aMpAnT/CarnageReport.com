@@ -24,7 +24,7 @@
 }
 
 body {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     background: var(--background-dark);
     color: var(--text-primary);
     overflow-x: hidden;
@@ -163,7 +163,7 @@ header {
     border-bottom: 1px solid rgba(168, 212, 255, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 16px;
     display: flex;
     align-items: center;
@@ -213,7 +213,7 @@ header {
     background: var(--background-medium);
     border: 2px solid var(--shield-blue);
     color: var(--text-primary);
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 18px;
     outline: none;
     transition: all 0.3s ease;
@@ -745,7 +745,7 @@ header {
 }
 
 .stats-table td {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 14px;
     padding: 10px 8px;
     border: 1px solid rgba(168, 212, 255, 0.1);
@@ -839,7 +839,7 @@ header {
 }
 
 .sb-col {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 16px;
     color: var(--text-primary);
 }
@@ -989,7 +989,7 @@ header {
 }
 
 .pvp-col-header {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 12px;
     font-weight: 600;
     color: var(--text-primary);
@@ -1387,7 +1387,7 @@ header {
 }
 
 .lb-record {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     text-align: center;
@@ -1969,7 +1969,7 @@ header {
 }
 
 .twitch-player-name {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-weight: 600;
     font-size: 15px;
     color: var(--text-primary);
@@ -2004,7 +2004,7 @@ header {
     flex: 1;
     padding: 8px 12px;
     font-size: 12px;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-weight: 600;
     background: rgba(145, 70, 255, 0.2);
     border: 1px solid rgba(145, 70, 255, 0.4);
@@ -2113,7 +2113,7 @@ header {
 }
 
 .comparison-label {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 13px;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -2151,7 +2151,7 @@ header {
     border: 1px solid rgba(168, 212, 255, 0.3);
     color: var(--unsc-blue);
     padding: 10px 20px;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -2620,14 +2620,14 @@ header {
 }
 
 .sort-label {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 14px;
     color: var(--text-secondary);
     font-weight: 600;
 }
 
 .sort-select {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 14px;
     padding: 8px 12px;
     background: var(--background-dark);
@@ -2659,7 +2659,7 @@ header {
 }
 
 .filter-input {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 14px;
     padding: 8px 12px;
     background: var(--background-dark);
@@ -2710,7 +2710,7 @@ header {
 .filter-dropdown-item {
     padding: 10px 12px;
     cursor: pointer;
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 14px;
     color: var(--text-primary);
     display: flex;
@@ -2750,7 +2750,7 @@ header {
 }
 
 .clear-filters-btn {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 12px;
     font-weight: 600;
     padding: 8px 15px;
@@ -2866,7 +2866,7 @@ header {
 }
 
 .profile-stat-card .stat-label {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: 'Overpass', sans-serif;
     font-size: 12px;
     color: var(--text-secondary);
     text-transform: uppercase;
