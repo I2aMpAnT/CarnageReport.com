@@ -254,7 +254,7 @@
         }
     }
 
-    // Draw background - transparent/black areas get primary color, blue channel gets secondary color
+    // Draw background - blue areas get primary color, white/transparent areas get secondary color
     function drawBackground(ctx, img, primaryColor, secondaryColor) {
         const tempCanvas = document.createElement('canvas');
         const size = 256;
@@ -271,24 +271,29 @@
         const data = imageData.data;
 
         for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
             const b = data[i + 2];
             const a = data[i + 3];
 
             // Background PNGs use:
-            // - Transparent/empty areas → Primary color
-            // - Blue channel → Secondary color
+            // - Blue areas → Primary color
+            // - White/transparent areas → Secondary color
 
             if (a === 0) {
-                // Fully transparent = primary color
-                data[i] = primaryColor.r;
-                data[i + 1] = primaryColor.g;
-                data[i + 2] = primaryColor.b;
+                // Fully transparent = secondary color
+                data[i] = secondaryColor.r;
+                data[i + 1] = secondaryColor.g;
+                data[i + 2] = secondaryColor.b;
             } else {
-                // Blue channel intensity determines secondary color blend
-                const blueRatio = b / 255;
-                data[i] = Math.round(lerp(primaryColor.r, secondaryColor.r, blueRatio));
-                data[i + 1] = Math.round(lerp(primaryColor.g, secondaryColor.g, blueRatio));
-                data[i + 2] = Math.round(lerp(primaryColor.b, secondaryColor.b, blueRatio));
+                // Blend: blue areas get primary, white areas get secondary
+                // Blue pixel detection: high blue channel with low red and green
+                const primaryWeight = (b > 128 && r < 128 && g < 128) ? (b / 255) : 0;
+                const secondaryWeight = 1 - primaryWeight;
+
+                data[i] = Math.round(primaryColor.r * primaryWeight + secondaryColor.r * secondaryWeight);
+                data[i + 1] = Math.round(primaryColor.g * primaryWeight + secondaryColor.g * secondaryWeight);
+                data[i + 2] = Math.round(primaryColor.b * primaryWeight + secondaryColor.b * secondaryWeight);
             }
             data[i + 3] = 255;
         }
