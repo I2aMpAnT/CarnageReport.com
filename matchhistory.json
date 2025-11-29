@@ -1,1 +1,165 @@
-{"total_ranked_matches": 0, "matches": []}
+{
+  "total_ranked_matches": 5,
+  "matches": [
+    {
+      "match_number": 1,
+      "match_type": "RANKED",
+      "playlist": "MLG 4v4",
+      "timestamp": "11/28/2025 20:03",
+      "map": "Midship",
+      "gametype": "MLG CTF MidWar",
+      "red_team": [
+        "2D",
+        "KidMode",
+        "EpiiiC",
+        "Tetracide"
+      ],
+      "blue_team": [
+        "Rocky",
+        "Ralph Port",
+        "getitoutdaFLUD",
+        "roasted"
+      ],
+      "winners": [
+        "2D",
+        "KidMode",
+        "EpiiiC",
+        "Tetracide"
+      ],
+      "losers": [
+        "Rocky",
+        "Ralph Port",
+        "getitoutdaFLUD",
+        "roasted"
+      ]
+    },
+    {
+      "match_number": 2,
+      "match_type": "RANKED",
+      "playlist": "MLG 4v4",
+      "timestamp": "11/28/2025 20:19",
+      "map": "Beaver Creek",
+      "gametype": "MLG TS 2007",
+      "red_team": [
+        "KidMode",
+        "2D",
+        "Tetracide",
+        "EpiiiC"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "roasted",
+        "Ralph Port",
+        "Rocky"
+      ],
+      "winners": [
+        "getitoutdaFLUD",
+        "roasted",
+        "Ralph Port",
+        "Rocky"
+      ],
+      "losers": [
+        "KidMode",
+        "2D",
+        "Tetracide",
+        "EpiiiC"
+      ]
+    },
+    {
+      "match_number": 3,
+      "match_type": "RANKED",
+      "playlist": "MLG 4v4",
+      "timestamp": "11/28/2025 20:29",
+      "map": "Lockout",
+      "gametype": "MLG Ball 2007",
+      "red_team": [
+        "KidMode",
+        "2D",
+        "Tetracide",
+        "EpiiiC"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "roasted",
+        "Ralph Port",
+        "Rocky"
+      ],
+      "winners": [
+        "getitoutdaFLUD",
+        "roasted",
+        "Ralph Port",
+        "Rocky"
+      ],
+      "losers": [
+        "KidMode",
+        "2D",
+        "Tetracide",
+        "EpiiiC"
+      ]
+    },
+    {
+      "match_number": 4,
+      "match_type": "RANKED",
+      "playlist": "MLG 4v4",
+      "timestamp": "11/28/2025 20:45",
+      "map": "Warlock",
+      "gametype": "MLG TS 2007",
+      "red_team": [
+        "EpiiiC",
+        "Tetracide",
+        "KidMode",
+        "2D"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "Ralph Port",
+        "Rocky",
+        "roasted"
+      ],
+      "winners": [
+        "EpiiiC",
+        "Tetracide",
+        "KidMode",
+        "2D"
+      ],
+      "losers": [
+        "getitoutdaFLUD",
+        "Ralph Port",
+        "Rocky",
+        "roasted"
+      ]
+    },
+    {
+      "match_number": 5,
+      "match_type": "RANKED",
+      "playlist": "MLG 4v4",
+      "timestamp": "11/28/2025 20:50",
+      "map": "Sanctuary",
+      "gametype": "MLG CTF Sanc",
+      "red_team": [
+        "Tetracide",
+        "KidMode",
+        "2D",
+        "EpiiiC"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "Ralph Port",
+        "Rocky",
+        "roasted"
+      ],
+      "winners": [
+        "Tetracide",
+        "KidMode",
+        "2D",
+        "EpiiiC"
+      ],
+      "losers": [
+        "getitoutdaFLUD",
+        "Ralph Port",
+        "Rocky",
+        "roasted"
+      ]
+    }
+  ]
+}
