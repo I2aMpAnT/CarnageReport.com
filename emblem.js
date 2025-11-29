@@ -2,16 +2,26 @@
 // Add this script to your index.html before </body>
 
 (function() {
+    // Halo 2 emblem color palette
     const colorPalette = [
-        { r: 255, g: 255, b: 255 }, { r: 0,   g: 0,   b: 0   },
-        { r: 255, g: 0,   b: 0   }, { r: 0,   g: 0,   b: 255 },
-        { r: 128, g: 128, b: 128 }, { r: 255, g: 255, b: 0   },
-        { r: 0,   g: 255, b: 0   }, { r: 255, g: 192, b: 203 },
-        { r: 128, g: 0,   b: 128 }, { r: 0,   g: 255, b: 255 },
-        { r: 139, g: 69,  b: 19  }, { r: 210, g: 180, b: 140 },
-        { r: 255, g: 20,  b: 147 }, { r: 75,  g: 0,   b: 130 },
-        { r: 0,   g: 100, b: 0   }, { r: 128, g: 0,   b: 0   },
-        { r: 255, g: 165, b: 0   }, { r: 135, g: 206, b: 250 }
+        { r: 255, g: 255, b: 255 }, // 0: White
+        { r: 110, g: 110, b: 110 }, // 1: Steel
+        { r: 200, g: 30,  b: 30  }, // 2: Red
+        { r: 230, g: 120, b: 50  }, // 3: Orange
+        { r: 210, g: 180, b: 60  }, // 4: Gold
+        { r: 120, g: 130, b: 60  }, // 5: Olive
+        { r: 50,  g: 180, b: 50  }, // 6: Green
+        { r: 100, g: 160, b: 100 }, // 7: Sage
+        { r: 50,  g: 200, b: 200 }, // 8: Cyan
+        { r: 50,  g: 130, b: 130 }, // 9: Teal
+        { r: 70,  g: 100, b: 170 }, // 10: Cobalt
+        { r: 50,  g: 50,  b: 200 }, // 11: Blue
+        { r: 100, g: 50,  b: 180 }, // 12: Violet
+        { r: 130, g: 50,  b: 130 }, // 13: Purple
+        { r: 220, g: 120, b: 180 }, // 14: Pink
+        { r: 180, g: 40,  b: 80  }, // 15: Crimson
+        { r: 100, g: 60,  b: 40  }, // 16: Brown
+        { r: 200, g: 170, b: 130 }  // 17: Tan
     ];
 
     let foregroundSprite = null;
@@ -63,14 +73,16 @@
 
         ctx.clearRect(0, 0, 256, 256);
 
-        const emblemSize = 128;
-        const foregroundCols = 8;
-        const backgroundCols = 8;
+        const emblemSize = 256;
+        const foregroundCols = 4;
+        const backgroundCols = 4;
+        // Sprite sheets have a title header - skip it with Y offset
+        const headerOffset = 24;
 
         const bgRow = Math.floor(emblemBackground / backgroundCols);
         const bgCol = emblemBackground % backgroundCols;
         const bgX = bgCol * emblemSize;
-        const bgY = bgRow * emblemSize;
+        const bgY = headerOffset + bgRow * emblemSize;
 
         drawColorizedEmblem(ctx, backgroundSprite, bgX, bgY, emblemSize, colorPalette[emblemPrimary]);
 
@@ -78,7 +90,7 @@
             const fgRow = Math.floor(emblemForeground / foregroundCols);
             const fgCol = emblemForeground % foregroundCols;
             const fgX = fgCol * emblemSize;
-            const fgY = fgRow * emblemSize;
+            const fgY = headerOffset + fgRow * emblemSize;
 
             drawColorizedEmblem(ctx, foregroundSprite, fgX, fgY, emblemSize, colorPalette[emblemSecondary]);
         }
