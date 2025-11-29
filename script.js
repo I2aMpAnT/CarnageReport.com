@@ -1206,9 +1206,9 @@ function renderWeapons(game) {
         return teamA - teamB;
     });
     
-    // Get all weapon columns with kills
+    // Get all weapon columns with kills (excluding headshot kills)
     const weaponCols = Object.keys(weapons[0] || {}).filter(k => k !== 'Player');
-    const killCols = weaponCols.filter(c => c.toLowerCase().includes('kills'));
+    const killCols = weaponCols.filter(c => c.toLowerCase().includes('kills') && !c.toLowerCase().includes('headshot'));
     
     let html = '<div class="weapons-scoreboard">';
     
