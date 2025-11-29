@@ -271,22 +271,25 @@
         const data = imageData.data;
 
         for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
             const b = data[i + 2];
             const a = data[i + 3];
 
             // Background PNGs use:
-            // - Black/transparent areas → Primary color
+            // - Transparent/empty areas → Primary color
             // - Blue channel → Secondary color
-            // Blend ratio based on blue channel intensity
 
-            const blueRatio = b / 255;
-
-            // Lerp between primary (where black/no blue) and secondary (where blue)
-            data[i] = Math.round(lerp(primaryColor.r, secondaryColor.r, blueRatio));
-            data[i + 1] = Math.round(lerp(primaryColor.g, secondaryColor.g, blueRatio));
-            data[i + 2] = Math.round(lerp(primaryColor.b, secondaryColor.b, blueRatio));
+            if (a === 0) {
+                // Fully transparent = primary color
+                data[i] = primaryColor.r;
+                data[i + 1] = primaryColor.g;
+                data[i + 2] = primaryColor.b;
+            } else {
+                // Blue channel intensity determines secondary color blend
+                const blueRatio = b / 255;
+                data[i] = Math.round(lerp(primaryColor.r, secondaryColor.r, blueRatio));
+                data[i + 1] = Math.round(lerp(primaryColor.g, secondaryColor.g, blueRatio));
+                data[i + 2] = Math.round(lerp(primaryColor.b, secondaryColor.b, blueRatio));
+            }
             data[i + 3] = 255;
         }
 
