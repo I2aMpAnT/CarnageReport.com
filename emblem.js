@@ -2,26 +2,26 @@
 // Add this script to your index.html before </body>
 
 (function() {
-    // Halo 2 emblem color palette
+    // Halo 2 emblem color palette (accurate colors from in-game color blocks)
     const colorPalette = [
-        { r: 255, g: 255, b: 255 }, // 0: White
-        { r: 110, g: 110, b: 110 }, // 1: Steel
-        { r: 200, g: 30,  b: 30  }, // 2: Red
-        { r: 230, g: 120, b: 50  }, // 3: Orange
-        { r: 210, g: 180, b: 60  }, // 4: Gold
-        { r: 120, g: 130, b: 60  }, // 5: Olive
-        { r: 50,  g: 180, b: 50  }, // 6: Green
-        { r: 100, g: 160, b: 100 }, // 7: Sage
-        { r: 50,  g: 200, b: 200 }, // 8: Cyan
-        { r: 50,  g: 130, b: 130 }, // 9: Teal
-        { r: 70,  g: 100, b: 170 }, // 10: Cobalt
-        { r: 50,  g: 50,  b: 200 }, // 11: Blue
-        { r: 100, g: 50,  b: 180 }, // 12: Violet
-        { r: 130, g: 50,  b: 130 }, // 13: Purple
-        { r: 220, g: 120, b: 180 }, // 14: Pink
-        { r: 180, g: 40,  b: 80  }, // 15: Crimson
-        { r: 100, g: 60,  b: 40  }, // 16: Brown
-        { r: 200, g: 170, b: 130 }  // 17: Tan
+        { r: 255, g: 255, b: 255 }, // 0: White (10E0)
+        { r: 110, g: 110, b: 110 }, // 1: Steel (11E0)
+        { r: 189, g: 43,  b: 44  }, // 2: Red (12E0)
+        { r: 244, g: 123, b: 32  }, // 3: Orange (13E0)
+        { r: 244, g: 209, b: 45  }, // 4: Gold (14E0)
+        { r: 158, g: 169, b: 90  }, // 5: Olive (15E0)
+        { r: 35,  g: 145, b: 46  }, // 6: Green (16E0)
+        { r: 36,  g: 87,  b: 70  }, // 7: Sage (17E0)
+        { r: 22,  g: 160, b: 160 }, // 8: Cyan (18E0)
+        { r: 55,  g: 115, b: 123 }, // 9: Teal (27E0)
+        { r: 32,  g: 113, b: 178 }, // 10: Cobalt (19E0)
+        { r: 45,  g: 60,  b: 180 }, // 11: Blue (1FE0)
+        { r: 108, g: 80,  b: 182 }, // 12: Violet (20E0)
+        { r: 148, g: 39,  b: 132 }, // 13: Purple (22E0)
+        { r: 248, g: 155, b: 200 }, // 14: Pink (23E0)
+        { r: 156, g: 15,  b: 68  }, // 15: Crimson (24E0)
+        { r: 120, g: 73,  b: 43  }, // 16: Brown (25E0)
+        { r: 175, g: 144, b: 87  }  // 17: Tan (26E0)
     ];
 
     let foregroundSprite = null;
