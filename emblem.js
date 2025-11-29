@@ -7,7 +7,7 @@
     // Index matches the color block BMP file codes
     const colorPalette = [
         { r: 255, g: 255, b: 255, code: '10E0', name: 'White' },
-        { r: 110, g: 110, b: 110, code: '11E0', name: 'Steel' },
+        { r: 83,  g: 85,  b: 84,  code: '11E0', name: 'Steel' },
         { r: 189, g: 43,  b: 44,  code: '12E0', name: 'Red' },
         { r: 244, g: 123, b: 32,  code: '13E0', name: 'Orange' },
         { r: 244, g: 209, b: 45,  code: '14E0', name: 'Gold' },
@@ -17,7 +17,7 @@
         { r: 22,  g: 160, b: 160, code: '18E0', name: 'Cyan' },
         { r: 55,  g: 115, b: 123, code: '27E0', name: 'Teal' },
         { r: 32,  g: 113, b: 178, code: '19E0', name: 'Cobalt' },
-        { r: 45,  g: 60,  b: 180, code: '1FE0', name: 'Blue' },
+        { r: 41,  g: 68,  b: 155, code: '1FE0', name: 'Blue' },
         { r: 108, g: 80,  b: 182, code: '20E0', name: 'Violet' },
         { r: 148, g: 39,  b: 132, code: '22E0', name: 'Purple' },
         { r: 248, g: 155, b: 200, code: '23E0', name: 'Pink' },
@@ -151,6 +151,206 @@
             };
             img.src = path;
         });
+    }
+
+    // Create a small icon preview for an emblem (white and blue colors)
+    function createEmblemIcon(imgPath, callback) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 24;
+            canvas.height = 24;
+            const ctx = canvas.getContext('2d');
+
+            // Draw scaled image
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(img, 0, 0, 24, 24);
+
+            // Recolor to white and blue
+            const imageData = ctx.getImageData(0, 0, 24, 24);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
+
+                if (a === 0) continue;
+
+                const brightness = (r + g + b) / 3;
+                if (brightness < 20) {
+                    data[i + 3] = 0;
+                    continue;
+                }
+
+                // Yellow -> White, Blue -> Blue
+                const yellowStrength = Math.min(r, g) / 255;
+                const blueStrength = b / 255;
+                const totalStrength = yellowStrength + blueStrength;
+
+                if (totalStrength < 0.05) {
+                    data[i + 3] = 0;
+                    continue;
+                }
+
+                const primaryRatio = yellowStrength / Math.max(totalStrength, 0.001);
+                const secondaryRatio = blueStrength / Math.max(totalStrength, 0.001);
+
+                // White (255,255,255) for primary, Blue (41,68,155) for secondary
+                data[i] = Math.round(255 * primaryRatio + 41 * secondaryRatio);
+                data[i + 1] = Math.round(255 * primaryRatio + 68 * secondaryRatio);
+                data[i + 2] = Math.round(255 * primaryRatio + 155 * secondaryRatio);
+                data[i + 3] = Math.round(255 * smoothstep(0.1, 0.5, totalStrength));
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            callback(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => callback(null);
+        img.src = imgPath;
+    }
+
+    // Create custom dropdown with emblem icons
+    function createCustomEmblemDropdown(selectElement, files, pathPrefix) {
+        const container = document.createElement('div');
+        container.className = 'emblem-dropdown-container';
+
+        const selectedDiv = document.createElement('div');
+        selectedDiv.className = 'emblem-dropdown-selected';
+
+        const selectedIcon = document.createElement('canvas');
+        selectedIcon.className = 'emblem-icon';
+        selectedIcon.width = 24;
+        selectedIcon.height = 24;
+
+        const selectedName = document.createElement('span');
+        selectedName.className = 'emblem-name';
+
+        const arrow = document.createElement('span');
+        arrow.className = 'dropdown-arrow';
+        arrow.textContent = '▼';
+
+        selectedDiv.appendChild(selectedIcon);
+        selectedDiv.appendChild(selectedName);
+        selectedDiv.appendChild(arrow);
+
+        const listDiv = document.createElement('div');
+        listDiv.className = 'emblem-dropdown-list';
+
+        // Extract names from filenames
+        const names = files.map(f => f.replace(/^\d+\s*-\s*/, '').replace('.png', '').trim());
+
+        // Create items
+        files.forEach((file, index) => {
+            const item = document.createElement('div');
+            item.className = 'emblem-dropdown-item';
+            item.dataset.value = index;
+
+            const icon = document.createElement('canvas');
+            icon.className = 'emblem-icon';
+            icon.width = 24;
+            icon.height = 24;
+
+            const name = document.createElement('span');
+            name.className = 'emblem-name';
+            name.textContent = names[index];
+
+            item.appendChild(icon);
+            item.appendChild(name);
+            listDiv.appendChild(item);
+
+            // Load icon
+            const imgPath = pathPrefix + encodeURIComponent(file);
+            createEmblemIcon(imgPath, (dataUrl) => {
+                if (dataUrl) {
+                    const img = new Image();
+                    img.onload = () => {
+                        const ctx = icon.getContext('2d');
+                        ctx.clearRect(0, 0, 24, 24);
+                        ctx.drawImage(img, 0, 0);
+                    };
+                    img.src = dataUrl;
+                }
+            });
+
+            item.addEventListener('click', () => {
+                selectElement.value = index;
+                updateDropdownSelection(container, index, names, files, pathPrefix);
+                listDiv.classList.remove('open');
+                updateEmblem();
+            });
+        });
+
+        container.appendChild(selectedDiv);
+        container.appendChild(listDiv);
+
+        // Toggle dropdown
+        selectedDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close other dropdowns
+            document.querySelectorAll('.emblem-dropdown-list.open').forEach(list => {
+                if (list !== listDiv) list.classList.remove('open');
+            });
+            listDiv.classList.toggle('open');
+        });
+
+        // Close on outside click
+        document.addEventListener('click', () => {
+            listDiv.classList.remove('open');
+        });
+
+        // Hide original select
+        selectElement.style.display = 'none';
+        selectElement.parentNode.insertBefore(container, selectElement.nextSibling);
+
+        // Set initial selection
+        updateDropdownSelection(container, parseInt(selectElement.value) || 0, names, files, pathPrefix);
+
+        return container;
+    }
+
+    function updateDropdownSelection(container, index, names, files, pathPrefix) {
+        const selectedIcon = container.querySelector('.emblem-dropdown-selected .emblem-icon');
+        const selectedName = container.querySelector('.emblem-dropdown-selected .emblem-name');
+
+        selectedName.textContent = names[index];
+
+        // Update selected item styling
+        container.querySelectorAll('.emblem-dropdown-item').forEach((item, i) => {
+            item.classList.toggle('selected', i === index);
+        });
+
+        // Load selected icon
+        const imgPath = pathPrefix + encodeURIComponent(files[index]);
+        createEmblemIcon(imgPath, (dataUrl) => {
+            if (dataUrl) {
+                const img = new Image();
+                img.onload = () => {
+                    const ctx = selectedIcon.getContext('2d');
+                    ctx.clearRect(0, 0, 24, 24);
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = dataUrl;
+            }
+        });
+    }
+
+    // Initialize custom emblem dropdowns
+    function initEmblemDropdowns() {
+        const fgSelect = document.getElementById('emblemForeground');
+        const bgSelect = document.getElementById('emblemBackground');
+
+        if (fgSelect && !fgSelect.dataset.customized) {
+            fgSelect.dataset.customized = 'true';
+            createCustomEmblemDropdown(fgSelect, foregroundFiles, 'emblems/embems/');
+        }
+
+        if (bgSelect && !bgSelect.dataset.customized) {
+            bgSelect.dataset.customized = 'true';
+            createCustomEmblemDropdown(bgSelect, backgroundFiles, 'emblems/backgrounds/');
+        }
     }
 
     // Initialize color picker grids with BMP images
@@ -478,6 +678,7 @@
     function init() {
         applyUrlParameters();
         initColorPickers();
+        initEmblemDropdowns();
         preloadImages();
 
         // Add click-to-copy handler to emblem canvas
@@ -501,8 +702,9 @@
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 const emblemTab = document.getElementById('main-tab-emblem');
                 if (emblemTab && emblemTab.style.display !== 'none') {
-                    // Re-init color pickers in case they weren't visible before
+                    // Re-init components in case they weren't visible before
                     initColorPickers();
+                    initEmblemDropdowns();
                     updateEmblem();
                 }
             }

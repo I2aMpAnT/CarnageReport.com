@@ -3861,6 +3861,94 @@ header {
     transform: scale(1.05);
 }
 
+/* Custom Emblem Dropdown with Icons */
+.emblem-dropdown-container {
+    position: relative;
+    width: 100%;
+}
+
+.emblem-dropdown-selected {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(0, 51, 102, 0.4);
+    border: 2px solid rgba(0, 153, 255, 0.4);
+    border-radius: 6px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.emblem-dropdown-selected:hover {
+    border-color: #0099ff;
+    background: rgba(0, 51, 102, 0.6);
+}
+
+.emblem-dropdown-selected .emblem-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.emblem-dropdown-selected .emblem-name {
+    flex: 1;
+}
+
+.emblem-dropdown-selected .dropdown-arrow {
+    margin-left: auto;
+    font-size: 10px;
+    color: #0099ff;
+}
+
+.emblem-dropdown-list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 300px;
+    overflow-y: auto;
+    background: rgba(0, 20, 40, 0.98);
+    border: 2px solid rgba(0, 153, 255, 0.6);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    z-index: 100;
+}
+
+.emblem-dropdown-list.open {
+    display: block;
+}
+
+.emblem-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.emblem-dropdown-item:hover {
+    background: rgba(0, 153, 255, 0.3);
+}
+
+.emblem-dropdown-item.selected {
+    background: rgba(0, 153, 255, 0.2);
+}
+
+.emblem-dropdown-item .emblem-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.emblem-dropdown-item .emblem-name {
+    color: white;
+    font-size: 0.95em;
+}
+
 @media (max-width: 768px) {
     .emblem-layout {
         grid-template-columns: 1fr;
