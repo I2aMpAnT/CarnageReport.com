@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
 Script to parse Excel stats files and populate the site with game data and rankings.
-Only processes 4v4 team games for the MLG 4v4 playlist.
+Supports multiple playlists based on active matches from the Discord bot:
+- MLG 4v4 / Team Hardcore: 4v4 games with valid map/gametype combos (11 total)
+- Double Team: 2v2 team games
+- Head to Head: 1v1 games
 """
 
 import pandas as pd
@@ -18,9 +21,25 @@ GAMESDATA_FILE = 'gameshistory.json'
 XP_CONFIG_FILE = 'xp_config.json'
 PLAYERS_FILE = 'players.json'
 HTML_FILE = 'h2carnagereport.html'
+ACTIVE_MATCHES_FILE = 'active_matches.json'
 
-# Playlist name for 4v4 games
+# Default playlist name for 4v4 games (fallback)
 PLAYLIST_NAME = 'MLG 4v4'
+
+# Valid MLG 4v4 / Team Hardcore map/gametype combinations (11 total)
+VALID_MLG_4V4_COMBOS = {
+    "Midship": ["MLG CTF5", "MLG CTF MidWar", "MLG Team Slayer", "MLG Oddball", "MLG Bomb"],
+    "Beaver Creek": ["MLG Team Slayer"],
+    "Lockout": ["MLG Team Slayer", "MLG Oddball"],
+    "Warlock": ["MLG Team Slayer", "MLG CTF5"],
+    "Sanctuary": ["MLG CTF3", "MLG Team Slayer"]
+}
+
+# Playlist types
+PLAYLIST_MLG_4V4 = 'MLG 4v4'
+PLAYLIST_TEAM_HARDCORE = 'Team Hardcore'
+PLAYLIST_DOUBLE_TEAM = 'Double Team'
+PLAYLIST_HEAD_TO_HEAD = 'Head to Head'
 
 def get_loss_factor(rank, loss_factors):
     """Get the loss factor for a given rank. Lower ranks lose less XP."""
@@ -56,6 +75,148 @@ def load_players():
             return json.load(f)
     except:
         return {}
+
+def load_active_matches():
+    """
+    Load active_matches.json which contains info about currently active matches from the Discord bot.
+
+    Expected format:
+    {
+        "active_match": {
+            "playlist": "MLG 4v4",  // or "Double Team", "Head to Head", "Team Hardcore"
+            "start_time": "2025-11-28T20:00:00",
+            "red_team": ["player1", "player2", ...],  // in-game names
+            "blue_team": ["player1", "player2", ...],
+            "discord_ids": {
+                "red": [user_id1, user_id2, ...],
+                "blue": [user_id1, user_id2, ...]
+            }
+        }
+    }
+
+    Returns None if no active match or file doesn't exist.
+    """
+    try:
+        with open(ACTIVE_MATCHES_FILE, 'r') as f:
+            data = json.load(f)
+            return data.get('active_match')
+    except:
+        return None
+
+def is_valid_mlg_combo(map_name, gametype):
+    """Check if map/gametype is a valid MLG 4v4 / Team Hardcore combination."""
+    if map_name not in VALID_MLG_4V4_COMBOS:
+        return False
+
+    valid_gametypes = VALID_MLG_4V4_COMBOS[map_name]
+    # Check if gametype matches any valid gametype (case-insensitive, partial match)
+    gametype_lower = gametype.lower()
+    for valid_gt in valid_gametypes:
+        if valid_gt.lower() in gametype_lower or gametype_lower in valid_gt.lower():
+            return True
+    return False
+
+def get_game_player_count(file_path):
+    """Get the number of players in a game from the Post Game Report."""
+    try:
+        post_df = pd.read_excel(file_path, sheet_name='Post Game Report')
+        return len(post_df)
+    except:
+        return 0
+
+def is_team_game(file_path):
+    """Check if a game has Red and Blue teams."""
+    try:
+        post_df = pd.read_excel(file_path, sheet_name='Post Game Report')
+        teams = post_df['team'].unique().tolist()
+        return 'Red' in teams and 'Blue' in teams
+    except:
+        return False
+
+def get_game_players(file_path):
+    """Get list of player names from the game."""
+    try:
+        post_df = pd.read_excel(file_path, sheet_name='Post Game Report')
+        return [str(row.get('name', '')).strip() for _, row in post_df.iterrows() if row.get('name')]
+    except:
+        return []
+
+def players_match_active_match(game_players, active_match):
+    """
+    Check if game players match the active match players.
+    Returns True if most players from the game are in the active match.
+    """
+    if not active_match:
+        return False
+
+    active_players = set()
+    if active_match.get('red_team'):
+        active_players.update([p.lower() for p in active_match['red_team']])
+    if active_match.get('blue_team'):
+        active_players.update([p.lower() for p in active_match['blue_team']])
+
+    if not active_players:
+        return False
+
+    game_players_lower = [p.lower() for p in game_players]
+    matches = sum(1 for p in game_players_lower if p in active_players)
+
+    # At least 75% of game players should be in active match
+    return matches >= len(game_players) * 0.75
+
+def determine_playlist(file_path, active_match=None):
+    """
+    Determine the appropriate playlist for a game based on:
+    1. Active match from Discord bot (if any)
+    2. Game characteristics (player count, teams, map/gametype)
+
+    Returns: playlist name string or None if game doesn't qualify for any playlist
+    """
+    player_count = get_game_player_count(file_path)
+    is_team = is_team_game(file_path)
+    game_players = get_game_players(file_path)
+
+    # Get map and gametype from game details
+    try:
+        game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
+        if len(game_details_df) > 0:
+            row = game_details_df.iloc[0]
+            map_name = str(row.get('Map Name', '')).strip()
+            gametype = str(row.get('Variant Name', '')).strip()
+        else:
+            map_name = ''
+            gametype = ''
+    except:
+        map_name = ''
+        gametype = ''
+
+    # If there's an active match, check if this game matches it
+    if active_match:
+        active_playlist = active_match.get('playlist', '')
+
+        # Head to Head: 1v1 games
+        if active_playlist == PLAYLIST_HEAD_TO_HEAD:
+            if player_count == 2 and players_match_active_match(game_players, active_match):
+                return PLAYLIST_HEAD_TO_HEAD
+
+        # Double Team: 2v2 team games
+        elif active_playlist == PLAYLIST_DOUBLE_TEAM:
+            if player_count == 4 and is_team and players_match_active_match(game_players, active_match):
+                return PLAYLIST_DOUBLE_TEAM
+
+        # MLG 4v4 or Team Hardcore: 4v4 team games with valid map/gametype
+        elif active_playlist in [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE]:
+            if player_count == 8 and is_team:
+                if is_valid_mlg_combo(map_name, gametype):
+                    if players_match_active_match(game_players, active_match):
+                        return active_playlist
+
+    # Fallback: No active match or game doesn't match active match
+    # Default behavior: 4v4 team games with valid combos go to MLG 4v4
+    if player_count == 8 and is_team and is_valid_mlg_combo(map_name, gametype):
+        return PLAYLIST_MLG_4V4
+
+    return None
 
 def build_profile_lookup(players):
     """
@@ -112,13 +273,37 @@ def parse_score(score_val):
     except:
         return 0, str(score_val)
 
-def is_4v4_team_game(file_path):
-    """Check if a game is a 4v4 team game (has Red and Blue teams)."""
+def is_4v4_team_game(file_path, require_valid_combo=True):
+    """
+    Check if a game is a 4v4 team game (has Red and Blue teams).
+
+    Args:
+        file_path: Path to the Excel stats file
+        require_valid_combo: If True, also require valid MLG map/gametype combo
+
+    Returns:
+        bool: True if it's a valid 4v4 team game
+    """
     try:
         post_df = pd.read_excel(file_path, sheet_name='Post Game Report')
         teams = post_df['team'].unique().tolist()
         # Must have both Red and Blue teams and 8 players
-        return 'Red' in teams and 'Blue' in teams and len(post_df) == 8
+        is_4v4 = 'Red' in teams and 'Blue' in teams and len(post_df) == 8
+
+        if not is_4v4:
+            return False
+
+        if require_valid_combo:
+            # Check map/gametype combo
+            game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
+            if len(game_details_df) > 0:
+                row = game_details_df.iloc[0]
+                map_name = str(row.get('Map Name', '')).strip()
+                gametype = str(row.get('Variant Name', '')).strip()
+                return is_valid_mlg_combo(map_name, gametype)
+            return False
+
+        return True
     except:
         return False
 
@@ -295,7 +480,7 @@ def find_player_by_name(rankstats, name, profile_lookup=None):
     return None
 
 def main():
-    print("Starting stats population (MLG 4v4 only)...")
+    print("Starting stats population...")
     print("=" * 50)
 
     # Load configurations
@@ -318,6 +503,17 @@ def main():
     profile_lookup = build_profile_lookup(players)
     print(f"Built {len(profile_lookup)} profile->user mappings")
 
+    # Load active matches from Discord bot (if any)
+    active_match = load_active_matches()
+    if active_match:
+        print(f"\nActive match detected: {active_match.get('playlist', 'Unknown')} playlist")
+        if active_match.get('red_team'):
+            print(f"  Red team: {', '.join(active_match['red_team'])}")
+        if active_match.get('blue_team'):
+            print(f"  Blue team: {', '.join(active_match['blue_team'])}")
+    else:
+        print("\nNo active match detected - using default playlist detection")
+
     # STEP 1: Zero out ALL player stats
     print("\nStep 1: Zeroing out all player stats...")
     for user_id in rankstats:
@@ -336,22 +532,46 @@ def main():
 
     print(f"  Zeroed stats for {len(rankstats)} players")
 
-    # STEP 2: Find and parse only 4v4 team games
-    print("\nStep 2: Finding 4v4 team games...")
+    # STEP 2: Find and parse games, determining playlist for each
+    print("\nStep 2: Finding and categorizing games...")
     stats_files = sorted([f for f in os.listdir(STATS_DIR) if f.endswith('.xlsx')])
 
-    team_games = []
+    # Group games by playlist
+    games_by_playlist = {}
+    skipped_games = []
+
     for filename in stats_files:
         file_path = os.path.join(STATS_DIR, filename)
-        if is_4v4_team_game(file_path):
+        playlist = determine_playlist(file_path, active_match)
+
+        if playlist:
             game = parse_excel_file(file_path)
             game['source_file'] = filename
-            team_games.append(game)
-            print(f"  Found 4v4 game: {game['details'].get('Variant Name')} on {game['details'].get('Map Name')}")
-        else:
-            print(f"  Skipping non-4v4 game: {filename}")
+            game['playlist'] = playlist
 
-    print(f"\nTotal 4v4 games found: {len(team_games)}")
+            if playlist not in games_by_playlist:
+                games_by_playlist[playlist] = []
+            games_by_playlist[playlist].append(game)
+
+            map_name = game['details'].get('Map Name', 'Unknown')
+            gametype = game['details'].get('Variant Name', 'Unknown')
+            print(f"  [{playlist}] {gametype} on {map_name}")
+        else:
+            skipped_games.append(filename)
+            print(f"  Skipping (no matching playlist): {filename}")
+
+    # Summary
+    print(f"\nGames categorized by playlist:")
+    for playlist, games in games_by_playlist.items():
+        print(f"  {playlist}: {len(games)} games")
+    if skipped_games:
+        print(f"  Skipped: {len(skipped_games)} games")
+
+    # For now, process MLG 4v4 games (can extend to other playlists later)
+    team_games = games_by_playlist.get(PLAYLIST_MLG_4V4, [])
+    team_games.extend(games_by_playlist.get(PLAYLIST_TEAM_HARDCORE, []))
+
+    print(f"\nTotal ranked games to process: {len(team_games)}")
 
     # STEP 3: Process games SEQUENTIALLY and update player stats
     print("\nStep 3: Processing games sequentially (in order played)...")
@@ -470,7 +690,9 @@ def main():
         rankstats[user_id]['headshots'] = stats['headshots']
         rankstats[user_id]['xp'] = final_xp
         rankstats[user_id]['rank'] = final_rank
-        rankstats[user_id][PLAYLIST_NAME] = final_rank
+        # Store rank for each playlist the player participated in
+        # For now, default to MLG 4v4 (can be extended per-playlist later)
+        rankstats[user_id][PLAYLIST_MLG_4V4] = final_rank
         # Use highest rank tracked during gameplay (not just final rank)
         rankstats[user_id]['highest_rank'] = player_highest_rank[player_name]
 
@@ -481,9 +703,7 @@ def main():
         json.dump(rankstats, f, indent=2)
     print(f"  Saved {RANKSTATS_FILE}")
 
-    # Add playlist to each game
-    for game in team_games:
-        game['playlist'] = PLAYLIST_NAME
+    # Games already have their playlist set from determine_playlist()
 
     with open(GAMESDATA_FILE, 'w') as f:
         json.dump(team_games, f, indent=2)
@@ -521,7 +741,7 @@ def main():
         match_entry = {
             'match_number': i,
             'match_type': 'RANKED',
-            'playlist': PLAYLIST_NAME,
+            'playlist': game.get('playlist', PLAYLIST_MLG_4V4),
             'timestamp': game['details'].get('Start Time', ''),
             'map': game['details'].get('Map Name', 'Unknown'),
             'gametype': game['details'].get('Variant Name', 'Unknown'),
@@ -540,11 +760,17 @@ def main():
     print("\n" + "=" * 50)
     print("STATS POPULATION SUMMARY")
     print("=" * 50)
-    print(f"Playlist: {PLAYLIST_NAME}")
-    print(f"Total 4v4 games processed: {len(team_games)}")
+    # Count games by playlist
+    playlist_counts = {}
+    for game in team_games:
+        pl = game.get('playlist', PLAYLIST_MLG_4V4)
+        playlist_counts[pl] = playlist_counts.get(pl, 0) + 1
+    for pl, count in playlist_counts.items():
+        print(f"  {pl}: {count} games")
+    print(f"Total ranked games processed: {len(team_games)}")
     print(f"Total players with game data: {len(player_game_stats)}")
 
-    print(f"\n{PLAYLIST_NAME} Rankings:")
+    print(f"\nRankings:")
     ranked = [(uid, d) for uid, d in rankstats.items() if d.get('wins', 0) > 0 or d.get('losses', 0) > 0]
     ranked.sort(key=lambda x: (x[1].get('rank', 0), x[1].get('wins', 0)), reverse=True)
     for uid, d in ranked[:15]:
