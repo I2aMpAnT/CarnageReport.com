@@ -26,86 +26,108 @@
         { r: 175, g: 144, b: 87,  code: '26E0', name: 'Tan' }
     ];
 
-    // Foreground emblem filenames (index matches game's EF parameter from halo2pc.com)
-    // Order matches sprite sheet: 64 emblems (0-63), numbers at 54-63
+    // Foreground emblem filenames (index matches halo2pc.com EF parameter)
     const foregroundFiles = [
-        'Sol.png',              // 0
+        'Seventh Column.png',   // 0
         'Bullseye.png',         // 1
-        'Double Crescent.png',  // 2
+        'Vortex.png',           // 2
         'Halt.png',             // 3
-        'Phoenix.png',          // 4
-        'Champion.png',         // 5
+        'Spartan.png',          // 4
+        'Da Bomb.png',          // 5
         'Sergeant.png',         // 6
         'Drone.png',            // 7
-        'Spartan.png',          // 8
-        'Delta.png',            // 9
-        'Helmet.png',           // 10
-        'Seventh Column.png',   // 11
-        'Cube.png',             // 12
-        'Cleave.png',           // 13
-        'Grunt.png',            // 14
-        'Radioactive.png',      // 15
-        'Smiley.png',           // 16
-        'Frowney.png',          // 17
-        'Triad.png',            // 18
-        'Waypoint.png',         // 19
-        'Trinity.png',          // 20
-        'Ying Yang.png',        // 21
-        'Brute Head.png',       // 22
-        'Vortex.png',           // 23
-        'Spearhead.png',        // 24
-        'Trident.png',          // 25
-        'Skull King.png',       // 26
-        'Triplicate.png',       // 27
-        'Subnova.png',          // 28
-        'Marathon.png',         // 29
-        'Valkyrie.png',         // 30
-        'Spades.png',           // 31
-        'Clubs.png',            // 32
-        'Diamonds.png',         // 33
-        'Hearts.png',           // 34
-        'Snake.png',            // 35
-        'Flaming Ninja.png',    // 36
-        'Rampancy.png',         // 37
-        'Hawk.png',             // 38
-        'Lips.png',             // 39
-        'Capsule.png',          // 40
-        'Race.png',             // 41
-        'Gas Mask.png',         // 42
-        'Grenade.png',          // 43
-        'Thor.png',             // 44
-        'Mark of Shame.png',    // 45
-        'Wasp.png',             // 46
-        'Da Bomb.png',          // 47
-        'Runes.png',            // 48
-        'Grunt Head.png',       // 49
-        'Tsantsa.png',          // 50
-        'Cancel.png',           // 51
-        'Jolly Roger.png',      // 52
-        'Number 0.png',         // 53
-        'Number 1.png',         // 54
-        'Number 2.png',         // 55
-        'Number 3.png',         // 56
-        'Number 4.png',         // 57
-        'Number 5.png',         // 58
-        'Number 6.png',         // 59
-        'Number 7.png',         // 60
-        'Number 8.png',         // 61
-        'Number 9.png'          // 62
+        'Delta.png',            // 8
+        'Helmet.png',           // 9
+        'Phoenix.png',          // 10
+        'Champion.png',         // 11
+        'Jolly Roger.png',      // 12
+        'Marathon.png',         // 13
+        'Cube.png',             // 14
+        'Cleave.png',           // 15
+        'Grunt.png',            // 16
+        'Radioactive.png',      // 17
+        'Smiley.png',           // 18
+        'Sol.png',              // 19
+        'Frowney.png',          // 20
+        'Triad.png',            // 21
+        'Waypoint.png',         // 22
+        'Brute Head.png',       // 23
+        'Triplicate.png',       // 24
+        'Ying Yang.png',        // 25
+        'Trinity.png',          // 26
+        'Spearhead.png',        // 27
+        'Skull King.png',       // 28
+        'Trident.png',          // 29
+        'Subnova.png',          // 30
+        'Valkyrie.png',         // 31
+        'Spades.png',           // 32
+        'Clubs.png',            // 33
+        'Diamonds.png',         // 34
+        'Double Crescent.png',  // 35
+        'Hearts.png',           // 36
+        'Snake.png',            // 37
+        'Flaming Ninja.png',    // 38
+        'Rampancy.png',         // 39
+        'Hawk.png',             // 40
+        'Lips.png',             // 41
+        'Capsule.png',          // 42
+        'Race.png',             // 43
+        'Gas Mask.png',         // 44
+        'Grenade.png',          // 45
+        'Thor.png',             // 46
+        'Wasp.png',             // 47
+        'Grunt Symbol.png',     // 48
+        'Mark of Shame.png',    // 49
+        'Runes.png',            // 50
+        'Grunt Head.png',       // 51
+        'Tsantsa.png',          // 52
+        'Cancel.png',           // 53
+        'Number 0.png',         // 54
+        'Number 1.png',         // 55
+        'Number 2.png',         // 56
+        'Number 3.png',         // 57
+        'Number 4.png',         // 58
+        'Number 5.png',         // 59
+        'Number 6.png',         // 60
+        'Number 7.png',         // 61
+        'Number 8.png',         // 62
+        'Number 9.png'          // 63
     ];
 
-    // Background filenames (index matches dropdown value)
+    // Background filenames (index matches sprite sheet order, left-to-right, top-to-bottom)
     const backgroundFiles = [
-        'Solid.png', 'Vertical Split.png', 'Horizontal Split 1.png',
-        'Horizontal Split 2.png', 'Horizontal Gradient.png', 'Vertical Gradient.png',
-        'Triple Row.png', 'Quadrants 1.png', 'DIagonal Slice.png',
-        'Cleft.png', 'X1.png', 'X2.png', 'Diamond.png', 'Cross.png',
-        'Square.png', 'Dual Half-Circle.png', 'Diagonal Quadrant.png',
-        'Three Quarters.png', 'Quarter.png', 'Four Rows 1.png',
-        'Split Circle.png', 'One Third.png', 'Two Thirds.png',
-        'Upper Field.png', 'Top and Bottom.png', 'Center Stripe.png',
-        'Left and Right.png', 'Circle.png', 'Triangle.png',
-        'Four Rows 2.png', 'Quadrants 2.png', 'Triple Column.png'
+        'Solid.png',            // 0
+        'Vertical Split.png',   // 1
+        'Horizontal Split 1.png', // 2
+        'Horizontal Split 2.png', // 3
+        'Horizontal Gradient.png', // 4
+        'Vertical Gradient.png',  // 5
+        'Triple Column.png',    // 6
+        'Triple Row.png',       // 7
+        'Quadrants 1.png',      // 8
+        'DIagonal Slice.png',   // 9
+        'Triangle.png',         // 10
+        'Cleft.png',            // 11
+        'X1.png',               // 12
+        'X2.png',               // 13
+        'Circle.png',           // 14
+        'Diamond.png',          // 15
+        'Cross.png',            // 16
+        'Square.png',           // 17
+        'Dual Half-Circle.png', // 18
+        'Three Quarters.png',   // 19
+        'Diagonal Quadrant.png', // 20
+        'Quarter.png',          // 21
+        'Split Circle.png',     // 22
+        'Four Rows 1.png',      // 23
+        'Four Rows 2.png',      // 24
+        'One Third.png',        // 25
+        'Two Thirds.png',       // 26
+        'Center Stripe.png',    // 27
+        'Left and Right.png',   // 28
+        'Top and Bottom.png',   // 29
+        'Upper Field.png',      // 30
+        'Quadrants 2.png'       // 31
     ];
 
     // Image cache for loaded images
@@ -249,22 +271,25 @@
         const data = imageData.data;
 
         for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
             const b = data[i + 2];
             const a = data[i + 3];
 
             // Background PNGs use:
-            // - Black/transparent areas → Primary color
+            // - Transparent/empty areas → Primary color
             // - Blue channel → Secondary color
-            // Blend ratio based on blue channel intensity
 
-            const blueRatio = b / 255;
-
-            // Lerp between primary (where black/no blue) and secondary (where blue)
-            data[i] = Math.round(lerp(primaryColor.r, secondaryColor.r, blueRatio));
-            data[i + 1] = Math.round(lerp(primaryColor.g, secondaryColor.g, blueRatio));
-            data[i + 2] = Math.round(lerp(primaryColor.b, secondaryColor.b, blueRatio));
+            if (a === 0) {
+                // Fully transparent = primary color
+                data[i] = primaryColor.r;
+                data[i + 1] = primaryColor.g;
+                data[i + 2] = primaryColor.b;
+            } else {
+                // Blue channel intensity determines secondary color blend
+                const blueRatio = b / 255;
+                data[i] = Math.round(lerp(primaryColor.r, secondaryColor.r, blueRatio));
+                data[i + 1] = Math.round(lerp(primaryColor.g, secondaryColor.g, blueRatio));
+                data[i + 2] = Math.round(lerp(primaryColor.b, secondaryColor.b, blueRatio));
+            }
             data[i + 3] = 255;
         }
 
