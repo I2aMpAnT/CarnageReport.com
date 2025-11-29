@@ -40,7 +40,7 @@
         'Spartan.png',          // 8
         'Delta.png',            // 9
         'Helmet.png',           // 10
-        'Grunt Symbol.png',     // 11 (Seventh Column position)
+        'Seventh Column.png',   // 11
         'Cube.png',             // 12
         'Cleave.png',           // 13
         'Grunt.png',            // 14
@@ -232,8 +232,7 @@
         }
     }
 
-    // Draw background - blue pixels get primary color, white areas get secondary color
-    // Smooth gradient blending based on color channels
+    // Draw background - transparent/black areas get primary color, blue channel gets secondary color
     function drawBackground(ctx, img, primaryColor, secondaryColor) {
         const tempCanvas = document.createElement('canvas');
         const size = 256;
@@ -253,27 +252,19 @@
             const r = data[i];
             const g = data[i + 1];
             const b = data[i + 2];
+            const a = data[i + 3];
 
-            // Background images use blue (0,0,255) for primary and white (255,255,255) for secondary
-            // Calculate blend ratio: how much "blue" vs "white" is in this pixel
-            // Blue has high B, low R and G. White has high R, G, and B.
-            // The key differentiator is the R and G channels - higher means more white/secondary
+            // Background PNGs use:
+            // - Black/transparent areas → Primary color
+            // - Blue channel → Secondary color
+            // Blend ratio based on blue channel intensity
 
-            const rgAvg = (r + g) / 2;
-            const blueExcess = Math.max(0, b - rgAvg);
-            const whiteAmount = rgAvg / 255;
+            const blueRatio = b / 255;
 
-            // Blend factor: 0 = pure primary (blue), 1 = pure secondary (white)
-            // Use the average of R and G to determine how "white" the pixel is
-            let t = whiteAmount;
-
-            // Apply smooth interpolation for gradients
-            t = smoothstep(0, 1, t);
-
-            // Lerp between primary and secondary colors
-            data[i] = Math.round(lerp(primaryColor.r, secondaryColor.r, t));
-            data[i + 1] = Math.round(lerp(primaryColor.g, secondaryColor.g, t));
-            data[i + 2] = Math.round(lerp(primaryColor.b, secondaryColor.b, t));
+            // Lerp between primary (where black/no blue) and secondary (where blue)
+            data[i] = Math.round(lerp(primaryColor.r, secondaryColor.r, blueRatio));
+            data[i + 1] = Math.round(lerp(primaryColor.g, secondaryColor.g, blueRatio));
+            data[i + 2] = Math.round(lerp(primaryColor.b, secondaryColor.b, blueRatio));
             data[i + 3] = 255;
         }
 
