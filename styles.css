@@ -3787,6 +3787,69 @@ header {
     accent-color: #0099ff;
 }
 
+/* Color Picker Grid Styles */
+.color-section {
+    margin-bottom: 15px;
+}
+
+.color-section h3 {
+    color: #00ccff;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.color-row {
+    display: flex;
+    gap: 20px;
+}
+
+.color-picker-group {
+    flex: 1;
+}
+
+.color-picker-group label {
+    display: block;
+    color: #88aacc;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.color-picker {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3px;
+    padding: 8px;
+    background: rgba(0, 20, 40, 0.8);
+    border: 2px solid rgba(0, 153, 255, 0.3);
+    border-radius: 6px;
+}
+
+.color-swatch {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background-size: cover;
+    background-position: center;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+    border-color: #00ccff;
+    z-index: 1;
+}
+
+.color-swatch.selected {
+    border-color: #00ffff;
+    box-shadow: 0 0 8px #00ffff;
+    transform: scale(1.05);
+}
+
 @media (max-width: 768px) {
     .emblem-layout {
         grid-template-columns: 1fr;

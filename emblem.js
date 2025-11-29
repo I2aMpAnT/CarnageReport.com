@@ -1,137 +1,68 @@
 // Emblem Generator JavaScript - Individual Image Version
 // Uses individual PNG files instead of sprite sheets
+// Supports 4-color system: Emblem Primary/Secondary, Background Primary/Secondary
 
 (function() {
     // Halo 2 emblem color palette (accurate colors from in-game color blocks)
+    // Index matches the color block BMP file codes
     const colorPalette = [
-        { r: 255, g: 255, b: 255 }, // 0: White (10E0)
-        { r: 110, g: 110, b: 110 }, // 1: Steel (11E0)
-        { r: 189, g: 43,  b: 44  }, // 2: Red (12E0)
-        { r: 244, g: 123, b: 32  }, // 3: Orange (13E0)
-        { r: 244, g: 209, b: 45  }, // 4: Gold (14E0)
-        { r: 158, g: 169, b: 90  }, // 5: Olive (15E0)
-        { r: 35,  g: 145, b: 46  }, // 6: Green (16E0)
-        { r: 36,  g: 87,  b: 70  }, // 7: Sage (17E0)
-        { r: 22,  g: 160, b: 160 }, // 8: Cyan (18E0)
-        { r: 55,  g: 115, b: 123 }, // 9: Teal (27E0)
-        { r: 32,  g: 113, b: 178 }, // 10: Cobalt (19E0)
-        { r: 45,  g: 60,  b: 180 }, // 11: Blue (1FE0)
-        { r: 108, g: 80,  b: 182 }, // 12: Violet (20E0)
-        { r: 148, g: 39,  b: 132 }, // 13: Purple (22E0)
-        { r: 248, g: 155, b: 200 }, // 14: Pink (23E0)
-        { r: 156, g: 15,  b: 68  }, // 15: Crimson (24E0)
-        { r: 120, g: 73,  b: 43  }, // 16: Brown (25E0)
-        { r: 175, g: 144, b: 87  }  // 17: Tan (26E0)
+        { r: 255, g: 255, b: 255, code: '10E0', name: 'White' },
+        { r: 110, g: 110, b: 110, code: '11E0', name: 'Steel' },
+        { r: 189, g: 43,  b: 44,  code: '12E0', name: 'Red' },
+        { r: 244, g: 123, b: 32,  code: '13E0', name: 'Orange' },
+        { r: 244, g: 209, b: 45,  code: '14E0', name: 'Gold' },
+        { r: 158, g: 169, b: 90,  code: '15E0', name: 'Olive' },
+        { r: 35,  g: 145, b: 46,  code: '16E0', name: 'Green' },
+        { r: 36,  g: 87,  b: 70,  code: '17E0', name: 'Sage' },
+        { r: 22,  g: 160, b: 160, code: '18E0', name: 'Cyan' },
+        { r: 55,  g: 115, b: 123, code: '27E0', name: 'Teal' },
+        { r: 32,  g: 113, b: 178, code: '19E0', name: 'Cobalt' },
+        { r: 45,  g: 60,  b: 180, code: '1FE0', name: 'Blue' },
+        { r: 108, g: 80,  b: 182, code: '20E0', name: 'Violet' },
+        { r: 148, g: 39,  b: 132, code: '22E0', name: 'Purple' },
+        { r: 248, g: 155, b: 200, code: '23E0', name: 'Pink' },
+        { r: 156, g: 15,  b: 68,  code: '24E0', name: 'Crimson' },
+        { r: 120, g: 73,  b: 43,  code: '25E0', name: 'Brown' },
+        { r: 175, g: 144, b: 87,  code: '26E0', name: 'Tan' }
     ];
 
     // Foreground emblem filenames (index matches dropdown value)
-    // Order based on in-game selection screen
     const foregroundFiles = [
-        'Sol.png',              // 0: Seventh Column / Sol
-        'Bullseye.png',         // 1: Bullseye
-        'Double Crescent.png',  // 2: Fist / Double Crescent
-        'Halt.png',             // 3: Halt
-        'Phoenix.png',          // 4: Sol -> Phoenix
-        'Champion.png',         // 5: Da Bomb -> Champion
-        'Sergeant.png',         // 6: Sergeant
-        'Drone.png',            // 7: Star -> Drone
-        'Spartan.png',          // 8: Jolly Roger -> Spartan
-        'Delta.png',            // 9: Halo -> Delta
-        'Helmet.png',           // 10: Cube -> Helmet
-        'Radioactive.png',      // 11: Radioactive
-        'Smiley.png',           // 12: Rampancy -> Smiley
-        'Frowney.png',          // 13: Marathon -> Frowney
-        'Triad.png',            // 14: Champion -> Triad
-        'Waypoint.png',         // 15: Heliograph -> Waypoint
-        'Ying Yang.png',        // 16: Smiley -> Ying Yang
-        'Brute Head.png',       // 17: Frowney -> Brute Head
-        'Trinity.png',          // 18: Spearhead -> Trinity
-        'Vortex.png',           // 19: Phoenix -> Vortex
-        'Spearhead.png',        // 20: Waypoint -> Spearhead
-        'Trident.png',          // 21: Yin Yang -> Trident
-        'Skull King.png',       // 22: Helmet -> Skull King
-        'Triplicate.png',       // 23: Triad -> Triplicate
-        'Subnova.png',          // 24: Vortex -> Subnova
-        'Marathon.png',         // 25: Trinity -> Marathon
-        'Valkyrie.png',         // 26: Skull King -> Valkyrie
-        'Spades.png',           // 27: Crescent -> Spades
-        'Clubs.png',            // 28: Flaming Ninja -> Clubs
-        'Diamonds.png',         // 29: Double Crescent -> Diamonds
-        'Hearts.png',           // 30: Spades -> Hearts
-        'Snake.png',            // 31: Clubs -> Snake
-        'Flaming Ninja.png',    // 32: Hearts -> Flaming Ninja
-        'Rampancy.png',         // 33: Diamonds -> Rampancy
-        'Hawk.png',             // 34: Mark of Shame -> Hawk
-        'Lips.png',             // 35: Eagle -> Lips
-        'Capsule.png',          // 36: Lips -> Capsule
-        'Race.png',             // 37: Capsule -> Race
-        'Gas Mask.png',         // 38: Cancel -> Gas Mask
-        'Grunt.png',            // 39: Gas Mask -> Grunt
-        'Grenade.png',          // 40: Tsantsa -> Grenade
-        'Thor.png',             // 41: Spartan -> Thor
-        'Mark of Shame.png',    // 42: Valkyrie -> Mark of Shame
-        'Wasp.png',             // 43: Drone -> Wasp
-        'Da Bomb.png',          // 44: Delta -> Da Bomb
-        'Runes.png',            // 45: Thor -> Runes
-        'Grunt Head.png',       // 46: Grunt Symbol -> Grunt Head
-        'Tsantsa.png',          // 47: Trident -> Tsantsa
-        'Cancel.png',           // 48: -> Cancel
-        'Jolly Roger.png',      // 49: -> Jolly Roger
-        'Cube.png',             // 50: -> Cube
-        'Cleave.png',           // 51: -> Cleave
-        'Grunt Symbol.png',     // 52: -> Grunt Symbol
-        'Number 0.png',         // 53: Number 0
-        'Number 1.png',         // 54: Number 1
-        'Number 2.png',         // 55: Number 2
-        'Number 3.png',         // 56: Number 3
-        'Number 4.png',         // 57: Number 4
-        'Number 5.png',         // 58: Number 5
-        'Number 6.png',         // 59: Number 6
-        'Number 7.png',         // 60: Number 7
-        'Number 8.png',         // 61: Number 8
-        'Number 9.png'          // 62: Number 9
+        'Sol.png', 'Bullseye.png', 'Double Crescent.png', 'Halt.png',
+        'Phoenix.png', 'Champion.png', 'Sergeant.png', 'Drone.png',
+        'Spartan.png', 'Delta.png', 'Helmet.png', 'Radioactive.png',
+        'Smiley.png', 'Frowney.png', 'Triad.png', 'Waypoint.png',
+        'Ying Yang.png', 'Brute Head.png', 'Trinity.png', 'Vortex.png',
+        'Spearhead.png', 'Trident.png', 'Skull King.png', 'Triplicate.png',
+        'Subnova.png', 'Marathon.png', 'Valkyrie.png', 'Spades.png',
+        'Clubs.png', 'Diamonds.png', 'Hearts.png', 'Snake.png',
+        'Flaming Ninja.png', 'Rampancy.png', 'Hawk.png', 'Lips.png',
+        'Capsule.png', 'Race.png', 'Gas Mask.png', 'Grunt.png',
+        'Grenade.png', 'Thor.png', 'Mark of Shame.png', 'Wasp.png',
+        'Da Bomb.png', 'Runes.png', 'Grunt Head.png', 'Tsantsa.png',
+        'Cancel.png', 'Jolly Roger.png', 'Cube.png', 'Cleave.png',
+        'Grunt Symbol.png',
+        'Number 0.png', 'Number 1.png', 'Number 2.png', 'Number 3.png',
+        'Number 4.png', 'Number 5.png', 'Number 6.png', 'Number 7.png',
+        'Number 8.png', 'Number 9.png'
     ];
 
     // Background filenames (index matches dropdown value)
-    // Order based on in-game selection screen
     const backgroundFiles = [
-        'Solid.png',            // 0: Solid
-        'Vertical Split.png',   // 1: Vertical Split
-        'Horizontal Split 1.png', // 2: Horizontal Split 1
-        'Horizontal Split 2.png', // 3: Horizontal Split 2
-        'Horizontal Gradient.png', // 4: Horizontal Gradient
-        'Vertical Gradient.png', // 5: Vertical Gradient
-        'Triple Row.png',       // 6: Triple Row
-        'Quadrants 1.png',      // 7: Quadrants 1
-        'DIagonal Slice.png',   // 8: Diagonal Slice (note: typo in filename)
-        'Cleft.png',            // 9: Cleft
-        'X1.png',               // 10: X1
-        'X2.png',               // 11: X2
-        'Diamond.png',          // 12: Diamond
-        'Cross.png',            // 13: Cross
-        'Square.png',           // 14: Square
-        'Dual Half-Circle.png', // 15: Dual Half-Circle
-        'Diagonal Quadrant.png', // 16: Diagonal Quadrant
-        'Three Quarters.png',   // 17: Three Quarters
-        'Quarter.png',          // 18: Quarter
-        'Four Rows 1.png',      // 19: Four Rows 1
-        'Split Circle.png',     // 20: Split Circle
-        'One Third.png',        // 21: One Third
-        'Two Thirds.png',       // 22: Two Thirds
-        'Upper Field.png',      // 23: Upper Field
-        'Top and Bottom.png',   // 24: Top and Bottom
-        'Center Stripe.png',    // 25: Center Stripe
-        'Left and Right.png',   // 26: Left and Right
-        'Circle.png',           // 27: Circle
-        'Triangle.png',         // 28: Triangle
-        'Four Rows 2.png',      // 29: Four Rows 2
-        'Quadrants 2.png',      // 30: Quadrants 2
-        'Triple Column.png'     // 31: Triple Column
+        'Solid.png', 'Vertical Split.png', 'Horizontal Split 1.png',
+        'Horizontal Split 2.png', 'Horizontal Gradient.png', 'Vertical Gradient.png',
+        'Triple Row.png', 'Quadrants 1.png', 'DIagonal Slice.png',
+        'Cleft.png', 'X1.png', 'X2.png', 'Diamond.png', 'Cross.png',
+        'Square.png', 'Dual Half-Circle.png', 'Diagonal Quadrant.png',
+        'Three Quarters.png', 'Quarter.png', 'Four Rows 1.png',
+        'Split Circle.png', 'One Third.png', 'Two Thirds.png',
+        'Upper Field.png', 'Top and Bottom.png', 'Center Stripe.png',
+        'Left and Right.png', 'Circle.png', 'Triangle.png',
+        'Four Rows 2.png', 'Quadrants 2.png', 'Triple Column.png'
     ];
 
     // Image cache for loaded images
     const imageCache = {};
-    let imagesReady = false;
 
     // Load a single image and cache it
     function loadImage(path) {
@@ -153,20 +84,64 @@
         });
     }
 
+    // Initialize color picker grids with BMP images
+    function initColorPickers() {
+        const pickers = document.querySelectorAll('.color-picker');
+        pickers.forEach(picker => {
+            const targetId = picker.dataset.target;
+            const input = document.getElementById(targetId);
+            if (!input) return;
+
+            picker.innerHTML = '';
+            colorPalette.forEach((color, index) => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.dataset.value = index;
+                swatch.title = color.name;
+                // Use BMP as background image
+                swatch.style.backgroundImage = `url('emblems/color%20blocks/${color.code}.bmp')`;
+                // Fallback to solid color if BMP fails
+                swatch.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
+                if (parseInt(input.value) === index) {
+                    swatch.classList.add('selected');
+                }
+
+                swatch.addEventListener('click', () => {
+                    // Remove selection from siblings
+                    picker.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+                    swatch.classList.add('selected');
+                    input.value = index;
+                    updateEmblem();
+                });
+
+                picker.appendChild(swatch);
+            });
+        });
+    }
+
     // Preload essential images for faster initial render
     async function preloadImages() {
         try {
-            // Load default emblem and background
             const defaultFg = 'emblems/embems/' + encodeURIComponent(foregroundFiles[12]);
             const defaultBg = 'emblems/backgrounds/' + encodeURIComponent(backgroundFiles[5]);
             await Promise.all([loadImage(defaultFg), loadImage(defaultBg)]);
-            imagesReady = true;
             updateEmblem();
         } catch (e) {
             console.error('Error preloading images:', e);
-            imagesReady = true; // Allow rendering to attempt anyway
             updateEmblem();
         }
+    }
+
+    // Smooth interpolation helper
+    function smoothstep(edge0, edge1, x) {
+        const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+        return t * t * (3 - 2 * t);
+    }
+
+    // Linear interpolation
+    function lerp(a, b, t) {
+        return a + (b - a) * t;
     }
 
     window.updateEmblem = async function() {
@@ -174,11 +149,15 @@
         if (!canvas) return;
 
         const ctx = canvas.getContext('2d');
-        const emblemPrimary = parseInt(document.getElementById('emblemPrimary').value);
-        const emblemSecondary = parseInt(document.getElementById('emblemSecondary').value);
-        const emblemForeground = parseInt(document.getElementById('emblemForeground').value);
-        const emblemBackground = parseInt(document.getElementById('emblemBackground').value);
-        const emblemToggle = document.getElementById('emblemToggle').checked ? 1 : 0;
+
+        // Get all 4 colors
+        const emblemPrimary = parseInt(document.getElementById('emblemPrimary')?.value || 1);
+        const emblemSecondary = parseInt(document.getElementById('emblemSecondary')?.value || 0);
+        const bgPrimary = parseInt(document.getElementById('bgPrimary')?.value || 11);
+        const bgSecondary = parseInt(document.getElementById('bgSecondary')?.value || 0);
+        const emblemForeground = parseInt(document.getElementById('emblemForeground')?.value || 0);
+        const emblemBackground = parseInt(document.getElementById('emblemBackground')?.value || 0);
+        const emblemToggle = document.getElementById('emblemToggle')?.checked ? 1 : 0;
 
         // Clear canvas with black background
         ctx.fillStyle = '#000000';
@@ -191,16 +170,15 @@
         const bgPath = 'emblems/backgrounds/' + encodeURIComponent(bgFile);
 
         try {
-            // Load both images (uses cache if available)
             const [fgImg, bgImg] = await Promise.all([
                 loadImage(fgPath),
                 loadImage(bgPath)
             ]);
 
-            // Draw background first
-            drawBackground(ctx, bgImg, colorPalette[emblemPrimary], colorPalette[emblemSecondary]);
+            // Draw background with background colors
+            drawBackground(ctx, bgImg, colorPalette[bgPrimary], colorPalette[bgSecondary]);
 
-            // Draw foreground on top
+            // Draw foreground with emblem colors
             drawForeground(ctx, fgImg, colorPalette[emblemPrimary], colorPalette[emblemSecondary], emblemToggle);
         } catch (e) {
             console.error('Error rendering emblem:', e);
@@ -208,6 +186,7 @@
     }
 
     // Draw background - blue pixels get primary color, white areas get secondary color
+    // With smooth gradient handling
     function drawBackground(ctx, img, primaryColor, secondaryColor) {
         const tempCanvas = document.createElement('canvas');
         const size = 256;
@@ -215,8 +194,11 @@
         tempCanvas.height = size;
         const tempCtx = tempCanvas.getContext('2d');
 
-        // Draw image scaled to canvas size
+        // Enable image smoothing for better quality
+        tempCtx.imageSmoothingEnabled = true;
+        tempCtx.imageSmoothingQuality = 'high';
         tempCtx.drawImage(img, 0, 0, size, size);
+
         const imageData = tempCtx.getImageData(0, 0, size, size);
         const data = imageData.data;
 
@@ -225,31 +207,40 @@
             const g = data[i + 1];
             const b = data[i + 2];
 
-            // Check if pixel is blue (primary area)
-            if (b > 200 && r < 100 && g < 100) {
-                // Blue pixel -> Primary color
-                const intensity = b / 255;
-                data[i] = primaryColor.r * intensity;
-                data[i + 1] = primaryColor.g * intensity;
-                data[i + 2] = primaryColor.b * intensity;
-                data[i + 3] = 255;
-            } else if (r > 200 && g > 200 && b > 200) {
-                // White/light pixel -> Secondary color
-                const intensity = (r + g + b) / (255 * 3);
-                data[i] = secondaryColor.r * intensity;
-                data[i + 1] = secondaryColor.g * intensity;
-                data[i + 2] = secondaryColor.b * intensity;
-                data[i + 3] = 255;
-            } else {
-                // Other pixels (gradients, etc) - blend based on blue channel
-                const blueRatio = b / 255;
-                const whiteRatio = Math.min(r, g) / 255;
+            // Calculate blend ratio based on blue vs white
+            // Blue channel indicates primary, white (all channels high) indicates secondary
+            const blueAmount = b / 255;
+            const whiteAmount = Math.min(r, g, b) / 255;
 
-                data[i] = primaryColor.r * blueRatio + secondaryColor.r * whiteRatio * (1 - blueRatio);
-                data[i + 1] = primaryColor.g * blueRatio + secondaryColor.g * whiteRatio * (1 - blueRatio);
-                data[i + 2] = primaryColor.b * blueRatio + secondaryColor.b * whiteRatio * (1 - blueRatio);
-                data[i + 3] = 255;
+            // For gradients, use smooth interpolation
+            let primaryRatio, secondaryRatio;
+
+            if (b > r + 50 && b > g + 50) {
+                // Predominantly blue -> more primary
+                primaryRatio = smoothstep(0.3, 1.0, blueAmount);
+                secondaryRatio = 1 - primaryRatio;
+            } else if (r > 180 && g > 180 && b > 180) {
+                // White-ish -> more secondary
+                secondaryRatio = smoothstep(0.7, 1.0, whiteAmount);
+                primaryRatio = 1 - secondaryRatio;
+            } else {
+                // Gradient area - smooth blend based on channels
+                const totalColor = r + g + b;
+                if (totalColor > 0) {
+                    primaryRatio = smoothstep(0, 1, (b - Math.min(r, g)) / 255);
+                    secondaryRatio = 1 - primaryRatio;
+                } else {
+                    primaryRatio = 0;
+                    secondaryRatio = 0;
+                }
             }
+
+            // Apply colors with smooth blending
+            const intensity = Math.max(blueAmount, whiteAmount, 0.1);
+            data[i] = lerp(secondaryColor.r, primaryColor.r, primaryRatio) * intensity;
+            data[i + 1] = lerp(secondaryColor.g, primaryColor.g, primaryRatio) * intensity;
+            data[i + 2] = lerp(secondaryColor.b, primaryColor.b, primaryRatio) * intensity;
+            data[i + 3] = 255;
         }
 
         tempCtx.putImageData(imageData, 0, 0);
@@ -257,7 +248,7 @@
     }
 
     // Draw foreground - yellow pixels get primary color, blue pixels get secondary color
-    // When toggle is 1, only show secondary color (hide primary)
+    // With smooth edge handling
     function drawForeground(ctx, img, primaryColor, secondaryColor, toggle) {
         const tempCanvas = document.createElement('canvas');
         const size = 256;
@@ -265,8 +256,11 @@
         tempCanvas.height = size;
         const tempCtx = tempCanvas.getContext('2d');
 
-        // Draw image scaled to canvas size
+        // Enable image smoothing
+        tempCtx.imageSmoothingEnabled = true;
+        tempCtx.imageSmoothingQuality = 'high';
         tempCtx.drawImage(img, 0, 0, size, size);
+
         const imageData = tempCtx.getImageData(0, 0, size, size);
         const data = imageData.data;
 
@@ -280,62 +274,64 @@
             if (a === 0) continue;
 
             // Skip black/near-black pixels (transparent background)
-            if (r < 30 && g < 30 && b < 30) {
-                data[i + 3] = 0; // Make transparent
+            if (r < 25 && g < 25 && b < 25) {
+                data[i + 3] = 0;
                 continue;
             }
 
-            // Yellow pixels (high R, high G, low B) -> Primary color (or transparent if toggled)
-            if (r > 150 && g > 150 && b < 100) {
-                if (toggle === 1) {
-                    // Hide primary color when toggled
-                    data[i + 3] = 0;
-                } else {
-                    const intensity = (r + g) / (255 * 2);
-                    data[i] = primaryColor.r * intensity;
-                    data[i + 1] = primaryColor.g * intensity;
-                    data[i + 2] = primaryColor.b * intensity;
-                    data[i + 3] = 255;
-                }
-            }
-            // Blue pixels (low R, low G, high B) -> Secondary color
-            else if (b > 150 && r < 100 && g < 100) {
-                const intensity = b / 255;
-                data[i] = secondaryColor.r * intensity;
-                data[i + 1] = secondaryColor.g * intensity;
-                data[i + 2] = secondaryColor.b * intensity;
-                data[i + 3] = 255;
-            }
-            // Mixed/edge pixels - blend based on color channels
-            else {
-                const yellowIntensity = Math.min(r, g) / 255;
-                const blueIntensity = b / 255;
-                const total = yellowIntensity + blueIntensity;
+            // Calculate yellow (primary) and blue (secondary) amounts
+            const yellowAmount = Math.min(r, g) / 255;
+            const blueAmount = b / 255;
+            const redAmount = r / 255;
+            const greenAmount = g / 255;
 
+            // Determine if this is primarily yellow, blue, or mixed
+            let primaryRatio = 0;
+            let secondaryRatio = 0;
+            let alpha = 255;
+
+            if (r > 120 && g > 120 && b < 120) {
+                // Yellow pixel -> Primary color
+                primaryRatio = smoothstep(0.4, 1.0, yellowAmount);
+                secondaryRatio = 0;
+                alpha = Math.floor(255 * Math.max(yellowAmount, 0.8));
+            } else if (b > 120 && r < 120 && g < 120) {
+                // Blue pixel -> Secondary color
+                secondaryRatio = smoothstep(0.4, 1.0, blueAmount);
+                primaryRatio = 0;
+                alpha = Math.floor(255 * Math.max(blueAmount, 0.8));
+            } else if (yellowAmount > 0.1 || blueAmount > 0.1) {
+                // Mixed/edge pixels - smooth blend
+                const total = yellowAmount + blueAmount;
                 if (total > 0) {
-                    if (toggle === 1) {
-                        // Only show secondary (blue) portion when toggled
-                        if (blueIntensity > 0.1) {
-                            data[i] = secondaryColor.r * blueIntensity;
-                            data[i + 1] = secondaryColor.g * blueIntensity;
-                            data[i + 2] = secondaryColor.b * blueIntensity;
-                            data[i + 3] = Math.floor(blueIntensity * 255);
-                        } else {
-                            data[i + 3] = 0;
-                        }
-                    } else {
-                        const yellowRatio = yellowIntensity / total;
-                        const blueRatio = blueIntensity / total;
+                    primaryRatio = yellowAmount / total;
+                    secondaryRatio = blueAmount / total;
+                    alpha = Math.floor(255 * smoothstep(0.1, 0.6, total));
+                }
+            } else {
+                // Very dark non-black pixel - make semi-transparent
+                data[i + 3] = 0;
+                continue;
+            }
 
-                        data[i] = (primaryColor.r * yellowRatio + secondaryColor.r * blueRatio) * (total / 1.5);
-                        data[i + 1] = (primaryColor.g * yellowRatio + secondaryColor.g * blueRatio) * (total / 1.5);
-                        data[i + 2] = (primaryColor.b * yellowRatio + secondaryColor.b * blueRatio) * (total / 1.5);
-                        data[i + 3] = 255;
-                    }
-                } else {
-                    data[i + 3] = 0; // Make transparent
+            // Apply toggle (hide primary)
+            if (toggle === 1) {
+                primaryRatio = 0;
+                if (secondaryRatio < 0.1) {
+                    data[i + 3] = 0;
+                    continue;
                 }
             }
+
+            // Blend colors
+            const finalR = lerp(0, primaryColor.r, primaryRatio) + lerp(0, secondaryColor.r, secondaryRatio);
+            const finalG = lerp(0, primaryColor.g, primaryRatio) + lerp(0, secondaryColor.g, secondaryRatio);
+            const finalB = lerp(0, primaryColor.b, primaryRatio) + lerp(0, secondaryColor.b, secondaryRatio);
+
+            data[i] = Math.min(255, finalR);
+            data[i + 1] = Math.min(255, finalG);
+            data[i + 2] = Math.min(255, finalB);
+            data[i + 3] = alpha;
         }
 
         tempCtx.putImageData(imageData, 0, 0);
@@ -354,49 +350,31 @@
     function applyUrlParameters() {
         const urlParams = new URLSearchParams(window.location.search);
 
-        // Map URL parameters to form elements
-        // EP = Emblem foreground design
-        // EB = Emblem background design
-        // EF = Emblem primary color (foreground color)
-        // ES = Emblem secondary color (or use S as fallback)
-        // ET = Emblem toggle
-        // P/S = Player primary/secondary colors from old system
+        const params = {
+            'EP': 'emblemForeground',
+            'EB': 'emblemBackground',
+            'EF': 'emblemPrimary',
+            'ES': 'emblemSecondary',
+            'BP': 'bgPrimary',
+            'BS': 'bgSecondary'
+        };
 
-        const emblemForeground = urlParams.get('EP');
-        const emblemBackground = urlParams.get('EB');
-        const emblemPrimaryColor = urlParams.get('EF');
-        const emblemSecondaryColor = urlParams.get('ES') || urlParams.get('S');
+        Object.entries(params).forEach(([param, elementId]) => {
+            const value = urlParams.get(param);
+            if (value !== null) {
+                const el = document.getElementById(elementId);
+                if (el) el.value = value;
+            }
+        });
+
         const emblemToggle = urlParams.get('ET');
-
-        if (emblemForeground !== null) {
-            const fgSelect = document.getElementById('emblemForeground');
-            if (fgSelect) fgSelect.value = emblemForeground;
-        }
-
-        if (emblemBackground !== null) {
-            const bgSelect = document.getElementById('emblemBackground');
-            if (bgSelect) bgSelect.value = emblemBackground;
-        }
-
-        if (emblemPrimaryColor !== null) {
-            const primarySelect = document.getElementById('emblemPrimary');
-            if (primarySelect) primarySelect.value = emblemPrimaryColor;
-        }
-
-        if (emblemSecondaryColor !== null) {
-            const secondarySelect = document.getElementById('emblemSecondary');
-            if (secondarySelect) secondarySelect.value = emblemSecondaryColor;
-        }
-
         if (emblemToggle !== null) {
             const toggleCheckbox = document.getElementById('emblemToggle');
             if (toggleCheckbox) toggleCheckbox.checked = (emblemToggle === '1');
         }
 
-        // If any emblem parameters were provided, switch to the emblem tab
-        if (emblemForeground !== null || emblemBackground !== null ||
-            emblemPrimaryColor !== null || emblemSecondaryColor !== null) {
-            // Wait a moment for the page to fully load, then switch to emblem tab
+        // Switch to emblem tab if parameters provided
+        if (urlParams.has('EP') || urlParams.has('EB') || urlParams.has('EF')) {
             setTimeout(() => {
                 if (typeof switchMainTab === 'function') {
                     switchMainTab('emblem');
@@ -405,14 +383,17 @@
         }
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            applyUrlParameters();
-            preloadImages();
-        });
-    } else {
+    // Initialize everything when DOM is ready
+    function init() {
         applyUrlParameters();
+        initColorPickers();
         preloadImages();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
 
     // Re-render when emblem tab becomes visible
@@ -421,13 +402,14 @@
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 const emblemTab = document.getElementById('main-tab-emblem');
                 if (emblemTab && emblemTab.style.display !== 'none') {
+                    // Re-init color pickers in case they weren't visible before
+                    initColorPickers();
                     updateEmblem();
                 }
             }
         });
     });
 
-    // Observe the emblem tab for visibility changes
     setTimeout(() => {
         const emblemTab = document.getElementById('main-tab-emblem');
         if (emblemTab) {

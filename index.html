@@ -106,52 +106,36 @@
                     </div>
                     
                     <div class="emblem-controls">
-                        <div class="control-row">
-                            <label>Primary Color</label>
-                            <select id="emblemPrimary" onchange="updateEmblem()">
-                                <option value="0">White</option>
-                                <option value="1" selected>Steel</option>
-                                <option value="2">Red</option>
-                                <option value="3">Orange</option>
-                                <option value="4">Gold</option>
-                                <option value="5">Olive</option>
-                                <option value="6">Green</option>
-                                <option value="7">Sage</option>
-                                <option value="8">Cyan</option>
-                                <option value="9">Teal</option>
-                                <option value="10">Cobalt</option>
-                                <option value="11">Blue</option>
-                                <option value="12">Violet</option>
-                                <option value="13">Purple</option>
-                                <option value="14">Pink</option>
-                                <option value="15">Crimson</option>
-                                <option value="16">Brown</option>
-                                <option value="17">Tan</option>
-                            </select>
+                        <div class="color-section">
+                            <h3>Emblem Colors</h3>
+                            <div class="color-row">
+                                <div class="color-picker-group">
+                                    <label>Primary</label>
+                                    <div class="color-picker" id="emblemPrimaryPicker" data-target="emblemPrimary"></div>
+                                    <input type="hidden" id="emblemPrimary" value="1">
+                                </div>
+                                <div class="color-picker-group">
+                                    <label>Secondary</label>
+                                    <div class="color-picker" id="emblemSecondaryPicker" data-target="emblemSecondary"></div>
+                                    <input type="hidden" id="emblemSecondary" value="0">
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="control-row">
-                            <label>Secondary Color</label>
-                            <select id="emblemSecondary" onchange="updateEmblem()">
-                                <option value="0" selected>White</option>
-                                <option value="1">Steel</option>
-                                <option value="2">Red</option>
-                                <option value="3">Orange</option>
-                                <option value="4">Gold</option>
-                                <option value="5">Olive</option>
-                                <option value="6">Green</option>
-                                <option value="7">Sage</option>
-                                <option value="8">Cyan</option>
-                                <option value="9">Teal</option>
-                                <option value="10">Cobalt</option>
-                                <option value="11">Blue</option>
-                                <option value="12">Violet</option>
-                                <option value="13">Purple</option>
-                                <option value="14">Pink</option>
-                                <option value="15">Crimson</option>
-                                <option value="16">Brown</option>
-                                <option value="17">Tan</option>
-                            </select>
+                        <div class="color-section">
+                            <h3>Background Colors</h3>
+                            <div class="color-row">
+                                <div class="color-picker-group">
+                                    <label>Primary</label>
+                                    <div class="color-picker" id="bgPrimaryPicker" data-target="bgPrimary"></div>
+                                    <input type="hidden" id="bgPrimary" value="11">
+                                </div>
+                                <div class="color-picker-group">
+                                    <label>Secondary</label>
+                                    <div class="color-picker" id="bgSecondaryPicker" data-target="bgSecondary"></div>
+                                    <input type="hidden" id="bgSecondary" value="0">
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="control-row">
