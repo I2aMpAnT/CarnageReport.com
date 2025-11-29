@@ -81,11 +81,16 @@
         // Sprite sheet dimensions:
         // Foregrounds: 1030 x 6028, 58 items in 4 columns (16 rows including numbers)
         // Backgrounds: 1030 x 2088, 27 items (7 rows), has title header
+        // Each cell has ~2px grid lines around it that need to be excluded
+        const gridLineWidth = 3; // Padding to exclude grid lines from extraction
 
         // Background sprite dimensions (title header ~24px)
         const bgCellWidth = Math.floor(1030 / 4);           // 257
         const bgHeaderOffset = 24;
         const bgCellHeight = Math.floor((2088 - bgHeaderOffset) / 7);  // ~295
+        // Actual usable area after excluding grid lines
+        const bgUsableWidth = bgCellWidth - gridLineWidth * 2;
+        const bgUsableHeight = bgCellHeight - gridLineWidth * 2;
 
         // Foreground sprite dimensions
         // 15 rows of emblems (58 items total: 48 symbols + 10 numbers)
@@ -95,23 +100,27 @@
         const fgFooterOffset = 140;
         const fgContentHeight = 6028 - fgHeaderOffset - fgFooterOffset; // ~5864
         const fgCellHeight = Math.floor(fgContentHeight / 15);  // ~390
+        // Actual usable area after excluding grid lines
+        const fgUsableWidth = fgCellWidth - gridLineWidth * 2;
+        const fgUsableHeight = fgCellHeight - gridLineWidth * 2;
         // Crop to centered square for better emblem extraction
-        const fgEmblemSize = Math.min(fgCellWidth, fgCellHeight);
+        const fgEmblemSize = Math.min(fgUsableWidth, fgUsableHeight);
 
         // Draw background first (primary color on blue areas, secondary on white areas)
         const bgRow = Math.floor(emblemBackground / backgroundCols);
         const bgCol = emblemBackground % backgroundCols;
-        const bgX = bgCol * bgCellWidth;
-        const bgY = bgHeaderOffset + bgRow * bgCellHeight;
+        // Add grid line offset to start inside the usable area
+        const bgX = bgCol * bgCellWidth + gridLineWidth;
+        const bgY = bgHeaderOffset + bgRow * bgCellHeight + gridLineWidth;
 
-        drawBackground(ctx, bgX, bgY, bgCellWidth, bgCellHeight, colorPalette[emblemPrimary], colorPalette[emblemSecondary]);
+        drawBackground(ctx, bgX, bgY, bgUsableWidth, bgUsableHeight, colorPalette[emblemPrimary], colorPalette[emblemSecondary]);
 
         // Draw foreground on top
         const fgRow = Math.floor(emblemForeground / foregroundCols);
         const fgCol = emblemForeground % foregroundCols;
-        // Extract square region from each cell (emblems are roughly square)
-        const fgX = fgCol * fgCellWidth;
-        const fgY = fgHeaderOffset + fgRow * fgCellHeight;
+        // Extract square region from each cell (emblems are roughly square), add grid line offset
+        const fgX = fgCol * fgCellWidth + gridLineWidth;
+        const fgY = fgHeaderOffset + fgRow * fgCellHeight + gridLineWidth;
 
         // Toggle only hides the primary color, secondary still shows
         drawForeground(ctx, fgX, fgY, fgEmblemSize, fgEmblemSize, colorPalette[emblemPrimary], colorPalette[emblemSecondary], emblemToggle);
@@ -164,6 +173,37 @@
         ctx.drawImage(tempCanvas, 0, 0, width, height, 0, 0, 256, 256);
     }
 
+    // Find the bounding box of non-black pixels in an image region
+    // Returns { minX, minY, maxX, maxY } or null if no content found
+    function findEmblemBounds(imageData, width, height, threshold = 40) {
+        const data = imageData.data;
+        let minX = width, minY = height, maxX = 0, maxY = 0;
+        let foundContent = false;
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const i = (y * width + x) * 4;
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
+
+                // Check if pixel is non-black (has meaningful content)
+                // Use higher threshold to exclude dark edge artifacts and anti-aliasing noise
+                if (a > 0 && (r > threshold || g > threshold || b > threshold)) {
+                    foundContent = true;
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+
+        if (!foundContent) return null;
+        return { minX, minY, maxX, maxY };
+    }
+
     // Draw foreground - yellow pixels get primary color, blue pixels get secondary color
     // When toggle is 1, only show secondary color (hide primary)
     function drawForeground(ctx, sx, sy, width, height, primaryColor, secondaryColor, toggle) {
@@ -176,6 +216,23 @@
         const imageData = tempCtx.getImageData(0, 0, width, height);
         const data = imageData.data;
 
+        // Find the actual bounds of the emblem content
+        const bounds = findEmblemBounds(imageData, width, height);
+        let emblemWidth = width;
+        let emblemHeight = height;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        if (bounds) {
+            emblemWidth = bounds.maxX - bounds.minX + 1;
+            emblemHeight = bounds.maxY - bounds.minY + 1;
+            // Calculate centering offset
+            const emblemCenterX = bounds.minX + emblemWidth / 2;
+            const emblemCenterY = bounds.minY + emblemHeight / 2;
+            offsetX = (width / 2) - emblemCenterX;
+            offsetY = (height / 2) - emblemCenterY;
+        }
+
         for (let i = 0; i < data.length; i += 4) {
             const r = data[i];
             const g = data[i + 1];
@@ -186,7 +243,8 @@
             if (a === 0) continue;
 
             // Skip black/near-black pixels (transparent background)
-            if (r < 20 && g < 20 && b < 20) {
+            // Use higher threshold to clean up dark edge artifacts
+            if (r < 30 && g < 30 && b < 30) {
                 data[i + 3] = 0; // Make transparent
                 continue;
             }
@@ -245,7 +303,12 @@
         }
 
         tempCtx.putImageData(imageData, 0, 0);
-        ctx.drawImage(tempCanvas, 0, 0, width, height, 0, 0, 256, 256);
+
+        // Apply centering offset when drawing to the output canvas
+        const scale = 256 / width;
+        const destOffsetX = offsetX * scale;
+        const destOffsetY = offsetY * scale;
+        ctx.drawImage(tempCanvas, 0, 0, width, height, destOffsetX, destOffsetY, 256, 256);
     }
 
     window.downloadEmblem = function() {
