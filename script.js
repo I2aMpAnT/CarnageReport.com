@@ -436,12 +436,15 @@ function renderGamesList() {
     gamesList.innerHTML = '';
     
     console.log('[DEBUG] Creating game items...');
-    gamesData.forEach((game, index) => {
-        const gameNumber = gamesData.length - index;
+    // Iterate in reverse order (newest games first at top, oldest at bottom)
+    // Game numbers: oldest game = 1, newest game = length
+    for (let i = gamesData.length - 1; i >= 0; i--) {
+        const game = gamesData[i];
+        const gameNumber = i + 1;  // Oldest game at index 0 = Game 1
         console.log(`[DEBUG] Creating game ${gameNumber}:`, game.details);
         const gameItem = createGameItem(game, gameNumber);
         gamesList.appendChild(gameItem);
-    });
+    }
     
     console.log('[DEBUG] All game items created');
     
@@ -539,6 +542,7 @@ function createGameItem(game, gameNumber) {
                 </div>
             </div>
             <div class="game-header-right">
+                ${game.playlist ? `<span class="game-meta-tag playlist-tag">${game.playlist}</span>` : ''}
                 ${dateDisplay ? `<span class="game-meta-tag date-tag">${dateDisplay}</span>` : ''}
                 <div class="expand-icon">▶</div>
             </div>
@@ -2404,6 +2408,9 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     html += '</div>';
     html += '</div>';
     html += '<div class="game-header-right">';
+    if (game.playlist) {
+        html += `<span class="game-meta-tag playlist-tag">${game.playlist}</span>`;
+    }
     if (startTime) {
         html += `<span class="game-meta-tag date-tag">${formatDateTime(startTime)}</span>`;
     }
