@@ -1,6 +1,6 @@
 // Emblem Generator JavaScript - Individual Image Version
 // Uses individual PNG files instead of sprite sheets
-// Supports 4-color system: Emblem Primary/Secondary, Background Primary/Secondary
+// Supports 4-color system: Emblem Primary/Secondary, Player Primary/Secondary
 
 (function() {
     // Halo 2 emblem color palette (accurate colors from in-game color blocks)
@@ -244,7 +244,7 @@
                 loadImage(bgPath)
             ]);
 
-            // Draw background with background colors
+            // Draw background with player colors
             drawBackground(ctx, bgImg, colorPalette[bgPrimary], colorPalette[bgSecondary]);
 
             // Draw foreground with emblem colors
@@ -254,7 +254,8 @@
         }
     }
 
-    // Draw background - blue areas get primary color, white/transparent areas get secondary color
+    // Draw background with player colors
+    // Background PNGs use: white/light areas → Primary Player Color, blue areas → Secondary Player Color
     function drawBackground(ctx, img, primaryColor, secondaryColor) {
         const tempCanvas = document.createElement('canvas');
         const size = 256;
@@ -276,20 +277,17 @@
             const b = data[i + 2];
             const a = data[i + 3];
 
-            // Background PNGs use:
-            // - Blue areas → Primary color
-            // - White/transparent areas → Secondary color
-
             if (a === 0) {
-                // Fully transparent = secondary color
-                data[i] = secondaryColor.r;
-                data[i + 1] = secondaryColor.g;
-                data[i + 2] = secondaryColor.b;
+                // Fully transparent = primary player color
+                data[i] = primaryColor.r;
+                data[i + 1] = primaryColor.g;
+                data[i + 2] = primaryColor.b;
             } else {
-                // Blend: blue areas get primary, white areas get secondary
                 // Blue pixel detection: high blue channel with low red and green
-                const primaryWeight = (b > 128 && r < 128 && g < 128) ? (b / 255) : 0;
-                const secondaryWeight = 1 - primaryWeight;
+                // Blue areas get secondary color, white/light areas get primary color
+                const isBlue = (b > 128 && r < 128 && g < 128);
+                const secondaryWeight = isBlue ? (b / 255) : 0;
+                const primaryWeight = 1 - secondaryWeight;
 
                 data[i] = Math.round(primaryColor.r * primaryWeight + secondaryColor.r * secondaryWeight);
                 data[i + 1] = Math.round(primaryColor.g * primaryWeight + secondaryColor.g * secondaryWeight);
