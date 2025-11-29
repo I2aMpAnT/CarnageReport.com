@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=256, height=256">
+    <title>Halo 2 Emblem</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        body {
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        canvas {
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="emblemCanvas" width="256" height="256"></canvas>
+
+    <script>
+    (function() {
+        // Color palette
+        const colorPalette = [
+            { r: 255, g: 255, b: 255 }, // 0 White
+            { r: 110, g: 110, b: 110 }, // 1 Steel
+            { r: 189, g: 43,  b: 44  }, // 2 Red
+            { r: 244, g: 123, b: 32  }, // 3 Orange
+            { r: 244, g: 209, b: 45  }, // 4 Gold
+            { r: 158, g: 169, b: 90  }, // 5 Olive
+            { r: 35,  g: 145, b: 46  }, // 6 Green
+            { r: 36,  g: 87,  b: 70  }, // 7 Sage
+            { r: 22,  g: 160, b: 160 }, // 8 Cyan
+            { r: 55,  g: 115, b: 123 }, // 9 Teal
+            { r: 32,  g: 113, b: 178 }, // 10 Cobalt
+            { r: 45,  g: 60,  b: 180 }, // 11 Blue
+            { r: 108, g: 80,  b: 182 }, // 12 Violet
+            { r: 148, g: 39,  b: 132 }, // 13 Purple
+            { r: 248, g: 155, b: 200 }, // 14 Pink
+            { r: 156, g: 15,  b: 68  }, // 15 Crimson
+            { r: 120, g: 73,  b: 43  }, // 16 Brown
+            { r: 175, g: 144, b: 87  }  // 17 Tan
+        ];
+
+        // Foreground files
+        const foregroundFiles = [
+            'Sol.png', 'Bullseye.png', 'Double Crescent.png', 'Halt.png',
+            'Phoenix.png', 'Champion.png', 'Sergeant.png', 'Drone.png',
+            'Spartan.png', 'Delta.png', 'Helmet.png', 'Seventh Column.png',
+            'Cube.png', 'Cleave.png', 'Grunt.png', 'Radioactive.png',
+            'Smiley.png', 'Frowney.png', 'Triad.png', 'Waypoint.png',
+            'Trinity.png', 'Ying Yang.png', 'Brute Head.png', 'Vortex.png',
+            'Spearhead.png', 'Trident.png', 'Skull King.png', 'Triplicate.png',
+            'Subnova.png', 'Marathon.png', 'Valkyrie.png', 'Spades.png',
+            'Clubs.png', 'Diamonds.png', 'Hearts.png', 'Snake.png',
+            'Flaming Ninja.png', 'Rampancy.png', 'Hawk.png', 'Lips.png',
+            'Capsule.png', 'Race.png', 'Gas Mask.png', 'Grenade.png',
+            'Thor.png', 'Mark of Shame.png', 'Wasp.png', 'Da Bomb.png',
+            'Runes.png', 'Grunt Head.png', 'Tsantsa.png', 'Cancel.png',
+            'Jolly Roger.png', 'Number 0.png', 'Number 1.png', 'Number 2.png',
+            'Number 3.png', 'Number 4.png', 'Number 5.png', 'Number 6.png',
+            'Number 7.png', 'Number 8.png', 'Number 9.png'
+        ];
+
+        // Background files
+        const backgroundFiles = [
+            'Solid.png', 'Vertical Split.png', 'Horizontal Split 1.png',
+            'Horizontal Split 2.png', 'Horizontal Gradient.png', 'Vertical Gradient.png',
+            'Triple Row.png', 'Quadrants 1.png', 'DIagonal Slice.png',
+            'Cleft.png', 'X1.png', 'X2.png', 'Diamond.png', 'Cross.png',
+            'Square.png', 'Dual Half-Circle.png', 'Diagonal Quadrant.png',
+            'Three Quarters.png', 'Quarter.png', 'Four Rows 1.png',
+            'Split Circle.png', 'One Third.png', 'Two Thirds.png',
+            'Upper Field.png', 'Top and Bottom.png', 'Center Stripe.png',
+            'Left and Right.png', 'Circle.png', 'Triangle.png',
+            'Four Rows 2.png', 'Quadrants 2.png', 'Triple Column.png'
+        ];
+
+        function loadImage(path) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error('Failed to load: ' + path));
+                img.src = path;
+            });
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        function smoothstep(edge0, edge1, x) {
+            const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+            return t * t * (3 - 2 * t);
+        }
+
+        function drawBackground(ctx, img, primaryColor, secondaryColor) {
+            const tempCanvas = document.createElement('canvas');
+            const size = 256;
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
+            tempCtx.drawImage(img, 0, 0, size, size);
+
+            const imageData = tempCtx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const b = data[i + 2];
+                const blueRatio = b / 255;
+                data[i] = Math.round(lerp(primaryColor.r, secondaryColor.r, blueRatio));
+                data[i + 1] = Math.round(lerp(primaryColor.g, secondaryColor.g, blueRatio));
+                data[i + 2] = Math.round(lerp(primaryColor.b, secondaryColor.b, blueRatio));
+                data[i + 3] = 255;
+            }
+
+            tempCtx.putImageData(imageData, 0, 0);
+            ctx.drawImage(tempCanvas, 0, 0);
+        }
+
+        function drawForeground(ctx, img, primaryColor, secondaryColor, toggle) {
+            const tempCanvas = document.createElement('canvas');
+            const size = 256;
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
+            tempCtx.drawImage(img, 0, 0, size, size);
+
+            const imageData = tempCtx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
+
+                if (a === 0) continue;
+
+                const brightness = (r + g + b) / 3;
+                if (brightness < 20) {
+                    data[i + 3] = 0;
+                    continue;
+                }
+
+                const yellowStrength = Math.min(r, g) / 255;
+                const blueStrength = b / 255;
+                const totalStrength = yellowStrength + blueStrength;
+
+                if (totalStrength < 0.05) {
+                    data[i + 3] = 0;
+                    continue;
+                }
+
+                let primaryRatio = yellowStrength / Math.max(totalStrength, 0.001);
+                let secondaryRatio = blueStrength / Math.max(totalStrength, 0.001);
+
+                if (toggle === 1) {
+                    if (primaryRatio > 0.9) {
+                        data[i + 3] = 0;
+                        continue;
+                    }
+                    primaryRatio = 0;
+                    secondaryRatio = 1;
+                }
+
+                const alpha = Math.round(255 * smoothstep(0.1, 0.5, totalStrength));
+                const finalR = primaryColor.r * primaryRatio + secondaryColor.r * secondaryRatio;
+                const finalG = primaryColor.g * primaryRatio + secondaryColor.g * secondaryRatio;
+                const finalB = primaryColor.b * primaryRatio + secondaryColor.b * secondaryRatio;
+
+                data[i] = Math.round(Math.min(255, finalR));
+                data[i + 1] = Math.round(Math.min(255, finalG));
+                data[i + 2] = Math.round(Math.min(255, finalB));
+                data[i + 3] = alpha;
+            }
+
+            tempCtx.putImageData(imageData, 0, 0);
+            ctx.drawImage(tempCanvas, 0, 0);
+        }
+
+        async function renderEmblem() {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            const emblemForeground = parseInt(urlParams.get('EF') || 37);
+            const emblemBackground = parseInt(urlParams.get('EB') || 5);
+            const emblemPrimary = parseInt(urlParams.get('EP') || 1);
+            const emblemSecondary = parseInt(urlParams.get('ES') || 0);
+            const bgPrimary = parseInt(urlParams.get('P') || 11);
+            const bgSecondary = parseInt(urlParams.get('S') || 0);
+            const emblemToggle = parseInt(urlParams.get('ET') || 0);
+
+            const canvas = document.getElementById('emblemCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, 256, 256);
+
+            const fgFile = foregroundFiles[emblemForeground] || foregroundFiles[0];
+            const bgFile = backgroundFiles[emblemBackground] || backgroundFiles[0];
+            const fgPath = 'emblems/embems/' + encodeURIComponent(fgFile);
+            const bgPath = 'emblems/backgrounds/' + encodeURIComponent(bgFile);
+
+            try {
+                const [fgImg, bgImg] = await Promise.all([
+                    loadImage(fgPath),
+                    loadImage(bgPath)
+                ]);
+
+                drawBackground(ctx, bgImg, colorPalette[bgPrimary], colorPalette[bgSecondary]);
+                drawForeground(ctx, fgImg, colorPalette[emblemPrimary], colorPalette[emblemSecondary], emblemToggle);
+            } catch (e) {
+                console.error('Error rendering emblem:', e);
+            }
+        }
+
+        renderEmblem();
+    })();
+    </script>
+</body>
+</html>
