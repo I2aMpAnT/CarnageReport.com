@@ -16,6 +16,7 @@ GAMESTATS_FILE = 'gamestats.json'
 MATCHHISTORY_FILE = 'matchhistory.json'
 GAMESDATA_FILE = 'gameshistory.json'
 XP_CONFIG_FILE = 'xp_config.json'
+PLAYERS_FILE = 'players.json'
 HTML_FILE = 'h2carnagereport.html'
 
 # Playlist name for 4v4 games
@@ -47,6 +48,36 @@ def load_rankstats():
             return json.load(f)
     except:
         return {}
+
+def load_players():
+    """Load players.json which contains MAC ID to profile mappings."""
+    try:
+        with open(PLAYERS_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
+def build_profile_lookup(players):
+    """
+    Build a lookup from stats_profile name to user_id.
+
+    This uses the MAC ID-linked stats_profile from players.json to enable
+    matching players even when their in-game name differs from discord_name.
+    """
+    profile_to_user = {}
+    for user_id, data in players.items():
+        # Use stats_profile if available (linked via MAC ID)
+        stats_profile = data.get('stats_profile', '')
+        if stats_profile:
+            profile_to_user[stats_profile.lower()] = user_id
+
+        # Also include aliases for matching
+        aliases = data.get('aliases', [])
+        for alias in aliases:
+            if alias:
+                profile_to_user[alias.lower()] = user_id
+
+    return profile_to_user
 
 def calculate_rank(xp, rank_thresholds):
     """Calculate rank based on XP and thresholds."""
@@ -238,10 +269,23 @@ def determine_winners_losers(game):
 
     return [], []
 
-def find_player_by_name(rankstats, name):
-    """Find a player in rankstats by their stats profile name (discord_name field)."""
+def find_player_by_name(rankstats, name, profile_lookup=None):
+    """
+    Find a player in rankstats by their stats profile name.
+
+    Matching priority:
+    1. MAC ID-linked stats_profile from players.json (via profile_lookup)
+    2. discord_name field in rankstats.json
+    """
     name_lower = name.lower().strip()
 
+    # First try MAC ID-linked profile lookup from players.json
+    if profile_lookup and name_lower in profile_lookup:
+        user_id = profile_lookup[name_lower]
+        if user_id in rankstats:
+            return user_id
+
+    # Fall back to discord_name matching in rankstats
     for user_id, data in rankstats.items():
         discord_name = data.get('discord_name', '').lower()
         if discord_name == name_lower:
@@ -263,6 +307,11 @@ def main():
 
     # Load existing rankstats
     rankstats = load_rankstats()
+
+    # Load players.json for MAC ID-based profile matching
+    players = load_players()
+    profile_lookup = build_profile_lookup(players)
+    print(f"Loaded {len(profile_lookup)} profile mappings from players.json")
 
     # STEP 1: Zero out ALL player stats
     print("\nStep 1: Zeroing out all player stats...")
@@ -313,9 +362,10 @@ def main():
             all_player_names.add(player['name'])
 
     # Match players to existing entries or create new ones
+    # Uses MAC ID-linked profile matching from players.json
     player_to_id = {}
     for player_name in all_player_names:
-        user_id = find_player_by_name(rankstats, player_name)
+        user_id = find_player_by_name(rankstats, player_name, profile_lookup)
         if user_id:
             player_to_id[player_name] = user_id
         else:

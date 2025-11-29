@@ -1,0 +1,524 @@
+{
+  "1136095104663306240": {
+    "stats_profile": "Hyrax",
+    "mac_id": null,
+    "twitch_name": "hyrax__",
+    "twitch_url": "https://twitch.tv/hyrax__"
+  },
+  "283293015135748097": {
+    "stats_profile": "Dirk",
+    "mac_id": null,
+    "twitch_name": "ogdirk",
+    "twitch_url": "https://twitch.tv/ogdirk"
+  },
+  "269681242335739905": {
+    "stats_profile": "Keylord",
+    "mac_id": null,
+    "twitch_name": "justinkeylord",
+    "twitch_url": "https://twitch.tv/justinkeylord",
+    "aliases": [
+      "keylord"
+    ]
+  },
+  "132652800378142720": {
+    "stats_profile": "Hammie",
+    "mac_id": null,
+    "twitch_name": "ai2ejay",
+    "twitch_url": "https://twitch.tv/ai2ejay",
+    "aliases": [
+      "RJ"
+    ]
+  },
+  "136324687926919168": {
+    "stats_profile": "roasted",
+    "mac_id": null,
+    "twitch_name": "h2roasted",
+    "twitch_url": "https://twitch.tv/h2roasted"
+  },
+  "426757496557010948": {
+    "stats_profile": "Rocky",
+    "mac_id": null,
+    "twitch_name": "c6rocky",
+    "twitch_url": "https://twitch.tv/c6rocky"
+  },
+  "412829053603807232": {
+    "stats_profile": "Lefty",
+    "mac_id": null
+  },
+  "232556390839746560": {
+    "stats_profile": "DSJ",
+    "mac_id": null
+  },
+  "293794892893782017": {
+    "stats_profile": "FrEnZy",
+    "mac_id": null,
+    "twitch_name": "trailerparkrich",
+    "twitch_url": "https://twitch.tv/trailerparkrich"
+  },
+  "293507586131492864": {
+    "stats_profile": "Prince KidMode",
+    "mac_id": null,
+    "twitch_name": "kidm0de",
+    "twitch_url": "https://twitch.tv/kidm0de"
+  },
+  "284010072504270849": {
+    "stats_profile": "DU7S",
+    "mac_id": null,
+    "twitch_name": "du7s",
+    "twitch_url": "https://twitch.tv/du7s"
+  },
+  "299780772456431627": {
+    "stats_profile": "Gava",
+    "mac_id": null
+  },
+  "210187331066396672": {
+    "stats_profile": "Rinser",
+    "mac_id": null,
+    "twitch_name": "mrwelfares",
+    "twitch_url": "https://twitch.tv/mrwelfares"
+  },
+  "334212655613214721": {
+    "stats_profile": "fluhd",
+    "mac_id": null,
+    "twitch_name": "floodandshiro",
+    "twitch_url": "https://twitch.tv/floodandshiro"
+  },
+  "212720585279537153": {
+    "stats_profile": "Punny88",
+    "mac_id": null
+  },
+  "385632391089356810": {
+    "stats_profile": "KraN",
+    "mac_id": null,
+    "twitch_name": "kranlive",
+    "twitch_url": "https://twitch.tv/kranlive"
+  },
+  "1222926448084520970": {
+    "stats_profile": "Old Man",
+    "mac_id": null,
+    "twitch_name": "old_man_halo",
+    "twitch_url": "https://twitch.tv/old_man_halo"
+  },
+  "165626999891689474": {
+    "stats_profile": "SHOW5TOPPER",
+    "mac_id": null
+  },
+  "486628967760003085": {
+    "stats_profile": "NaDeShY",
+    "mac_id": null,
+    "twitch_name": "nadeshy",
+    "twitch_url": "https://twitch.tv/nadeshy"
+  },
+  "558138736966238219": {
+    "stats_profile": "waRRior Fresh",
+    "mac_id": null
+  },
+  "294558721474953219": {
+    "stats_profile": "bignami",
+    "mac_id": null
+  },
+  "395302282914168852": {
+    "stats_profile": "TimRager",
+    "mac_id": null
+  },
+  "859153194839965718": {
+    "stats_profile": "Curts GLORY",
+    "mac_id": null,
+    "twitch_name": "Curtsglory",
+    "twitch_url": "https://twitch.tv/Curtsglory"
+  },
+  "943239550782803988": {
+    "stats_profile": "xX daVe Xx",
+    "mac_id": null
+  },
+  "771859735938072596": {
+    "stats_profile": "JUiCE",
+    "mac_id": null
+  },
+  "554332927614517269": {
+    "stats_profile": "TGS NaTuRaL",
+    "mac_id": null
+  },
+  "658102055696859156": {
+    "stats_profile": "-NeiLuZ-",
+    "mac_id": null
+  },
+  "384701805944111128": {
+    "stats_profile": "Overseasons",
+    "mac_id": null
+  },
+  "141912473744703489": {
+    "stats_profile": "LiaM",
+    "mac_id": null
+  },
+  "556272092408971294": {
+    "stats_profile": "Dro",
+    "mac_id": null
+  },
+  "156907171433414656": {
+    "stats_profile": "Lethal_HT",
+    "mac_id": null,
+    "twitch_name": "lethal_ht",
+    "twitch_url": "https://twitch.tv/lethal_ht",
+    "aliases": [
+      "lethal_ht"
+    ]
+  },
+  "900612436686680095": {
+    "stats_profile": "T.Robs",
+    "mac_id": null
+  },
+  "652998057087991838": {
+    "stats_profile": "TwoDashAngo",
+    "mac_id": null
+  },
+  "1380083223937290272": {
+    "stats_profile": "Mr i Hockey",
+    "mac_id": null
+  },
+  "314217230390919174": {
+    "stats_profile": "popq2",
+    "mac_id": null
+  },
+  "1179648030375424032": {
+    "stats_profile": "Ben",
+    "mac_id": null
+  },
+  "1324420042494050338": {
+    "stats_profile": "DrugAbuse goose 🇺🇸",
+    "mac_id": null
+  },
+  "359216128959971329": {
+    "stats_profile": "Hypnox",
+    "mac_id": null,
+    "twitch_name": "hyp_nox",
+    "twitch_url": "https://twitch.tv/hyp_nox",
+    "aliases": [
+      "Hypnosis"
+    ]
+  },
+  "276552139084398592": {
+    "stats_profile": "WoGG",
+    "mac_id": null
+  },
+  "639932733392683048": {
+    "stats_profile": "fricken (retired)",
+    "mac_id": null
+  },
+  "980246369161855017": {
+    "stats_profile": "Byceps",
+    "mac_id": null
+  },
+  "884896715432411178": {
+    "stats_profile": "I2aMpAnT",
+    "mac_id": null,
+    "twitch_name": "i2ampant_Gaming",
+    "twitch_url": "https://twitch.tv/i2ampant_Gaming"
+  },
+  "601594438233620521": {
+    "stats_profile": "MadMikeWillEatU",
+    "mac_id": null
+  },
+  "173926727117045760": {
+    "stats_profile": "Gor3",
+    "mac_id": null
+  },
+  "907034559248482314": {
+    "stats_profile": "MohnJorrow",
+    "mac_id": null
+  },
+  "951202518396977203": {
+    "stats_profile": "Wrecktangle’s Mic",
+    "mac_id": null
+  },
+  "797210177786347530": {
+    "stats_profile": "future trunks",
+    "mac_id": null
+  },
+  "213096674023833610": {
+    "stats_profile": "Faulty",
+    "mac_id": null,
+    "twitch_name": "texjas",
+    "twitch_url": "https://twitch.tv/texjas"
+  },
+  "176191518837702666": {
+    "stats_profile": "J2",
+    "mac_id": null
+  },
+  "225563156397686786": {
+    "stats_profile": "Sup",
+    "mac_id": null
+  },
+  "795707878388137995": {
+    "stats_profile": "Sauce",
+    "mac_id": null
+  },
+  "241980128631062539": {
+    "stats_profile": "Conflictz",
+    "mac_id": null
+  },
+  "694412691015598140": {
+    "stats_profile": "simon hagiwara",
+    "mac_id": null,
+    "twitch_name": "spencerbrown",
+    "twitch_url": "https://twitch.tv/spencerbrown"
+  },
+  "851303681897791548": {
+    "stats_profile": "Genkinz",
+    "mac_id": null,
+    "twitch_name": "genkinz",
+    "twitch_url": "https://twitch.tv/genkinz"
+  },
+  "1351057247437852733": {
+    "stats_profile": "GoonerRat",
+    "mac_id": null
+  },
+  "736026857572401214": {
+    "stats_profile": "heyitsarcadia",
+    "mac_id": null
+  },
+  "359472455259127820": {
+    "stats_profile": "GT: HeroicFool69 (Stormcrow2)",
+    "mac_id": null
+  },
+  "1126543913654698044": {
+    "stats_profile": "Skaduf The Greatest Halo Player",
+    "mac_id": null,
+    "twitch_name": "skaduf",
+    "twitch_url": "https://twitch.tv/skaduf"
+  },
+  "1118666385921425478": {
+    "stats_profile": "oKrazed",
+    "mac_id": null
+  },
+  "1155320421672046672": {
+    "stats_profile": "Csquared",
+    "mac_id": null
+  },
+  "1258601786533609554": {
+    "stats_profile": "Burn iTz",
+    "mac_id": null
+  },
+  "710585633474740306": {
+    "stats_profile": "VirulentGrunt",
+    "mac_id": null
+  },
+  "1051302763633573978": {
+    "stats_profile": "NomeOGx3",
+    "mac_id": null
+  },
+  "1218796844088430692": {
+    "stats_profile": "ll Legend ll",
+    "mac_id": null,
+    "twitch_name": "LtzLegend_",
+    "twitch_url": "https://twitch.tv/LtzLegend_"
+  },
+  "1343263695769305190": {
+    "stats_profile": "Lux",
+    "mac_id": null
+  },
+  "1233040240210477160": {
+    "stats_profile": "TeoulisComple 🇬🇷",
+    "mac_id": null,
+    "twitch_name": "teouliscompleq",
+    "twitch_url": "https://twitch.tv/teouliscompleq",
+    "aliases": [
+      "happyhippoheythere"
+    ]
+  },
+  "196752652569149440": {
+    "stats_profile": "BliNdFiRe",
+    "mac_id": null
+  },
+  "1348067996761063535": {
+    "stats_profile": "Zony",
+    "mac_id": null
+  },
+  "1393893716338540675": {
+    "stats_profile": "lzl WeakSide",
+    "mac_id": null
+  },
+  "161726300304834560": {
+    "stats_profile": "Jay2",
+    "mac_id": null
+  },
+  "210280313262309376": {
+    "stats_profile": "Grave",
+    "mac_id": null
+  },
+  "174522691917840384": {
+    "stats_profile": "BxSouljah",
+    "mac_id": null
+  },
+  "154836949964816384": {
+    "stats_profile": "H4",
+    "mac_id": null
+  },
+  "198564445105029120": {
+    "stats_profile": "Vonlionton",
+    "mac_id": null
+  },
+  "205738438773833728": {
+    "stats_profile": "Xanticity",
+    "mac_id": null
+  },
+  "799264724021280768": {
+    "stats_profile": "SoldieR",
+    "mac_id": null
+  },
+  "164725201907613696": {
+    "stats_profile": "James | The Frenetic",
+    "mac_id": null,
+    "twitch_name": "thefrenetic",
+    "twitch_url": "https://twitch.tv/thefrenetic"
+  },
+  "135116534388490240": {
+    "stats_profile": "J1",
+    "mac_id": null
+  },
+  "296360818465964032": {
+    "stats_profile": "Pinesauce",
+    "mac_id": null
+  },
+  "1040724126836457624": {
+    "stats_profile": "M15F1T",
+    "mac_id": null
+  },
+  "653385687852253215": {
+    "stats_profile": "DomerSimpson",
+    "mac_id": null,
+    "twitch_name": "domer_simpson_",
+    "twitch_url": "https://twitch.tv/domer_simpson_",
+    "aliases": [
+      "domer_simpson"
+    ]
+  },
+  "352157745530667009": {
+    "stats_profile": "TwoCaribous",
+    "mac_id": null
+  },
+  "274372368686776321": {
+    "stats_profile": "sneakybeav3r",
+    "mac_id": null,
+    "twitch_name": "SneeakyBeav3r",
+    "twitch_url": "https://twitch.tv/SneeakyBeav3r"
+  },
+  "156973309722886144": {
+    "stats_profile": "LD50 II",
+    "mac_id": null,
+    "twitch_name": "LD50_II",
+    "twitch_url": "https://twitch.tv/LD50_II",
+    "aliases": [
+      "ld50_ii"
+    ]
+  },
+  "173928028173369345": {
+    "stats_profile": "ZeeD",
+    "mac_id": null
+  },
+  "175415359703089152": {
+    "stats_profile": "Obi Juan",
+    "mac_id": null,
+    "twitch_name": "defensevpower",
+    "twitch_url": "https://twitch.tv/defensevpower"
+  },
+  "390747330631958528": {
+    "stats_profile": "cOn",
+    "mac_id": null
+  },
+  "180809401228197889": {
+    "stats_profile": "StoRmY v2",
+    "mac_id": null,
+    "twitch_name": "Stormy_v2",
+    "twitch_url": "https://twitch.tv/Stormy_v2"
+  },
+  "164177623163994113": {
+    "stats_profile": "WildCherry",
+    "mac_id": null
+  },
+  "174366760479358976": {
+    "stats_profile": "Mathlete",
+    "mac_id": null
+  },
+  "107703779188580352": {
+    "stats_profile": "helldotcom",
+    "mac_id": null
+  },
+  "111190770756657152": {
+    "stats_profile": "EpiiiC",
+    "mac_id": null,
+    "twitch_name": "e212",
+    "twitch_url": "https://twitch.tv/e212"
+  },
+  "84785392234012672": {
+    "stats_profile": "re4thewin",
+    "mac_id": null
+  },
+  "335626718062837760": {
+    "stats_profile": "LosOjosRojos",
+    "mac_id": null,
+    "twitch_name": "LosOjosRojos_H2",
+    "twitch_url": "https://twitch.tv/LosOjosRojos_H2",
+    "aliases": [
+      "losojosrojos"
+    ]
+  },
+  "291104674839527424": {
+    "stats_profile": "Siko",
+    "mac_id": null
+  },
+  "301971773077848064": {
+    "stats_profile": "Korin",
+    "mac_id": null
+  },
+  "188009416556150784": {
+    "stats_profile": "side",
+    "mac_id": null
+  },
+  "772288046905032704": {
+    "stats_profile": "UltiMeGa",
+    "mac_id": null
+  },
+  "598584495641198592": {
+    "stats_profile": "Welchs",
+    "mac_id": null
+  },
+  "167766278860177408": {
+    "stats_profile": "CYRiX",
+    "mac_id": null
+  },
+  "177913649728323584": {
+    "stats_profile": "Kryptonite",
+    "mac_id": null,
+    "twitch_name": "slikryptoniite",
+    "twitch_url": "https://twitch.tv/slikryptoniite"
+  },
+  "187356723135119360": {
+    "stats_profile": "Cortalisk",
+    "mac_id": null
+  },
+  "155302533345050624": {
+    "stats_profile": "Famous",
+    "mac_id": null
+  },
+  "168151188741685248": {
+    "stats_profile": "AfroMaN",
+    "mac_id": null
+  },
+  "449344331426203546": {
+    "stats_profile": "2D",
+    "mac_id": null
+  },
+  "460394656304217571": {
+    "stats_profile": "Tetracide",
+    "mac_id": null
+  },
+  "467006237617687770": {
+    "stats_profile": "Ralph Port",
+    "mac_id": null
+  },
+  "270437833351157432": {
+    "stats_profile": "getitoutdaFLUD",
+    "mac_id": null
+  }
+}
