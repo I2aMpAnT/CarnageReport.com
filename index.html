@@ -106,35 +106,26 @@
                     </div>
                     
                     <div class="emblem-controls">
-                        <div class="color-section">
-                            <h3>Emblem Colors</h3>
-                            <div class="color-row">
-                                <div class="color-picker-group">
-                                    <label>Primary</label>
-                                    <div class="color-picker" id="emblemPrimaryPicker" data-target="emblemPrimary"></div>
-                                    <input type="hidden" id="emblemPrimary" value="1">
-                                </div>
-                                <div class="color-picker-group">
-                                    <label>Secondary</label>
-                                    <div class="color-picker" id="emblemSecondaryPicker" data-target="emblemSecondary"></div>
-                                    <input type="hidden" id="emblemSecondary" value="0">
-                                </div>
+                        <div class="color-section color-section-stacked">
+                            <div class="color-picker-group">
+                                <label>Primary Emblem Color</label>
+                                <div class="color-picker" id="emblemPrimaryPicker" data-target="emblemPrimary"></div>
+                                <input type="hidden" id="emblemPrimary" value="1">
                             </div>
-                        </div>
-
-                        <div class="color-section">
-                            <h3>Background Colors</h3>
-                            <div class="color-row">
-                                <div class="color-picker-group">
-                                    <label>Primary</label>
-                                    <div class="color-picker" id="bgPrimaryPicker" data-target="bgPrimary"></div>
-                                    <input type="hidden" id="bgPrimary" value="11">
-                                </div>
-                                <div class="color-picker-group">
-                                    <label>Secondary</label>
-                                    <div class="color-picker" id="bgSecondaryPicker" data-target="bgSecondary"></div>
-                                    <input type="hidden" id="bgSecondary" value="0">
-                                </div>
+                            <div class="color-picker-group">
+                                <label>Secondary Emblem Color</label>
+                                <div class="color-picker" id="emblemSecondaryPicker" data-target="emblemSecondary"></div>
+                                <input type="hidden" id="emblemSecondary" value="0">
+                            </div>
+                            <div class="color-picker-group">
+                                <label>Primary Background Color</label>
+                                <div class="color-picker" id="bgPrimaryPicker" data-target="bgPrimary"></div>
+                                <input type="hidden" id="bgPrimary" value="11">
+                            </div>
+                            <div class="color-picker-group">
+                                <label>Secondary Background Color</label>
+                                <div class="color-picker" id="bgSecondaryPicker" data-target="bgSecondary"></div>
+                                <input type="hidden" id="bgSecondary" value="0">
                             </div>
                         </div>
                         
@@ -157,7 +148,7 @@
                                 <option value="13">Cleave</option>
                                 <option value="14">Grunt</option>
                                 <option value="15">Radioactive</option>
-                                <option value="16" selected>Smiley</option>
+                                <option value="16">Smiley</option>
                                 <option value="17">Frowney</option>
                                 <option value="18">Triad</option>
                                 <option value="19">Waypoint</option>
@@ -178,7 +169,7 @@
                                 <option value="34">Hearts</option>
                                 <option value="35">Snake</option>
                                 <option value="36">Flaming Ninja</option>
-                                <option value="37">Rampancy</option>
+                                <option value="37" selected>Rampancy</option>
                                 <option value="38">Hawk</option>
                                 <option value="39">Lips</option>
                                 <option value="40">Capsule</option>

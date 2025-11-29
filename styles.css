@@ -3801,6 +3801,16 @@ header {
     letter-spacing: 1px;
 }
 
+.color-section-stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.color-section-stacked .color-picker-group {
+    width: 100%;
+}
+
 .color-row {
     display: flex;
     gap: 20px;

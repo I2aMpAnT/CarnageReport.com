@@ -170,7 +170,7 @@
     // Preload essential images for faster initial render
     async function preloadImages() {
         try {
-            const defaultFg = 'emblems/embems/' + encodeURIComponent(foregroundFiles[12]);
+            const defaultFg = 'emblems/embems/' + encodeURIComponent(foregroundFiles[37]); // Rampancy
             const defaultBg = 'emblems/backgrounds/' + encodeURIComponent(backgroundFiles[5]);
             await Promise.all([loadImage(defaultFg), loadImage(defaultBg)]);
             updateEmblem();
@@ -233,7 +233,7 @@
     }
 
     // Draw background - blue pixels get primary color, white areas get secondary color
-    // With smooth gradient handling
+    // Smooth gradient blending based on color channels
     function drawBackground(ctx, img, primaryColor, secondaryColor) {
         const tempCanvas = document.createElement('canvas');
         const size = 256;
@@ -254,39 +254,26 @@
             const g = data[i + 1];
             const b = data[i + 2];
 
-            // Calculate blend ratio based on blue vs white
-            // Blue channel indicates primary, white (all channels high) indicates secondary
-            const blueAmount = b / 255;
-            const whiteAmount = Math.min(r, g, b) / 255;
+            // Background images use blue (0,0,255) for primary and white (255,255,255) for secondary
+            // Calculate blend ratio: how much "blue" vs "white" is in this pixel
+            // Blue has high B, low R and G. White has high R, G, and B.
+            // The key differentiator is the R and G channels - higher means more white/secondary
 
-            // For gradients, use smooth interpolation
-            let primaryRatio, secondaryRatio;
+            const rgAvg = (r + g) / 2;
+            const blueExcess = Math.max(0, b - rgAvg);
+            const whiteAmount = rgAvg / 255;
 
-            if (b > r + 50 && b > g + 50) {
-                // Predominantly blue -> more primary
-                primaryRatio = smoothstep(0.3, 1.0, blueAmount);
-                secondaryRatio = 1 - primaryRatio;
-            } else if (r > 180 && g > 180 && b > 180) {
-                // White-ish -> more secondary
-                secondaryRatio = smoothstep(0.7, 1.0, whiteAmount);
-                primaryRatio = 1 - secondaryRatio;
-            } else {
-                // Gradient area - smooth blend based on channels
-                const totalColor = r + g + b;
-                if (totalColor > 0) {
-                    primaryRatio = smoothstep(0, 1, (b - Math.min(r, g)) / 255);
-                    secondaryRatio = 1 - primaryRatio;
-                } else {
-                    primaryRatio = 0;
-                    secondaryRatio = 0;
-                }
-            }
+            // Blend factor: 0 = pure primary (blue), 1 = pure secondary (white)
+            // Use the average of R and G to determine how "white" the pixel is
+            let t = whiteAmount;
 
-            // Apply colors with smooth blending
-            const intensity = Math.max(blueAmount, whiteAmount, 0.1);
-            data[i] = lerp(secondaryColor.r, primaryColor.r, primaryRatio) * intensity;
-            data[i + 1] = lerp(secondaryColor.g, primaryColor.g, primaryRatio) * intensity;
-            data[i + 2] = lerp(secondaryColor.b, primaryColor.b, primaryRatio) * intensity;
+            // Apply smooth interpolation for gradients
+            t = smoothstep(0, 1, t);
+
+            // Lerp between primary and secondary colors
+            data[i] = Math.round(lerp(primaryColor.r, secondaryColor.r, t));
+            data[i + 1] = Math.round(lerp(primaryColor.g, secondaryColor.g, t));
+            data[i + 2] = Math.round(lerp(primaryColor.b, secondaryColor.b, t));
             data[i + 3] = 255;
         }
 
@@ -295,7 +282,7 @@
     }
 
     // Draw foreground - yellow pixels get primary color, blue pixels get secondary color
-    // With smooth edge handling
+    // Smooth edge handling with proper antialiasing
     function drawForeground(ctx, img, primaryColor, secondaryColor, toggle) {
         const tempCanvas = document.createElement('canvas');
         const size = 256;
@@ -320,64 +307,53 @@
             // Skip fully transparent pixels
             if (a === 0) continue;
 
-            // Skip black/near-black pixels (transparent background)
-            if (r < 25 && g < 25 && b < 25) {
+            // Black/near-black pixels are transparent background
+            const brightness = (r + g + b) / 3;
+            if (brightness < 20) {
                 data[i + 3] = 0;
                 continue;
             }
 
-            // Calculate yellow (primary) and blue (secondary) amounts
-            const yellowAmount = Math.min(r, g) / 255;
-            const blueAmount = b / 255;
-            const redAmount = r / 255;
-            const greenAmount = g / 255;
+            // Foreground images use yellow (255,255,0) for primary and blue (0,0,255) for secondary
+            // Calculate how "yellow" vs "blue" this pixel is
 
-            // Determine if this is primarily yellow, blue, or mixed
-            let primaryRatio = 0;
-            let secondaryRatio = 0;
-            let alpha = 255;
+            // Yellow has high R and G, low B
+            // Blue has low R and G, high B
+            const yellowStrength = Math.min(r, g) / 255;
+            const blueStrength = b / 255;
+            const totalStrength = yellowStrength + blueStrength;
 
-            if (r > 120 && g > 120 && b < 120) {
-                // Yellow pixel -> Primary color
-                primaryRatio = smoothstep(0.4, 1.0, yellowAmount);
-                secondaryRatio = 0;
-                alpha = Math.floor(255 * Math.max(yellowAmount, 0.8));
-            } else if (b > 120 && r < 120 && g < 120) {
-                // Blue pixel -> Secondary color
-                secondaryRatio = smoothstep(0.4, 1.0, blueAmount);
-                primaryRatio = 0;
-                alpha = Math.floor(255 * Math.max(blueAmount, 0.8));
-            } else if (yellowAmount > 0.1 || blueAmount > 0.1) {
-                // Mixed/edge pixels - smooth blend
-                const total = yellowAmount + blueAmount;
-                if (total > 0) {
-                    primaryRatio = yellowAmount / total;
-                    secondaryRatio = blueAmount / total;
-                    alpha = Math.floor(255 * smoothstep(0.1, 0.6, total));
-                }
-            } else {
-                // Very dark non-black pixel - make semi-transparent
+            if (totalStrength < 0.05) {
+                // Very dark pixel - make transparent
                 data[i + 3] = 0;
                 continue;
             }
 
-            // Apply toggle (hide primary)
+            // Normalize to get blend ratio
+            let primaryRatio = yellowStrength / Math.max(totalStrength, 0.001);
+            let secondaryRatio = blueStrength / Math.max(totalStrength, 0.001);
+
+            // Apply toggle (hide primary color layer)
             if (toggle === 1) {
-                primaryRatio = 0;
-                if (secondaryRatio < 0.1) {
+                if (primaryRatio > 0.9) {
                     data[i + 3] = 0;
                     continue;
                 }
+                primaryRatio = 0;
+                secondaryRatio = 1;
             }
 
-            // Blend colors
-            const finalR = lerp(0, primaryColor.r, primaryRatio) + lerp(0, secondaryColor.r, secondaryRatio);
-            const finalG = lerp(0, primaryColor.g, primaryRatio) + lerp(0, secondaryColor.g, secondaryRatio);
-            const finalB = lerp(0, primaryColor.b, primaryRatio) + lerp(0, secondaryColor.b, secondaryRatio);
+            // Calculate alpha based on total color strength for smooth edges
+            const alpha = Math.round(255 * smoothstep(0.1, 0.5, totalStrength));
 
-            data[i] = Math.min(255, finalR);
-            data[i + 1] = Math.min(255, finalG);
-            data[i + 2] = Math.min(255, finalB);
+            // Blend primary and secondary colors
+            const finalR = primaryColor.r * primaryRatio + secondaryColor.r * secondaryRatio;
+            const finalG = primaryColor.g * primaryRatio + secondaryColor.g * secondaryRatio;
+            const finalB = primaryColor.b * primaryRatio + secondaryColor.b * secondaryRatio;
+
+            data[i] = Math.round(Math.min(255, finalR));
+            data[i + 1] = Math.round(Math.min(255, finalG));
+            data[i + 2] = Math.round(Math.min(255, finalB));
             data[i + 3] = alpha;
         }
 
