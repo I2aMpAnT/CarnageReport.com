@@ -48,6 +48,97 @@ const mapImages = {
 // Default map image if not found
 const defaultMapImage = 'mapimages/Midship.jpeg';
 
+// Twitch VOD cache (username -> VOD data)
+const twitchVodCache = {};
+const TWITCH_GQL_URL = 'https://gql.twitch.tv/gql';
+const TWITCH_CLIENT_ID = 'kimne78kx3ncx6brgo4mv6wki5h1ko'; // Twitch's public web client ID
+const SITE_DOMAIN = window.location.hostname || 'localhost';
+
+// Fetch VODs for a Twitch user
+async function fetchTwitchVods(username) {
+    if (twitchVodCache[username]) {
+        return twitchVodCache[username];
+    }
+
+    const query = `
+        query GetUserVideos($login: String!, $type: BroadcastType, $first: Int) {
+            user(login: $login) {
+                id
+                login
+                displayName
+                videos(type: $type, first: $first, sort: TIME) {
+                    edges {
+                        node {
+                            id
+                            title
+                            createdAt
+                            lengthSeconds
+                            previewThumbnailURL(width: 320, height: 180)
+                        }
+                    }
+                }
+            }
+        }
+    `;
+
+    try {
+        const response = await fetch(TWITCH_GQL_URL, {
+            method: 'POST',
+            headers: {
+                'Client-ID': TWITCH_CLIENT_ID,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                query: query,
+                variables: { login: username, type: 'ARCHIVE', first: 30 }
+            })
+        });
+
+        const data = await response.json();
+        const videos = data?.data?.user?.videos?.edges?.map(e => e.node) || [];
+        twitchVodCache[username] = videos;
+        return videos;
+    } catch (error) {
+        console.error(`Error fetching VODs for ${username}:`, error);
+        twitchVodCache[username] = [];
+        return [];
+    }
+}
+
+// Find VOD that covers a specific time, returns { vod, timestampSeconds } or null
+function findVodForTime(vods, gameStartTime, gameDurationMinutes = 15) {
+    // Parse game time - format: "MM/DD/YYYY HH:MM" in EST
+    const match = gameStartTime.match(/(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)/);
+    if (!match) return null;
+
+    const [, month, day, year, hour, minute] = match.map(Number);
+    // Convert EST to UTC (add 5 hours)
+    const gameStartUTC = new Date(Date.UTC(year, month - 1, day, hour + 5, minute));
+    const gameEndUTC = new Date(gameStartUTC.getTime() + gameDurationMinutes * 60 * 1000);
+
+    for (const vod of vods) {
+        const vodStart = new Date(vod.createdAt);
+        const vodEnd = new Date(vodStart.getTime() + vod.lengthSeconds * 1000);
+
+        // Check if VOD covers the game time
+        if (vodStart <= gameEndUTC && vodEnd >= gameStartUTC) {
+            // Calculate timestamp offset (how far into the VOD the game starts)
+            const offsetMs = Math.max(0, gameStartUTC - vodStart);
+            const offsetSeconds = Math.floor(offsetMs / 1000);
+            return { vod, timestampSeconds: offsetSeconds };
+        }
+    }
+    return null;
+}
+
+// Format seconds to Twitch timestamp format (1h23m45s)
+function formatTwitchTimestamp(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h}h${m}m${s}s`;
+}
+
 // Medal icons - Official Halo 2 medals only
 // Using local cached images in assets/medals/
 const medalIcons = {
@@ -108,7 +199,6 @@ const weaponIcons = {
     'smg': 'assets/weapons/SmG.png',
     'sub machine gun': 'assets/weapons/SmG.png',
     'sniper rifle': 'assets/weapons/SniperRifle.png',
-    'sniper': 'assets/weapons/SniperRifle.png',
     'rocket launcher': 'assets/weapons/RocketLauncher.png',
     'rockets': 'assets/weapons/RocketLauncher.png',
     'frag grenade': 'assets/weapons/H2-M9HEDPFragmentationGrenade.png',
@@ -1458,6 +1548,20 @@ function renderTwitch(game) {
     const gameEndTime = details['End Time'] || '';
     const gameDuration = details['Duration'] || '';
 
+    // Parse duration to minutes (format: "15:01" or "1:23:45")
+    let durationMinutes = 15;
+    if (gameDuration) {
+        const parts = gameDuration.split(':').map(Number);
+        if (parts.length === 2) {
+            durationMinutes = parts[0] + parts[1] / 60;
+        } else if (parts.length === 3) {
+            durationMinutes = parts[0] * 60 + parts[1] + parts[2] / 60;
+        }
+    }
+
+    // Generate unique ID for this game's twitch section
+    const gameId = `twitch-${gameStartTime.replace(/[^a-zA-Z0-9]/g, '')}`;
+
     let html = '<div class="twitch-section">';
 
     html += '<div class="twitch-header">';
@@ -1499,6 +1603,11 @@ function renderTwitch(game) {
         }
     });
 
+    // VOD embeds container - will be populated async
+    html += `<div id="${gameId}-vods" class="twitch-vods-container">`;
+    html += '<div class="twitch-vods-loading">Loading VODs...</div>';
+    html += '</div>';
+
     // Show linked players with Twitch channels
     if (linkedPlayers.length > 0) {
         html += '<div class="twitch-linked-section">';
@@ -1519,10 +1628,6 @@ function renderTwitch(game) {
             html += `<a href="${twitchData.url}" target="_blank" class="twitch-channel-link">`;
             html += `<span class="twitch-linked-icon">📺</span> ${twitchData.name}`;
             html += `</a>`;
-            html += `</div>`;
-            html += `<div class="twitch-player-actions">`;
-            html += `<a href="${twitchData.url}/videos" target="_blank" class="twitch-vod-btn">View VODs</a>`;
-            html += `<a href="${twitchData.url}/clips" target="_blank" class="twitch-clip-btn">View Clips</a>`;
             html += `</div>`;
             html += `</div>`;
         });
@@ -1562,14 +1667,83 @@ function renderTwitch(game) {
         html += '<p>🔗 No players in this match have linked their Twitch accounts yet.</p>';
         html += '<p class="twitch-note">Use /linktwitch in Discord to link your channel!</p>';
         html += '</div>';
-    } else {
-        html += '<div class="twitch-tip">';
-        html += `<p>💡 Look for VODs from <strong>${gameStartTime}</strong> to find footage of this match.</p>`;
-        html += '</div>';
     }
 
     html += '</div>';
+
+    // Async load VODs after render
+    if (linkedPlayers.length > 0) {
+        setTimeout(() => {
+            loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durationMinutes);
+        }, 100);
+    }
+
     return html;
+}
+
+// Async function to load and display VOD embeds
+async function loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durationMinutes) {
+    const container = document.getElementById(`${gameId}-vods`);
+    if (!container) return;
+
+    const vodEmbeds = [];
+
+    for (const { player, twitchData } of linkedPlayers) {
+        try {
+            const vods = await fetchTwitchVods(twitchData.name);
+            const result = findVodForTime(vods, gameStartTime, durationMinutes);
+
+            if (result) {
+                const { vod, timestampSeconds } = result;
+                const displayName = getDisplayNameForProfile(player.name);
+                const timestamp = formatTwitchTimestamp(timestampSeconds);
+
+                vodEmbeds.push({
+                    player: displayName,
+                    twitchName: twitchData.name,
+                    vodId: vod.id,
+                    vodTitle: vod.title,
+                    timestamp: timestamp,
+                    timestampSeconds: timestampSeconds,
+                    thumbnail: vod.previewThumbnailURL,
+                    team: player.team
+                });
+            }
+        } catch (error) {
+            console.error(`Error loading VODs for ${twitchData.name}:`, error);
+        }
+    }
+
+    // Render VOD embeds
+    if (vodEmbeds.length > 0) {
+        let html = '<h4 class="twitch-section-title">Match VODs Available</h4>';
+        html += '<div class="twitch-vods-grid">';
+
+        vodEmbeds.forEach(embed => {
+            const teamClass = isValidTeam(embed.team) ? `team-${embed.team.toLowerCase()}-border` : '';
+            const embedUrl = `https://player.twitch.tv/?video=${embed.vodId}&parent=${SITE_DOMAIN}&time=${embed.timestamp}&autoplay=false`;
+            const vodUrl = `https://twitch.tv/videos/${embed.vodId}?t=${embed.timestamp}`;
+
+            html += `<div class="twitch-vod-embed ${teamClass}">`;
+            html += `<div class="twitch-vod-header">`;
+            html += `<span class="twitch-vod-player">${embed.player}</span>`;
+            html += `<span class="twitch-vod-channel">@${embed.twitchName}</span>`;
+            html += `</div>`;
+            html += `<div class="twitch-vod-iframe-container">`;
+            html += `<iframe src="${embedUrl}" frameborder="0" allowfullscreen="true" scrolling="no" allow="autoplay; fullscreen"></iframe>`;
+            html += `</div>`;
+            html += `<div class="twitch-vod-footer">`;
+            html += `<span class="twitch-vod-title" title="${embed.vodTitle}">${embed.vodTitle}</span>`;
+            html += `<a href="${vodUrl}" target="_blank" class="twitch-vod-link">Open in Twitch ↗</a>`;
+            html += `</div>`;
+            html += `</div>`;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = '<div class="twitch-no-vods"><p>No VODs found covering this match time.</p><p class="twitch-note">Streamers may not have been live or VODs may have expired.</p></div>';
+    }
 }
 
 function renderLeaderboard() {
@@ -3137,7 +3311,10 @@ function showWeaponBreakdown() {
         const weaponData = game.weapons?.find(w => w.Player === currentProfilePlayer);
         if (weaponData) {
             Object.keys(weaponData).forEach(key => {
-                if (key !== 'Player' && key.toLowerCase().includes('kills')) {
+                const keyLower = key.toLowerCase();
+                // Exclude Player, headshots, and grenades
+                if (key !== 'Player' && keyLower.includes('kills') &&
+                    !keyLower.includes('headshot') && !keyLower.includes('grenade')) {
                     const weaponName = key.replace(/ kills/gi, '').trim();
                     const kills = parseInt(weaponData[key]) || 0;
                     if (kills > 0) {

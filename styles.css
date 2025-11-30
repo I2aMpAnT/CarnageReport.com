@@ -1688,12 +1688,13 @@ header {
 .weapon-badge {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     padding: 4px 8px;
     background: transparent;
     border-radius: 4px;
     position: relative;
     cursor: default;
+    flex-shrink: 0;
 }
 
 .weapon-badge::after {
@@ -1724,6 +1725,10 @@ header {
 .weapon-icon {
     width: 36px;
     height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    max-width: 36px;
+    max-height: 36px;
     object-fit: contain;
     filter: drop-shadow(0 0 3px rgba(168, 212, 255, 0.4));
     border-radius: 3px;
@@ -2138,6 +2143,152 @@ header {
     margin: 0;
     color: var(--text-secondary);
     font-size: 13px;
+}
+
+/* Twitch VOD Embeds */
+.twitch-vods-container {
+    margin-bottom: 20px;
+}
+
+.twitch-vods-loading {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-secondary);
+    font-family: 'Share Tech Mono', monospace;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+.twitch-vods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.twitch-vod-embed {
+    background: rgba(15, 20, 35, 0.8);
+    border: 1px solid rgba(168, 212, 255, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.twitch-vod-embed:hover {
+    border-color: rgba(168, 212, 255, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.twitch-vod-embed.team-red-border {
+    border-left: 3px solid var(--team-red);
+}
+
+.twitch-vod-embed.team-blue-border {
+    border-left: 3px solid var(--team-blue);
+}
+
+.twitch-vod-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(168, 212, 255, 0.1);
+}
+
+.twitch-vod-player {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.twitch-vod-channel {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: #9147ff;
+}
+
+.twitch-vod-iframe-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    background: #000;
+}
+
+.twitch-vod-iframe-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.twitch-vod-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(168, 212, 255, 0.1);
+}
+
+.twitch-vod-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+}
+
+.twitch-vod-link {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #9147ff;
+    text-decoration: none;
+    padding: 4px 8px;
+    border: 1px solid #9147ff;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.twitch-vod-link:hover {
+    background: #9147ff;
+    color: white;
+}
+
+.twitch-no-vods {
+    text-align: center;
+    padding: 30px;
+    background: rgba(100, 100, 100, 0.1);
+    border-radius: 8px;
+    border: 1px dashed rgba(100, 100, 100, 0.3);
+}
+
+.twitch-no-vods p {
+    margin: 0 0 8px 0;
+    color: var(--text-secondary);
+}
+
+.twitch-no-vods .twitch-note {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .twitch-vods-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .twitch-vod-title {
+        max-width: 150px;
+    }
 }
 
 /* Comparison Modal Styles */
