@@ -21,19 +21,20 @@ GAMESDATA_FILE = 'gameshistory.json'
 XP_CONFIG_FILE = 'xp_config.json'
 PLAYERS_FILE = 'players.json'
 EMBLEMS_FILE = 'emblems.json'
-HTML_FILE = 'h2carnagereport.html'
 ACTIVE_MATCHES_FILE = 'active_matches.json'
+RANKHISTORY_FILE = 'rankhistory.json'
 
 # Default playlist name for 4v4 games (fallback)
 PLAYLIST_NAME = 'MLG 4v4'
 
-# Valid MLG 4v4 / Team Hardcore map/gametype combinations (11 total)
+# Valid MLG 4v4 / Team Hardcore map/gametype combinations
+# Uses keyword matching (case-insensitive) to handle variations like "MLG TS 2007" matching "ts"
 VALID_MLG_4V4_COMBOS = {
-    "Midship": ["MLG CTF5", "MLG CTF MidWar", "MLG Team Slayer", "MLG Oddball", "MLG Bomb"],
-    "Beaver Creek": ["MLG Team Slayer"],
-    "Lockout": ["MLG Team Slayer", "MLG Oddball"],
-    "Warlock": ["MLG Team Slayer", "MLG CTF5"],
-    "Sanctuary": ["MLG CTF3", "MLG Team Slayer"]
+    "Midship": ["ctf", "ts", "slayer", "oddball", "ball", "bomb", "assault"],
+    "Beaver Creek": ["ts", "slayer"],
+    "Lockout": ["ts", "slayer", "oddball", "ball"],
+    "Warlock": ["ts", "slayer", "ctf"],
+    "Sanctuary": ["ctf", "ts", "slayer"]
 }
 
 # Playlist types
@@ -77,6 +78,14 @@ def load_players():
     except:
         return {}
 
+def load_rankhistory():
+    """Load existing rankhistory.json or return empty dict."""
+    try:
+        with open(RANKHISTORY_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
 def load_active_matches():
     """
     Load active_matches.json which contains info about currently active matches from the Discord bot.
@@ -105,15 +114,23 @@ def load_active_matches():
         return None
 
 def is_valid_mlg_combo(map_name, gametype):
-    """Check if map/gametype is a valid MLG 4v4 / Team Hardcore combination."""
+    """Check if map/gametype is a valid MLG 4v4 / Team Hardcore combination.
+
+    Uses keyword matching - if the gametype contains any of the valid keywords
+    for that map, it's considered valid. This handles variations like:
+    - "MLG TS 2007" matches "ts" or "slayer"
+    - "MLG Ball 2007" matches "ball" or "oddball"
+    - "MLG CTF Sanc" matches "ctf"
+    """
     if map_name not in VALID_MLG_4V4_COMBOS:
         return False
 
-    valid_gametypes = VALID_MLG_4V4_COMBOS[map_name]
-    # Check if gametype matches any valid gametype (case-insensitive, partial match)
+    valid_keywords = VALID_MLG_4V4_COMBOS[map_name]
     gametype_lower = gametype.lower()
-    for valid_gt in valid_gametypes:
-        if valid_gt.lower() in gametype_lower or gametype_lower in valid_gt.lower():
+
+    # Check if gametype contains any valid keyword for this map
+    for keyword in valid_keywords:
+        if keyword in gametype_lower:
             return True
     return False
 
@@ -661,6 +678,10 @@ def main():
         player_playlist_rank[name] = {}
         player_playlist_highest_rank[name] = {}
 
+    # Initialize rank history tracking (for rankhistory.json)
+    # Structure: {discord_id: {"discord_name": str, "history": [...]}}
+    rankhistory = {}
+
     print(f"  Found {len(all_player_names)} unique players")
 
     # STEP 3a: Process ALL games for stats (kills, deaths, etc.)
@@ -692,10 +713,23 @@ def main():
         if not playlist:
             continue  # Skip untagged games for ranking
 
+        # Get game end time for rankhistory timestamp
+        game_end_time = game['details'].get('End Time', '')
+        # Convert "MM/DD/YYYY HH:MM" to ISO format "YYYY-MM-DDTHH:MM:00"
+        try:
+            if game_end_time and '/' in game_end_time:
+                dt = datetime.strptime(game_end_time, '%m/%d/%Y %H:%M')
+                game_timestamp = dt.strftime('%Y-%m-%dT%H:%M:00')
+            else:
+                game_timestamp = game_end_time
+        except:
+            game_timestamp = game_end_time
+
         print(f"\n  Ranked Game {game_num} [{playlist}]: {game_name}")
 
         for player in game['players']:
             player_name = player['name']
+            user_id = player_to_id.get(player_name)
 
             # Initialize playlist tracking if needed
             if playlist not in player_playlist_xp[player_name]:
@@ -706,29 +740,35 @@ def main():
                 player_playlist_rank[player_name][playlist] = 1
                 player_playlist_highest_rank[player_name][playlist] = 1
 
-            # Get current XP and rank for this playlist
+            # Get current XP and rank for this playlist (this is rank_before)
             old_xp = player_playlist_xp[player_name][playlist]
-            current_rank = player_playlist_rank[player_name][playlist]
+            rank_before = player_playlist_rank[player_name][playlist]
+
+            # Determine result and calculate XP change
+            xp_change = 0
+            game_result = 'tie'
 
             if player_name in winners:
                 player_playlist_wins[player_name][playlist] += 1
                 player_playlist_games[player_name][playlist] += 1
                 # Apply win factor (high ranks gain less)
-                win_factor = get_win_factor(current_rank, win_factors)
+                win_factor = get_win_factor(rank_before, win_factors)
                 xp_change = int(xp_win * win_factor)
                 player_playlist_xp[player_name][playlist] += xp_change
                 result = f"WIN (+{xp_change} @ {int(win_factor*100)}%)"
+                game_result = 'win'
             elif player_name in losers:
                 player_playlist_losses[player_name][playlist] += 1
                 player_playlist_games[player_name][playlist] += 1
                 # Apply loss factor (low ranks lose less)
-                loss_factor = get_loss_factor(current_rank, loss_factors)
+                loss_factor = get_loss_factor(rank_before, loss_factors)
                 xp_change = int(xp_loss * loss_factor)  # xp_loss is negative
                 player_playlist_xp[player_name][playlist] += xp_change
                 # Ensure XP cannot go below 0
                 if player_playlist_xp[player_name][playlist] < 0:
                     player_playlist_xp[player_name][playlist] = 0
                 result = f"LOSS ({xp_change} @ {int(loss_factor*100)}%)"
+                game_result = 'loss'
             else:
                 player_playlist_games[player_name][playlist] += 1
                 result = "TIE"
@@ -739,7 +779,28 @@ def main():
             # Track highest rank achieved in this playlist
             if new_rank > player_playlist_highest_rank[player_name][playlist]:
                 player_playlist_highest_rank[player_name][playlist] = new_rank
-            print(f"    {player_name}: {result} | XP: {old_xp} -> {new_xp} | Rank: {new_rank}")
+
+            # Add entry to rankhistory for this player
+            if user_id:
+                if user_id not in rankhistory:
+                    discord_name = rankstats.get(user_id, {}).get('discord_name', player_name)
+                    rankhistory[user_id] = {
+                        'discord_name': discord_name,
+                        'history': []
+                    }
+
+                history_entry = {
+                    'timestamp': game_timestamp,
+                    'playlist': playlist,
+                    'xp_change': xp_change,
+                    'xp_total': new_xp,
+                    'rank_before': rank_before,
+                    'rank_after': new_rank,
+                    'result': game_result
+                }
+                rankhistory[user_id]['history'].append(history_entry)
+
+            print(f"    {player_name}: {result} | XP: {old_xp} -> {new_xp} | Rank: {rank_before} -> {new_rank}")
 
     # STEP 4: Update rankstats with final values
     print("\n\nStep 4: Updating rankstats with final values...")
@@ -846,6 +907,11 @@ def main():
         json.dump(emblems, f, indent=2)
     print(f"  Saved {EMBLEMS_FILE} ({len(emblems)} player emblems)")
 
+    # Save rank history (for pre-game rank lookups on the website)
+    with open(RANKHISTORY_FILE, 'w') as f:
+        json.dump(rankhistory, f, indent=2)
+    print(f"  Saved {RANKHISTORY_FILE} ({len(rankhistory)} players with history)")
+
     # Create gamestats.json (includes all games)
     gamestats = {}
     for i, game in enumerate(all_games, 1):
@@ -928,62 +994,10 @@ def main():
         losses = d.get('losses', 0)
         print(f"  {name:20s} | Rank: {rank:2d} | XP: {xp:4d} | W-L: {wins}-{losses}")
 
-    # STEP 6: Update HTML file with embedded data
-    print("\nStep 6: Updating HTML file...")
-    update_html_file(all_games, rankstats)
+    # Note: Website now loads data via fetch() from JSON files
+    # No need to embed data in HTML anymore
 
     print("\nDone!")
-
-
-def update_html_file(games_data, rank_stats):
-    """Update the HTML file with embedded gamesData and rankStats."""
-    import re
-
-    with open(HTML_FILE, 'r') as f:
-        html_content = f.read()
-
-    # Update gamesData - find and replace the entire line
-    games_json = json.dumps(games_data)
-    # Use a function to avoid escape issues
-    def replace_games(match):
-        return f'let gamesData = {games_json};'
-
-    html_content = re.sub(
-        r'let gamesData = \[.*?\];',
-        replace_games,
-        html_content,
-        flags=re.DOTALL
-    )
-
-    # Add or update rankStats
-    rank_stats_json = json.dumps(rank_stats)
-
-    def replace_rankstats(match):
-        return f'let rankStats = {rank_stats_json};'
-
-    if 'let rankStats = ' in html_content:
-        html_content = re.sub(
-            r'let rankStats = \{.*?\};',
-            replace_rankstats,
-            html_content,
-            flags=re.DOTALL
-        )
-    else:
-        # Insert rankStats after gamesData line
-        def insert_rankstats(match):
-            return f'{match.group(0)}\n        let rankStats = {rank_stats_json};'
-
-        html_content = re.sub(
-            r'let gamesData = \[.*?\];',
-            insert_rankstats,
-            html_content,
-            flags=re.DOTALL
-        )
-
-    with open(HTML_FILE, 'w') as f:
-        f.write(html_content)
-
-    print(f"  Updated {HTML_FILE}")
 
 
 if __name__ == '__main__':
