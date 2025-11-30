@@ -1776,12 +1776,9 @@ header {
 }
 
 .weapon-icon {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    min-height: 48px;
-    max-width: 48px;
-    max-height: 48px;
+    height: 36px;
+    max-height: 36px;
+    width: auto;
     object-fit: contain;
     filter: drop-shadow(0 0 3px rgba(168, 212, 255, 0.4));
     border-radius: 3px;
@@ -3884,17 +3881,14 @@ header {
     }
     
     .weapon-icon {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        min-height: 40px;
-        max-width: 40px;
-        max-height: 40px;
+        height: 28px;
+        max-height: 28px;
+        width: auto;
     }
 
     .weapon-icon-small {
-        width: 28px;
-        height: 28px;
+        height: 22px;
+        width: auto;
     }
     
     /* Weapons section */
