@@ -226,30 +226,16 @@ function vodOverlapsWithGames(vod, gameRanges) {
     return false;
 }
 
-// Check if a clip's content time (from source VOD) overlaps with any game where the streamer was a participant
-// Clips can be created days after the VOD, so we use the clip's video metadata to determine actual content time
-function clipOverlapsWithGames(clip, gameRanges) {
-    // Get in-game names for this streamer
-    const streamerInGameNames = getInGameNamesForDiscordId(clip.user.discordId);
-
-    // Use clip's video metadata directly (videoCreatedAt + videoOffsetSeconds)
-    if (clip.videoCreatedAt && clip.videoOffsetSeconds !== undefined && clip.videoOffsetSeconds !== null) {
-        const vodStart = new Date(clip.videoCreatedAt);
-        const clipContentTime = new Date(vodStart.getTime() + (clip.videoOffsetSeconds * 1000));
-
-        // Check if clip content time falls within any game where streamer participated
-        for (const range of gameRanges) {
-            if (clipContentTime >= range.start && clipContentTime <= range.end) {
-                const gamePlayerNames = range.players.map(n => n.toLowerCase());
-                const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
-                if (wasInGame) {
-                    return true;
-                }
-            }
-        }
+// Check if a clip came from a VOD that overlaps with games where the streamer participated
+function clipOverlapsWithGames(clip, gameRanges, filteredVods) {
+    // If clip doesn't have a source VOD, can't verify it came from a game
+    if (!clip.videoId) {
+        return false;
     }
 
-    return false;
+    // Check if this clip's source VOD is in the list of VODs that overlap with games
+    // The filteredVods list already only contains VODs that overlap with games where the streamer participated
+    return filteredVods.some(vod => vod.id === clip.videoId && vod.user.discordId === clip.user.discordId);
 }
 
 // Load the Twitch Hub - fetches VODs and clips that overlap with tracked games
@@ -314,7 +300,7 @@ async function loadTwitchHub() {
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     twitchHubClips = allClips
-        .filter(clip => clipOverlapsWithGames(clip, gameRanges))
+        .filter(clip => clipOverlapsWithGames(clip, gameRanges, twitchHubVods))
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     console.log(`[TWITCH_HUB] After filtering: ${twitchHubVods.length} VODs and ${twitchHubClips.length} clips match game times`);
@@ -2227,33 +2213,24 @@ async function loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durat
                 });
             }
 
-            // Fetch clips for this player and filter by VOD metadata
+            // Fetch clips and filter to those from the game's VOD
             const clips = await fetchTwitchClips(twitchData.name);
             const displayName = getDisplayNameForProfile(player.name);
 
-            // Calculate game time range
-            const gameStart = new Date(gameStartTime);
-            const gameEnd = new Date(gameStart.getTime() + (durationMinutes * 60 * 1000));
-
-            // Filter clips that match this game's time range using clip's video metadata
-            clips.forEach(clip => {
-                // If clip has video metadata (videoCreatedAt and videoOffsetSeconds), calculate actual content time
-                if (clip.videoCreatedAt && clip.videoOffsetSeconds !== undefined && clip.videoOffsetSeconds !== null) {
-                    const vodStart = new Date(clip.videoCreatedAt);
-                    const clipContentTime = new Date(vodStart.getTime() + (clip.videoOffsetSeconds * 1000));
-
-                    // Check if clip content time falls within game time range
-                    if (clipContentTime >= gameStart && clipContentTime <= gameEnd) {
+            // If we found a matching VOD, include any clips from that VOD
+            if (result) {
+                const matchingVodId = result.vod.id;
+                clips.forEach(clip => {
+                    if (clip.videoId === matchingVodId) {
                         clipEmbeds.push({
                             ...clip,
                             player: displayName,
                             twitchName: twitchData.name,
-                            team: player.team,
-                            clipContentTime: clipContentTime
+                            team: player.team
                         });
                     }
-                }
-            });
+                });
+            }
         } catch (error) {
             console.error(`Error loading Twitch content for ${twitchData.name}:`, error);
         }
