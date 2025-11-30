@@ -46,6 +46,7 @@
                 <button class="main-tab-btn active" id="btn-main-gamehistory" onclick="switchMainTab('gamehistory')">Game History</button>
                 <button class="main-tab-btn" id="btn-main-leaderboard" onclick="switchMainTab('leaderboard')">Leaderboard</button>
                 <button class="main-tab-btn" id="btn-main-pvp" onclick="switchMainTab('pvp')">PVP</button>
+                <button class="main-tab-btn" id="btn-main-twitch" onclick="switchMainTab('twitch')">Twitch</button>
                 <button class="main-tab-btn" id="btn-main-emblem" onclick="switchMainTab('emblem')">Emblem Generator</button>
             </div>
 
@@ -94,6 +95,28 @@
                         </div>
                     </div>
                     <div id="pvpComparisonContent"></div>
+                </div>
+            </div>
+
+            <div id="main-tab-twitch" class="main-tab-content" style="display: none;">
+                <div class="twitch-hub-container">
+                    <h2 class="twitch-hub-title">Twitch Hub</h2>
+                    <p class="twitch-hub-subtitle">VODs and Clips from our community</p>
+
+                    <div class="twitch-hub-tabs">
+                        <button class="twitch-hub-tab active" onclick="switchTwitchHubTab('vods')">VODs</button>
+                        <button class="twitch-hub-tab" onclick="switchTwitchHubTab('clips')">Clips</button>
+                    </div>
+
+                    <div id="twitch-hub-vods" class="twitch-hub-content" style="display: block;">
+                        <div class="twitch-hub-loading">Loading VODs...</div>
+                        <div id="twitch-vods-grid" class="twitch-hub-grid"></div>
+                    </div>
+
+                    <div id="twitch-hub-clips" class="twitch-hub-content" style="display: none;">
+                        <div class="twitch-hub-loading">Loading Clips...</div>
+                        <div id="twitch-clips-grid" class="twitch-hub-grid"></div>
+                    </div>
                 </div>
             </div>
 

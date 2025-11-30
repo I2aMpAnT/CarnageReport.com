@@ -144,6 +144,232 @@ function formatTwitchTimestamp(seconds) {
     return `${h}h${m}m${s}s`;
 }
 
+// Twitch Hub - tracks if already loaded
+let twitchHubLoaded = false;
+let twitchHubVods = [];
+let twitchHubClips = [];
+
+// Load the Twitch Hub - fetches VODs and clips from all linked players
+async function loadTwitchHub() {
+    if (twitchHubLoaded) return;
+
+    console.log('[TWITCH_HUB] Loading Twitch Hub...');
+
+    // Get all players with linked Twitch accounts
+    const linkedTwitchUsers = [];
+    for (const [discordId, data] of Object.entries(rankstatsData)) {
+        if (data.twitch_name && data.twitch_url && !data.twitch_name.includes('google.com')) {
+            linkedTwitchUsers.push({
+                discordId,
+                twitchName: data.twitch_name,
+                displayName: data.alias || data.discord_name || data.twitch_name
+            });
+        }
+    }
+
+    console.log(`[TWITCH_HUB] Found ${linkedTwitchUsers.length} linked Twitch users`);
+
+    // Fetch VODs for all users
+    const vodsPromises = linkedTwitchUsers.map(async (user) => {
+        try {
+            const vods = await fetchTwitchVods(user.twitchName);
+            return vods.map(vod => ({ ...vod, user }));
+        } catch (error) {
+            console.error(`[TWITCH_HUB] Error fetching VODs for ${user.twitchName}:`, error);
+            return [];
+        }
+    });
+
+    // Fetch clips for all users
+    const clipsPromises = linkedTwitchUsers.map(async (user) => {
+        try {
+            const clips = await fetchTwitchClips(user.twitchName);
+            return clips.map(clip => ({ ...clip, user }));
+        } catch (error) {
+            console.error(`[TWITCH_HUB] Error fetching clips for ${user.twitchName}:`, error);
+            return [];
+        }
+    });
+
+    // Wait for all fetches
+    const vodsResults = await Promise.all(vodsPromises);
+    const clipsResults = await Promise.all(clipsPromises);
+
+    // Flatten and sort by date
+    twitchHubVods = vodsResults.flat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    twitchHubClips = clipsResults.flat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    console.log(`[TWITCH_HUB] Loaded ${twitchHubVods.length} VODs and ${twitchHubClips.length} clips`);
+
+    // Render the content
+    renderTwitchHubVods();
+    renderTwitchHubClips();
+
+    twitchHubLoaded = true;
+}
+
+// Fetch clips for a Twitch user using GQL
+async function fetchTwitchClips(username) {
+    try {
+        const query = {
+            operationName: 'ClipsCards__User',
+            variables: {
+                login: username,
+                limit: 20,
+                criteria: { filter: 'LAST_MONTH' }
+            },
+            extensions: {
+                persistedQuery: {
+                    version: 1,
+                    sha256Hash: 'b73ad2bfaecfd30a9e6c28fada15bd97032c83ec77a0440766a56fe0a8f4e32e'
+                }
+            }
+        };
+
+        const response = await fetch(TWITCH_GQL_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Client-ID': TWITCH_CLIENT_ID,
+            },
+            body: JSON.stringify(query)
+        });
+
+        const data = await response.json();
+        const clips = data?.data?.user?.clips?.edges || [];
+
+        return clips.map(edge => ({
+            id: edge.node.id,
+            title: edge.node.title,
+            createdAt: edge.node.createdAt,
+            thumbnailURL: edge.node.thumbnailURL,
+            url: edge.node.url,
+            viewCount: edge.node.viewCount,
+            durationSeconds: edge.node.durationSeconds,
+            broadcaster: edge.node.broadcaster?.displayName || username
+        }));
+    } catch (error) {
+        console.error(`Error fetching clips for ${username}:`, error);
+        return [];
+    }
+}
+
+// Render VODs in the Twitch Hub
+function renderTwitchHubVods() {
+    const container = document.getElementById('twitch-vods-grid');
+    const loadingEl = container?.previousElementSibling;
+
+    if (!container) return;
+
+    if (loadingEl && loadingEl.classList.contains('twitch-hub-loading')) {
+        loadingEl.style.display = 'none';
+    }
+
+    if (twitchHubVods.length === 0) {
+        container.innerHTML = '<div class="twitch-hub-empty">No VODs found</div>';
+        return;
+    }
+
+    let html = '';
+    for (const vod of twitchHubVods.slice(0, 50)) { // Show latest 50
+        const date = new Date(vod.createdAt).toLocaleDateString();
+        const duration = formatVodDuration(vod.lengthSeconds);
+        const thumbnail = vod.previewThumbnailURL?.replace('%{width}', '320').replace('%{height}', '180') || '';
+
+        html += `
+            <div class="twitch-hub-card">
+                <a href="https://twitch.tv/videos/${vod.id}" target="_blank" class="twitch-hub-thumbnail">
+                    <img src="${thumbnail}" alt="${vod.title}" onerror="this.src='assets/placeholder-vod.png'">
+                    <span class="twitch-hub-duration">${duration}</span>
+                </a>
+                <div class="twitch-hub-info">
+                    <a href="https://twitch.tv/videos/${vod.id}" target="_blank" class="twitch-hub-title">${vod.title}</a>
+                    <div class="twitch-hub-meta">
+                        <a href="https://twitch.tv/${vod.user.twitchName}" target="_blank" class="twitch-hub-streamer">${vod.user.displayName}</a>
+                        <span class="twitch-hub-date">${date}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+}
+
+// Render clips in the Twitch Hub
+function renderTwitchHubClips() {
+    const container = document.getElementById('twitch-clips-grid');
+    const loadingEl = container?.previousElementSibling;
+
+    if (!container) return;
+
+    if (loadingEl && loadingEl.classList.contains('twitch-hub-loading')) {
+        loadingEl.style.display = 'none';
+    }
+
+    if (twitchHubClips.length === 0) {
+        container.innerHTML = '<div class="twitch-hub-empty">No clips found</div>';
+        return;
+    }
+
+    let html = '';
+    for (const clip of twitchHubClips.slice(0, 50)) { // Show latest 50
+        const date = new Date(clip.createdAt).toLocaleDateString();
+        const duration = clip.durationSeconds ? `${Math.floor(clip.durationSeconds)}s` : '';
+
+        html += `
+            <div class="twitch-hub-card">
+                <a href="${clip.url}" target="_blank" class="twitch-hub-thumbnail">
+                    <img src="${clip.thumbnailURL}" alt="${clip.title}" onerror="this.src='assets/placeholder-clip.png'">
+                    ${duration ? `<span class="twitch-hub-duration">${duration}</span>` : ''}
+                </a>
+                <div class="twitch-hub-info">
+                    <a href="${clip.url}" target="_blank" class="twitch-hub-title">${clip.title}</a>
+                    <div class="twitch-hub-meta">
+                        <a href="https://twitch.tv/${clip.user.twitchName}" target="_blank" class="twitch-hub-streamer">${clip.user.displayName}</a>
+                        <span class="twitch-hub-views">${clip.viewCount?.toLocaleString() || 0} views</span>
+                        <span class="twitch-hub-date">${date}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+}
+
+// Format VOD duration
+function formatVodDuration(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) {
+        return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// Switch between VODs and Clips tabs in Twitch Hub
+function switchTwitchHubTab(tabName) {
+    const allTabs = document.querySelectorAll('.twitch-hub-content');
+    allTabs.forEach(tab => tab.style.display = 'none');
+
+    const allBtns = document.querySelectorAll('.twitch-hub-tab');
+    allBtns.forEach(btn => btn.classList.remove('active'));
+
+    const selectedTab = document.getElementById('twitch-hub-' + tabName);
+    if (selectedTab) {
+        selectedTab.style.display = 'block';
+    }
+
+    // Find and activate the button
+    allBtns.forEach(btn => {
+        if (btn.textContent.toLowerCase() === tabName) {
+            btn.classList.add('active');
+        }
+    });
+}
+
 // Medal icons - Official Halo 2 medals only
 // Using local cached images in assets/medals/
 const medalIcons = {
@@ -803,18 +1029,23 @@ async function loadGamesData() {
 function switchMainTab(tabName) {
     const allMainTabs = document.querySelectorAll('.main-tab-content');
     allMainTabs.forEach(tab => tab.style.display = 'none');
-    
+
     const allMainBtns = document.querySelectorAll('.main-tab-btn');
     allMainBtns.forEach(btn => btn.classList.remove('active'));
-    
+
     const selectedTab = document.getElementById('main-tab-' + tabName);
     if (selectedTab) {
         selectedTab.style.display = 'block';
     }
-    
+
     const selectedBtn = document.getElementById('btn-main-' + tabName);
     if (selectedBtn) {
         selectedBtn.classList.add('active');
+    }
+
+    // Load Twitch Hub content when tab is selected
+    if (tabName === 'twitch') {
+        loadTwitchHub();
     }
 }
 
@@ -1807,15 +2038,17 @@ function renderTwitch(game) {
     return html;
 }
 
-// Async function to load and display VOD embeds
+// Async function to load and display VOD and clip embeds
 async function loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durationMinutes) {
     const container = document.getElementById(`${gameId}-vods`);
     if (!container) return;
 
     const vodEmbeds = [];
+    const clipEmbeds = [];
 
     for (const { player, twitchData } of linkedPlayers) {
         try {
+            // Fetch VODs
             const vods = await fetchTwitchVods(twitchData.name);
             const result = findVodForTime(vods, gameStartTime, durationMinutes);
 
@@ -1835,14 +2068,28 @@ async function loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durat
                     team: player.team
                 });
             }
+
+            // Fetch clips for this player
+            const clips = await fetchTwitchClips(twitchData.name);
+            const displayName = getDisplayNameForProfile(player.name);
+            clips.slice(0, 5).forEach(clip => {
+                clipEmbeds.push({
+                    ...clip,
+                    player: displayName,
+                    twitchName: twitchData.name,
+                    team: player.team
+                });
+            });
         } catch (error) {
-            console.error(`Error loading VODs for ${twitchData.name}:`, error);
+            console.error(`Error loading Twitch content for ${twitchData.name}:`, error);
         }
     }
 
+    let html = '';
+
     // Render VOD embeds
     if (vodEmbeds.length > 0) {
-        let html = '<h4 class="twitch-section-title">Match VODs Available</h4>';
+        html += '<h4 class="twitch-section-title">Match VODs</h4>';
         html += '<div class="twitch-vods-grid">';
 
         vodEmbeds.forEach(embed => {
@@ -1866,10 +2113,40 @@ async function loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durat
         });
 
         html += '</div>';
-        container.innerHTML = html;
-    } else {
-        container.innerHTML = '<div class="twitch-no-vods"><p>No VODs found covering this match time.</p><p class="twitch-note">Streamers may not have been live or VODs may have expired.</p></div>';
     }
+
+    // Render clips section
+    if (clipEmbeds.length > 0) {
+        html += '<h4 class="twitch-section-title" style="margin-top: 20px;">Recent Clips from Players</h4>';
+        html += '<div class="twitch-clips-grid">';
+
+        clipEmbeds.slice(0, 10).forEach(clip => {
+            const teamClass = isValidTeam(clip.team) ? `team-${clip.team.toLowerCase()}-border` : '';
+            const duration = clip.durationSeconds ? `${Math.floor(clip.durationSeconds)}s` : '';
+
+            html += `<div class="twitch-clip-card ${teamClass}">`;
+            html += `<a href="${clip.url}" target="_blank" class="twitch-clip-thumbnail">`;
+            html += `<img src="${clip.thumbnailURL}" alt="${clip.title}" onerror="this.style.display='none'">`;
+            if (duration) html += `<span class="twitch-clip-duration">${duration}</span>`;
+            html += `</a>`;
+            html += `<div class="twitch-clip-info">`;
+            html += `<a href="${clip.url}" target="_blank" class="twitch-clip-title" title="${clip.title}">${clip.title}</a>`;
+            html += `<div class="twitch-clip-meta">`;
+            html += `<span class="twitch-clip-player">${clip.player}</span>`;
+            html += `<span class="twitch-clip-views">${clip.viewCount?.toLocaleString() || 0} views</span>`;
+            html += `</div>`;
+            html += `</div>`;
+            html += `</div>`;
+        });
+
+        html += '</div>';
+    }
+
+    if (html === '') {
+        html = '<div class="twitch-no-vods"><p>No VODs or clips found for players in this match.</p><p class="twitch-note">Streamers may not have been live or content may have expired.</p></div>';
+    }
+
+    container.innerHTML = html;
 }
 
 function renderLeaderboard() {
