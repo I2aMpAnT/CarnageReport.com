@@ -1455,119 +1455,67 @@ function renderTwitch(game) {
     const players = game.players;
     const details = game.details;
     const gameStartTime = details['Start Time'] || 'Unknown';
-    const gameEndTime = details['End Time'] || '';
     const gameDuration = details['Duration'] || '';
 
     let html = '<div class="twitch-section">';
 
-    html += '<div class="twitch-header">';
-    html += '<div class="twitch-icon">📺</div>';
-    html += '<h3>Twitch VODs & Clips</h3>';
-    html += '<p class="twitch-subtitle">Linked content from players in this match</p>';
-    html += '</div>';
-
-    html += '<div class="twitch-info-box">';
-    html += `<p class="game-time-info">Game played: <strong>${gameStartTime}</strong>`;
-    if (gameDuration) {
-        html += ` (Duration: ${gameDuration})`;
-    }
-    html += '</p>';
-    html += '</div>';
-
     // Find players with linked Twitch accounts
     const linkedPlayers = [];
-    const unlinkedPlayers = [];
 
     players.forEach(player => {
         const discordId = getDiscordIdForProfile(player.name);
-        let twitchData = null;
 
         if (discordId && rankstatsData[discordId]) {
             const data = rankstatsData[discordId];
             if (data.twitch_url && data.twitch_name) {
-                twitchData = {
-                    name: data.twitch_name,
-                    url: data.twitch_url
-                };
+                linkedPlayers.push({
+                    player,
+                    twitchData: {
+                        name: data.twitch_name,
+                        url: data.twitch_url
+                    }
+                });
             }
-        }
-
-        if (twitchData) {
-            linkedPlayers.push({ player, twitchData });
-        } else {
-            unlinkedPlayers.push(player);
         }
     });
 
-    // Show linked players with Twitch channels
-    if (linkedPlayers.length > 0) {
-        html += '<div class="twitch-linked-section">';
-        html += '<h4 class="twitch-section-title">Players with Linked Twitch</h4>';
-        html += '<div class="twitch-players-grid">';
-
-        linkedPlayers.forEach(({ player, twitchData }) => {
-            const team = player.team;
-            const teamClass = isValidTeam(team) ? `team-${team.toLowerCase()}` : '';
-            const displayName = getDisplayNameForProfile(player.name);
-
-            html += `<div class="twitch-player-card twitch-linked ${teamClass}">`;
-            html += `<div class="twitch-player-header clickable-player" data-player="${player.name}">`;
-            html += getPlayerRankIcon(player.name, 'small');
-            html += `<span class="twitch-player-name">${displayName}</span>`;
-            html += `</div>`;
-            html += `<div class="twitch-player-status">`;
-            html += `<a href="${twitchData.url}" target="_blank" class="twitch-channel-link">`;
-            html += `<span class="twitch-linked-icon">📺</span> ${twitchData.name}`;
-            html += `</a>`;
-            html += `</div>`;
-            html += `<div class="twitch-player-actions">`;
-            html += `<a href="${twitchData.url}/videos" target="_blank" class="twitch-vod-btn">View VODs</a>`;
-            html += `<a href="${twitchData.url}/clips" target="_blank" class="twitch-clip-btn">View Clips</a>`;
-            html += `</div>`;
-            html += `</div>`;
-        });
-
-        html += '</div>';
-        html += '</div>';
-    }
-
-    // Show unlinked players
-    if (unlinkedPlayers.length > 0) {
-        html += '<div class="twitch-unlinked-section">';
-        html += '<h4 class="twitch-section-title">Players Without Linked Twitch</h4>';
-        html += '<div class="twitch-players-grid">';
-
-        unlinkedPlayers.forEach(player => {
-            const team = player.team;
-            const teamClass = isValidTeam(team) ? `team-${team.toLowerCase()}` : '';
-            const displayName = getDisplayNameForProfile(player.name);
-
-            html += `<div class="twitch-player-card ${teamClass}">`;
-            html += `<div class="twitch-player-header clickable-player" data-player="${player.name}">`;
-            html += getPlayerRankIcon(player.name, 'small');
-            html += `<span class="twitch-player-name">${displayName}</span>`;
-            html += `</div>`;
-            html += `<div class="twitch-player-status">`;
-            html += `<span class="twitch-not-linked">Not linked</span>`;
-            html += `</div>`;
-            html += `</div>`;
-        });
-
-        html += '</div>';
-        html += '</div>';
-    }
-
     if (linkedPlayers.length === 0) {
         html += '<div class="twitch-coming-soon">';
-        html += '<p>🔗 No players in this match have linked their Twitch accounts yet.</p>';
+        html += '<p>No players in this match have linked their Twitch accounts.</p>';
         html += '<p class="twitch-note">Use /linktwitch in Discord to link your channel!</p>';
         html += '</div>';
-    } else {
-        html += '<div class="twitch-tip">';
-        html += `<p>💡 Look for VODs from <strong>${gameStartTime}</strong> to find footage of this match.</p>`;
         html += '</div>';
+        return html;
     }
 
+    // Game time info header
+    html += '<div class="twitch-game-time">';
+    html += `<span class="twitch-time-label">Game Time:</span> <strong>${gameStartTime}</strong>`;
+    if (gameDuration) {
+        html += ` <span class="twitch-duration">(${gameDuration})</span>`;
+    }
+    html += '</div>';
+
+    // Show linked players with direct VOD links
+    html += '<div class="twitch-vod-list">';
+
+    linkedPlayers.forEach(({ player, twitchData }) => {
+        const team = player.team;
+        const teamClass = isValidTeam(team) ? `team-${team.toLowerCase()}-border` : '';
+        const displayName = getDisplayNameForProfile(player.name);
+
+        html += `<div class="twitch-vod-item ${teamClass}">`;
+        html += `<div class="twitch-vod-player">`;
+        html += getPlayerRankIcon(player.name, 'small');
+        html += `<span class="twitch-vod-name clickable-player" data-player="${player.name}">${displayName}</span>`;
+        html += `</div>`;
+        html += `<a href="${twitchData.url}/videos?filter=archives&sort=time" target="_blank" class="twitch-vod-link">`;
+        html += `<span class="twitch-vod-icon">📺</span> Watch VOD`;
+        html += `</a>`;
+        html += `</div>`;
+    });
+
+    html += '</div>';
     html += '</div>';
     return html;
 }

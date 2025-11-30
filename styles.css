@@ -2140,6 +2140,100 @@ header {
     font-size: 13px;
 }
 
+/* New simplified Twitch VOD styles */
+.twitch-game-time {
+    background: rgba(145, 70, 255, 0.1);
+    border: 1px solid rgba(145, 70, 255, 0.3);
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.twitch-time-label {
+    color: var(--text-muted);
+}
+
+.twitch-duration {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.twitch-vod-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.twitch-vod-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--background-medium);
+    border: 1px solid rgba(145, 70, 255, 0.3);
+    border-radius: 6px;
+    padding: 12px 15px;
+    transition: all 0.2s ease;
+}
+
+.twitch-vod-item:hover {
+    border-color: rgba(145, 70, 255, 0.6);
+    background: rgba(145, 70, 255, 0.1);
+}
+
+.twitch-vod-item.team-red-border {
+    border-left: 3px solid rgba(220, 20, 60, 0.8);
+}
+
+.twitch-vod-item.team-blue-border {
+    border-left: 3px solid rgba(50, 120, 220, 0.8);
+}
+
+.twitch-vod-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.twitch-vod-name {
+    font-family: 'Overpass', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.twitch-vod-name:hover {
+    color: var(--unsc-blue);
+}
+
+.twitch-vod-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(145, 70, 255, 0.2);
+    border: 1px solid rgba(145, 70, 255, 0.4);
+    color: #b380ff;
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: 'Overpass', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.twitch-vod-link:hover {
+    background: rgba(145, 70, 255, 0.35);
+    border-color: rgba(145, 70, 255, 0.7);
+    color: #d1a3ff;
+}
+
+.twitch-vod-icon {
+    font-size: 16px;
+}
+
 /* Comparison Modal Styles */
 .vs-text {
     color: var(--unsc-blue);
