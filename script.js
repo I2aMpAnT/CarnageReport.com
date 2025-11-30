@@ -226,18 +226,63 @@ function vodOverlapsWithGames(vod, gameRanges) {
     return false;
 }
 
-// Check if a clip's source VOD overlaps with any game where the streamer was a participant
-function clipOverlapsWithGames(clip, gameRanges) {
-    const clipDate = new Date(clip.createdAt);
-
+// Check if a clip's content time (from source VOD) overlaps with any game where the streamer was a participant
+// Clips can be created days after the VOD, so we use the VOD start time + offset to determine actual content time
+function clipOverlapsWithGames(clip, gameRanges, allVods) {
     // Get in-game names for this streamer
     const streamerInGameNames = getInGameNamesForDiscordId(clip.user.discordId);
 
+    // Try to find the source VOD for this clip to get the actual content timestamp
+    let clipContentTime = null;
+
+    // If clip has video info with offset, use that
+    if (clip.videoId && clip.videoOffsetSeconds !== undefined) {
+        // Find the matching VOD
+        const sourceVod = allVods.find(vod => vod.id === clip.videoId);
+        if (sourceVod) {
+            const vodStart = new Date(sourceVod.createdAt);
+            clipContentTime = new Date(vodStart.getTime() + (clip.videoOffsetSeconds * 1000));
+        }
+    }
+
+    // If we couldn't determine content time from VOD, try matching by looking at all VODs from this streamer
+    if (!clipContentTime && allVods) {
+        const streamerVods = allVods.filter(vod => vod.user.discordId === clip.user.discordId);
+        for (const vod of streamerVods) {
+            const vodStart = new Date(vod.createdAt);
+            const vodEnd = new Date(vodStart.getTime() + (vod.lengthSeconds * 1000));
+
+            // Check if this clip was created from a VOD that overlaps with games
+            for (const range of gameRanges) {
+                if (vodStart <= range.end && vodEnd >= range.start) {
+                    const gamePlayerNames = range.players.map(n => n.toLowerCase());
+                    const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
+                    if (wasInGame) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    // If we have the actual content time, check if it falls within a game
+    if (clipContentTime) {
+        for (const range of gameRanges) {
+            if (clipContentTime >= range.start && clipContentTime <= range.end) {
+                const gamePlayerNames = range.players.map(n => n.toLowerCase());
+                const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
+                if (wasInGame) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    // Fallback: Check if clip was created during or shortly after a game session (within 1 hour)
+    const clipDate = new Date(clip.createdAt);
     for (const range of gameRanges) {
-        // Check if clip was created during or shortly after a game session (within 1 hour)
         const sessionEnd = new Date(range.end.getTime() + (60 * 60 * 1000)); // 1 hour after game
         if (clipDate >= range.start && clipDate <= sessionEnd) {
-            // Also check if streamer was in this game
             const gamePlayerNames = range.players.map(n => n.toLowerCase());
             const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
             if (wasInGame) {
@@ -245,6 +290,7 @@ function clipOverlapsWithGames(clip, gameRanges) {
             }
         }
     }
+
     return false;
 }
 
@@ -310,7 +356,7 @@ async function loadTwitchHub() {
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     twitchHubClips = allClips
-        .filter(clip => clipOverlapsWithGames(clip, gameRanges))
+        .filter(clip => clipOverlapsWithGames(clip, gameRanges, allVods))
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     console.log(`[TWITCH_HUB] After filtering: ${twitchHubVods.length} VODs and ${twitchHubClips.length} clips match game times`);
@@ -360,7 +406,10 @@ async function fetchTwitchClips(username) {
             url: edge.node.url,
             viewCount: edge.node.viewCount,
             durationSeconds: edge.node.durationSeconds,
-            broadcaster: edge.node.broadcaster?.displayName || username
+            broadcaster: edge.node.broadcaster?.displayName || username,
+            // Include video offset info if available (for clips from VODs)
+            videoId: edge.node.video?.id || null,
+            videoOffsetSeconds: edge.node.videoOffsetSeconds ?? null
         }));
     } catch (error) {
         console.error(`Error fetching clips for ${username}:`, error);
