@@ -1816,9 +1816,10 @@ function renderMedals(game) {
         const teamAttr = team ? `data-team="${team}"` : '';
         
         html += `<div class="medals-row" ${teamAttr}>`;
+        const medalPlayerDisplayName = getDisplayNameForProfile(playerMedals.player);
         html += `<div class="medals-player-col clickable-player" data-player="${playerMedals.player}">`;
         html += getPreGameRankIconByName(playerMedals.player, game, 'small');
-        html += `<span class="player-name-text">${playerMedals.player}</span>`;
+        html += `<span class="player-name-text">${medalPlayerDisplayName}</span>`;
         html += `</div>`;
         html += `<div class="medals-icons-col">`;
         
