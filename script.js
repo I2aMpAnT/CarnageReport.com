@@ -1273,9 +1273,10 @@ function createGameItem(game, gameNumber) {
         const sortedPlayers = [...players].sort((a, b) => (parseInt(b.score) || 0) - (parseInt(a.score) || 0));
         if (sortedPlayers.length > 0 && sortedPlayers[0]) {
             const winner = sortedPlayers[0];
+            const winnerDisplay = getDisplayNameForProfile(winner.name);
             winnerClass = 'winner-ffa';
             scoreTagClass = 'score-tag-ffa';
-            teamScoreDisplay = `<span class="game-meta-tag ${scoreTagClass}">${winner.name}</span>`;
+            teamScoreDisplay = `<span class="game-meta-tag ${scoreTagClass}">${winnerDisplay}</span>`;
         }
     }
     
@@ -1826,17 +1827,19 @@ function renderMedals(game) {
         // Get all medals for this player (excluding the 'player' key)
         let hasMedals = false;
         Object.entries(playerMedals).forEach(([medalKey, count]) => {
-            if (medalKey === 'player' || count === 0) return;
-            
+            // Skip 'player' key and any medals with 0 count (handles both string "0" and number 0)
+            const medalCount = parseInt(count) || 0;
+            if (medalKey === 'player' || medalCount === 0) return;
+
             const iconPath = getMedalIcon(medalKey);
             const medalName = formatMedalName(medalKey);
-            
+
             // Only display medals we have icons for (skip unknown medals)
             if (iconPath) {
                 hasMedals = true;
                 html += `<div class="medal-badge" title="${medalName}">`;
                 html += `<img src="${iconPath}" alt="${medalName}" class="medal-icon">`;
-                html += `<span class="medal-count">x${count}</span>`;
+                html += `<span class="medal-count">x${medalCount}</span>`;
                 html += `</div>`;
             }
         });
