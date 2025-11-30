@@ -27,15 +27,18 @@ RANKHISTORY_FILE = 'rankhistory.json'
 # Default playlist name for 4v4 games (fallback)
 PLAYLIST_NAME = 'MLG 4v4'
 
-# Valid MLG 4v4 / Team Hardcore map/gametype combinations
-# Uses keyword matching (case-insensitive) to handle variations like "MLG TS 2007" matching "ts"
+# Valid MLG 4v4 combinations: map + base gametype (11 total)
+# These use "Game Type" field (CTF, Slayer, Oddball), NOT variant name
 VALID_MLG_4V4_COMBOS = {
-    "Midship": ["ctf", "ts", "slayer", "oddball", "ball", "bomb", "assault"],
-    "Beaver Creek": ["ts", "slayer"],
-    "Lockout": ["ts", "slayer", "oddball", "ball"],
-    "Warlock": ["ts", "slayer", "ctf"],
-    "Sanctuary": ["ctf", "ts", "slayer"]
-}
+    "Midship": ["ctf", "slayer", "oddball"],      # 3 gametypes
+    "Beaver Creek": ["ctf", "slayer"],            # 2 gametypes
+    "Lockout": ["slayer", "oddball"],             # 2 gametypes
+    "Warlock": ["slayer", "oddball"],             # 2 gametypes
+    "Sanctuary": ["ctf", "slayer"]                # 2 gametypes
+}  # Total: 11 combos
+
+# Minimum game duration in seconds to count (filters out restarts)
+MIN_GAME_DURATION_SECONDS = 120  # 2 minutes
 
 # Playlist types
 PLAYLIST_MLG_4V4 = 'MLG 4v4'
@@ -113,26 +116,60 @@ def load_active_matches():
     except:
         return None
 
-def is_valid_mlg_combo(map_name, gametype):
-    """Check if map/gametype is a valid MLG 4v4 / Team Hardcore combination.
+def is_valid_mlg_combo(map_name, base_gametype):
+    """Check if map + base gametype is a valid MLG 4v4 combination.
 
-    Uses keyword matching - if the gametype contains any of the valid keywords
-    for that map, it's considered valid. This handles variations like:
-    - "MLG TS 2007" matches "ts" or "slayer"
-    - "MLG Ball 2007" matches "ball" or "oddball"
-    - "MLG CTF Sanc" matches "ctf"
+    Uses the base gametype (Game Type field like "CTF", "Slayer", "Oddball"),
+    NOT the variant name. There are 11 valid combinations.
     """
     if map_name not in VALID_MLG_4V4_COMBOS:
         return False
 
-    valid_keywords = VALID_MLG_4V4_COMBOS[map_name]
-    gametype_lower = gametype.lower()
+    valid_gametypes = VALID_MLG_4V4_COMBOS[map_name]
+    base_gametype_lower = base_gametype.lower()
 
-    # Check if gametype contains any valid keyword for this map
-    for keyword in valid_keywords:
-        if keyword in gametype_lower:
+    # Check if base gametype matches any valid type for this map
+    for valid_type in valid_gametypes:
+        if valid_type in base_gametype_lower:
             return True
     return False
+
+def parse_duration_seconds(duration_str):
+    """Parse duration string (M:SS or MM:SS) to seconds."""
+    if not duration_str:
+        return 0
+    try:
+        parts = str(duration_str).split(':')
+        if len(parts) == 2:
+            minutes = int(parts[0])
+            seconds = int(parts[1])
+            return minutes * 60 + seconds
+        elif len(parts) == 3:
+            # H:MM:SS format
+            hours = int(parts[0])
+            minutes = int(parts[1])
+            seconds = int(parts[2])
+            return hours * 3600 + minutes * 60 + seconds
+    except:
+        pass
+    return 0
+
+def get_game_duration_seconds(file_path):
+    """Get game duration in seconds from Game Details sheet."""
+    try:
+        game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
+        if len(game_details_df) > 0:
+            row = game_details_df.iloc[0]
+            duration = str(row.get('Duration', '0:00'))
+            return parse_duration_seconds(duration)
+    except:
+        pass
+    return 0
+
+def is_game_long_enough(file_path):
+    """Check if game duration is at least MIN_GAME_DURATION_SECONDS (filters restarts)."""
+    duration = get_game_duration_seconds(file_path)
+    return duration >= MIN_GAME_DURATION_SECONDS
 
 def get_game_player_count(file_path):
     """Get the number of players in a game from the Post Game Report."""
@@ -185,28 +222,33 @@ def players_match_active_match(game_players, active_match):
 def determine_playlist(file_path, active_match=None):
     """
     Determine the appropriate playlist for a game based on:
-    1. Active match from Discord bot (if any)
-    2. Game characteristics (player count, teams, map/gametype)
+    1. Game duration (must be >= 2 minutes to filter restarts)
+    2. Active match from Discord bot (if any)
+    3. Game characteristics (player count, teams, map + base gametype)
 
     Returns: playlist name string or None if game doesn't qualify for any playlist
     """
+    # Filter out short games (restarts)
+    if not is_game_long_enough(file_path):
+        return None
+
     player_count = get_game_player_count(file_path)
     is_team = is_team_game(file_path)
     game_players = get_game_players(file_path)
 
-    # Get map and gametype from game details
+    # Get map and base gametype from game details
     try:
         game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
         if len(game_details_df) > 0:
             row = game_details_df.iloc[0]
             map_name = str(row.get('Map Name', '')).strip()
-            gametype = str(row.get('Variant Name', '')).strip()
+            base_gametype = str(row.get('Game Type', '')).strip()  # Use base gametype, not variant
         else:
             map_name = ''
-            gametype = ''
+            base_gametype = ''
     except:
         map_name = ''
-        gametype = ''
+        base_gametype = ''
 
     # If there's an active match, check if this game matches it
     if active_match:
@@ -222,16 +264,16 @@ def determine_playlist(file_path, active_match=None):
             if player_count == 4 and is_team and players_match_active_match(game_players, active_match):
                 return PLAYLIST_DOUBLE_TEAM
 
-        # MLG 4v4 or Team Hardcore: 4v4 team games with valid map/gametype
+        # MLG 4v4 or Team Hardcore: 4v4 team games with valid map + base gametype
         elif active_playlist in [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE]:
             if player_count == 8 and is_team:
-                if is_valid_mlg_combo(map_name, gametype):
+                if is_valid_mlg_combo(map_name, base_gametype):
                     if players_match_active_match(game_players, active_match):
                         return active_playlist
 
     # Fallback: No active match or game doesn't match active match
     # Default behavior: 4v4 team games with valid combos go to MLG 4v4
-    if player_count == 8 and is_team and is_valid_mlg_combo(map_name, gametype):
+    if player_count == 8 and is_team and is_valid_mlg_combo(map_name, base_gametype):
         return PLAYLIST_MLG_4V4
 
     return None
@@ -319,13 +361,13 @@ def is_4v4_team_game(file_path, require_valid_combo=True):
             return False
 
         if require_valid_combo:
-            # Check map/gametype combo
+            # Check map + base gametype combo (use Game Type, not Variant Name)
             game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
             if len(game_details_df) > 0:
                 row = game_details_df.iloc[0]
                 map_name = str(row.get('Map Name', '')).strip()
-                gametype = str(row.get('Variant Name', '')).strip()
-                return is_valid_mlg_combo(map_name, gametype)
+                base_gametype = str(row.get('Game Type', '')).strip()
+                return is_valid_mlg_combo(map_name, base_gametype)
             return False
 
         return True
