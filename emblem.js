@@ -220,9 +220,9 @@
         const ctx = canvas.getContext('2d');
 
         // Get all 4 colors
-        const emblemPrimary = parseInt(document.getElementById('emblemPrimary')?.value || 1);
-        const emblemSecondary = parseInt(document.getElementById('emblemSecondary')?.value || 0);
-        const bgPrimary = parseInt(document.getElementById('bgPrimary')?.value || 11);
+        const emblemPrimary = parseInt(document.getElementById('emblemPrimary')?.value || 0);
+        const emblemSecondary = parseInt(document.getElementById('emblemSecondary')?.value || 1);
+        const bgPrimary = parseInt(document.getElementById('bgPrimary')?.value || 10);
         const bgSecondary = parseInt(document.getElementById('bgSecondary')?.value || 0);
         const emblemForeground = parseInt(document.getElementById('emblemForeground')?.value || 0);
         const emblemBackground = parseInt(document.getElementById('emblemBackground')?.value || 0);
@@ -431,9 +431,9 @@
     window.getEmblemUrl = function() {
         const emblemForeground = document.getElementById('emblemForeground')?.value || 0;
         const emblemBackground = document.getElementById('emblemBackground')?.value || 0;
-        const emblemPrimary = document.getElementById('emblemPrimary')?.value || 1;
-        const emblemSecondary = document.getElementById('emblemSecondary')?.value || 0;
-        const bgPrimary = document.getElementById('bgPrimary')?.value || 11;
+        const emblemPrimary = document.getElementById('emblemPrimary')?.value || 0;
+        const emblemSecondary = document.getElementById('emblemSecondary')?.value || 1;
+        const bgPrimary = document.getElementById('bgPrimary')?.value || 10;
         const bgSecondary = document.getElementById('bgSecondary')?.value || 0;
         const emblemToggle = document.getElementById('emblemToggle')?.checked ? 1 : 0;
 
