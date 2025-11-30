@@ -149,7 +149,7 @@ let twitchHubLoaded = false;
 let twitchHubVods = [];
 let twitchHubClips = [];
 
-// Get all game time ranges from gamesData
+// Get all game time ranges from gamesData, including player names
 function getGameTimeRanges() {
     const ranges = [];
     gamesData.forEach(game => {
@@ -160,7 +160,9 @@ function getGameTimeRanges() {
             const startDate = parseGameDateTime(startStr);
             const endDate = parseGameDateTime(endStr);
             if (startDate && endDate) {
-                ranges.push({ start: startDate, end: endDate });
+                // Get all player names in this game
+                const playerNames = (game.players || []).map(p => p.name).filter(Boolean);
+                ranges.push({ start: startDate, end: endDate, players: playerNames });
             }
         }
     });
@@ -188,33 +190,59 @@ function parseGameDateTime(dateStr) {
     }
 }
 
-// Check if a VOD overlaps with any game time
+// Get in-game names for a Discord ID (from in_game_names array or discord_name)
+function getInGameNamesForDiscordId(discordId) {
+    const data = rankstatsData[discordId];
+    if (!data) return [];
+    const names = [];
+    if (data.in_game_names && Array.isArray(data.in_game_names)) {
+        names.push(...data.in_game_names);
+    }
+    if (data.discord_name) {
+        names.push(data.discord_name);
+    }
+    return names.map(n => n.toLowerCase());
+}
+
+// Check if a VOD overlaps with any game where the streamer was a participant
 function vodOverlapsWithGames(vod, gameRanges) {
     const vodStart = new Date(vod.createdAt);
     const vodEnd = new Date(vodStart.getTime() + (vod.lengthSeconds * 1000));
 
+    // Get in-game names for this streamer
+    const streamerInGameNames = getInGameNamesForDiscordId(vod.user.discordId);
+
     for (const range of gameRanges) {
         // Check if VOD time range overlaps with game time range
         if (vodStart <= range.end && vodEnd >= range.start) {
-            return true;
+            // Also check if streamer was in this game
+            const gamePlayerNames = range.players.map(n => n.toLowerCase());
+            const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
+            if (wasInGame) {
+                return true;
+            }
         }
     }
     return false;
 }
 
-// Check if a clip's source VOD overlaps with any game time
-// Clips are from VODs, so we check if the clip could have been created from a game VOD
-function clipOverlapsWithGames(clip, gameRanges, allVods) {
-    // If we have VOD info, check if any matching VOD overlaps with games
-    // Otherwise, check if clip creation time falls within a game session window
+// Check if a clip's source VOD overlaps with any game where the streamer was a participant
+function clipOverlapsWithGames(clip, gameRanges) {
     const clipDate = new Date(clip.createdAt);
+
+    // Get in-game names for this streamer
+    const streamerInGameNames = getInGameNamesForDiscordId(clip.user.discordId);
 
     for (const range of gameRanges) {
         // Check if clip was created during or shortly after a game session (within 1 hour)
-        // This accounts for clips being created from VODs during the stream
         const sessionEnd = new Date(range.end.getTime() + (60 * 60 * 1000)); // 1 hour after game
         if (clipDate >= range.start && clipDate <= sessionEnd) {
-            return true;
+            // Also check if streamer was in this game
+            const gamePlayerNames = range.players.map(n => n.toLowerCase());
+            const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
+            if (wasInGame) {
+                return true;
+            }
         }
     }
     return false;
@@ -1353,9 +1381,10 @@ function renderGameContent(game) {
         const sortedPlayers = [...game.players].sort((a, b) => (b.score || 0) - (a.score || 0));
         if (sortedPlayers.length > 0) {
             const winner = sortedPlayers[0];
+            const winnerDisplayName = getDisplayNameForProfile(winner.name);
             teamScoreHtml = '<div class="game-final-score ffa-winner">';
             teamScoreHtml += `<span class="winner-label">WINNER:</span> `;
-            teamScoreHtml += `<span class="winner-name clickable-player" data-player="${winner.name}">${winner.name}</span>`;
+            teamScoreHtml += `<span class="winner-name clickable-player" data-player="${winner.name}">${winnerDisplayName}</span>`;
             teamScoreHtml += `<span class="winner-score">${winner.kills || 0} kills</span>`;
             teamScoreHtml += '</div>';
         }
@@ -1468,10 +1497,11 @@ function renderScoreboard(game) {
     sortedPlayers.forEach(player => {
         const teamAttr = isValidTeam(player.team) ? `data-team="${player.team}"` : '';
         html += `<div class="scoreboard-row" ${teamAttr} style="grid-template-columns: ${gridTemplate}">`;
-        
+
+        const displayName = getDisplayNameForProfile(player.name);
         html += `<div class="sb-player clickable-player" data-player="${player.name}">`;
         html += getPreGameRankIcon(player, 'small', game);
-        html += `<span class="player-name-text">${player.name}</span>`;
+        html += `<span class="player-name-text">${displayName}</span>`;
         html += `</div>`;
 
         html += `<div class="sb-score">${player.score || 0}</div>`;
@@ -1565,9 +1595,10 @@ function renderPVP(game) {
     html += '<div class="pvp-corner">KILLER → VICTIM</div>';
     sortedPlayers.forEach(player => {
         const teamClass = isValidTeam(player.team) ? player.team.toLowerCase() : '';
-        // Show abbreviated name consistently - first 7 chars or full name if shorter
-        const displayName = player.name.length > 7 ? player.name.substring(0, 7) : player.name;
-        html += `<div class="pvp-col-header ${teamClass} clickable-player" data-player="${player.name}" title="${player.name}">${displayName}</div>`;
+        // Show abbreviated display name - first 7 chars or full name if shorter
+        const fullDisplayName = getDisplayNameForProfile(player.name);
+        const displayName = fullDisplayName.length > 7 ? fullDisplayName.substring(0, 7) : fullDisplayName;
+        html += `<div class="pvp-col-header ${teamClass} clickable-player" data-player="${player.name}" title="${fullDisplayName}">${displayName}</div>`;
     });
     html += '</div>';
     
@@ -1577,9 +1608,10 @@ function renderPVP(game) {
         html += `<div class="pvp-row ${teamClass}" style="display: grid; grid-template-columns: ${gridCols};">`;
         
         // Row header (killer name)
+        const killerDisplayName = getDisplayNameForProfile(killer.name);
         html += `<div class="pvp-row-header clickable-player" data-player="${killer.name}">`;
         html += getPreGameRankIcon(killer, 'small', game);
-        html += `<span class="player-name-text">${killer.name}</span>`;
+        html += `<span class="player-name-text">${killerDisplayName}</span>`;
         html += `</div>`;
 
         // Kill counts for each victim
