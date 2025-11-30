@@ -1,13 +1,13 @@
 {
   "_comment": "Rank history - tracks XP changes over time for each player. Server should populate this after each game.",
-  "652998057087991838": {
+  "449344331426203546": {
     "discord_name": "TwoDash",
     "history": [
       { "timestamp": "2025-11-28T20:18:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 100, "rank_before": 1, "rank_after": 2, "result": "win" },
       { "timestamp": "2025-11-28T20:22:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 90, "rank_before": 2, "rank_after": 1, "result": "loss" },
       { "timestamp": "2025-11-28T20:44:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 80, "rank_before": 1, "rank_after": 1, "result": "loss" },
       { "timestamp": "2025-11-28T20:50:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 130, "rank_before": 1, "rank_after": 2, "result": "win" },
-      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 180, "rank_before": 2, "rank_after": 3, "result": "win" }
+      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 166, "xp_total": 296, "rank_before": 2, "rank_after": 4, "result": "win" }
     ]
   },
   "293507586131492864": {
@@ -20,24 +20,24 @@
       { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 166, "xp_total": 296, "rank_before": 2, "rank_after": 4, "result": "win" }
     ]
   },
-  "316017028706066442": {
+  "111190770756657152": {
     "discord_name": "EpiiiC",
     "history": [
       { "timestamp": "2025-11-28T20:18:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 100, "rank_before": 1, "rank_after": 2, "result": "win" },
       { "timestamp": "2025-11-28T20:22:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 90, "rank_before": 2, "rank_after": 1, "result": "loss" },
       { "timestamp": "2025-11-28T20:44:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 80, "rank_before": 1, "rank_after": 1, "result": "loss" },
       { "timestamp": "2025-11-28T20:50:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 130, "rank_before": 1, "rank_after": 2, "result": "win" },
-      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 180, "rank_before": 2, "rank_after": 3, "result": "win" }
+      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 166, "xp_total": 296, "rank_before": 2, "rank_after": 4, "result": "win" }
     ]
   },
-  "175060415833833472": {
+  "460394656304217571": {
     "discord_name": "Josiah",
     "history": [
       { "timestamp": "2025-11-28T20:18:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 100, "rank_before": 1, "rank_after": 2, "result": "win" },
       { "timestamp": "2025-11-28T20:22:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 90, "rank_before": 2, "rank_after": 1, "result": "loss" },
       { "timestamp": "2025-11-28T20:44:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 80, "rank_before": 1, "rank_after": 1, "result": "loss" },
       { "timestamp": "2025-11-28T20:50:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 130, "rank_before": 1, "rank_after": 2, "result": "win" },
-      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 180, "rank_before": 2, "rank_after": 3, "result": "win" }
+      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 166, "xp_total": 296, "rank_before": 2, "rank_after": 4, "result": "win" }
     ]
   },
   "426757496557010948": {
@@ -47,17 +47,17 @@
       { "timestamp": "2025-11-28T20:22:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 90, "rank_before": 1, "rank_after": 1, "result": "win" },
       { "timestamp": "2025-11-28T20:44:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 140, "rank_before": 1, "rank_after": 2, "result": "win" },
       { "timestamp": "2025-11-28T20:50:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 130, "rank_before": 2, "rank_after": 2, "result": "loss" },
-      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 60, "xp_total": 190, "rank_before": 2, "rank_after": 3, "result": "loss" }
+      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 60, "xp_total": 190, "rank_before": 2, "rank_after": 3, "result": "win" }
     ]
   },
-  "269681242335739905": {
+  "467006237617687770": {
     "discord_name": "keylord",
     "history": [
       { "timestamp": "2025-11-28T20:18:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 40, "rank_before": 1, "rank_after": 1, "result": "loss" },
       { "timestamp": "2025-11-28T20:22:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 90, "rank_before": 1, "rank_after": 1, "result": "win" },
       { "timestamp": "2025-11-28T20:44:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 140, "rank_before": 1, "rank_after": 2, "result": "win" },
       { "timestamp": "2025-11-28T20:50:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 130, "rank_before": 2, "rank_after": 2, "result": "loss" },
-      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 120, "rank_before": 2, "rank_after": 2, "result": "loss" }
+      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 60, "xp_total": 190, "rank_before": 2, "rank_after": 3, "result": "win" }
     ]
   },
   "334212655613214721": {
@@ -67,7 +67,7 @@
       { "timestamp": "2025-11-28T20:22:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 90, "rank_before": 1, "rank_after": 1, "result": "win" },
       { "timestamp": "2025-11-28T20:44:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 140, "rank_before": 1, "rank_after": 2, "result": "win" },
       { "timestamp": "2025-11-28T20:50:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 130, "rank_before": 2, "rank_after": 2, "result": "loss" },
-      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 120, "rank_before": 2, "rank_after": 2, "result": "loss" }
+      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 60, "xp_total": 190, "rank_before": 2, "rank_after": 3, "result": "win" }
     ]
   },
   "136324687926919168": {
@@ -77,7 +77,7 @@
       { "timestamp": "2025-11-28T20:22:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 90, "rank_before": 1, "rank_after": 1, "result": "win" },
       { "timestamp": "2025-11-28T20:44:00", "playlist": "MLG 4v4", "xp_change": 50, "xp_total": 140, "rank_before": 1, "rank_after": 2, "result": "win" },
       { "timestamp": "2025-11-28T20:50:00", "playlist": "MLG 4v4", "xp_change": -10, "xp_total": 130, "rank_before": 2, "rank_after": 2, "result": "loss" },
-      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 60, "xp_total": 190, "rank_before": 2, "rank_after": 3, "result": "loss" }
+      { "timestamp": "2025-11-28T21:05:00", "playlist": "MLG 4v4", "xp_change": 60, "xp_total": 190, "rank_before": 2, "rank_after": 3, "result": "win" }
     ]
   }
 }

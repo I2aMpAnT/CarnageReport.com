@@ -181,7 +181,7 @@
     "rank": 1
   },
   "334212655613214721": {
-    "xp": 120,
+    "xp": 190,
     "wins": 2,
     "losses": 3,
     "series_wins": 0,
@@ -193,9 +193,9 @@
     "in_game_names": ["getitoutdaFLUD"],
     "twitch_name": "floodandshiro",
     "twitch_url": "https://twitch.tv/floodandshiro",
-    "rank": 2,
-    "MLG 4v4": 2,
-    "highest_rank": 2,
+    "rank": 3,
+    "MLG 4v4": 3,
+    "highest_rank": 3,
     "kills": 105,
     "deaths": 90,
     "assists": 50,

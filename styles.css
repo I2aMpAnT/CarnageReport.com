@@ -1646,8 +1646,8 @@ header {
 }
 
 .medal-icon {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
     filter: drop-shadow(0 0 2px rgba(168, 212, 255, 0.5));
 }
@@ -1665,8 +1665,8 @@ header {
 }
 
 .medal-placeholder {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1776,20 +1776,20 @@ header {
 }
 
 .weapon-icon {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    max-width: 36px;
-    max-height: 36px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    max-width: 48px;
+    max-height: 48px;
     object-fit: contain;
     filter: drop-shadow(0 0 3px rgba(168, 212, 255, 0.4));
     border-radius: 3px;
 }
 
 .weapon-placeholder {
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3851,8 +3851,8 @@ header {
     }
     
     .medal-icon {
-        width: 20px;
-        height: 20px;
+        width: 28px;
+        height: 28px;
     }
     
     .medal-badge {
@@ -3884,13 +3884,17 @@ header {
     }
     
     .weapon-icon {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+        max-width: 40px;
+        max-height: 40px;
+    }
+
+    .weapon-icon-small {
         width: 28px;
         height: 28px;
-    }
-    
-    .weapon-icon-small {
-        width: 22px;
-        height: 22px;
     }
     
     /* Weapons section */
