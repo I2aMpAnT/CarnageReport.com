@@ -76,6 +76,15 @@ header {
         drop-shadow(0 0 40px rgba(77, 184, 255, 0.4));
 }
 
+.version-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    margin-top: 5px;
+    letter-spacing: 1px;
+}
+
 .header-icons {
     position: absolute;
     top: 20px;
