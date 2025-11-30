@@ -562,6 +562,36 @@ function getPlayerRankIcon(playerName, size = 'small') {
     return `<img src="https://r2-cdn.insignia.live/h2-rank/${rank}.png" alt="Rank ${rank}" class="${sizeClass}" />`;
 }
 
+// Get rank icon for a specific rank number
+function getRankIconForValue(rank, size = 'small') {
+    if (!rank || rank < 1) return '';
+    const sizeClass = size === 'small' ? 'rank-icon-small' : 'rank-icon';
+    return `<img src="https://r2-cdn.insignia.live/h2-rank/${rank}.png" alt="Rank ${rank}" class="${sizeClass}" />`;
+}
+
+// Get pre-game rank icon for a player in a specific game
+// Uses pre_game_rank from player data if available, otherwise falls back to current rank
+function getPreGameRankIcon(player, size = 'small') {
+    // Check if player object has pre_game_rank
+    if (player.pre_game_rank && player.pre_game_rank > 0) {
+        return getRankIconForValue(player.pre_game_rank, size);
+    }
+    // Fallback to current rank
+    return getPlayerRankIcon(player.name, size);
+}
+
+// Get pre-game rank icon by looking up player name in game data
+function getPreGameRankIconByName(playerName, game, size = 'small') {
+    if (game && game.players) {
+        const player = game.players.find(p => p.name === playerName);
+        if (player) {
+            return getPreGameRankIcon(player, size);
+        }
+    }
+    // Fallback to current rank
+    return getPlayerRankIcon(playerName, size);
+}
+
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
     loadGamesData();
@@ -1027,10 +1057,10 @@ function renderScoreboard(game) {
         html += `<div class="scoreboard-row" ${teamAttr} style="grid-template-columns: ${gridTemplate}">`;
         
         html += `<div class="sb-player clickable-player" data-player="${player.name}">`;
-        html += getPlayerRankIcon(player.name, 'small');
+        html += getPreGameRankIcon(player, 'small');
         html += `<span class="player-name-text">${player.name}</span>`;
         html += `</div>`;
-        
+
         html += `<div class="sb-score">${player.score || 0}</div>`;
         html += `<div class="sb-kills">${player.kills || 0}</div>`;
         html += `<div class="sb-deaths">${player.deaths || 0}</div>`;
@@ -1135,7 +1165,7 @@ function renderPVP(game) {
         
         // Row header (killer name)
         html += `<div class="pvp-row-header clickable-player" data-player="${killer.name}">`;
-        html += getPlayerRankIcon(killer.name, 'small');
+        html += getPreGameRankIcon(killer, 'small');
         html += `<span class="player-name-text">${killer.name}</span>`;
         html += `</div>`;
         
@@ -1219,7 +1249,7 @@ function renderDetailedStats(game) {
         const timeAlive = formatTime(stat.total_time_alive || 0);
 
         html += `<tr ${teamAttr}>`;
-        html += `<td><span class="player-with-rank">${getPlayerRankIcon(stat.player, 'small')}<span>${stat.player}</span></span></td>`;
+        html += `<td><span class="player-with-rank">${getPreGameRankIconByName(stat.player, game, 'small')}<span>${stat.player}</span></span></td>`;
         html += `<td>${stat.kills}</td>`;
         html += `<td>${stat.assists}</td>`;
         html += `<td>${stat.deaths}</td>`;
@@ -1272,8 +1302,8 @@ function renderDetailedStats(game) {
             const team = playerTeams[stat.player];
             const teamAttr = team ? `data-team="${team}"` : '';
 
-            html += `<tr ${teamAttr}><td><span class="player-with-rank">${getPlayerRankIcon(stat.player, 'small')}<span>${stat.player}</span></span></td>`;
-            
+            html += `<tr ${teamAttr}><td><span class="player-with-rank">${getPreGameRankIconByName(stat.player, game, 'small')}<span>${stat.player}</span></span></td>`;
+
             if (hasCTF) {
                 html += `<td>${stat.ctf_scores || 0}</td>`;
                 html += `<td>${stat.ctf_flag_steals || 0}</td>`;
@@ -1342,7 +1372,7 @@ function renderMedals(game) {
         
         html += `<div class="medals-row" ${teamAttr}>`;
         html += `<div class="medals-player-col clickable-player" data-player="${playerMedals.player}">`;
-        html += getPlayerRankIcon(playerMedals.player, 'small');
+        html += getPreGameRankIconByName(playerMedals.player, game, 'small');
         html += `<span class="player-name-text">${playerMedals.player}</span>`;
         html += `</div>`;
         html += `<div class="medals-icons-col">`;
@@ -1441,7 +1471,7 @@ function renderAccuracy(game) {
         
         html += `<div class="accuracy-row" ${teamAttr}>`;
         html += `<div class="accuracy-player-col clickable-player" data-player="${playerName}">`;
-        html += getPlayerRankIcon(playerName, 'small');
+        html += getPreGameRankIconByName(playerName, game, 'small');
         html += `<span class="player-name-text">${playerName}</span>`;
         html += `</div>`;
         html += `<div class="accuracy-total-col">${totalHit}</div>`;
@@ -1503,7 +1533,7 @@ function renderWeapons(game) {
         
         html += `<div class="weapons-row" ${teamAttr}>`;
         html += `<div class="weapons-player-col clickable-player" data-player="${playerName}">`;
-        html += getPlayerRankIcon(playerName, 'small');
+        html += getPreGameRankIconByName(playerName, game, 'small');
         html += `<span class="player-name-text">${playerName}</span>`;
         html += `</div>`;
         html += `<div class="weapons-kills-col">`;
@@ -1621,7 +1651,7 @@ function renderTwitch(game) {
 
             html += `<div class="twitch-player-card twitch-linked ${teamClass}">`;
             html += `<div class="twitch-player-header clickable-player" data-player="${player.name}">`;
-            html += getPlayerRankIcon(player.name, 'small');
+            html += getPreGameRankIcon(player, 'small');
             html += `<span class="twitch-player-name">${displayName}</span>`;
             html += `</div>`;
             html += `<div class="twitch-player-status">`;
@@ -1649,7 +1679,7 @@ function renderTwitch(game) {
 
             html += `<div class="twitch-player-card ${teamClass}">`;
             html += `<div class="twitch-player-header clickable-player" data-player="${player.name}">`;
-            html += getPlayerRankIcon(player.name, 'small');
+            html += getPreGameRankIcon(player, 'small');
             html += `<span class="twitch-player-name">${displayName}</span>`;
             html += `</div>`;
             html += `<div class="twitch-player-status">`;
