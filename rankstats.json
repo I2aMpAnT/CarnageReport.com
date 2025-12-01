@@ -431,16 +431,24 @@
     "rank": 1
   },
   "652998057087991838": {
-    "xp": 0,
-    "wins": 0,
-    "losses": 0,
+    "xp": 296,
+    "wins": 3,
+    "losses": 2,
     "series_wins": 0,
     "series_losses": 0,
-    "total_games": 0,
+    "total_games": 5,
     "total_series": 0,
     "mmr": 900,
     "discord_name": "TwoDashAngo",
-    "rank": 1
+    "rank": 4,
+    "kills": 74,
+    "deaths": 102,
+    "assists": 57,
+    "headshots": 50,
+    "highest_rank": 4,
+    "in_game_names": [
+      "2D"
+    ]
   },
   "1380083223937290272": {
     "xp": 0,
@@ -1338,27 +1346,6 @@
     "mmr": 1200,
     "discord_name": "AfroMaN",
     "rank": 1
-  },
-  "449344331426203546": {
-    "xp": 296,
-    "wins": 3,
-    "losses": 2,
-    "series_wins": 0,
-    "series_losses": 0,
-    "total_games": 5,
-    "total_series": 0,
-    "mmr": 750,
-    "discord_name": "TwoDash",
-    "in_game_names": [
-      "2D"
-    ],
-    "rank": 4,
-    "MLG 4v4": 4,
-    "highest_rank": 4,
-    "kills": 74,
-    "deaths": 102,
-    "assists": 57,
-    "headshots": 50
   },
   "269681242335739905": {
     "xp": 190,
