@@ -3092,6 +3092,7 @@ header {
     margin-bottom: 30px;
     padding: 20px 25px;
     border-bottom: 2px solid rgba(168, 212, 255, 0.3);
+    position: relative;
 }
 
 .profile-player-info {
@@ -3101,14 +3102,14 @@ header {
 }
 
 .profile-emblem {
-    display: flex;
-    align-items: center;
-    margin-right: 10px;
+    position: absolute;
+    top: 15px;
+    right: 25px;
 }
 
 .profile-emblem-img {
-    width: 48px;
-    height: 48px;
+    width: 80px;
+    height: 80px;
     border-radius: 4px;
     border: 2px solid rgba(168, 212, 255, 0.3);
     box-shadow: 0 0 10px rgba(168, 212, 255, 0.2);
@@ -3819,6 +3820,16 @@ header {
     .profile-rank img {
         width: 36px;
         height: 36px;
+    }
+
+    .profile-emblem {
+        top: 10px;
+        right: 10px;
+    }
+
+    .profile-emblem-img {
+        width: 56px;
+        height: 56px;
     }
     
     .profile-games-header {
