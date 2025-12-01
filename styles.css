@@ -3484,6 +3484,23 @@ header {
     text-decoration: underline;
 }
 
+/* K/D Breakdown Stats */
+.kd-stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.kd-killed {
+    color: #4ade80;
+    font-weight: 500;
+}
+
+.kd-killedby {
+    color: #f87171;
+    font-weight: 500;
+}
+
 /* ===== MOBILE RESPONSIVE FIXES ===== */
 @media (max-width: 1200px) {
     .games-header-bar {
