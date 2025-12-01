@@ -190,7 +190,9 @@
     "total_series": 0,
     "mmr": 1400,
     "discord_name": "fluhd",
-    "in_game_names": ["getitoutdaFLUD"],
+    "in_game_names": [
+      "getitoutdaFLUD"
+    ],
     "twitch_name": "floodandshiro",
     "twitch_url": "https://twitch.tv/floodandshiro",
     "rank": 3,
@@ -1347,7 +1349,9 @@
     "total_series": 0,
     "mmr": 750,
     "discord_name": "TwoDash",
-    "in_game_names": ["2D"],
+    "in_game_names": [
+      "2D"
+    ],
     "rank": 4,
     "MLG 4v4": 4,
     "highest_rank": 4,
@@ -1356,26 +1360,7 @@
     "assists": 57,
     "headshots": 50
   },
-  "460394656304217571": {
-    "xp": 296,
-    "wins": 3,
-    "losses": 2,
-    "series_wins": 0,
-    "series_losses": 0,
-    "total_games": 5,
-    "total_series": 0,
-    "mmr": 750,
-    "discord_name": "Josiah",
-    "in_game_names": ["Tetracide"],
-    "rank": 4,
-    "MLG 4v4": 4,
-    "highest_rank": 4,
-    "kills": 97,
-    "deaths": 79,
-    "assists": 48,
-    "headshots": 69
-  },
-  "467006237617687770": {
+  "269681242335739905": {
     "xp": 190,
     "wins": 2,
     "losses": 3,
@@ -1385,7 +1370,9 @@
     "total_series": 0,
     "mmr": 750,
     "discord_name": "keylord",
-    "in_game_names": ["Ralph Port"],
+    "in_game_names": [
+      "Ralph Port"
+    ],
     "twitch_name": "justinkeylord",
     "twitch_url": "https://twitch.tv/justinkeylord",
     "rank": 3,
@@ -1395,5 +1382,26 @@
     "deaths": 104,
     "assists": 56,
     "headshots": 49
+  },
+  "175060415833833472": {
+    "xp": 296,
+    "wins": 3,
+    "losses": 2,
+    "series_wins": 0,
+    "series_losses": 0,
+    "total_games": 5,
+    "total_series": 0,
+    "mmr": 750,
+    "discord_name": "Josiah",
+    "in_game_names": [
+      "Tetracide"
+    ],
+    "rank": 4,
+    "MLG 4v4": 4,
+    "highest_rank": 4,
+    "kills": 97,
+    "deaths": 79,
+    "assists": 48,
+    "headshots": 69
   }
 }
