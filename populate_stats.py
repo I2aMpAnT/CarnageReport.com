@@ -922,6 +922,13 @@ def main():
         json.dump(rankstats, f, indent=2)
     print(f"  Saved {RANKSTATS_FILE}")
 
+    # Add discord_id to each player in all games (for frontend rank lookups)
+    for game in all_games:
+        for player in game['players']:
+            player_name = player['name']
+            if player_name in player_to_id:
+                player['discord_id'] = player_to_id[player_name]
+
     # Save ALL games to gameshistory.json (includes ranked and unranked)
     # Games have their playlist set from determine_playlist() - None for unranked
     with open(GAMESDATA_FILE, 'w') as f:

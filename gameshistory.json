@@ -23,7 +23,8 @@
         "shots_fired": 840,
         "shots_hit": 395,
         "accuracy": 47.02,
-        "head_shots": 14
+        "head_shots": 14,
+        "discord_id": "449344331426203546"
       },
       {
         "name": "KidMode",
@@ -39,7 +40,8 @@
         "shots_fired": 886,
         "shots_hit": 325,
         "accuracy": 36.68,
-        "head_shots": 17
+        "head_shots": 17,
+        "discord_id": "293507586131492864"
       },
       {
         "name": "EpiiiC",
@@ -55,7 +57,8 @@
         "shots_fired": 973,
         "shots_hit": 490,
         "accuracy": 50.36,
-        "head_shots": 30
+        "head_shots": 30,
+        "discord_id": "111190770756657152"
       },
       {
         "name": "Tetracide",
@@ -71,7 +74,8 @@
         "shots_fired": 1130,
         "shots_hit": 432,
         "accuracy": 38.23,
-        "head_shots": 23
+        "head_shots": 23,
+        "discord_id": "460394656304217571"
       },
       {
         "name": "Rocky",
@@ -87,7 +91,8 @@
         "shots_fired": 704,
         "shots_hit": 354,
         "accuracy": 50.28,
-        "head_shots": 18
+        "head_shots": 18,
+        "discord_id": "426757496557010948"
       },
       {
         "name": "Ralph Port",
@@ -103,7 +108,8 @@
         "shots_fired": 870,
         "shots_hit": 396,
         "accuracy": 45.52,
-        "head_shots": 14
+        "head_shots": 14,
+        "discord_id": "467006237617687770"
       },
       {
         "name": "getitoutdaFLUD",
@@ -119,7 +125,8 @@
         "shots_fired": 814,
         "shots_hit": 403,
         "accuracy": 49.51,
-        "head_shots": 23
+        "head_shots": 23,
+        "discord_id": "334212655613214721"
       },
       {
         "name": "roasted",
@@ -135,7 +142,8 @@
         "shots_fired": 781,
         "shots_hit": 348,
         "accuracy": 44.56,
-        "head_shots": 12
+        "head_shots": 12,
+        "discord_id": "136324687926919168"
       }
     ],
     "versus": {
@@ -1717,7 +1725,8 @@
         "shots_fired": 255,
         "shots_hit": 125,
         "accuracy": 49.02,
-        "head_shots": 9
+        "head_shots": 9,
+        "discord_id": "334212655613214721"
       },
       {
         "name": "roasted",
@@ -1733,7 +1742,8 @@
         "shots_fired": 317,
         "shots_hit": 157,
         "accuracy": 49.53,
-        "head_shots": 6
+        "head_shots": 6,
+        "discord_id": "136324687926919168"
       },
       {
         "name": "Ralph Port",
@@ -1749,7 +1759,8 @@
         "shots_fired": 232,
         "shots_hit": 97,
         "accuracy": 41.81,
-        "head_shots": 4
+        "head_shots": 4,
+        "discord_id": "467006237617687770"
       },
       {
         "name": "Rocky",
@@ -1765,7 +1776,8 @@
         "shots_fired": 152,
         "shots_hit": 69,
         "accuracy": 45.39,
-        "head_shots": 3
+        "head_shots": 3,
+        "discord_id": "426757496557010948"
       },
       {
         "name": "KidMode",
@@ -1781,7 +1793,8 @@
         "shots_fired": 215,
         "shots_hit": 77,
         "accuracy": 35.81,
-        "head_shots": 6
+        "head_shots": 6,
+        "discord_id": "293507586131492864"
       },
       {
         "name": "2D",
@@ -1797,7 +1810,8 @@
         "shots_fired": 257,
         "shots_hit": 102,
         "accuracy": 39.69,
-        "head_shots": 4
+        "head_shots": 4,
+        "discord_id": "449344331426203546"
       },
       {
         "name": "Tetracide",
@@ -1813,7 +1827,8 @@
         "shots_fired": 269,
         "shots_hit": 119,
         "accuracy": 44.24,
-        "head_shots": 3
+        "head_shots": 3,
+        "discord_id": "460394656304217571"
       },
       {
         "name": "EpiiiC",
@@ -1829,7 +1844,8 @@
         "shots_fired": 286,
         "shots_hit": 134,
         "accuracy": 46.85,
-        "head_shots": 2
+        "head_shots": 2,
+        "discord_id": "111190770756657152"
       }
     ],
     "versus": {
@@ -3411,7 +3427,8 @@
         "shots_fired": 663,
         "shots_hit": 311,
         "accuracy": 46.91,
-        "head_shots": 12
+        "head_shots": 12,
+        "discord_id": "334212655613214721"
       },
       {
         "name": "roasted",
@@ -3427,7 +3444,8 @@
         "shots_fired": 616,
         "shots_hit": 260,
         "accuracy": 42.21,
-        "head_shots": 9
+        "head_shots": 9,
+        "discord_id": "136324687926919168"
       },
       {
         "name": "Ralph Port",
@@ -3443,7 +3461,8 @@
         "shots_fired": 775,
         "shots_hit": 341,
         "accuracy": 44.0,
-        "head_shots": 12
+        "head_shots": 12,
+        "discord_id": "467006237617687770"
       },
       {
         "name": "Rocky",
@@ -3459,7 +3478,8 @@
         "shots_fired": 787,
         "shots_hit": 257,
         "accuracy": 32.66,
-        "head_shots": 14
+        "head_shots": 14,
+        "discord_id": "426757496557010948"
       },
       {
         "name": "KidMode",
@@ -3475,7 +3495,8 @@
         "shots_fired": 1106,
         "shots_hit": 463,
         "accuracy": 41.86,
-        "head_shots": 24
+        "head_shots": 24,
+        "discord_id": "293507586131492864"
       },
       {
         "name": "2D",
@@ -3491,7 +3512,8 @@
         "shots_fired": 913,
         "shots_hit": 329,
         "accuracy": 36.04,
-        "head_shots": 13
+        "head_shots": 13,
+        "discord_id": "449344331426203546"
       },
       {
         "name": "Tetracide",
@@ -3507,7 +3529,8 @@
         "shots_fired": 795,
         "shots_hit": 288,
         "accuracy": 36.23,
-        "head_shots": 16
+        "head_shots": 16,
+        "discord_id": "460394656304217571"
       },
       {
         "name": "EpiiiC",
@@ -3523,7 +3546,8 @@
         "shots_fired": 815,
         "shots_hit": 308,
         "accuracy": 37.79,
-        "head_shots": 19
+        "head_shots": 19,
+        "discord_id": "111190770756657152"
       }
     ],
     "versus": {
@@ -5105,7 +5129,8 @@
         "shots_fired": 370,
         "shots_hit": 179,
         "accuracy": 48.38,
-        "head_shots": 13
+        "head_shots": 13,
+        "discord_id": "111190770756657152"
       },
       {
         "name": "Tetracide",
@@ -5121,7 +5146,8 @@
         "shots_fired": 368,
         "shots_hit": 167,
         "accuracy": 45.38,
-        "head_shots": 11
+        "head_shots": 11,
+        "discord_id": "460394656304217571"
       },
       {
         "name": "KidMode",
@@ -5137,7 +5163,8 @@
         "shots_fired": 376,
         "shots_hit": 126,
         "accuracy": 33.51,
-        "head_shots": 7
+        "head_shots": 7,
+        "discord_id": "293507586131492864"
       },
       {
         "name": "2D",
@@ -5153,7 +5180,8 @@
         "shots_fired": 348,
         "shots_hit": 149,
         "accuracy": 42.82,
-        "head_shots": 6
+        "head_shots": 6,
+        "discord_id": "449344331426203546"
       },
       {
         "name": "getitoutdaFLUD",
@@ -5169,7 +5197,8 @@
         "shots_fired": 242,
         "shots_hit": 113,
         "accuracy": 46.69,
-        "head_shots": 5
+        "head_shots": 5,
+        "discord_id": "334212655613214721"
       },
       {
         "name": "Ralph Port",
@@ -5185,7 +5214,8 @@
         "shots_fired": 313,
         "shots_hit": 135,
         "accuracy": 43.13,
-        "head_shots": 5
+        "head_shots": 5,
+        "discord_id": "467006237617687770"
       },
       {
         "name": "Rocky",
@@ -5201,7 +5231,8 @@
         "shots_fired": 319,
         "shots_hit": 158,
         "accuracy": 49.53,
-        "head_shots": 6
+        "head_shots": 6,
+        "discord_id": "426757496557010948"
       },
       {
         "name": "roasted",
@@ -5217,7 +5248,8 @@
         "shots_fired": 246,
         "shots_hit": 102,
         "accuracy": 41.46,
-        "head_shots": 3
+        "head_shots": 3,
+        "discord_id": "136324687926919168"
       }
     ],
     "versus": {
@@ -6799,7 +6831,8 @@
         "shots_fired": 869,
         "shots_hit": 253,
         "accuracy": 29.11,
-        "head_shots": 16
+        "head_shots": 16,
+        "discord_id": "460394656304217571"
       },
       {
         "name": "KidMode",
@@ -6815,7 +6848,8 @@
         "shots_fired": 609,
         "shots_hit": 261,
         "accuracy": 42.86,
-        "head_shots": 18
+        "head_shots": 18,
+        "discord_id": "293507586131492864"
       },
       {
         "name": "2D",
@@ -6831,7 +6865,8 @@
         "shots_fired": 617,
         "shots_hit": 227,
         "accuracy": 36.79,
-        "head_shots": 13
+        "head_shots": 13,
+        "discord_id": "449344331426203546"
       },
       {
         "name": "EpiiiC",
@@ -6847,7 +6882,8 @@
         "shots_fired": 942,
         "shots_hit": 380,
         "accuracy": 40.34,
-        "head_shots": 26
+        "head_shots": 26,
+        "discord_id": "111190770756657152"
       },
       {
         "name": "getitoutdaFLUD",
@@ -6863,7 +6899,8 @@
         "shots_fired": 589,
         "shots_hit": 270,
         "accuracy": 45.84,
-        "head_shots": 21
+        "head_shots": 21,
+        "discord_id": "334212655613214721"
       },
       {
         "name": "Ralph Port",
@@ -6879,7 +6916,8 @@
         "shots_fired": 588,
         "shots_hit": 272,
         "accuracy": 46.26,
-        "head_shots": 14
+        "head_shots": 14,
+        "discord_id": "467006237617687770"
       },
       {
         "name": "Rocky",
@@ -6895,7 +6933,8 @@
         "shots_fired": 944,
         "shots_hit": 343,
         "accuracy": 36.33,
-        "head_shots": 14
+        "head_shots": 14,
+        "discord_id": "426757496557010948"
       },
       {
         "name": "roasted",
@@ -6911,7 +6950,8 @@
         "shots_fired": 524,
         "shots_hit": 194,
         "accuracy": 37.02,
-        "head_shots": 7
+        "head_shots": 7,
+        "discord_id": "136324687926919168"
       }
     ],
     "versus": {

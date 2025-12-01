@@ -3103,16 +3103,16 @@ header {
 
 .profile-emblem {
     position: absolute;
-    top: 15px;
+    top: -15px;
     right: 25px;
 }
 
 .profile-emblem-img {
     width: 80px;
     height: 80px;
-    border-radius: 4px;
-    border: 2px solid rgba(168, 212, 255, 0.3);
-    box-shadow: 0 0 10px rgba(168, 212, 255, 0.2);
+    border-radius: 6px;
+    border: 3px solid rgba(100, 180, 255, 0.8);
+    box-shadow: 0 0 15px rgba(100, 180, 255, 0.6), 0 0 30px rgba(100, 180, 255, 0.3);
 }
 
 .profile-rank {
@@ -3424,6 +3424,64 @@ header {
 .pvp-stats .pvp-kd {
     color: var(--primary-color);
     font-weight: 600;
+}
+
+/* Player breakdown (kills/deaths against specific players) */
+.player-breakdown-grid {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.player-breakdown-item {
+    cursor: pointer;
+}
+
+.player-breakdown-emblem {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+}
+
+.emblem-placeholder {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(168, 212, 255, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(168, 212, 255, 0.2);
+}
+
+.emblem-placeholder-empty {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, rgba(168, 212, 255, 0.1), rgba(168, 212, 255, 0.05));
+    border-radius: 4px;
+    border: 1px solid rgba(168, 212, 255, 0.2);
+}
+
+.breakdown-emblem-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.weapon-breakdown-substats {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 3px;
+}
+
+.player-breakdown-item .weapon-breakdown-name {
+    color: var(--shield-blue);
+    cursor: pointer;
+}
+
+.player-breakdown-item .weapon-breakdown-name:hover {
+    color: var(--unsc-blue);
+    text-decoration: underline;
 }
 
 /* ===== MOBILE RESPONSIVE FIXES ===== */
@@ -3823,7 +3881,7 @@ header {
     }
 
     .profile-emblem {
-        top: 10px;
+        top: -10px;
         right: 10px;
     }
 
