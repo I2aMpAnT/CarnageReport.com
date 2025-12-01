@@ -16,6 +16,9 @@ let dynamicRankHistory = {};
 // XP configuration for ranking
 let xpConfig = null;
 
+// YouTube videos data from youtubevideos.json
+let youtubeVideosData = [];
+
 // Mapping from in-game profile names to discord IDs
 let profileNameToDiscordId = {};
 
@@ -981,6 +984,55 @@ async function loadEmblems() {
     }
 }
 
+// Load YouTube videos data from youtubevideos.json
+async function loadYouTubeVideos() {
+    try {
+        const response = await fetch('youtubevideos.json');
+        if (!response.ok) {
+            console.log('[YOUTUBE] No youtubevideos.json found');
+            return;
+        }
+        const data = await response.json();
+        youtubeVideosData = data.videos || [];
+        console.log('[YOUTUBE] Loaded', youtubeVideosData.length, 'YouTube videos');
+    } catch (error) {
+        console.log('[YOUTUBE] Error loading YouTube videos:', error);
+    }
+}
+
+// Get YouTube videos for a specific game by matching game end time
+function getYouTubeVideosForGame(gameEndTime) {
+    if (!youtubeVideosData || youtubeVideosData.length === 0) return [];
+
+    return youtubeVideosData.filter(video => {
+        // Match by game_time (exact match or within tolerance)
+        if (video.game_time === gameEndTime) return true;
+
+        // Try parsing and comparing times with 5 min tolerance
+        try {
+            const gameTime = parseGameTime(gameEndTime);
+            const videoTime = parseGameTime(video.game_time);
+            if (gameTime && videoTime) {
+                const diffMinutes = Math.abs((gameTime - videoTime) / (1000 * 60));
+                return diffMinutes <= 5;
+            }
+        } catch (e) {}
+
+        return false;
+    });
+}
+
+// Helper to parse game time string to Date
+function parseGameTime(timeStr) {
+    if (!timeStr) return null;
+    if (timeStr.includes('/')) {
+        const [datePart, timePart] = timeStr.split(' ');
+        const [month, day, year] = datePart.split('/');
+        return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00`);
+    }
+    return new Date(timeStr);
+}
+
 // Parse emblem parameters from a halo2pc.com URL or return null if not valid
 function parseEmblemParams(url) {
     if (!url || !url.includes('emblem.php')) return null;
@@ -1318,6 +1370,10 @@ async function loadGamesData() {
         // Load rank history (must be after mappings are built) - fallback
         console.log('[DEBUG] Loading rank history...');
         await loadRankHistory();
+
+        // Load YouTube videos data
+        console.log('[DEBUG] Loading YouTube videos...');
+        await loadYouTubeVideos();
 
         loadingArea.style.display = 'none';
         statsArea.style.display = 'block';
@@ -2380,23 +2436,33 @@ function renderTwitch(game) {
 
     html += '</div>';
 
-    // Async load VODs after render
-    if (linkedPlayers.length > 0) {
-        setTimeout(() => {
-            loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durationMinutes);
-        }, 100);
-    }
+    // Async load VODs and YouTube videos after render
+    setTimeout(() => {
+        loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durationMinutes, gameEndTime);
+    }, 100);
 
     return html;
 }
 
-// Async function to load and display VOD and clip embeds
-async function loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durationMinutes) {
+// Async function to load and display VOD, clip, and YouTube embeds
+async function loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durationMinutes, gameEndTime) {
     const container = document.getElementById(`${gameId}-vods`);
     if (!container) return;
 
     const vodEmbeds = [];
     const clipEmbeds = [];
+    const youtubeEmbeds = [];
+
+    // Get YouTube videos for this game
+    const youtubeVideos = getYouTubeVideosForGame(gameEndTime);
+    youtubeVideos.forEach(video => {
+        youtubeEmbeds.push({
+            videoId: video.video_id,
+            title: video.title || 'Game VOD',
+            player: video.player || 'Unknown',
+            timestamp: video.timestamp || '0:00'
+        });
+    });
 
     for (const { player, twitchData } of linkedPlayers) {
         try {
@@ -2501,8 +2567,48 @@ async function loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durat
         html += '</div>';
     }
 
+    // Render YouTube embeds
+    if (youtubeEmbeds.length > 0) {
+        html += '<h4 class="youtube-section-title" style="margin-top: 20px;">YouTube Videos</h4>';
+        html += '<div class="youtube-vods-grid">';
+
+        youtubeEmbeds.forEach(embed => {
+            // Convert timestamp like "1:23:45" or "1:23" to seconds for YouTube embed
+            let timestampSeconds = 0;
+            if (embed.timestamp) {
+                const parts = embed.timestamp.split(':').map(Number);
+                if (parts.length === 3) {
+                    timestampSeconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+                } else if (parts.length === 2) {
+                    timestampSeconds = parts[0] * 60 + parts[1];
+                } else if (parts.length === 1) {
+                    timestampSeconds = parts[0];
+                }
+            }
+
+            const embedUrl = `https://www.youtube.com/embed/${embed.videoId}?start=${timestampSeconds}`;
+            const videoUrl = `https://www.youtube.com/watch?v=${embed.videoId}&t=${timestampSeconds}s`;
+
+            html += `<div class="youtube-vod-embed">`;
+            html += `<div class="youtube-vod-header">`;
+            html += `<img src="assets/YouTube.png" alt="YouTube" class="youtube-icon-img" onerror="this.style.display='none'">`;
+            html += `<span class="youtube-vod-player">${embed.player}</span>`;
+            html += `</div>`;
+            html += `<div class="youtube-vod-iframe-container">`;
+            html += `<iframe src="${embedUrl}" frameborder="0" allowfullscreen="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+            html += `</div>`;
+            html += `<div class="youtube-vod-footer">`;
+            html += `<span class="youtube-vod-title" title="${embed.title}">${embed.title}</span>`;
+            html += `<a href="${videoUrl}" target="_blank" class="youtube-vod-link">Open in YouTube ↗</a>`;
+            html += `</div>`;
+            html += `</div>`;
+        });
+
+        html += '</div>';
+    }
+
     if (html === '') {
-        html = '<div class="twitch-no-vods"><p>No VODs or clips found for players in this match.</p><p class="twitch-note">Streamers may not have been live or content may have expired.</p></div>';
+        html = '<div class="twitch-no-vods"><p>No VODs, clips, or videos found for this match.</p><p class="twitch-note">Streamers may not have been live or content may have expired.</p></div>';
     }
 
     container.innerHTML = html;
