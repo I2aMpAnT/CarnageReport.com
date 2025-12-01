@@ -10,6 +10,12 @@ let rankstatsData = {};
 // Rank history data from rankhistory.json (keyed by discord ID)
 let rankHistoryData = {};
 
+// Dynamic rank history calculated from game outcomes
+let dynamicRankHistory = {};
+
+// XP configuration for ranking
+let xpConfig = null;
+
 // Mapping from in-game profile names to discord IDs
 let profileNameToDiscordId = {};
 
@@ -744,12 +750,164 @@ async function loadRankHistory() {
     }
 }
 
+// Load XP configuration for dynamic rank calculation
+async function loadXPConfig() {
+    try {
+        const response = await fetch('xp_config.json');
+        if (!response.ok) {
+            console.log('[XP_CONFIG] No xp_config.json found, using defaults');
+            return;
+        }
+        xpConfig = await response.json();
+        console.log('[XP_CONFIG] Loaded XP configuration');
+    } catch (error) {
+        console.log('[XP_CONFIG] Error loading XP config:', error);
+    }
+}
+
+// Calculate rank from XP using thresholds
+function calculateRankFromXP(xp) {
+    if (!xpConfig || !xpConfig.rank_thresholds) {
+        // Fallback: simple calculation (every 100 XP = 1 rank)
+        return Math.max(1, Math.min(50, Math.floor(xp / 100) + 1));
+    }
+
+    for (const [rankStr, [minXP, maxXP]] of Object.entries(xpConfig.rank_thresholds)) {
+        if (xp >= minXP && xp <= maxXP) {
+            return parseInt(rankStr);
+        }
+    }
+    return 1; // Default to rank 1
+}
+
+// Get loss factor for a rank (lower ranks lose less XP)
+function getLossFactor(rank) {
+    if (!xpConfig || !xpConfig.loss_factors) return 1.0;
+    return xpConfig.loss_factors[String(rank)] ?? 1.0;
+}
+
+// Build dynamic rank history from game outcomes
+function buildDynamicRankHistory() {
+    if (!gamesData || gamesData.length === 0) return;
+
+    // Sort games chronologically
+    const sortedGames = [...gamesData].sort((a, b) => {
+        const timeA = new Date(a.details['End Time'] || a.details['Start Time'] || 0);
+        const timeB = new Date(b.details['End Time'] || b.details['Start Time'] || 0);
+        return timeA - timeB;
+    });
+
+    // Track XP for each player (by discord_id)
+    const playerXP = {};
+    dynamicRankHistory = {};
+
+    const baseWinXP = xpConfig?.game_win || 100;
+    const baseLossXP = xpConfig?.game_loss || -100;
+
+    sortedGames.forEach(game => {
+        const gameTime = game.details['End Time'] || game.details['Start Time'];
+        if (!gameTime) return;
+
+        // Determine winners and losers by place
+        const winners = game.players.filter(p => p.place === '1st');
+        const losers = game.players.filter(p => p.place === '2nd' || p.place === '3rd' || p.place === '4th');
+
+        // Process each player
+        game.players.forEach(player => {
+            const discordId = player.discord_id;
+            if (!discordId) return;
+
+            // Initialize player if not seen before
+            if (playerXP[discordId] === undefined) {
+                playerXP[discordId] = 0;
+            }
+            if (!dynamicRankHistory[discordId]) {
+                dynamicRankHistory[discordId] = { history: [] };
+            }
+
+            const oldXP = playerXP[discordId];
+            const rankBefore = calculateRankFromXP(oldXP);
+            const isWinner = player.place === '1st';
+
+            // Calculate XP change
+            let xpChange;
+            if (isWinner) {
+                xpChange = baseWinXP;
+            } else {
+                const lossFactor = getLossFactor(rankBefore);
+                xpChange = Math.round(baseLossXP * lossFactor);
+            }
+
+            // Update XP (minimum 0)
+            const newXP = Math.max(0, oldXP + xpChange);
+            playerXP[discordId] = newXP;
+
+            const rankAfter = calculateRankFromXP(newXP);
+
+            // Store history entry
+            dynamicRankHistory[discordId].history.push({
+                timestamp: gameTime,
+                rank_before: rankBefore,
+                rank_after: rankAfter,
+                xp_before: oldXP,
+                xp_after: newXP,
+                result: isWinner ? 'win' : 'loss'
+            });
+        });
+    });
+
+    console.log('[DYNAMIC_RANK] Built rank history for', Object.keys(dynamicRankHistory).length, 'players from', sortedGames.length, 'games');
+}
+
 // Get pre-game rank for a player at a specific game time
-// Looks up the rank_before from the most recent history entry before the game time
+// Uses dynamically calculated ranks from game outcomes
 // discordId can be passed directly (preferred) or looked up from playerName
 function getRankAtTime(playerName, gameEndTime, discordId = null) {
     // Use provided discord ID or look it up from player name
     const playerId = discordId || profileNameToDiscordId[playerName];
+
+    // First try dynamic rank history (calculated from game outcomes)
+    if (playerId && dynamicRankHistory[playerId]) {
+        const history = dynamicRankHistory[playerId].history;
+        if (history && history.length > 0) {
+            // Parse game end time
+            let gameTime;
+            if (gameEndTime.includes('/')) {
+                const [datePart, timePart] = gameEndTime.split(' ');
+                const [month, day, year] = datePart.split('/');
+                gameTime = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00`);
+            } else {
+                gameTime = new Date(gameEndTime);
+            }
+
+            // Find the closest match within 5 minutes
+            let closestMatch = null;
+            let closestDiff = Infinity;
+
+            for (const entry of history) {
+                let entryTime;
+                if (entry.timestamp.includes('/')) {
+                    const [datePart, timePart] = entry.timestamp.split(' ');
+                    const [month, day, year] = datePart.split('/');
+                    entryTime = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00`);
+                } else {
+                    entryTime = new Date(entry.timestamp);
+                }
+                const diffMinutes = Math.abs((gameTime - entryTime) / (1000 * 60));
+
+                if (diffMinutes <= 5 && diffMinutes < closestDiff) {
+                    closestMatch = entry;
+                    closestDiff = diffMinutes;
+                }
+            }
+
+            if (closestMatch) {
+                return closestMatch.rank_before;
+            }
+        }
+    }
+
+    // Fallback to static rankhistory.json if dynamic not available
     if (!playerId || !rankHistoryData[playerId]) {
         return null;
     }
@@ -770,15 +928,23 @@ function getRankAtTime(playerName, gameEndTime, discordId = null) {
         gameTime = new Date(gameEndTime);
     }
 
-    // Find the history entry that matches this game time (within 5 minutes tolerance)
+    // Find the CLOSEST history entry within 5 minutes tolerance
     // The entry's rank_before is what we want
+    let closestMatch = null;
+    let closestDiff = Infinity;
+
     for (const entry of history) {
         const entryTime = new Date(entry.timestamp);
         const diffMinutes = Math.abs((gameTime - entryTime) / (1000 * 60));
 
-        if (diffMinutes <= 5) {
-            return entry.rank_before;
+        if (diffMinutes <= 5 && diffMinutes < closestDiff) {
+            closestMatch = entry;
+            closestDiff = diffMinutes;
         }
+    }
+
+    if (closestMatch) {
+        return closestMatch.rank_before;
     }
 
     // If no exact match, find the most recent entry before the game time
@@ -1141,7 +1307,15 @@ async function loadGamesData() {
         console.log('[DEBUG] Building profile name mappings...');
         buildProfileNameMappings();
 
-        // Load rank history (must be after mappings are built)
+        // Load XP configuration for ranking
+        console.log('[DEBUG] Loading XP configuration...');
+        await loadXPConfig();
+
+        // Build dynamic rank history from game outcomes
+        console.log('[DEBUG] Building dynamic rank history...');
+        buildDynamicRankHistory();
+
+        // Load rank history (must be after mappings are built) - fallback
         console.log('[DEBUG] Loading rank history...');
         await loadRankHistory();
 
@@ -2970,7 +3144,12 @@ function renderPlayerSearchResults(playerName) {
     const stats = calculatePlayerStats(playerName);
     const playerGames = gamesData.filter(game =>
         game.players.some(p => p.name === playerName)
-    );
+    ).sort((a, b) => {
+        // Sort by date, most recent first
+        const dateA = new Date(a.details['Start Time'] || a.details['End Time'] || 0);
+        const dateB = new Date(b.details['Start Time'] || b.details['End Time'] || 0);
+        return dateB - dateA;
+    });
 
     // Store medal breakdown for modal
     window.currentSearchMedalBreakdown = stats.medalBreakdown;
