@@ -814,6 +814,26 @@ async function loadEmblems() {
     }
 }
 
+// Parse emblem parameters from a halo2pc.com URL or return null if not valid
+function parseEmblemParams(url) {
+    if (!url || !url.includes('emblem.php')) return null;
+
+    try {
+        const urlParams = new URL(url).searchParams;
+        return {
+            P: parseInt(urlParams.get('P') || 0),
+            S: parseInt(urlParams.get('S') || 0),
+            EP: parseInt(urlParams.get('EP') || 0),
+            ES: parseInt(urlParams.get('ES') || 0),
+            EF: parseInt(urlParams.get('EF') || 0),
+            EB: parseInt(urlParams.get('EB') || 0),
+            ET: parseInt(urlParams.get('ET') || 0)
+        };
+    } catch (e) {
+        return null;
+    }
+}
+
 // Get emblem URL for a player (by in-game name or discord ID)
 function getPlayerEmblem(playerNameOrId) {
     // First try direct discord ID lookup in emblems.json
@@ -4323,8 +4343,22 @@ function openPlayerProfile(playerName) {
     const emblemUrl = getPlayerEmblem(playerName);
     const emblemElement = document.getElementById('profileEmblem');
     if (emblemUrl) {
-        emblemElement.innerHTML = `<img src="${emblemUrl}" alt="Player Emblem" class="profile-emblem-img" />`;
-        emblemElement.style.display = 'block';
+        // Check if it's a halo2pc.com emblem URL - generate locally instead
+        const emblemParams = parseEmblemParams(emblemUrl);
+        if (emblemParams && typeof generateEmblemDataUrl === 'function') {
+            emblemElement.innerHTML = '<div class="profile-emblem-loading"></div>';
+            emblemElement.style.display = 'block';
+            generateEmblemDataUrl(emblemParams).then(dataUrl => {
+                if (dataUrl) {
+                    emblemElement.innerHTML = `<img src="${dataUrl}" alt="Player Emblem" class="profile-emblem-img" />`;
+                } else {
+                    emblemElement.style.display = 'none';
+                }
+            });
+        } else {
+            emblemElement.innerHTML = `<img src="${emblemUrl}" alt="Player Emblem" class="profile-emblem-img" onerror="this.parentElement.style.display='none'" />`;
+            emblemElement.style.display = 'block';
+        }
     } else {
         emblemElement.innerHTML = '';
         emblemElement.style.display = 'none';
