@@ -498,6 +498,45 @@
         return window.location.origin + window.location.pathname + '?' + params.toString();
     }
 
+    // Generate direct emblem image URL (renders as pure image)
+    window.getDirectEmblemUrl = function() {
+        const emblemForeground = document.getElementById('emblemForeground')?.value || 0;
+        const emblemBackground = document.getElementById('emblemBackground')?.value || 0;
+        const emblemPrimary = document.getElementById('emblemPrimary')?.value || 0;
+        const emblemSecondary = document.getElementById('emblemSecondary')?.value || 1;
+        const bgPrimary = document.getElementById('bgPrimary')?.value || 10;
+        const bgSecondary = document.getElementById('bgSecondary')?.value || 0;
+        const emblemToggle = document.getElementById('emblemToggle')?.checked ? 1 : 0;
+
+        const params = new URLSearchParams({
+            P: bgPrimary,
+            S: bgSecondary,
+            EP: emblemPrimary,
+            ES: emblemSecondary,
+            EF: emblemForeground,
+            EB: emblemBackground,
+            ET: emblemToggle
+        });
+
+        return window.location.origin + '/emblem-image.html?' + params.toString();
+    }
+
+    // Generate direct emblem image URL from parameters object
+    window.getDirectEmblemUrlFromParams = function(params) {
+        const {
+            P = 10,
+            S = 0,
+            EP = 0,
+            ES = 1,
+            EF = 0,
+            EB = 0,
+            ET = 0
+        } = params || {};
+
+        const urlParams = new URLSearchParams({ P, S, EP, ES, EF, EB, ET });
+        return window.location.origin + '/emblem-image.html?' + urlParams.toString();
+    }
+
     // Copy emblem URL to clipboard
     window.copyEmblemUrl = function() {
         const url = getEmblemUrl();

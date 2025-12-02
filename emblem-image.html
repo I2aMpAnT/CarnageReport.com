@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=256, height=256">
+    <meta property="og:image" content="" id="og-image">
+    <meta property="og:image:width" content="256">
+    <meta property="og:image:height" content="256">
+    <title>Emblem</title>
+    <style>
+        * { margin: 0; padding: 0; }
+        html, body {
+            background: transparent;
+            width: 256px;
+            height: 256px;
+            overflow: hidden;
+        }
+        #emblem-img {
+            width: 256px;
+            height: 256px;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    </style>
+</head>
+<body>
+    <img id="emblem-img" alt="Halo 2 Emblem">
+
+    <script>
+    (function() {
+        const colorPalette = [
+            { r: 255, g: 255, b: 255 }, // 0 White
+            { r: 110, g: 110, b: 110 }, // 1 Steel
+            { r: 189, g: 43,  b: 44  }, // 2 Red
+            { r: 244, g: 123, b: 32  }, // 3 Orange
+            { r: 244, g: 209, b: 45  }, // 4 Gold
+            { r: 158, g: 169, b: 90  }, // 5 Olive
+            { r: 35,  g: 145, b: 46  }, // 6 Green
+            { r: 36,  g: 87,  b: 70  }, // 7 Sage
+            { r: 22,  g: 160, b: 160 }, // 8 Cyan
+            { r: 55,  g: 115, b: 123 }, // 9 Teal
+            { r: 32,  g: 113, b: 178 }, // 10 Cobalt
+            { r: 45,  g: 60,  b: 180 }, // 11 Blue
+            { r: 108, g: 80,  b: 182 }, // 12 Violet
+            { r: 148, g: 39,  b: 132 }, // 13 Purple
+            { r: 248, g: 155, b: 200 }, // 14 Pink
+            { r: 156, g: 15,  b: 68  }, // 15 Crimson
+            { r: 120, g: 73,  b: 43  }, // 16 Brown
+            { r: 175, g: 144, b: 87  }  // 17 Tan
+        ];
+
+        const foregroundFiles = [
+            '00 - Seventh Column.png', '01 - Bullseye.png', '02 - Vortex.png', '03 - Halt.png',
+            '04 - Spartan.png', '05 - Da Bomb.png', '06 - Trinity.png', '07 - Delta.png',
+            '08 - Rampancy.png', '09 - Sergeant.png', '10 - Phoenix.png', '11 - Champion.png',
+            '12 - Jolly Roger.png', '13 - Marathon.png', '14 - Cube.png', '15 - Radioactive .png',
+            '16 - Smiley.png', '17 - Frowney.png', '18 - Spearhead.png', '19 - Sol.png',
+            '20 - Waypoint.png', '21 - Ying Yang.png', '22 - Helmet.png', '23 - Triad.png',
+            '24 - Grunt Symbol.png', '25 - Cleave.png', '26 - Thor.png', '27 - Skull King.png',
+            '28 - Triplicate.png', '29 - Subnova.png', '30 - Flaming Ninja.png', '31 - Double Crescent.png',
+            '32 - Spades.png', '33 - Clubs.png', '34 - Diamonds.png', '35 - Hearts.png',
+            '36 - Wasp.png', '37 - Mark of Shame.png', '38 - Snake.png', '39 - Hawk.png',
+            '40 - Lips.png', '41 - Capsule.png', '42 - Cancel.png', '43 - Gas Mask.png',
+            '44 - Grenade.png', '45 - Tsantsa.png', '46 - Race.png', '47 - Valkyrie.png',
+            '48 - Drone.png', '49 - Grunt.png', '50 - Grunt Head.png', '51 - Brute Head.png',
+            '52 - Runes.png', '53 - Trident.png', '54 - Number 0.png', '55 - Number 1.png',
+            '56 - Number 2.png', '57 - Number 3.png', '58 - Number 4.png', '59 - Number 5.png',
+            '60 - Number 6.png', '61 - Number 7.png', '62 - Number 8.png', '63 - Number 9.png'
+        ];
+
+        const backgroundFiles = [
+            '00 - Solid.png', '01 - Vertical Split.png', '02 - Horizontal Split 1.png',
+            '03 - Horizontal Split 2.png', '04 - Vertical Gradient.png', '05 - Horizontal Gradient.png',
+            '06 - Triple Column.png', '07 - Triple Row.png', '08 - Quadrants 1.png',
+            '09 - Quadrants 2.png', '10 - DIagonal Slice.png', '11 - Cleft.png',
+            '12 - X1.png', '13 - X2.png', '14 - Circle.png', '15 - Diamond.png',
+            '16 - Cross.png', '17 - Square.png', '18 - Dual Half-Circle.png', '19 - Triangle.png',
+            '20 - Diagonal Quadrant.png', '21 - Three Quarters.png', '22 - Quarter.png', '23 - Four Rows 1.png',
+            '24 - Four Rows 2.png', '25 - Split Circle.png', '26 - One Third.png', '27 - Two Thirds.png',
+            '28 - Upper Field.png', '29 - Top and Bottom.png', '30 - Center Stripe.png', '31 - Left and Right.png'
+        ];
+
+        function loadImage(path) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error('Failed to load: ' + path));
+                img.src = path;
+            });
+        }
+
+        function smoothstep(edge0, edge1, x) {
+            const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+            return t * t * (3 - 2 * t);
+        }
+
+        function drawBackground(ctx, img, primaryColor, secondaryColor) {
+            const tempCanvas = document.createElement('canvas');
+            const size = 256;
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.imageSmoothingEnabled = false;
+            tempCtx.drawImage(img, 0, 0, size, size);
+
+            const imageData = tempCtx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const a = data[i + 3];
+
+                if (a === 0) {
+                    data[i] = primaryColor.r;
+                    data[i + 1] = primaryColor.g;
+                    data[i + 2] = primaryColor.b;
+                } else {
+                    const primaryWeight = Math.min(r, g) / 255;
+                    const secondaryWeight = 1 - primaryWeight;
+                    data[i] = Math.round(primaryColor.r * primaryWeight + secondaryColor.r * secondaryWeight);
+                    data[i + 1] = Math.round(primaryColor.g * primaryWeight + secondaryColor.g * secondaryWeight);
+                    data[i + 2] = Math.round(primaryColor.b * primaryWeight + secondaryColor.b * secondaryWeight);
+                }
+                data[i + 3] = 255;
+            }
+
+            tempCtx.putImageData(imageData, 0, 0);
+            ctx.drawImage(tempCanvas, 0, 0);
+        }
+
+        function drawForeground(ctx, img, primaryColor, secondaryColor, toggle) {
+            const tempCanvas = document.createElement('canvas');
+            const size = 256;
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.imageSmoothingEnabled = false;
+            tempCtx.drawImage(img, 0, 0, size, size);
+
+            const imageData = tempCtx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
+
+                if (a === 0) continue;
+
+                const brightness = (r + g + b) / 3;
+                if (brightness < 20) {
+                    data[i + 3] = 0;
+                    continue;
+                }
+
+                const yellowStrength = Math.min(r, g) / 255;
+                const blueStrength = b / 255;
+                const totalStrength = yellowStrength + blueStrength;
+
+                if (totalStrength < 0.05) {
+                    data[i + 3] = 0;
+                    continue;
+                }
+
+                let primaryRatio = yellowStrength / Math.max(totalStrength, 0.001);
+                let secondaryRatio = blueStrength / Math.max(totalStrength, 0.001);
+
+                if (toggle === 1) {
+                    if (primaryRatio > 0.9) {
+                        data[i + 3] = 0;
+                        continue;
+                    }
+                    primaryRatio = 0;
+                    secondaryRatio = 1;
+                }
+
+                const alpha = Math.round(255 * smoothstep(0.1, 0.5, totalStrength));
+                const finalR = primaryColor.r * primaryRatio + secondaryColor.r * secondaryRatio;
+                const finalG = primaryColor.g * primaryRatio + secondaryColor.g * secondaryRatio;
+                const finalB = primaryColor.b * primaryRatio + secondaryColor.b * secondaryRatio;
+
+                data[i] = Math.round(Math.min(255, finalR));
+                data[i + 1] = Math.round(Math.min(255, finalG));
+                data[i + 2] = Math.round(Math.min(255, finalB));
+                data[i + 3] = alpha;
+            }
+
+            tempCtx.putImageData(imageData, 0, 0);
+            ctx.drawImage(tempCanvas, 0, 0);
+        }
+
+        async function renderEmblem() {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            const emblemForeground = parseInt(urlParams.get('EF') || 37);
+            const emblemBackground = parseInt(urlParams.get('EB') || 5);
+            const emblemPrimary = parseInt(urlParams.get('EP') || 1);
+            const emblemSecondary = parseInt(urlParams.get('ES') || 0);
+            const bgPrimary = parseInt(urlParams.get('P') || 11);
+            const bgSecondary = parseInt(urlParams.get('S') || 0);
+            const emblemToggle = parseInt(urlParams.get('ET') || 0);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, 256, 256);
+
+            const fgFile = foregroundFiles[emblemForeground] || foregroundFiles[0];
+            const bgFile = backgroundFiles[emblemBackground] || backgroundFiles[0];
+            const fgPath = 'emblems/embems/' + encodeURIComponent(fgFile);
+            const bgPath = 'emblems/backgrounds/' + encodeURIComponent(bgFile);
+
+            try {
+                const [fgImg, bgImg] = await Promise.all([
+                    loadImage(fgPath),
+                    loadImage(bgPath)
+                ]);
+
+                drawBackground(ctx, bgImg, colorPalette[bgPrimary], colorPalette[bgSecondary]);
+                drawForeground(ctx, fgImg, colorPalette[emblemPrimary], colorPalette[emblemSecondary], emblemToggle);
+
+                // Convert canvas to PNG data URL and set as img src
+                const dataUrl = canvas.toDataURL('image/png');
+                document.getElementById('emblem-img').src = dataUrl;
+
+                // Update OG image meta tag for social media embeds
+                document.getElementById('og-image').content = dataUrl;
+            } catch (e) {
+                console.error('Error rendering emblem:', e);
+            }
+        }
+
+        renderEmblem();
+    })();
+    </script>
+</body>
+</html>
