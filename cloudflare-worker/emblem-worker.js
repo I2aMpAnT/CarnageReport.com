@@ -561,8 +561,8 @@ export default {
         bgResponse.arrayBuffer()
       ]);
 
-      const fgImage = decodePNG(fgBuffer);
-      const bgImage = decodePNG(bgBuffer);
+      const fgImage = await decodePNG(fgBuffer);
+      const bgImage = await decodePNG(bgBuffer);
 
       // Process images
       const bgProcessed = processBackground(bgImage.data, bgImage.width, bgImage.height,
