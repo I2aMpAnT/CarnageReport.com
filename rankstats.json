@@ -232,10 +232,6 @@
     "twitch_url": "https://twitch.tv/mrwelfares",
     "rank": 4,
     "alias": "Rinser",
-    "kills": 61,
-    "deaths": 44,
-    "assists": 36,
-    "headshots": 48,
     "MLG 4v4": 4,
     "playlists": {
       "MLG 4v4": {
@@ -247,7 +243,11 @@
         "games": 3
       }
     },
-    "highest_rank": 4
+    "highest_rank": 4,
+    "kills": 61,
+    "deaths": 44,
+    "assists": 36,
+    "headshots": 48
   },
   "334212655613214721": {
     "xp": 490,
@@ -1132,10 +1132,6 @@
     "discord_name": "M15F1T",
     "rank": 4,
     "alias": "Em Won 5 F 1 T",
-    "kills": 35,
-    "deaths": 59,
-    "assists": 34,
-    "headshots": 25,
     "MLG 4v4": 4,
     "playlists": {
       "MLG 4v4": {
@@ -1147,7 +1143,11 @@
         "games": 3
       }
     },
-    "highest_rank": 4
+    "highest_rank": 4,
+    "kills": 35,
+    "deaths": 59,
+    "assists": 34,
+    "headshots": 25
   },
   "653385687852253215": {
     "xp": 0,
