@@ -939,7 +939,7 @@ def main():
     # STEP 2: Find and parse ALL games, determining playlist for each
     # ALL matches are logged for stats, but only playlist-tagged matches count for rank
     print("\nStep 2: Finding and categorizing games...")
-    stats_files = sorted([f for f in os.listdir(STATS_DIR) if f.endswith('.xlsx') and '_identity' not in f])
+    all_game_files = get_all_game_files()  # Returns list of (filename, source_dir) tuples
 
     # Store ALL games (for stats tracking)
     all_games = []
@@ -947,8 +947,8 @@ def main():
     games_by_playlist = {}
     untagged_games = []
 
-    for filename in stats_files:
-        file_path = os.path.join(STATS_DIR, filename)
+    for filename, source_dir in all_game_files:
+        file_path = os.path.join(source_dir, filename)
         playlist = determine_playlist(file_path, active_match, manual_playlists)
 
         game = parse_excel_file(file_path)
@@ -1007,9 +1007,11 @@ def main():
     # Each identity file covers a session, use it for games in that session
     print("\n  Loading identity files for MAC->name resolution...")
     all_identity_mappings = {}  # {identity_file: {name_lower: mac}}
-    identity_files = sorted([f for f in os.listdir(STATS_DIR) if '_identity.xlsx' in f])
+    # Identity files are in the private directory
+    identity_dir = STATS_PRIVATE_DIR if os.path.exists(STATS_PRIVATE_DIR) else STATS_DIR
+    identity_files = sorted([f for f in os.listdir(identity_dir) if '_identity.xlsx' in f]) if os.path.exists(identity_dir) else []
     for identity_file in identity_files:
-        identity_path = os.path.join(STATS_DIR, identity_file)
+        identity_path = os.path.join(identity_dir, identity_file)
         name_to_mac = parse_identity_file(identity_path)
         all_identity_mappings[identity_file] = name_to_mac
         print(f"    {identity_file}: {len(name_to_mac)} player(s)")
