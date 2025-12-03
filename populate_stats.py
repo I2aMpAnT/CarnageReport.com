@@ -40,7 +40,7 @@ VALID_MLG_4V4_COMBOS = {
     "Midship": ["ctf", "slayer", "oddball"],      # 3 gametypes
     "Beaver Creek": ["ctf", "slayer"],            # 2 gametypes
     "Lockout": ["slayer", "oddball"],             # 2 gametypes
-    "Warlock": ["slayer", "oddball"],             # 2 gametypes
+    "Warlock": ["ctf", "slayer", "oddball"],      # 3 gametypes
     "Sanctuary": ["ctf", "slayer"]                # 2 gametypes
 }  # Total: 11 combos
 

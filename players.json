@@ -56,7 +56,11 @@
   },
   "210187331066396672": {
     "twitch_name": "mrwelfares",
-    "twitch_url": "https://twitch.tv/mrwelfares"
+    "twitch_url": "https://twitch.tv/mrwelfares",
+    "display_name": "Rinser",
+    "mac_addresses": [
+      "00:50:F2:BA:51:97"
+    ]
   },
   "385632391089356810": {
     "twitch_name": "kranlive",
@@ -138,7 +142,7 @@
     "twitch_name": "justinkeylord",
     "twitch_url": "https://twitch.tv/justinkeylord",
     "display_name": "keylord",
-    "aliases": ["Ralph Port"],
+    "aliases": ["Ralph Port", "Keylord"],
     "mac_addresses": [
       "00:12:5A:02:53:7F"
     ]
@@ -200,6 +204,13 @@
     "aliases": ["2D"],
     "mac_addresses": [
       "00:0D:3A:44:CC:44"
+    ]
+  },
+  "1040724126836457624": {
+    "display_name": "Em Won 5 F 1 T",
+    "aliases": ["Em Won 5 F 1 T"],
+    "mac_addresses": [
+      "00:0D:3A:56:07:27"
     ]
   }
 }

@@ -1,6 +1,6 @@
 {
   "total_matches": 9,
-  "total_ranked_matches": 7,
+  "total_ranked_matches": 8,
   "matches": [
     {
       "match_number": 1,
@@ -176,8 +176,8 @@
     },
     {
       "match_number": 7,
-      "match_type": "UNRANKED",
-      "playlist": null,
+      "match_type": "RANKED",
+      "playlist": "MLG 4v4",
       "timestamp": "12/2/2025 20:23",
       "map": "Warlock",
       "gametype": "MLG MidWar CTF",
