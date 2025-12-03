@@ -1515,10 +1515,10 @@ function createGameItem(game, gameNumber) {
     if (game.public_url || game.theater_url) {
         downloadButtons = '<div class="game-download-buttons" onclick="event.stopPropagation()">';
         if (game.public_url) {
-            downloadButtons += `<a href="${game.public_url}" class="download-btn download-stats" title="Download Stats" target="_blank">📊</a>`;
+            downloadButtons += `<a href="${game.public_url}" class="download-btn download-stats" title="Download Stats" target="_blank">STATS</a>`;
         }
         if (game.theater_url) {
-            downloadButtons += `<a href="${game.theater_url}" class="download-btn download-theater" title="Download Theater" target="_blank">🎬</a>`;
+            downloadButtons += `<a href="${game.theater_url}" class="download-btn download-theater" title="Download Theater" target="_blank">FILM</a>`;
         }
         downloadButtons += '</div>';
     }
