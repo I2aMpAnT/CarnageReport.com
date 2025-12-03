@@ -1490,12 +1490,12 @@
     "headshots": 54
   },
   "269681242335739905": {
-    "xp": 0,
-    "wins": 0,
-    "losses": 3,
+    "xp": 190,
+    "wins": 2,
+    "losses": 6,
     "series_wins": 0,
     "series_losses": 0,
-    "total_games": 3,
+    "total_games": 8,
     "total_series": 0,
     "mmr": 750,
     "discord_name": "keylord",
@@ -1504,24 +1504,24 @@
     ],
     "twitch_name": "justinkeylord",
     "twitch_url": "https://twitch.tv/justinkeylord",
-    "rank": 1,
-    "MLG 4v4": 1,
-    "highest_rank": 1,
+    "rank": 3,
+    "MLG 4v4": 3,
+    "highest_rank": 3,
     "alias": "Ralph Port",
     "playlists": {
       "MLG 4v4": {
-        "xp": 0,
-        "rank": 1,
-        "highest_rank": 1,
-        "wins": 0,
-        "losses": 3,
-        "games": 3
+        "xp": 190,
+        "rank": 3,
+        "highest_rank": 3,
+        "wins": 2,
+        "losses": 6,
+        "games": 8
       }
     },
-    "kills": 58,
-    "deaths": 64,
-    "assists": 39,
-    "headshots": 34
+    "kills": 138,
+    "deaths": 168,
+    "assists": 95,
+    "headshots": 83
   },
   "175060415833833472": {
     "xp": 296,
