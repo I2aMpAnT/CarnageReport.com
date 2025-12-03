@@ -14,6 +14,10 @@ from datetime import datetime
 
 # File paths
 STATS_DIR = 'stats'
+# VPS paths for downloadable files
+STATS_PUBLIC_DIR = '/home/carnagereport/stats/public'
+STATS_PRIVATE_DIR = '/home/carnagereport/stats/private'
+STATS_THEATER_DIR = '/home/carnagereport/stats/theater'
 RANKSTATS_FILE = 'rankstats.json'
 GAMESTATS_FILE = 'gamestats.json'
 MATCHHISTORY_FILE = 'matchhistory.json'
@@ -23,6 +27,9 @@ PLAYERS_FILE = 'players.json'
 EMBLEMS_FILE = 'emblems.json'
 ACTIVE_MATCHES_FILE = 'active_matches.json'
 RANKHISTORY_FILE = 'rankhistory.json'
+
+# Base URL for downloadable files on the VPS
+STATS_BASE_URL = 'http://104.207.143.249/stats'
 
 # Default playlist name for 4v4 games (fallback)
 PLAYLIST_NAME = 'MLG 4v4'
@@ -412,6 +419,65 @@ def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord,
 
     return None
 
+def get_download_urls(game_filename):
+    """
+    Get download URLs for public stats and theater files based on game filename.
+
+    Args:
+        game_filename: The game stats filename (e.g., '20251128_201839.xlsx')
+
+    Returns:
+        dict with 'public_url' and 'theater_url' (None if file doesn't exist)
+    """
+    # Extract timestamp from filename (remove .xlsx extension)
+    timestamp = game_filename.replace('.xlsx', '')
+
+    downloads = {
+        'public_url': None,
+        'theater_url': None
+    }
+
+    # Check for public stats file
+    public_filename = f"{timestamp}.xlsx"
+    public_path = os.path.join(STATS_PUBLIC_DIR, public_filename)
+    if os.path.exists(public_path):
+        downloads['public_url'] = f"{STATS_BASE_URL}/public/{public_filename}"
+
+    # Check for theater file (.csv)
+    theater_filename = f"{timestamp}.csv"
+    theater_path = os.path.join(STATS_THEATER_DIR, theater_filename)
+    if os.path.exists(theater_path):
+        downloads['theater_url'] = f"{STATS_BASE_URL}/theater/{theater_filename}"
+
+    return downloads
+
+
+def get_all_game_files():
+    """
+    Get all game files from both local stats dir and VPS public folder.
+    Returns a list of tuples: (filename, source_dir)
+    """
+    game_files = []
+
+    # Local stats directory
+    if os.path.exists(STATS_DIR):
+        for f in os.listdir(STATS_DIR):
+            if f.endswith('.xlsx') and '_identity' not in f:
+                game_files.append((f, STATS_DIR))
+
+    # VPS public directory (if accessible)
+    if os.path.exists(STATS_PUBLIC_DIR):
+        for f in os.listdir(STATS_PUBLIC_DIR):
+            if f.endswith('.xlsx') and '_identity' not in f:
+                # Only add if not already in the list
+                if not any(gf[0] == f for gf in game_files):
+                    game_files.append((f, STATS_PUBLIC_DIR))
+
+    # Sort by filename (timestamp)
+    game_files.sort(key=lambda x: x[0])
+    return game_files
+
+
 def calculate_rank(xp, rank_thresholds):
     """Calculate rank based on XP and thresholds."""
     for rank in range(50, 0, -1):
@@ -725,6 +791,11 @@ def main():
         game = parse_excel_file(file_path)
         game['source_file'] = filename
         game['playlist'] = playlist  # Will be None for untagged games
+
+        # Add download URLs for public stats and theater files
+        downloads = get_download_urls(filename)
+        game['public_url'] = downloads['public_url']
+        game['theater_url'] = downloads['theater_url']
 
         # ALL games go into all_games for stats tracking
         all_games.append(game)
