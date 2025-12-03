@@ -44,12 +44,12 @@ PLAYLIST_NAME = 'MLG 4v4'
 # Valid MLG 4v4 combinations: map + base gametype (11 total)
 # These use "Game Type" field (CTF, Slayer, Oddball), NOT variant name
 VALID_MLG_4V4_COMBOS = {
-    "Midship": ["ctf", "slayer", "oddball"],      # 3 gametypes
+    "Midship": ["ctf", "slayer", "oddball", "assault"],  # 4 gametypes (includes MLG Bomb/Assault)
     "Beaver Creek": ["ctf", "slayer"],            # 2 gametypes
     "Lockout": ["slayer", "oddball"],             # 2 gametypes
     "Warlock": ["ctf", "slayer", "oddball"],      # 3 gametypes
     "Sanctuary": ["ctf", "slayer"]                # 2 gametypes
-}  # Total: 11 combos
+}  # Total: 12 combos
 
 # Minimum game duration in seconds to count (filters out restarts)
 MIN_GAME_DURATION_SECONDS = 120  # 2 minutes
