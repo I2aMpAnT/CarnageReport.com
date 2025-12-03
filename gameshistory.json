@@ -222,7 +222,9 @@
       }
     ],
     "source_file": "20251128_074332.xlsx",
-    "playlist": null
+    "playlist": null,
+    "public_url": null,
+    "theater_url": null
   },
   {
     "details": {
@@ -1924,7 +1926,9 @@
       }
     ],
     "source_file": "20251128_201839.xlsx",
-    "playlist": "MLG 4v4"
+    "playlist": "MLG 4v4",
+    "public_url": null,
+    "theater_url": null
   },
   {
     "details": {
@@ -3626,7 +3630,9 @@
       }
     ],
     "source_file": "20251128_202256.xlsx",
-    "playlist": "MLG 4v4"
+    "playlist": "MLG 4v4",
+    "public_url": null,
+    "theater_url": null
   },
   {
     "details": {
@@ -5328,7 +5334,9 @@
       }
     ],
     "source_file": "20251128_204504.xlsx",
-    "playlist": "MLG 4v4"
+    "playlist": "MLG 4v4",
+    "public_url": null,
+    "theater_url": null
   },
   {
     "details": {
@@ -7030,7 +7038,9 @@
       }
     ],
     "source_file": "20251128_205019.xlsx",
-    "playlist": "MLG 4v4"
+    "playlist": "MLG 4v4",
+    "public_url": null,
+    "theater_url": null
   },
   {
     "details": {
@@ -8732,6 +8742,8 @@
       }
     ],
     "source_file": "20251128_210553.xlsx",
-    "playlist": "MLG 4v4"
+    "playlist": "MLG 4v4",
+    "public_url": null,
+    "theater_url": null
   }
 ]
