@@ -10,6 +10,7 @@ Supports multiple playlists based on active matches from the Discord bot:
 import pandas as pd
 import json
 import os
+import requests
 from datetime import datetime
 
 # File paths
@@ -31,6 +32,10 @@ MANUAL_PLAYLISTS_FILE = 'manual_playlists.json'
 
 # Base URL for downloadable files on the VPS
 STATS_BASE_URL = 'http://104.207.143.249/stats'
+
+# Discord webhook for triggering bot rank refresh
+DISCORD_REFRESH_WEBHOOK = 'https://discord.com/api/webhooks/1445741545318780958/Vp-tbL32JhMu36j7qxG704GbWcgrJE9-JIdhUrpMMfAx3fpsGv82Sxi5F3r0lepor4fq'
+DISCORD_TRIGGER_CHANNEL_ID = 1427929973125156924
 
 # Default playlist name for 4v4 games (fallback)
 PLAYLIST_NAME = 'MLG 4v4'
@@ -1328,6 +1333,19 @@ def main():
     # No need to embed data in HTML anymore
 
     print("\nDone!")
+
+    # Trigger Discord bot to refresh ranks
+    print("\nTriggering Discord bot rank refresh...")
+    try:
+        response = requests.post(DISCORD_REFRESH_WEBHOOK, json={
+            "content": "!refresh_ranks_trigger"
+        })
+        if response.status_code == 204:
+            print("  Discord webhook sent successfully!")
+        else:
+            print(f"  Warning: Webhook returned status {response.status_code}")
+    except Exception as e:
+        print(f"  Error sending webhook: {e}")
 
 
 if __name__ == '__main__':
