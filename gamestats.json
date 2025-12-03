@@ -58,5 +58,35 @@
       "duration": "15:01",
       "playlist": "MLG 4v4"
     }
+  },
+  "match_7": {
+    "game_1": {
+      "map": "Warlock",
+      "gametype": "MLG MidWar CTF",
+      "game_type": "capture_the_flag",
+      "timestamp": "12/2/2025 20:23",
+      "duration": "15:20",
+      "playlist": null
+    }
+  },
+  "match_8": {
+    "game_1": {
+      "map": "Midship",
+      "gametype": "MLG TS No Dualz",
+      "game_type": "slayer",
+      "timestamp": "12/2/2025 20:40",
+      "duration": "05:27",
+      "playlist": "MLG 4v4"
+    }
+  },
+  "match_9": {
+    "game_1": {
+      "map": "Sanctuary",
+      "gametype": "MLG Sanc CTF",
+      "game_type": "capture_the_flag",
+      "timestamp": "12/2/2025 20:46",
+      "duration": "15:05",
+      "playlist": "MLG 4v4"
+    }
   }
 }

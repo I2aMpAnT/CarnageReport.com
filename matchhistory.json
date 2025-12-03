@@ -1,6 +1,6 @@
 {
-  "total_matches": 6,
-  "total_ranked_matches": 5,
+  "total_matches": 9,
+  "total_ranked_matches": 7,
   "matches": [
     {
       "match_number": 1,
@@ -172,6 +172,102 @@
         "Ralph Port",
         "Rocky",
         "roasted"
+      ]
+    },
+    {
+      "match_number": 7,
+      "match_type": "UNRANKED",
+      "playlist": null,
+      "timestamp": "12/2/2025 20:23",
+      "map": "Warlock",
+      "gametype": "MLG MidWar CTF",
+      "red_team": [
+        "Em Won 5 F 1 T",
+        "Rocky",
+        "getitoutdaFLUD",
+        "\ue101\ue100\ue101\ue103\ue075"
+      ],
+      "blue_team": [
+        "Dirk",
+        "AfroMaN",
+        "roasted",
+        "Keylord"
+      ],
+      "winners": [
+        "Em Won 5 F 1 T",
+        "Rocky",
+        "getitoutdaFLUD",
+        "\ue101\ue100\ue101\ue103\ue075"
+      ],
+      "losers": [
+        "Dirk",
+        "AfroMaN",
+        "roasted",
+        "Keylord"
+      ]
+    },
+    {
+      "match_number": 8,
+      "match_type": "RANKED",
+      "playlist": "MLG 4v4",
+      "timestamp": "12/2/2025 20:40",
+      "map": "Midship",
+      "gametype": "MLG TS No Dualz",
+      "red_team": [
+        "Rocky",
+        "\ue101\ue100\ue101\ue103\ue075",
+        "Em Won 5 F 1 T",
+        "getitoutdaFLUD"
+      ],
+      "blue_team": [
+        "AfroMaN",
+        "Dirk",
+        "Keylord",
+        "roasted"
+      ],
+      "winners": [
+        "Rocky",
+        "\ue101\ue100\ue101\ue103\ue075",
+        "Em Won 5 F 1 T",
+        "getitoutdaFLUD"
+      ],
+      "losers": [
+        "AfroMaN",
+        "Dirk",
+        "Keylord",
+        "roasted"
+      ]
+    },
+    {
+      "match_number": 9,
+      "match_type": "RANKED",
+      "playlist": "MLG 4v4",
+      "timestamp": "12/2/2025 20:46",
+      "map": "Sanctuary",
+      "gametype": "MLG Sanc CTF",
+      "red_team": [
+        "Em Won 5 F 1 T",
+        "\ue101\ue100\ue101\ue103\ue075",
+        "Rocky",
+        "getitoutdaFLUD"
+      ],
+      "blue_team": [
+        "AfroMaN",
+        "Dirk",
+        "roasted",
+        "Keylord"
+      ],
+      "winners": [
+        "Em Won 5 F 1 T",
+        "\ue101\ue100\ue101\ue103\ue075",
+        "Rocky",
+        "getitoutdaFLUD"
+      ],
+      "losers": [
+        "AfroMaN",
+        "Dirk",
+        "roasted",
+        "Keylord"
       ]
     }
   ]
