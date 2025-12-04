@@ -1044,19 +1044,39 @@ function buildProfileNameMappings() {
     profileNameToDiscordId = {};
     discordIdToProfileNames = {};
 
-    // First, collect all unique in-game names from gameshistory
+    // PRIORITY 1: Use discord_id directly from gameshistory.json (most reliable)
+    // Each player in gameshistory has their discord_id attached
+    gamesData.forEach(game => {
+        game.players.forEach(player => {
+            if (!player.name) return;
+            const discordId = player.discord_id;
+
+            // Only use discord_id if it exists in rankstatsData
+            if (discordId && rankstatsData[discordId]) {
+                // Set the mapping (discord_id from game data takes priority)
+                profileNameToDiscordId[player.name] = discordId;
+                if (!discordIdToProfileNames[discordId]) {
+                    discordIdToProfileNames[discordId] = [];
+                }
+                if (!discordIdToProfileNames[discordId].includes(player.name)) {
+                    discordIdToProfileNames[discordId].push(player.name);
+                }
+            }
+        });
+    });
+
+    console.log('[MAPPINGS] Built mappings from discord_id for', Object.keys(profileNameToDiscordId).length, 'in-game names');
+
+    // PRIORITY 2: For names not yet mapped, try matching by discord_name or in_game_names
     const inGameNames = new Set();
     gamesData.forEach(game => {
         game.players.forEach(player => {
-            if (player.name) {
+            if (player.name && !profileNameToDiscordId[player.name]) {
                 inGameNames.add(player.name);
             }
         });
     });
 
-    // For each in-game name, try to find the matching discord ID in rankstats
-    // Matching is done by checking if the in-game name matches discord_name (case-insensitive)
-    // or if stats match (kills/deaths/etc - as a fallback for exact player matching)
     inGameNames.forEach(inGameName => {
         const inGameNameLower = inGameName.toLowerCase();
 
@@ -1079,48 +1099,7 @@ function buildProfileNameMappings() {
         }
     });
 
-    // Also check by matching stats (kills, deaths, etc.) for players whose names don't directly match
-    // This handles cases like "KidMode" in-game -> "Prince KidMode" discord_name
-    // We aggregate stats per in-game name from gameshistory and compare to rankstats
-    const inGameStats = {};
-    gamesData.forEach(game => {
-        game.players.forEach(player => {
-            if (!player.name) return;
-            if (!inGameStats[player.name]) {
-                inGameStats[player.name] = { kills: 0, deaths: 0, assists: 0, games: 0 };
-            }
-            inGameStats[player.name].kills += player.kills || 0;
-            inGameStats[player.name].deaths += player.deaths || 0;
-            inGameStats[player.name].assists += player.assists || 0;
-            inGameStats[player.name].games += 1;
-        });
-    });
-
-    // For in-game names not yet mapped, try to match by stats
-    for (const [inGameName, stats] of Object.entries(inGameStats)) {
-        if (profileNameToDiscordId[inGameName]) continue; // Already mapped
-        if (stats.games === 0) continue;
-
-        // Find rankstats entry with matching stats
-        for (const [discordId, data] of Object.entries(rankstatsData)) {
-            if (data.total_games !== stats.games) continue;
-            if (data.kills !== stats.kills) continue;
-            if (data.deaths !== stats.deaths) continue;
-            if (data.assists !== stats.assists) continue;
-
-            // Stats match exactly - this is likely the same player
-            profileNameToDiscordId[inGameName] = discordId;
-            if (!discordIdToProfileNames[discordId]) {
-                discordIdToProfileNames[discordId] = [];
-            }
-            if (!discordIdToProfileNames[discordId].includes(inGameName)) {
-                discordIdToProfileNames[discordId].push(inGameName);
-            }
-            break;
-        }
-    }
-
-    console.log('[MAPPINGS] Built mappings for', Object.keys(profileNameToDiscordId).length, 'in-game names');
+    console.log('[MAPPINGS] After name matching, total mapped:', Object.keys(profileNameToDiscordId).length, 'in-game names');
 }
 
 // Get the display name for an in-game profile name
@@ -1290,7 +1269,15 @@ async function loadGamesData() {
         console.log('[DEBUG] Response size:', text.length, 'bytes');
         
         gamesData = JSON.parse(text);
-        
+
+        // Filter out hidden games (not included in stats or viewing)
+        const totalGames = gamesData.length;
+        gamesData = gamesData.filter(game => !game.hidden);
+        const hiddenCount = totalGames - gamesData.length;
+        if (hiddenCount > 0) {
+            console.log('[DEBUG] Filtered out', hiddenCount, 'hidden game(s)');
+        }
+
         console.log('[DEBUG] Games loaded successfully!');
         console.log('[DEBUG] Number of games:', gamesData.length);
         console.log('[DEBUG] First game:', gamesData[0]);

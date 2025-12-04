@@ -1902,8 +1902,10 @@ header {
 }
 
 .weapon-icon {
-    height: 36px;
-    max-height: 36px;
+    height: 32px;
+    max-height: 32px;
+    min-width: 32px;
+    max-width: 80px;
     width: auto;
     object-fit: contain;
     filter: drop-shadow(0 0 3px rgba(168, 212, 255, 0.4));
@@ -1911,8 +1913,8 @@ header {
 }
 
 .weapon-placeholder {
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2053,8 +2055,11 @@ header {
 }
 
 .weapon-icon-small {
-    width: 28px;
     height: 28px;
+    max-height: 28px;
+    min-width: 28px;
+    max-width: 60px;
+    width: auto;
     object-fit: contain;
     filter: drop-shadow(0 0 2px rgba(168, 212, 255, 0.3));
     border-radius: 2px;
@@ -4095,11 +4100,15 @@ header {
     .weapon-icon {
         height: 28px;
         max-height: 28px;
+        min-width: 28px;
+        max-width: 60px;
         width: auto;
     }
 
     .weapon-icon-small {
         height: 22px;
+        min-width: 22px;
+        max-width: 50px;
         width: auto;
     }
     
