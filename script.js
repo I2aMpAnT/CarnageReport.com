@@ -1510,6 +1510,19 @@ function createGameItem(game, gameNumber) {
         }
     }
     
+    // Build download buttons HTML
+    let downloadButtons = '';
+    if (game.public_url || game.theater_url) {
+        downloadButtons = '<div class="game-download-buttons" onclick="event.stopPropagation()">';
+        if (game.public_url) {
+            downloadButtons += `<a href="${game.public_url}" class="download-btn download-stats" title="Download Stats" target="_blank">STATS</a>`;
+        }
+        if (game.theater_url) {
+            downloadButtons += `<a href="${game.theater_url}" class="download-btn download-theater" title="Download Theater" target="_blank">FILM</a>`;
+        }
+        downloadButtons += '</div>';
+    }
+
     gameDiv.innerHTML = `
         <div class="game-header-bar ${winnerClass}" onclick="toggleGameDetails(${gameNumber})">
             <div class="game-header-left">
@@ -1522,6 +1535,7 @@ function createGameItem(game, gameNumber) {
             </div>
             <div class="game-header-right">
                 ${game.playlist ? `<span class="game-meta-tag playlist-tag">${game.playlist}</span>` : ''}
+                ${downloadButtons}
                 ${dateDisplay ? `<span class="game-meta-tag date-tag">${dateDisplay}</span>` : ''}
                 <div class="expand-icon">▶</div>
             </div>

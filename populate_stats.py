@@ -10,10 +10,15 @@ Supports multiple playlists based on active matches from the Discord bot:
 import pandas as pd
 import json
 import os
+import requests
 from datetime import datetime
 
 # File paths
 STATS_DIR = 'stats'
+# VPS paths for downloadable files
+STATS_PUBLIC_DIR = '/home/carnagereport/stats/public'
+STATS_PRIVATE_DIR = '/home/carnagereport/stats/private'
+STATS_THEATER_DIR = '/home/carnagereport/stats/theater'
 RANKSTATS_FILE = 'rankstats.json'
 GAMESTATS_FILE = 'gamestats.json'
 MATCHHISTORY_FILE = 'matchhistory.json'
@@ -23,6 +28,15 @@ PLAYERS_FILE = 'players.json'
 EMBLEMS_FILE = 'emblems.json'
 ACTIVE_MATCHES_FILE = 'active_matches.json'
 RANKHISTORY_FILE = 'rankhistory.json'
+MANUAL_PLAYLISTS_FILE = 'manual_playlists.json'
+PROCESSED_STATE_FILE = 'processed_state.json'
+
+# Base URL for downloadable files on the VPS
+STATS_BASE_URL = 'http://104.207.143.249/stats'
+
+# Discord webhook for triggering bot rank refresh
+DISCORD_REFRESH_WEBHOOK = 'https://discord.com/api/webhooks/1445741545318780958/Vp-tbL32JhMu36j7qxG704GbWcgrJE9-JIdhUrpMMfAx3fpsGv82Sxi5F3r0lepor4fq'
+DISCORD_TRIGGER_CHANNEL_ID = 1427929973125156924
 
 # Default playlist name for 4v4 games (fallback)
 PLAYLIST_NAME = 'MLG 4v4'
@@ -30,12 +44,12 @@ PLAYLIST_NAME = 'MLG 4v4'
 # Valid MLG 4v4 combinations: map + base gametype (11 total)
 # These use "Game Type" field (CTF, Slayer, Oddball), NOT variant name
 VALID_MLG_4V4_COMBOS = {
-    "Midship": ["ctf", "slayer", "oddball"],      # 3 gametypes
+    "Midship": ["ctf", "slayer", "oddball", "assault"],  # 4 gametypes (includes MLG Bomb/Assault)
     "Beaver Creek": ["ctf", "slayer"],            # 2 gametypes
     "Lockout": ["slayer", "oddball"],             # 2 gametypes
-    "Warlock": ["slayer", "oddball"],             # 2 gametypes
+    "Warlock": ["ctf", "slayer", "oddball"],      # 3 gametypes
     "Sanctuary": ["ctf", "slayer"]                # 2 gametypes
-}  # Total: 11 combos
+}  # Total: 12 combos
 
 # Minimum game duration in seconds to count (filters out restarts)
 MIN_GAME_DURATION_SECONDS = 120  # 2 minutes
@@ -116,6 +130,97 @@ def load_active_matches():
     except:
         return None
 
+def load_manual_playlists():
+    """
+    Load manual_playlists.json for manually flagging games with a playlist.
+
+    Expected format:
+    {
+        "20251128_201839.xlsx": "MLG 4v4",
+        "20251128_202256.xlsx": "MLG 4v4",
+        ...
+    }
+
+    Maps game filename to playlist name. Games listed here will be ranked
+    even without a bot session.
+    """
+    try:
+        with open(MANUAL_PLAYLISTS_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
+def load_processed_state():
+    """
+    Load processed_state.json which tracks what has been processed.
+
+    Format:
+    {
+        "games": {
+            "filename.xlsx": "playlist_or_null"
+        },
+        "manual_playlists_hash": "hash_of_manual_playlists_json"
+    }
+    """
+    try:
+        with open(PROCESSED_STATE_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return {"games": {}, "manual_playlists_hash": ""}
+
+def save_processed_state(state):
+    """Save processed state to file"""
+    with open(PROCESSED_STATE_FILE, 'w') as f:
+        json.dump(state, f, indent=2)
+
+def get_manual_playlists_hash(manual_playlists):
+    """Get a hash of manual_playlists to detect changes"""
+    import hashlib
+    content = json.dumps(manual_playlists, sort_keys=True)
+    return hashlib.md5(content.encode()).hexdigest()
+
+def check_for_changes(stats_files, manual_playlists, processed_state):
+    """
+    Check what needs to be processed.
+
+    Returns:
+        (needs_full_rebuild, new_files, changed_playlists)
+        - needs_full_rebuild: True if we need to recalc everything
+        - new_files: List of new game files to process
+        - changed_playlists: Dict of files whose playlist changed
+    """
+    old_games = processed_state.get("games", {})
+    old_hash = processed_state.get("manual_playlists_hash", "")
+    new_hash = get_manual_playlists_hash(manual_playlists)
+
+    new_files = []
+    changed_playlists = {}
+
+    for filename in stats_files:
+        old_playlist = old_games.get(filename)
+        new_playlist = manual_playlists.get(filename)  # None if not in manual
+
+        if filename not in old_games:
+            # Brand new file
+            new_files.append(filename)
+        elif old_playlist != new_playlist:
+            # Playlist assignment changed
+            changed_playlists[filename] = {"old": old_playlist, "new": new_playlist}
+
+    # If any old game's playlist changed, we need full rebuild
+    # (because XP calculations depend on game order and player rank at time)
+    needs_full_rebuild = len(changed_playlists) > 0
+
+    return needs_full_rebuild, new_files, changed_playlists
+
+
+def load_player_state_from_processed(processed_state):
+    """
+    Load saved player XP/rank state from processed_state.json.
+    Returns dict of {user_id: {playlist: {'xp': int, 'rank': int, ...}}}
+    """
+    return processed_state.get("player_state", {})
+
 def is_valid_mlg_combo(map_name, base_gametype):
     """Check if map + base gametype is a valid MLG 4v4 combination.
 
@@ -128,9 +233,17 @@ def is_valid_mlg_combo(map_name, base_gametype):
     valid_gametypes = VALID_MLG_4V4_COMBOS[map_name]
     base_gametype_lower = base_gametype.lower()
 
+    # Normalize game type names (handle both "CTF" and "capture_the_flag" etc.)
+    gametype_aliases = {
+        'capture_the_flag': 'ctf',
+        'king_of_the_hill': 'koth',
+        'king': 'koth',
+    }
+    normalized_gametype = gametype_aliases.get(base_gametype_lower, base_gametype_lower)
+
     # Check if base gametype matches any valid type for this map
     for valid_type in valid_gametypes:
-        if valid_type in base_gametype_lower:
+        if valid_type in normalized_gametype or normalized_gametype in valid_type:
             return True
     return False
 
@@ -219,15 +332,21 @@ def players_match_active_match(game_players, active_match):
     # At least 75% of game players should be in active match
     return matches >= len(game_players) * 0.75
 
-def determine_playlist(file_path, active_match=None):
+def determine_playlist(file_path, active_match=None, manual_playlists=None):
     """
     Determine the appropriate playlist for a game based on:
-    1. Game duration (must be >= 2 minutes to filter restarts)
-    2. Active match from Discord bot (if any)
-    3. Game characteristics (player count, teams, map + base gametype)
+    1. Manual override from manual_playlists.json (highest priority)
+    2. Game duration (must be >= 2 minutes to filter restarts)
+    3. Active match from Discord bot (if any)
 
     Returns: playlist name string or None if game doesn't qualify for any playlist
     """
+    # Check manual override first (highest priority)
+    if manual_playlists:
+        filename = os.path.basename(file_path)
+        if filename in manual_playlists:
+            return manual_playlists[filename]
+
     # Filter out short games (restarts)
     if not is_game_long_enough(file_path):
         return None
@@ -271,12 +390,75 @@ def determine_playlist(file_path, active_match=None):
                     if players_match_active_match(game_players, active_match):
                         return active_playlist
 
-    # Fallback: No active match or game doesn't match active match
-    # Default behavior: 4v4 team games with valid combos go to MLG 4v4
-    if player_count == 8 and is_team and is_valid_mlg_combo(map_name, base_gametype):
-        return PLAYLIST_MLG_4V4
-
+    # No active match or game doesn't match active match = UNRANKED
+    # Games MUST have a bot session to be tagged with a playlist
     return None
+
+def build_mac_to_discord_lookup(players):
+    """
+    Build a lookup from MAC address to Discord user_id from players.json.
+    MAC addresses are normalized to lowercase without colons.
+    """
+    mac_to_user = {}
+    for user_id, data in players.items():
+        mac_addresses = data.get('mac_addresses', [])
+        for mac in mac_addresses:
+            # Normalize MAC: remove colons and lowercase
+            normalized_mac = mac.replace(':', '').lower()
+            mac_to_user[normalized_mac] = user_id
+    return mac_to_user
+
+
+def parse_identity_file(identity_path):
+    """
+    Parse an identity XLSX file and return a mapping of in-game name to MAC address.
+    Identity files contain: Player Name, Xbox Identifier, Machine Identifier (MAC)
+    """
+    try:
+        df = pd.read_excel(identity_path)
+        name_to_mac = {}
+        for _, row in df.iterrows():
+            player_name = str(row.get('Player Name', '')).strip()
+            # Machine Identifier is the MAC address (without colons)
+            mac = str(row.get('Machine Identifier', '')).strip().lower()
+            if player_name and mac:
+                name_to_mac[player_name.lower()] = mac
+        return name_to_mac
+    except Exception as e:
+        print(f"  Warning: Could not parse identity file {identity_path}: {e}")
+        return {}
+
+
+def get_identity_file_for_game(game_file):
+    """
+    Find the corresponding identity file for a game file.
+    Game files: 20251128_201839.xlsx
+    Identity files: 20251128_074332_identity.xlsx (use closest timestamp before game)
+    """
+    import re
+    game_basename = os.path.basename(game_file)
+    game_timestamp = game_basename.replace('.xlsx', '')
+
+    # Look for identity files in the same directory
+    stats_dir = os.path.dirname(game_file) or STATS_DIR
+    identity_files = sorted([f for f in os.listdir(stats_dir) if '_identity.xlsx' in f])
+
+    if not identity_files:
+        return None
+
+    # Find the most recent identity file with timestamp <= game timestamp
+    best_identity = None
+    for identity_file in identity_files:
+        identity_timestamp = identity_file.replace('_identity.xlsx', '')
+        if identity_timestamp <= game_timestamp:
+            best_identity = identity_file
+
+    # If no identity file before, use the earliest one
+    if not best_identity and identity_files:
+        best_identity = identity_files[0]
+
+    return os.path.join(stats_dir, best_identity) if best_identity else None
+
 
 def build_profile_lookup(players):
     """
@@ -307,6 +489,95 @@ def build_profile_lookup(players):
                 profile_to_user[alias.lower()] = user_id
 
     return profile_to_user
+
+
+def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord, profile_lookup, rankstats):
+    """
+    Resolve a player's in-game name to their Discord ID using multiple methods.
+
+    Priority:
+    1. Identity file MAC -> Discord ID (most reliable)
+    2. Profile lookup from players.json aliases
+    3. Discord name match in rankstats
+    """
+    name_lower = player_name.strip().lower()
+
+    # Method 1: Use identity file MAC address
+    if name_lower in identity_name_to_mac:
+        mac = identity_name_to_mac[name_lower]
+        if mac in mac_to_discord:
+            return mac_to_discord[mac]
+
+    # Method 2: Profile lookup (aliases, display_name, stats_profile)
+    if name_lower in profile_lookup:
+        return profile_lookup[name_lower]
+
+    # Method 3: Discord name match in rankstats
+    for user_id, data in rankstats.items():
+        discord_name = data.get('discord_name', '').lower()
+        if discord_name == name_lower:
+            return user_id
+
+    return None
+
+def get_download_urls(game_filename):
+    """
+    Get download URLs for public stats and theater files based on game filename.
+
+    Args:
+        game_filename: The game stats filename (e.g., '20251128_201839.xlsx')
+
+    Returns:
+        dict with 'public_url' and 'theater_url' (None if file doesn't exist)
+    """
+    # Extract timestamp from filename (remove .xlsx extension)
+    timestamp = game_filename.replace('.xlsx', '')
+
+    downloads = {
+        'public_url': None,
+        'theater_url': None
+    }
+
+    # Check for public stats file
+    public_filename = f"{timestamp}.xlsx"
+    public_path = os.path.join(STATS_PUBLIC_DIR, public_filename)
+    if os.path.exists(public_path):
+        downloads['public_url'] = f"{STATS_BASE_URL}/public/{public_filename}"
+
+    # Check for theater file (.csv)
+    theater_filename = f"{timestamp}.csv"
+    theater_path = os.path.join(STATS_THEATER_DIR, theater_filename)
+    if os.path.exists(theater_path):
+        downloads['theater_url'] = f"{STATS_BASE_URL}/theater/{theater_filename}"
+
+    return downloads
+
+
+def get_all_game_files():
+    """
+    Get all game files from both local stats dir and VPS public folder.
+    Returns a list of tuples: (filename, source_dir)
+    """
+    game_files = []
+
+    # Local stats directory
+    if os.path.exists(STATS_DIR):
+        for f in os.listdir(STATS_DIR):
+            if f.endswith('.xlsx') and '_identity' not in f:
+                game_files.append((f, STATS_DIR))
+
+    # VPS public directory (if accessible)
+    if os.path.exists(STATS_PUBLIC_DIR):
+        for f in os.listdir(STATS_PUBLIC_DIR):
+            if f.endswith('.xlsx') and '_identity' not in f:
+                # Only add if not already in the list
+                if not any(gf[0] == f for gf in game_files):
+                    game_files.append((f, STATS_PUBLIC_DIR))
+
+    # Sort by filename (timestamp)
+    game_files.sort(key=lambda x: x[0])
+    return game_files
+
 
 def calculate_rank(xp, rank_thresholds):
     """Calculate rank based on XP and thresholds."""
@@ -570,6 +841,10 @@ def main():
     profile_lookup = build_profile_lookup(players)
     print(f"Built {len(profile_lookup)} profile->user mappings")
 
+    # Build MAC address to Discord ID lookup from players.json
+    mac_to_discord = build_mac_to_discord_lookup(players)
+    print(f"Built {len(mac_to_discord)} MAC->Discord mappings")
+
     # Load active matches from Discord bot (if any)
     active_match = load_active_matches()
     if active_match:
@@ -579,30 +854,92 @@ def main():
         if active_match.get('blue_team'):
             print(f"  Blue team: {', '.join(active_match['blue_team'])}")
     else:
-        print("\nNo active match detected - using default playlist detection")
+        print("\nNo active match detected")
 
-    # STEP 1: Zero out ALL player stats
-    print("\nStep 1: Zeroing out all player stats...")
-    for user_id in rankstats:
-        rankstats[user_id]['xp'] = 0
-        rankstats[user_id]['wins'] = 0
-        rankstats[user_id]['losses'] = 0
-        rankstats[user_id]['total_games'] = 0
-        rankstats[user_id]['series_wins'] = 0
-        rankstats[user_id]['series_losses'] = 0
-        rankstats[user_id]['total_series'] = 0
-        rankstats[user_id]['rank'] = 1
-        # Remove any detailed stats
-        for key in ['kills', 'deaths', 'assists', 'headshots']:
-            if key in rankstats[user_id]:
-                del rankstats[user_id][key]
+    # Load manual playlist overrides (if any)
+    manual_playlists = load_manual_playlists()
+    if manual_playlists:
+        print(f"Loaded {len(manual_playlists)} manual playlist override(s)")
 
-    print(f"  Zeroed stats for {len(rankstats)} players")
+    # Check for changes since last run - use get_all_game_files() which checks all directories
+    all_game_files = get_all_game_files()
+    stats_files = sorted([f[0] for f in all_game_files])  # Extract just filenames
+    processed_state = load_processed_state()
+    needs_full_rebuild, new_files, changed_playlists = check_for_changes(stats_files, manual_playlists, processed_state)
+
+    if not new_files and not changed_playlists:
+        print("\nNo changes detected - nothing to process!")
+        print("  (Add new game files or update manual_playlists.json to trigger processing)")
+        return
+
+    print(f"\nChanges detected:")
+    if new_files:
+        print(f"  New files: {len(new_files)}")
+        for f in new_files[:5]:
+            print(f"    - {f}")
+        if len(new_files) > 5:
+            print(f"    ... and {len(new_files) - 5} more")
+    if changed_playlists:
+        print(f"  Playlist changes: {len(changed_playlists)}")
+        for f, change in list(changed_playlists.items())[:3]:
+            print(f"    - {f}: {change['old']} -> {change['new']}")
+
+    # Determine processing mode
+    incremental_mode = not needs_full_rebuild and len(new_files) > 0
+    saved_player_state = load_player_state_from_processed(processed_state) if incremental_mode else {}
+
+    if needs_full_rebuild:
+        print("\n  -> Playlist changes require full recalculation from start")
+    elif incremental_mode and saved_player_state:
+        print("\n  -> Incremental mode: resuming from saved state, processing new games only")
+    else:
+        print("\n  -> Full processing (no saved state found)")
+        incremental_mode = False
+
+    # STEP 1: Zero out or restore player stats
+    if incremental_mode and saved_player_state:
+        print("\nStep 1: Restoring player stats from saved state...")
+        for user_id, state in saved_player_state.items():
+            if user_id in rankstats:
+                # Restore per-playlist state
+                for playlist, pl_state in state.get('playlist_stats', {}).items():
+                    if 'playlist_stats' not in rankstats[user_id]:
+                        rankstats[user_id]['playlist_stats'] = {}
+                    rankstats[user_id]['playlist_stats'][playlist] = pl_state.copy()
+                    rankstats[user_id][playlist] = pl_state.get('rank', 1)
+                # Restore overall stats
+                rankstats[user_id]['xp'] = state.get('xp', 0)
+                rankstats[user_id]['rank'] = state.get('rank', 1)
+                rankstats[user_id]['wins'] = state.get('wins', 0)
+                rankstats[user_id]['losses'] = state.get('losses', 0)
+                rankstats[user_id]['total_games'] = state.get('total_games', 0)
+                rankstats[user_id]['kills'] = state.get('kills', 0)
+                rankstats[user_id]['deaths'] = state.get('deaths', 0)
+                rankstats[user_id]['assists'] = state.get('assists', 0)
+                rankstats[user_id]['headshots'] = state.get('headshots', 0)
+                rankstats[user_id]['highest_rank'] = state.get('highest_rank', 1)
+        print(f"  Restored state for {len(saved_player_state)} players")
+    else:
+        print("\nStep 1: Zeroing out all player stats...")
+        for user_id in rankstats:
+            rankstats[user_id]['xp'] = 0
+            rankstats[user_id]['wins'] = 0
+            rankstats[user_id]['losses'] = 0
+            rankstats[user_id]['total_games'] = 0
+            rankstats[user_id]['series_wins'] = 0
+            rankstats[user_id]['series_losses'] = 0
+            rankstats[user_id]['total_series'] = 0
+            rankstats[user_id]['rank'] = 1
+            # Remove any detailed stats
+            for key in ['kills', 'deaths', 'assists', 'headshots']:
+                if key in rankstats[user_id]:
+                    del rankstats[user_id][key]
+        print(f"  Zeroed stats for {len(rankstats)} players")
 
     # STEP 2: Find and parse ALL games, determining playlist for each
     # ALL matches are logged for stats, but only playlist-tagged matches count for rank
     print("\nStep 2: Finding and categorizing games...")
-    stats_files = sorted([f for f in os.listdir(STATS_DIR) if f.endswith('.xlsx')])
+    all_game_files = get_all_game_files()  # Returns list of (filename, source_dir) tuples
 
     # Store ALL games (for stats tracking)
     all_games = []
@@ -610,13 +947,18 @@ def main():
     games_by_playlist = {}
     untagged_games = []
 
-    for filename in stats_files:
-        file_path = os.path.join(STATS_DIR, filename)
-        playlist = determine_playlist(file_path, active_match)
+    for filename, source_dir in all_game_files:
+        file_path = os.path.join(source_dir, filename)
+        playlist = determine_playlist(file_path, active_match, manual_playlists)
 
         game = parse_excel_file(file_path)
         game['source_file'] = filename
         game['playlist'] = playlist  # Will be None for untagged games
+
+        # Add download URLs for public stats and theater files
+        downloads = get_download_urls(filename)
+        game['public_url'] = downloads['public_url']
+        game['theater_url'] = downloads['theater_url']
 
         # ALL games go into all_games for stats tracking
         all_games.append(game)
@@ -661,56 +1003,95 @@ def main():
     player_playlist_losses = {}  # {player_name: {playlist: losses}}
     player_playlist_games = {}  # {player_name: {playlist: games}}
 
+    # Parse all identity files and build per-game name->MAC mappings
+    # Each identity file covers a session, use it for games in that session
+    print("\n  Loading identity files for MAC->name resolution...")
+    all_identity_mappings = {}  # {identity_file: {name_lower: mac}}
+    # Identity files are in the private directory
+    identity_dir = STATS_PRIVATE_DIR if os.path.exists(STATS_PRIVATE_DIR) else STATS_DIR
+    identity_files = sorted([f for f in os.listdir(identity_dir) if '_identity.xlsx' in f]) if os.path.exists(identity_dir) else []
+    for identity_file in identity_files:
+        identity_path = os.path.join(identity_dir, identity_file)
+        name_to_mac = parse_identity_file(identity_path)
+        all_identity_mappings[identity_file] = name_to_mac
+        print(f"    {identity_file}: {len(name_to_mac)} player(s)")
+
+    # Get combined identity mapping (for games that don't have a specific identity file)
+    combined_identity = {}
+    for mapping in all_identity_mappings.values():
+        combined_identity.update(mapping)
+
     # First, identify all players from ALL games and match them to rankstats
+    # Uses identity file MAC -> Discord ID resolution (game by game)
     all_player_names = set()
+    player_to_id = {}  # {player_name: discord_id}
+
     for game in all_games:
-        for player in game['players']:
-            all_player_names.add(player['name'])
+        game_file = game.get('source_file', '')
+        file_path = os.path.join(STATS_DIR, game_file)
 
-    # Match players to existing entries or create new ones
-    # Uses MAC ID-linked profile matching from players.json
-    player_to_id = {}
-    for player_name in all_player_names:
-        user_id = find_player_by_name(rankstats, player_name, profile_lookup)
-        if user_id:
-            player_to_id[player_name] = user_id
-            # Update alias from players.json if available
-            if user_id in players:
-                player_data = players[user_id]
-                # Set alias from first entry in aliases array (for website display)
-                # Priority: aliases[0] > display_name
-                aliases = player_data.get('aliases', [])
-                if aliases:
-                    rankstats[user_id]['alias'] = aliases[0]
-                elif player_data.get('display_name'):
-                    rankstats[user_id]['alias'] = player_data['display_name']
+        # Find and use the identity file for this game's session
+        identity_file = get_identity_file_for_game(file_path)
+        if identity_file:
+            identity_basename = os.path.basename(identity_file)
+            identity_name_to_mac = all_identity_mappings.get(identity_basename, {})
         else:
-            # Create new entry for unmatched player
-            temp_id = str(abs(hash(player_name)) % 10**18)
-            player_to_id[player_name] = temp_id
-            rankstats[temp_id] = {
-                'xp': 0,
-                'wins': 0,
-                'losses': 0,
-                'series_wins': 0,
-                'series_losses': 0,
-                'total_games': 0,
-                'total_series': 0,
-                'mmr': 750,
-                'discord_name': player_name,
-                'rank': 1
-            }
+            identity_name_to_mac = combined_identity
 
-        # Initialize overall stats tracking (from ALL games)
-        player_game_stats[player_name] = {
-            'kills': 0, 'deaths': 0, 'assists': 0,
-            'games': 0, 'headshots': 0
-        }
-        # Initialize per-playlist tracking (only from ranked games)
-        player_playlist_xp[player_name] = {}
-        player_playlist_wins[player_name] = {}
-        player_playlist_losses[player_name] = {}
-        player_playlist_games[player_name] = {}
+        for player in game['players']:
+            player_name = player['name']
+            all_player_names.add(player_name)
+
+            # Skip if already resolved
+            if player_name in player_to_id:
+                continue
+
+            # Resolve player using identity MAC -> Discord ID
+            user_id = resolve_player_to_discord(
+                player_name, identity_name_to_mac, mac_to_discord, profile_lookup, rankstats
+            )
+
+            if user_id:
+                player_to_id[player_name] = user_id
+                # Update alias from players.json if available
+                if user_id in players:
+                    player_data = players[user_id]
+                    # Set alias from first entry in aliases array (for website display)
+                    # Priority: aliases[0] > display_name
+                    aliases = player_data.get('aliases', [])
+                    if aliases:
+                        rankstats[user_id]['alias'] = aliases[0]
+                    elif player_data.get('display_name'):
+                        rankstats[user_id]['alias'] = player_data['display_name']
+            else:
+                # Create new entry for unmatched player
+                temp_id = str(abs(hash(player_name)) % 10**18)
+                player_to_id[player_name] = temp_id
+                rankstats[temp_id] = {
+                    'xp': 0,
+                    'wins': 0,
+                    'losses': 0,
+                    'series_wins': 0,
+                    'series_losses': 0,
+                    'total_games': 0,
+                    'total_series': 0,
+                    'mmr': 750,
+                    'discord_name': player_name,
+                    'rank': 1
+                }
+                print(f"    Warning: Could not resolve '{player_name}' to Discord ID")
+
+            # Initialize overall stats tracking (from ALL games) - only if not already initialized
+            if player_name not in player_game_stats:
+                player_game_stats[player_name] = {
+                    'kills': 0, 'deaths': 0, 'assists': 0,
+                    'games': 0, 'headshots': 0
+                }
+                # Initialize per-playlist tracking (only from ranked games)
+                player_playlist_xp[player_name] = {}
+                player_playlist_wins[player_name] = {}
+                player_playlist_losses[player_name] = {}
+                player_playlist_games[player_name] = {}
 
     # Track current rank per player per playlist
     player_playlist_rank = {}  # {player_name: {playlist: rank}}
@@ -720,15 +1101,45 @@ def main():
         player_playlist_rank[name] = {}
         player_playlist_highest_rank[name] = {}
 
+    # In incremental mode, restore player XP/rank state from saved state
+    if incremental_mode and saved_player_state:
+        print("\n  Restoring player XP/rank state from saved state...")
+        for user_id, state in saved_player_state.items():
+            # Find player names that map to this user_id
+            for player_name, pid in player_to_id.items():
+                if pid == user_id:
+                    # Restore per-playlist XP and rank
+                    for playlist, pl_state in state.get('playlist_stats', {}).items():
+                        player_playlist_xp[player_name][playlist] = pl_state.get('xp', 0)
+                        player_playlist_rank[player_name][playlist] = pl_state.get('rank', 1)
+                        player_playlist_highest_rank[player_name][playlist] = pl_state.get('highest_rank', 1)
+                        player_playlist_wins[player_name][playlist] = pl_state.get('wins', 0)
+                        player_playlist_losses[player_name][playlist] = pl_state.get('losses', 0)
+                        player_playlist_games[player_name][playlist] = pl_state.get('games', 0)
+                    # Restore game stats (kills, deaths, etc.)
+                    if player_name in player_game_stats:
+                        player_game_stats[player_name]['kills'] = state.get('kills', 0)
+                        player_game_stats[player_name]['deaths'] = state.get('deaths', 0)
+                        player_game_stats[player_name]['assists'] = state.get('assists', 0)
+                        player_game_stats[player_name]['headshots'] = state.get('headshots', 0)
+                        player_game_stats[player_name]['games'] = state.get('total_games', 0)
+
     # Initialize rank history tracking (for rankhistory.json)
     # Structure: {discord_id: {"discord_name": str, "history": [...]}}
-    rankhistory = {}
+    rankhistory = load_rankhistory() if incremental_mode else {}
 
     print(f"  Found {len(all_player_names)} unique players")
 
-    # STEP 3a: Process ALL games for stats (kills, deaths, etc.)
-    print("\n  Processing ALL games for stats...")
-    for game_num, game in enumerate(all_games, 1):
+    # STEP 3a: Process games for stats (kills, deaths, etc.)
+    # In incremental mode, only process new games (old stats restored from saved state)
+    if incremental_mode:
+        games_to_process_for_stats = [g for g in all_games if g.get('source_file') in new_files]
+        print(f"\n  Processing {len(games_to_process_for_stats)} NEW games for stats (incremental mode)...")
+    else:
+        games_to_process_for_stats = all_games
+        print(f"\n  Processing {len(games_to_process_for_stats)} games for stats...")
+
+    for game_num, game in enumerate(games_to_process_for_stats, 1):
         game_name = game['details'].get('Variant Name', 'Unknown')
         playlist = game.get('playlist')
         playlist_tag = f"[{playlist}]" if playlist else "[UNRANKED]"
@@ -736,18 +1147,25 @@ def main():
         for player in game['players']:
             player_name = player['name']
 
-            # Update cumulative stats from ALL games
+            # Update cumulative stats
             player_game_stats[player_name]['kills'] += player.get('kills', 0)
             player_game_stats[player_name]['deaths'] += player.get('deaths', 0)
             player_game_stats[player_name]['assists'] += player.get('assists', 0)
             player_game_stats[player_name]['headshots'] += player.get('head_shots', 0)
             player_game_stats[player_name]['games'] += 1
 
-    print(f"  Processed {len(all_games)} games for stats")
+    print(f"  Processed {len(games_to_process_for_stats)} games for stats")
 
     # STEP 3b: Process RANKED games for XP/wins/losses (per playlist)
-    print("\n  Processing RANKED games for XP (per playlist)...")
-    for game_num, game in enumerate(ranked_games, 1):
+    # In incremental mode, only process new games
+    if incremental_mode:
+        games_to_process_for_xp = [g for g in ranked_games if g.get('source_file') in new_files]
+        print(f"\n  Processing {len(games_to_process_for_xp)} NEW ranked games for XP (incremental mode)...")
+    else:
+        games_to_process_for_xp = ranked_games
+        print(f"\n  Processing {len(games_to_process_for_xp)} RANKED games for XP (per playlist)...")
+
+    for game_num, game in enumerate(games_to_process_for_xp, 1):
         winners, losers = determine_winners_losers(game)
         game_name = game['details'].get('Variant Name', 'Unknown')
         playlist = game.get('playlist')
@@ -847,38 +1265,74 @@ def main():
     # STEP 4: Update rankstats with final values
     print("\n\nStep 4: Updating rankstats with final values...")
 
+    # Group player names by user_id to consolidate stats for aliases
+    user_id_to_names = {}
     for player_name in all_player_names:
         user_id = player_to_id[player_name]
-        stats = player_game_stats[player_name]
+        if user_id not in user_id_to_names:
+            user_id_to_names[user_id] = []
+        user_id_to_names[user_id].append(player_name)
 
-        # Overall stats from ALL games
-        rankstats[user_id]['total_games'] = stats['games']
-        rankstats[user_id]['kills'] = stats['kills']
-        rankstats[user_id]['deaths'] = stats['deaths']
-        rankstats[user_id]['assists'] = stats['assists']
-        rankstats[user_id]['headshots'] = stats['headshots']
+    for user_id, player_names in user_id_to_names.items():
+        # Consolidate stats from all aliases for this user
+        total_games = 0
+        total_kills = 0
+        total_deaths = 0
+        total_assists = 0
+        total_headshots = 0
 
-        # Calculate total wins/losses across all playlists (for legacy compatibility)
-        total_wins = sum(player_playlist_wins[player_name].values())
-        total_losses = sum(player_playlist_losses[player_name].values())
-        total_ranked_games = sum(player_playlist_games[player_name].values())
+        for player_name in player_names:
+            stats = player_game_stats[player_name]
+            total_games += stats['games']
+            total_kills += stats['kills']
+            total_deaths += stats['deaths']
+            total_assists += stats['assists']
+            total_headshots += stats['headshots']
+
+        # Overall stats from ALL games (consolidated)
+        rankstats[user_id]['total_games'] = total_games
+        rankstats[user_id]['kills'] = total_kills
+        rankstats[user_id]['deaths'] = total_deaths
+        rankstats[user_id]['assists'] = total_assists
+        rankstats[user_id]['headshots'] = total_headshots
+
+        # Calculate total wins/losses across all playlists and all aliases
+        total_wins = 0
+        total_losses = 0
+        for player_name in player_names:
+            total_wins += sum(player_playlist_wins[player_name].values())
+            total_losses += sum(player_playlist_losses[player_name].values())
 
         rankstats[user_id]['wins'] = total_wins
         rankstats[user_id]['losses'] = total_losses
 
-        # Per-playlist ranking data
+        # Per-playlist ranking data (consolidated from all aliases)
+        # First, collect all playlists this user played in across all aliases
+        all_playlists = set()
+        for player_name in player_names:
+            all_playlists.update(player_playlist_xp[player_name].keys())
+
         playlists_data = {}
         overall_highest_rank = 1
         primary_playlist = None
         primary_xp = 0
 
-        for playlist in player_playlist_xp[player_name]:
-            playlist_xp = player_playlist_xp[player_name][playlist]
+        for playlist in all_playlists:
+            # Sum stats across all aliases for this playlist
+            playlist_xp = 0
+            playlist_highest = 1
+            playlist_wins = 0
+            playlist_losses = 0
+            playlist_games = 0
+
+            for player_name in player_names:
+                playlist_xp += player_playlist_xp[player_name].get(playlist, 0)
+                playlist_highest = max(playlist_highest, player_playlist_highest_rank[player_name].get(playlist, 1))
+                playlist_wins += player_playlist_wins[player_name].get(playlist, 0)
+                playlist_losses += player_playlist_losses[player_name].get(playlist, 0)
+                playlist_games += player_playlist_games[player_name].get(playlist, 0)
+
             playlist_rank = calculate_rank(playlist_xp, rank_thresholds)
-            playlist_highest = player_playlist_highest_rank[player_name].get(playlist, 1)
-            playlist_wins = player_playlist_wins[player_name].get(playlist, 0)
-            playlist_losses = player_playlist_losses[player_name].get(playlist, 0)
-            playlist_games = player_playlist_games[player_name].get(playlist, 0)
 
             playlists_data[playlist] = {
                 'xp': playlist_xp,
@@ -902,7 +1356,7 @@ def main():
                 primary_playlist = playlist
 
         # Store playlist details
-        rankstats[user_id]['playlists'] = playlists_data
+        rankstats[user_id]['playlist_stats'] = playlists_data
 
         # For legacy compatibility: use primary playlist's XP/rank as the main one
         if primary_playlist:
@@ -1046,7 +1500,48 @@ def main():
     # Note: Website now loads data via fetch() from JSON files
     # No need to embed data in HTML anymore
 
+    # Save processed state for incremental updates
+    print("\n  Saving processed state for future incremental updates...")
+    new_player_state = {}
+    for user_id, data in rankstats.items():
+        # Only save players with actual game data
+        if data.get('total_games', 0) > 0 or data.get('wins', 0) > 0 or data.get('losses', 0) > 0:
+            new_player_state[user_id] = {
+                'xp': data.get('xp', 0),
+                'rank': data.get('rank', 1),
+                'wins': data.get('wins', 0),
+                'losses': data.get('losses', 0),
+                'total_games': data.get('total_games', 0),
+                'kills': data.get('kills', 0),
+                'deaths': data.get('deaths', 0),
+                'assists': data.get('assists', 0),
+                'headshots': data.get('headshots', 0),
+                'highest_rank': data.get('highest_rank', 1),
+                'playlist_stats': data.get('playlist_stats', {})
+            }
+
+    new_processed_state = {
+        "games": {game['source_file']: game.get('playlist') for game in all_games},
+        "manual_playlists_hash": get_manual_playlists_hash(manual_playlists),
+        "player_state": new_player_state
+    }
+    save_processed_state(new_processed_state)
+    print(f"  Saved {PROCESSED_STATE_FILE} ({len(new_player_state)} players, {len(all_games)} games)")
+
     print("\nDone!")
+
+    # Trigger Discord bot to refresh ranks
+    print("\nTriggering Discord bot rank refresh...")
+    try:
+        response = requests.post(DISCORD_REFRESH_WEBHOOK, json={
+            "content": "!refresh_ranks_trigger"
+        })
+        if response.status_code == 204:
+            print("  Discord webhook sent successfully!")
+        else:
+            print(f"  Warning: Webhook returned status {response.status_code}")
+    except Exception as e:
+        print(f"  Error sending webhook: {e}")
 
 
 if __name__ == '__main__':

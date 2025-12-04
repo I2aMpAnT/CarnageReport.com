@@ -115,6 +115,72 @@ header {
     filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.6));
 }
 
+/* OBS Dropdown Menu */
+.header-icon-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.header-icon-dropdown .header-icon {
+    cursor: pointer;
+}
+
+.header-icon-dropdown .obs-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-icon-dropdown .obs-icon img {
+    filter: brightness(0.7);
+    transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+.header-icon-dropdown:hover .obs-icon img {
+    filter: brightness(1) drop-shadow(0 0 8px rgba(0, 217, 255, 0.6));
+    transform: scale(1.1);
+}
+
+.header-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    min-width: 140px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.header-icon-dropdown:hover .header-dropdown-menu {
+    display: block;
+}
+
+.header-dropdown-menu a {
+    display: block;
+    padding: 12px 16px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    transition: background 0.2s ease, color 0.2s ease;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.header-dropdown-menu a:hover {
+    background: rgba(0, 217, 255, 0.1);
+    color: var(--primary-color);
+}
+
 .subtitle {
     font-family: 'Share Tech Mono', monospace;
     font-size: 14px;
@@ -431,6 +497,52 @@ header {
     font-size: 12px;
     opacity: 0.9;
     white-space: nowrap;
+}
+
+/* Download buttons for game cards */
+.game-download-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 10px;
+}
+
+.download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 200, 255, 0.3);
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--unsc-blue);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.download-btn:hover {
+    background: rgba(0, 200, 255, 0.2);
+    border-color: var(--unsc-blue);
+    transform: scale(1.1);
+}
+
+.download-stats:hover {
+    box-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+}
+
+.download-theater {
+    color: #ffc800;
+    border-color: rgba(255, 200, 0, 0.3);
+}
+
+.download-theater:hover {
+    box-shadow: 0 0 10px rgba(255, 200, 0, 0.5);
+    border-color: #ffc800;
+    background: rgba(255, 200, 0, 0.2);
 }
 
 .expand-icon {
