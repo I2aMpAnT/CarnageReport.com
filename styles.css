@@ -132,12 +132,14 @@ header {
 }
 
 .header-icon-dropdown .obs-icon img {
-    filter: brightness(0.7);
-    transition: filter 0.3s ease, transform 0.2s ease;
+    filter: brightness(0.5) saturate(0);
+    opacity: 0.6;
+    transition: filter 0.3s ease, transform 0.2s ease, opacity 0.3s ease;
 }
 
 .header-icon-dropdown:hover .obs-icon img {
-    filter: brightness(1) drop-shadow(0 0 8px rgba(0, 217, 255, 0.6));
+    filter: brightness(1) saturate(1) drop-shadow(0 0 8px rgba(0, 217, 255, 0.6));
+    opacity: 1;
     transform: scale(1.1);
 }
 
@@ -153,7 +155,19 @@ header {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     z-index: 1000;
     overflow: hidden;
-    margin-top: 8px;
+    margin-top: 0;
+    padding-top: 8px;
+    background-clip: padding-box;
+}
+
+/* Invisible bridge to prevent dropdown from closing when moving mouse to it */
+.header-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
 }
 
 .header-icon-dropdown:hover .header-dropdown-menu {
