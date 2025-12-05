@@ -3423,6 +3423,8 @@ function openSearchResultsPage(type, name) {
         const iconHtml = weaponIcon ? `<img src="${weaponIcon}" class="title-weapon-icon" alt="${name}">` : '';
         searchResultsTitle.innerHTML = `${iconHtml} ${formatWeaponName(name)}`;
         searchResultsContent.innerHTML = renderWeaponSearchResults(name);
+        // Load emblems for weapon leaderboard
+        loadBreakdownEmblems();
     }
 }
 
@@ -3765,10 +3767,12 @@ function renderWeaponSearchResults(weaponName) {
     // Find all games where this weapon was used
     // Weapons are stored at game.weapons[] with keys like "Sniper Rifle kills"
     const weaponGames = [];
-    let playerWeaponStats = {};
+    let playerKillStats = {};
+    let playerDeathStats = {};
     let mapWeaponKills = {};
     let gametypeWeaponKills = {};
     let totalKills = 0;
+    let totalDeaths = 0;
 
     gamesData.forEach(game => {
         let gameWeaponKills = 0;
@@ -3779,17 +3783,23 @@ function renderWeaponSearchResults(weaponName) {
             game.weapons.forEach(playerWeapons => {
                 const playerName = playerWeapons.Player;
                 Object.keys(playerWeapons).forEach(key => {
-                    if (key.toLowerCase().includes(weaponName.toLowerCase()) && key.toLowerCase().includes('kills')) {
-                        const kills = parseInt(playerWeapons[key]) || 0;
-                        gameWeaponKills += kills;
-                        totalKills += kills;
+                    const keyLower = key.toLowerCase();
+                    if (keyLower.includes(weaponName.toLowerCase())) {
+                        if (keyLower.includes('kills') && !keyLower.includes('headshot')) {
+                            const kills = parseInt(playerWeapons[key]) || 0;
+                            gameWeaponKills += kills;
+                            totalKills += kills;
 
-                        if (playerName) {
-                            if (!playerWeaponStats[playerName]) {
-                                playerWeaponStats[playerName] = { kills: 0, games: 0 };
+                            if (playerName && kills > 0) {
+                                playerKillStats[playerName] = (playerKillStats[playerName] || 0) + kills;
                             }
-                            playerWeaponStats[playerName].kills += kills;
-                            playerWeaponStats[playerName].games += 1;
+                        } else if (keyLower.includes('deaths')) {
+                            const deaths = parseInt(playerWeapons[key]) || 0;
+                            totalDeaths += deaths;
+
+                            if (playerName && deaths > 0) {
+                                playerDeathStats[playerName] = (playerDeathStats[playerName] || 0) + deaths;
+                            }
                         }
                     }
                 });
@@ -3803,10 +3813,10 @@ function renderWeaponSearchResults(weaponName) {
         }
     });
 
-    // Store for modal
-    window.currentSearchPlayerStats = Object.fromEntries(
-        Object.entries(playerWeaponStats).map(([name, stats]) => [name, { kills: stats.kills, deaths: 0, games: stats.games }])
-    );
+    // Sort by most kills/deaths
+    const topKillers = Object.entries(playerKillStats).sort((a, b) => b[1] - a[1]);
+    const topVictims = Object.entries(playerDeathStats).sort((a, b) => b[1] - a[1]);
+
     window.currentSearchContext = formatWeaponName(weaponName);
 
     const weaponIcon = weaponIcons[weaponName.toLowerCase()];
@@ -3820,31 +3830,67 @@ function renderWeaponSearchResults(weaponName) {
     }
     html += '<div class="weapon-stats">';
     html += `<div class="stat-card"><div class="stat-label">Total Kills</div><div class="stat-value">${totalKills}</div></div>`;
-    html += `<div class="stat-card"><div class="stat-label">Games With Weapon</div><div class="stat-value">${weaponGames.length}</div></div>`;
-    html += `<div class="stat-card"><div class="stat-label">Players</div><div class="stat-value">${Object.keys(playerWeaponStats).length}</div></div>`;
+    html += `<div class="stat-card"><div class="stat-label">Total Deaths</div><div class="stat-value">${totalDeaths}</div></div>`;
+    html += `<div class="stat-card"><div class="stat-label">Games</div><div class="stat-value">${weaponGames.length}</div></div>`;
     html += '</div>';
     html += '</div>';
 
-    // Breakdowns section
-    html += '<div class="breakdowns-container">';
+    // Two-column leaderboard
+    html += '<div class="weapon-search-leaderboard">';
 
-    // By Player
-    html += '<div class="breakdown-section">';
-    html += '<div class="section-header">By Player</div>';
+    // Most Kills column
+    html += '<div class="weapon-search-column">';
+    html += '<div class="section-header">Most Kills</div>';
     html += '<div class="breakdown-list">';
-    Object.entries(playerWeaponStats).sort((a, b) => b[1].kills - a[1].kills).forEach(([name, stats], index) => {
-        const rankIcon = getRankIcon(name);
-        const pct = ((stats.kills / totalKills) * 100).toFixed(1);
+    topKillers.slice(0, 10).forEach(([name, kills], index) => {
+        const displayName = getDisplayNameForProfile(name);
+        const discordId = profileNameToDiscordId[name];
+        const playerInfo = discordId ? playersData.players?.find(p => p.discord_id === discordId) : null;
+        const emblemUrl = playerInfo?.emblem_url || getPlayerEmblemUrl(name);
+        const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
+        const rank = getRankForPlayer(name);
+
         html += `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
         html += `<span class="breakdown-rank">#${index + 1}</span>`;
-        if (rankIcon) {
-            html += `<img src="${rankIcon}" class="breakdown-icon" alt="rank">`;
+        if (emblemParams) {
+            html += `<div class="emblem-placeholder breakdown-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
         }
-        html += `<span class="breakdown-name">${name}</span>`;
-        html += `<span class="breakdown-count">${stats.kills} (${pct}%)</span>`;
+        html += `<span class="breakdown-name">${displayName}</span>`;
+        if (rank) {
+            html += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="breakdown-rank-icon">`;
+        }
+        html += `<span class="breakdown-count">${kills}</span>`;
         html += '</div>';
     });
     html += '</div></div>';
+
+    // Most Deaths column
+    html += '<div class="weapon-search-column">';
+    html += '<div class="section-header">Most Deaths</div>';
+    html += '<div class="breakdown-list">';
+    topVictims.slice(0, 10).forEach(([name, deaths], index) => {
+        const displayName = getDisplayNameForProfile(name);
+        const discordId = profileNameToDiscordId[name];
+        const playerInfo = discordId ? playersData.players?.find(p => p.discord_id === discordId) : null;
+        const emblemUrl = playerInfo?.emblem_url || getPlayerEmblemUrl(name);
+        const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
+        const rank = getRankForPlayer(name);
+
+        html += `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
+        html += `<span class="breakdown-rank">#${index + 1}</span>`;
+        if (emblemParams) {
+            html += `<div class="emblem-placeholder breakdown-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
+        }
+        html += `<span class="breakdown-name">${displayName}</span>`;
+        if (rank) {
+            html += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="breakdown-rank-icon">`;
+        }
+        html += `<span class="breakdown-count">${deaths}</span>`;
+        html += '</div>';
+    });
+    html += '</div></div>';
+
+    html += '</div>'; // End weapon-search-leaderboard
 
     // By Map
     html += '<div class="breakdown-section">';
