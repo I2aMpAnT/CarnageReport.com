@@ -689,9 +689,10 @@ const weaponIcons = {
     'sniper rifle': 'assets/weapons/SniperRifle.png',
     'rocket launcher': 'assets/weapons/RocketLauncher.png',
     'rockets': 'assets/weapons/RocketLauncher.png',
-    'frag grenade': 'assets/weapons/H2-M9HEDPFragmentationGrenade.png',
-    'grenade': 'assets/weapons/H2-M9HEDPFragmentationGrenade.png',
-    'fragmentation grenade': 'assets/weapons/H2-M9HEDPFragmentationGrenade.png',
+    'frag grenade': 'assets/weapons/FragGrenadeHUD.png',
+    'grenade': 'assets/weapons/FragGrenadeHUD.png',
+    'fragmentation grenade': 'assets/weapons/FragGrenadeHUD.png',
+    'plasma grenade': 'assets/weapons/PlasmaGrenadeHUD.png',
 
     // Covenant Weapons
     'plasma pistol': 'assets/weapons/PlasmaPistol.png',
@@ -723,6 +724,10 @@ const weaponIcons = {
 // Helper function to get weapon icon
 function getWeaponIcon(weaponName) {
     const key = weaponName.toLowerCase().trim();
+    // Use bone cracker medal icon for melee kills
+    if (key === 'melee') {
+        return medalIcons['bone_cracker'] || null;
+    }
     return weaponIcons[key] || null;
 }
 
@@ -4680,6 +4685,9 @@ function showProfileWeaponKillsBreakdown() {
 
     // Calculate weapon kill stats for the player
     const weaponStats = {};
+    let totalMeleeMedals = 0;
+    let meleeWeaponKills = 0;
+    const meleeWeapons = ['energy sword', 'flag', 'bomb', 'oddball'];
 
     currentProfileGames.forEach(game => {
         const weaponData = game.weapons?.find(w => w.Player === currentProfilePlayer);
@@ -4691,20 +4699,39 @@ function showProfileWeaponKillsBreakdown() {
                     const kills = parseInt(weaponData[key]) || 0;
                     if (kills > 0) {
                         weaponStats[weaponName] = (weaponStats[weaponName] || 0) + kills;
+                        // Track melee weapon kills
+                        if (meleeWeapons.includes(weaponName.toLowerCase())) {
+                            meleeWeaponKills += kills;
+                        }
                     }
                 }
             });
         }
+
+        // Get melee medals (bone_cracker + assassin)
+        const medalData = game.medals?.find(m => m.player === currentProfilePlayer);
+        if (medalData) {
+            totalMeleeMedals += (medalData.bone_cracker || 0) + (medalData.assassin || 0);
+        }
     });
 
-    // Sort by most kills and separate grenades from weapons
+    // Calculate beatdown kills (melee medals minus melee weapon kills)
+    const beatdownKills = Math.max(0, totalMeleeMedals - meleeWeaponKills);
+    if (beatdownKills > 0) {
+        weaponStats['melee'] = beatdownKills;
+    }
+
+    // Sort by most kills, but put grenades at the bottom
     const sortedWeapons = Object.entries(weaponStats).sort((a, b) => b[1] - a[1]);
     const totalKills = sortedWeapons.reduce((sum, [_, kills]) => sum + kills, 0);
 
-    // Separate grenades from regular weapons
+    // Separate grenades to show at bottom
     const isGrenade = (name) => name.toLowerCase().includes('grenade');
     const regularWeapons = sortedWeapons.filter(([weapon]) => !isGrenade(weapon));
     const grenades = sortedWeapons.filter(([weapon]) => isGrenade(weapon));
+
+    // Combine: regular weapons first, then grenades
+    const orderedWeapons = [...regularWeapons, ...grenades];
 
     // Create modal
     let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
@@ -4715,12 +4742,12 @@ function showProfileWeaponKillsBreakdown() {
     html += `</div>`;
     html += '<div class="weapon-breakdown-grid">';
 
-    if (sortedWeapons.length === 0) {
+    if (orderedWeapons.length === 0) {
         html += '<div class="no-data">No weapon data available</div>';
     }
 
-    // Render regular weapons with icons
-    for (const [weapon, kills] of regularWeapons) {
+    // Render all weapons with icons (grenades at bottom)
+    for (const [weapon, kills] of orderedWeapons) {
         const iconUrl = getWeaponIcon(weapon);
         const percentage = totalKills > 0 ? ((kills / totalKills) * 100).toFixed(1) : '0';
 
@@ -4738,18 +4765,6 @@ function showProfileWeaponKillsBreakdown() {
     }
 
     html += '</div>';
-
-    // Render grenades at the bottom without icons
-    if (grenades.length > 0) {
-        html += '<div class="weapon-breakdown-grenades">';
-        const grenadeText = grenades.map(([weapon, kills]) => {
-            const percentage = totalKills > 0 ? ((kills / totalKills) * 100).toFixed(1) : '0';
-            return `${formatWeaponName(weapon)}: ${kills} (${percentage}%)`;
-        }).join(' · ');
-        html += grenadeText;
-        html += '</div>';
-    }
-
     html += '</div>';
     html += '</div>';
 
