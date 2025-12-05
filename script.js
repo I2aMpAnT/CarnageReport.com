@@ -1760,7 +1760,7 @@ function createGameItem(game, gameNumber) {
                 </div>
             </div>
             <div class="game-header-right">
-                ${game.playlist ? `<span class="game-meta-tag playlist-tag">${game.playlist}</span>` : ''}
+                <span class="game-meta-tag playlist-tag${!game.playlist ? ' custom-game' : ''}">${game.playlist || 'Custom Games'}</span>
                 ${dateDisplay ? `<span class="game-meta-tag date-tag">${dateDisplay}</span>` : ''}
                 <div class="expand-icon">▶</div>
             </div>
@@ -3504,12 +3504,8 @@ function closeSearchResults() {
 
 function renderPlayerSearchResults(playerName, includeCustomGames = false) {
     const stats = calculatePlayerStats(playerName, includeCustomGames);
+    // Always show all games in the list (ranked + custom)
     const playerGames = gamesData.filter(game => {
-        // Filter out custom games unless checkbox is checked
-        const isRankedGame = game.playlist && game.playlist.trim() !== '';
-        if (!includeCustomGames && !isRankedGame) {
-            return false;
-        }
         return game.players.some(p => p.name === playerName);
     }).sort((a, b) => {
         // Sort by date, most recent first
@@ -3529,7 +3525,7 @@ function renderPlayerSearchResults(playerName, includeCustomGames = false) {
     html += '<div class="stats-filter-row">';
     html += `<label class="custom-games-toggle">`;
     html += `<input type="checkbox" id="showCustomGames" ${includeCustomGames ? 'checked' : ''} onchange="toggleCustomGamesFilter()">`;
-    html += `<span>Show Custom Games</span>`;
+    html += `<span>Include Custom Games in Stats</span>`;
     html += `</label>`;
     html += '</div>';
 
@@ -4217,9 +4213,7 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     html += '</div>';
     html += '</div>';
     html += '<div class="game-header-right">';
-    if (game.playlist) {
-        html += `<span class="game-meta-tag playlist-tag">${game.playlist}</span>`;
-    }
+    html += `<span class="game-meta-tag playlist-tag${!game.playlist ? ' custom-game' : ''}">${game.playlist || 'Custom Games'}</span>`;
     if (startTime) {
         html += `<span class="game-meta-tag date-tag">${formatDateTime(startTime)}</span>`;
     }
