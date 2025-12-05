@@ -3502,11 +3502,16 @@ function closeSearchResults() {
     if (search2) search2.value = '';
 }
 
-function renderPlayerSearchResults(playerName) {
-    const stats = calculatePlayerStats(playerName);
-    const playerGames = gamesData.filter(game =>
-        game.players.some(p => p.name === playerName)
-    ).sort((a, b) => {
+function renderPlayerSearchResults(playerName, includeCustomGames = false) {
+    const stats = calculatePlayerStats(playerName, includeCustomGames);
+    const playerGames = gamesData.filter(game => {
+        // Filter out custom games unless checkbox is checked
+        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+        if (!includeCustomGames && !isRankedGame) {
+            return false;
+        }
+        return game.players.some(p => p.name === playerName);
+    }).sort((a, b) => {
         // Sort by date, most recent first
         const dateA = new Date(a.details['Start Time'] || a.details['End Time'] || 0);
         const dateB = new Date(b.details['Start Time'] || b.details['End Time'] || 0);
@@ -3516,8 +3521,17 @@ function renderPlayerSearchResults(playerName) {
     // Store medal breakdown for modal
     window.currentSearchMedalBreakdown = stats.medalBreakdown;
     window.currentSearchContext = playerName;
+    window.currentSearchPlayer = playerName;
 
     let html = '<div class="search-results-container">';
+
+    // Custom games filter checkbox
+    html += '<div class="stats-filter-row">';
+    html += `<label class="custom-games-toggle">`;
+    html += `<input type="checkbox" id="showCustomGames" ${includeCustomGames ? 'checked' : ''} onchange="toggleCustomGamesFilter()">`;
+    html += `<span>Show Custom Games</span>`;
+    html += `</label>`;
+    html += '</div>';
 
     // Player stats summary
     html += '<div class="player-stats-summary">';
@@ -3531,19 +3545,32 @@ function renderPlayerSearchResults(playerName) {
     html += `<div class="stat-card clickable-stat" onclick="showSearchMedalBreakdown()"><div class="stat-label">Total Medals</div><div class="stat-value">${stats.totalMedals}</div></div>`;
     html += '</div>';
     html += '</div>';
-    
+
     // Recent games header
     html += '<div class="section-header">Recent Games</div>';
-    
+
     // Games list
     html += '<div class="search-games-list">';
     playerGames.forEach((game, index) => {
         html += renderSearchGameCard(game, gamesData.length - gamesData.indexOf(game), playerName);
     });
     html += '</div>';
-    
+
     html += '</div>';
     return html;
+}
+
+function toggleCustomGamesFilter() {
+    const checkbox = document.getElementById('showCustomGames');
+    const includeCustomGames = checkbox ? checkbox.checked : false;
+    const playerName = window.currentSearchPlayer;
+
+    if (playerName) {
+        const searchResultsContent = document.getElementById('searchResultsContent');
+        if (searchResultsContent) {
+            searchResultsContent.innerHTML = renderPlayerSearchResults(playerName, includeCustomGames);
+        }
+    }
 }
 
 function renderMapSearchResults(mapName) {
@@ -4267,7 +4294,7 @@ function openPlayerModal(playerName) {
     }, 100);
 }
 
-function calculatePlayerStats(playerName) {
+function calculatePlayerStats(playerName, includeCustomGames = false) {
     const stats = {
         games: 0,
         wins: 0,
@@ -4283,6 +4310,12 @@ function calculatePlayerStats(playerName) {
     };
 
     gamesData.forEach(game => {
+        // Filter out custom games (games without playlist) unless includeCustomGames is true
+        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+        if (!includeCustomGames && !isRankedGame) {
+            return; // Skip custom games
+        }
+
         const player = game.players.find(p => p.name === playerName);
         if (player) {
             stats.games++;
