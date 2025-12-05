@@ -192,11 +192,13 @@ def load_playlist_stats(playlist_name):
                 data['active_match'] = None
             if 'match_history' not in data:
                 data['match_history'] = []
+            # Remove deprecated total_games field if present
+            if 'total_games' in data:
+                del data['total_games']
             return data
     except:
         return {
             'playlist': playlist_name,
-            'total_games': 0,
             'games': [],
             'active_match': None,
             'match_history': []
@@ -1678,7 +1680,6 @@ def main():
             existing_stats = all_playlist_stats.get(playlist, {})
             playlist_data = {
                 'playlist': playlist,
-                'total_games': len(games),
                 'games': games,
                 'active_match': existing_stats.get('active_match'),
                 'match_history': existing_stats.get('match_history', [])
@@ -1692,7 +1693,6 @@ def main():
     custom_stats = all_playlist_stats.get('Custom Games', {})
     custom_data = {
         'playlist': 'Custom Games',
-        'total_games': len(custom_games),
         'games': custom_games,
         'active_match': None,
         'match_history': custom_stats.get('match_history', [])
