@@ -509,7 +509,7 @@ function renderTwitchHubVods(filterQuery = '') {
             <div class="twitch-hub-card" data-map="${entry.mapName}" data-gametype="${entry.gameType}">
                 <div class="vod-game-header" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</div>
                 <div class="twitch-hub-embed-wrapper">
-                    <iframe src="${embedUrl}" allowfullscreen></iframe>
+                    <iframe src="${embedUrl}" allowfullscreen="true" allow="fullscreen"></iframe>
                 </div>
                 <div class="twitch-hub-info">
                     <div class="twitch-hub-meta">
@@ -535,13 +535,10 @@ function filterTwitchVods() {
 // Navigate to a specific game in the games list and expand it
 function navigateToGame(gameIndex) {
     // Switch to Games History tab
-    const gamesTab = document.querySelector('[data-tab="games"]');
-    if (gamesTab) {
-        gamesTab.click();
-    }
+    switchMainTab('gamehistory');
 
-    // Calculate the game number (games are displayed in reverse order, newest first)
-    const gameNumber = gamesData.length - gameIndex;
+    // Calculate the game number (gameIndex is 0-based, gameNumber is 1-based)
+    const gameNumber = gameIndex + 1;
 
     // Scroll to and expand the game
     setTimeout(() => {
