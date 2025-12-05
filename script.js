@@ -2166,7 +2166,7 @@ function renderDetailedStats(game) {
         const timeAlive = formatTime(stat.total_time_alive || 0);
 
         html += `<tr ${teamAttr}>`;
-        html += `<td><span class="player-with-rank">${getPreGameRankIconByName(stat.player, game, 'small')}<span>${stat.player}</span></span></td>`;
+        html += `<td><span class="player-with-rank">${getPreGameRankIconByName(stat.player, game, 'small')}<span>${getDisplayNameForProfile(stat.player)}</span></span></td>`;
         html += `<td>${stat.kills}</td>`;
         html += `<td>${stat.assists}</td>`;
         html += `<td>${stat.deaths}</td>`;
@@ -2219,7 +2219,7 @@ function renderDetailedStats(game) {
             const team = playerTeams[stat.player];
             const teamAttr = team ? `data-team="${team}"` : '';
 
-            html += `<tr ${teamAttr}><td><span class="player-with-rank">${getPreGameRankIconByName(stat.player, game, 'small')}<span>${stat.player}</span></span></td>`;
+            html += `<tr ${teamAttr}><td><span class="player-with-rank">${getPreGameRankIconByName(stat.player, game, 'small')}<span>${getDisplayNameForProfile(stat.player)}</span></span></td>`;
 
             if (hasCTF) {
                 html += `<td>${stat.ctf_scores || 0}</td>`;
@@ -3095,9 +3095,9 @@ function renderPvpComparison(player1Name, player2Name) {
     
     // Header with player names
     html += '<div class="comparison-header">';
-    html += `<div class="player-header">${getPlayerRankIcon(player1Name, 'normal')}<span class="player-header-name">${player1Name}</span></div>`;
+    html += `<div class="player-header">${getPlayerRankIcon(player1Name, 'normal')}<span class="player-header-name">${getDisplayNameForProfile(player1Name)}</span></div>`;
     html += '<div class="pvp-vs">VS</div>';
-    html += `<div class="player-header">${getPlayerRankIcon(player2Name, 'normal')}<span class="player-header-name">${player2Name}</span></div>`;
+    html += `<div class="player-header">${getPlayerRankIcon(player2Name, 'normal')}<span class="player-header-name">${getDisplayNameForProfile(player2Name)}</span></div>`;
     html += '</div>';
     
     // Head to Head section
@@ -3399,7 +3399,7 @@ function openSearchResultsPage(type, name) {
     window.scrollTo(0, 0);
     
     if (type === 'player') {
-        searchResultsTitle.innerHTML = `${getPlayerRankIcon(name, 'small')} ${name}`;
+        searchResultsTitle.innerHTML = `${getPlayerRankIcon(name, 'small')} ${getDisplayNameForProfile(name)}`;
         searchResultsContent.innerHTML = renderPlayerSearchResults(name);
     } else if (type === 'map') {
         const mapImage = mapImages[name] || defaultMapImage;
