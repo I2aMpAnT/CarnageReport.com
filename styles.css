@@ -621,6 +621,17 @@ header {
     color: var(--primary-color);
 }
 
+.download-menu-item.disabled {
+    color: var(--text-secondary);
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.download-menu-item.disabled:hover {
+    background: rgba(255, 100, 100, 0.1);
+    color: #ff6b6b;
+}
+
 .download-menu-item:first-child {
     border-radius: 6px 6px 0 0;
 }
