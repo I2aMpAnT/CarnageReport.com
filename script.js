@@ -1577,38 +1577,20 @@ function handleUrlNavigation() {
     switchMainTab('gamehistory', false);
 }
 
-// Find player by URL path (case-insensitive match against display names and in-game names)
+// Find player by URL path (case-insensitive match against display names only)
 function findPlayerByUrlPath(urlPath) {
     const searchLower = decodeURIComponent(urlPath).toLowerCase();
 
-    // Search by discord display name first
+    // Search by discord display name only (exact match)
     for (const [discordId, data] of Object.entries(rankstatsData)) {
         const displayName = data.display_name || data.discord_name || '';
         if (displayName.toLowerCase() === searchLower) {
-            // Return the in-game name for this player
+            // Return the in-game name for this player (needed for openPlayerProfile)
             const profileNames = discordIdToProfileNames[discordId];
             if (profileNames && profileNames.length > 0) {
                 return profileNames[0];
             }
             return displayName;
-        }
-    }
-
-    // Search by in-game name
-    for (const [profileName, discordId] of Object.entries(profileNameToDiscordId)) {
-        if (profileName.toLowerCase() === searchLower) {
-            return profileName;
-        }
-    }
-
-    // Partial match fallback (starts with)
-    for (const [discordId, data] of Object.entries(rankstatsData)) {
-        const displayName = data.display_name || data.discord_name || '';
-        if (displayName.toLowerCase().startsWith(searchLower)) {
-            const profileNames = discordIdToProfileNames[discordId];
-            if (profileNames && profileNames.length > 0) {
-                return profileNames[0];
-            }
         }
     }
 
@@ -4715,9 +4697,14 @@ function showProfileWeaponKillsBreakdown() {
         }
     });
 
-    // Sort by most kills
+    // Sort by most kills and separate grenades from weapons
     const sortedWeapons = Object.entries(weaponStats).sort((a, b) => b[1] - a[1]);
     const totalKills = sortedWeapons.reduce((sum, [_, kills]) => sum + kills, 0);
+
+    // Separate grenades from regular weapons
+    const isGrenade = (name) => name.toLowerCase().includes('grenade');
+    const regularWeapons = sortedWeapons.filter(([weapon]) => !isGrenade(weapon));
+    const grenades = sortedWeapons.filter(([weapon]) => isGrenade(weapon));
 
     // Create modal
     let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
@@ -4732,7 +4719,8 @@ function showProfileWeaponKillsBreakdown() {
         html += '<div class="no-data">No weapon data available</div>';
     }
 
-    for (const [weapon, kills] of sortedWeapons) {
+    // Render regular weapons with icons
+    for (const [weapon, kills] of regularWeapons) {
         const iconUrl = getWeaponIcon(weapon);
         const percentage = totalKills > 0 ? ((kills / totalKills) * 100).toFixed(1) : '0';
 
@@ -4750,6 +4738,18 @@ function showProfileWeaponKillsBreakdown() {
     }
 
     html += '</div>';
+
+    // Render grenades at the bottom without icons
+    if (grenades.length > 0) {
+        html += '<div class="weapon-breakdown-grenades">';
+        const grenadeText = grenades.map(([weapon, kills]) => {
+            const percentage = totalKills > 0 ? ((kills / totalKills) * 100).toFixed(1) : '0';
+            return `${formatWeaponName(weapon)}: ${kills} (${percentage}%)`;
+        }).join(' · ');
+        html += grenadeText;
+        html += '</div>';
+    }
+
     html += '</div>';
     html += '</div>';
 
@@ -4782,9 +4782,14 @@ function showProfileWeaponDeathsBreakdown() {
         }
     });
 
-    // Sort by most deaths
+    // Sort by most deaths and separate grenades from weapons
     const sortedWeapons = Object.entries(weaponStats).sort((a, b) => b[1] - a[1]);
     const totalDeaths = sortedWeapons.reduce((sum, [_, deaths]) => sum + deaths, 0);
+
+    // Separate grenades from regular weapons
+    const isGrenade = (name) => name.toLowerCase().includes('grenade');
+    const regularWeapons = sortedWeapons.filter(([weapon]) => !isGrenade(weapon));
+    const grenades = sortedWeapons.filter(([weapon]) => isGrenade(weapon));
 
     // Create modal
     let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
@@ -4799,7 +4804,8 @@ function showProfileWeaponDeathsBreakdown() {
         html += '<div class="no-data">No weapon data available</div>';
     }
 
-    for (const [weapon, deaths] of sortedWeapons) {
+    // Render regular weapons with icons
+    for (const [weapon, deaths] of regularWeapons) {
         const iconUrl = getWeaponIcon(weapon);
         const percentage = totalDeaths > 0 ? ((deaths / totalDeaths) * 100).toFixed(1) : '0';
 
@@ -4817,6 +4823,18 @@ function showProfileWeaponDeathsBreakdown() {
     }
 
     html += '</div>';
+
+    // Render grenades at the bottom without icons
+    if (grenades.length > 0) {
+        html += '<div class="weapon-breakdown-grenades">';
+        const grenadeText = grenades.map(([weapon, deaths]) => {
+            const percentage = totalDeaths > 0 ? ((deaths / totalDeaths) * 100).toFixed(1) : '0';
+            return `${formatWeaponName(weapon)}: ${deaths} (${percentage}%)`;
+        }).join(' · ');
+        html += grenadeText;
+        html += '</div>';
+    }
+
     html += '</div>';
     html += '</div>';
 

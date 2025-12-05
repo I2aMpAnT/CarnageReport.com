@@ -3510,6 +3510,17 @@ header {
     gap: 15px;
 }
 
+.weapon-breakdown-grenades {
+    margin-top: 15px;
+    padding: 12px 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    text-align: center;
+    font-family: 'Overpass', sans-serif;
+}
+
 .weapon-breakdown-item {
     display: flex;
     align-items: center;
