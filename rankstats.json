@@ -247,7 +247,10 @@
     "kills": 61,
     "deaths": 44,
     "assists": 36,
-    "headshots": 48
+    "headshots": 48,
+    "in_game_names": [
+      "\ue101\ue100\ue101\ue103\ue075"
+    ]
   },
   "334212655613214721": {
     "xp": 490,
@@ -1558,53 +1561,5 @@
     "deaths": 79,
     "assists": 48,
     "headshots": 69
-  },
-  "495487685926812850": {
-    "xp": 0,
-    "wins": 0,
-    "losses": 0,
-    "series_wins": 0,
-    "series_losses": 0,
-    "total_games": 0,
-    "total_series": 0,
-    "mmr": 750,
-    "discord_name": "Em Won 5 F 1 T",
-    "rank": 1,
-    "MLG 4v4": 3,
-    "playlists": {
-      "MLG 4v4": {
-        "xp": 200,
-        "rank": 3,
-        "highest_rank": 3,
-        "wins": 2,
-        "losses": 0,
-        "games": 2
-      }
-    },
-    "highest_rank": 3
-  },
-  "412192094459099099": {
-    "xp": 0,
-    "wins": 0,
-    "losses": 0,
-    "series_wins": 0,
-    "series_losses": 0,
-    "total_games": 0,
-    "total_series": 0,
-    "mmr": 750,
-    "discord_name": "\ue101\ue100\ue101\ue103\ue075",
-    "rank": 1,
-    "MLG 4v4": 3,
-    "playlists": {
-      "MLG 4v4": {
-        "xp": 200,
-        "rank": 3,
-        "highest_rank": 3,
-        "wins": 2,
-        "losses": 0,
-        "games": 2
-      }
-    },
-    "highest_rank": 3
   }
 }
