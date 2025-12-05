@@ -1745,19 +1745,23 @@ function createGameItem(game, gameNumber) {
             teamScoreDisplay = `<span class="game-meta-tag ${scoreTagClass}">${winnerDisplay}</span>`;
         }
     }
-    
-    // Build download buttons HTML
-    let downloadButtons = '';
-    if (game.public_url || game.theater_url) {
-        downloadButtons = '<div class="game-download-buttons" onclick="event.stopPropagation()">';
-        if (game.public_url) {
-            downloadButtons += `<a href="${game.public_url}" class="download-btn download-stats" title="Download Stats" target="_blank">STATS</a>`;
-        }
-        if (game.theater_url) {
-            downloadButtons += `<a href="${game.theater_url}" class="download-btn download-theater" title="Download Theater" target="_blank">FILM</a>`;
-        }
-        downloadButtons += '</div>';
+
+    // Build download dropdown HTML
+    let downloadDropdown = '<div class="game-download-dropdown" onclick="event.stopPropagation()">';
+    downloadDropdown += '<button class="download-icon-btn" onclick="toggleDownloadMenu(event, ' + gameNumber + ')" title="Download Files"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>';
+    downloadDropdown += `<div class="download-menu" id="download-menu-${gameNumber}">`;
+    if (game.public_url) {
+        downloadDropdown += `<a href="${game.public_url}" class="download-menu-item" target="_blank">Stats</a>`;
+    } else {
+        downloadDropdown += `<span class="download-menu-item disabled" onclick="alert('Sorry, it seems this file was lost')">Stats</span>`;
     }
+    if (game.theater_url) {
+        downloadDropdown += `<a href="${game.theater_url}" class="download-menu-item" target="_blank">Telemetry</a>`;
+    } else {
+        downloadDropdown += `<span class="download-menu-item disabled" onclick="alert('Sorry, it seems this file was lost')">Telemetry</span>`;
+    }
+    downloadDropdown += '</div>';
+    downloadDropdown += '</div>';
 
     gameDiv.innerHTML = `
         <div class="game-header-bar ${winnerClass}" onclick="toggleGameDetails(${gameNumber})">
@@ -1771,7 +1775,7 @@ function createGameItem(game, gameNumber) {
             </div>
             <div class="game-header-right">
                 ${game.playlist ? `<span class="game-meta-tag playlist-tag">${game.playlist}</span>` : ''}
-                ${downloadButtons}
+                ${downloadDropdown}
                 ${dateDisplay ? `<span class="game-meta-tag date-tag">${dateDisplay}</span>` : ''}
                 <div class="expand-icon">▶</div>
             </div>
@@ -1785,6 +1789,29 @@ function createGameItem(game, gameNumber) {
     
     return gameDiv;
 }
+
+// Toggle download dropdown menu
+function toggleDownloadMenu(event, gameNumber) {
+    event.stopPropagation();
+    const menu = document.getElementById(`download-menu-${gameNumber}`);
+    if (!menu) return;
+
+    // Close all other open menus
+    document.querySelectorAll('.download-menu.show').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+    });
+
+    menu.classList.toggle('show');
+}
+
+// Close download menus when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.game-download-dropdown')) {
+        document.querySelectorAll('.download-menu.show').forEach(m => {
+            m.classList.remove('show');
+        });
+    }
+});
 
 function toggleGameDetails(gameNumber) {
     const gameItem = document.getElementById(`game-${gameNumber}`);
