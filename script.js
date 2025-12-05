@@ -718,16 +718,13 @@ const weaponIcons = {
 
     // Other
     'sentinel beam': 'assets/weapons/SentinelBeam.png',
-    'melee': 'assets/weapons/Magnum.png'
+    'melee': 'assets/weapons/MeleeKill.png',
+    'beatdown': 'assets/weapons/MeleeKill.png'
 };
 
 // Helper function to get weapon icon
 function getWeaponIcon(weaponName) {
     const key = weaponName.toLowerCase().trim();
-    // Use bone cracker medal icon for melee kills
-    if (key === 'melee') {
-        return medalIcons['bone_cracker'] || null;
-    }
     return weaponIcons[key] || null;
 }
 
