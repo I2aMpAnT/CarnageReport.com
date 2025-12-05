@@ -1009,33 +1009,29 @@ function getRankAtTime(playerName, gameEndTime, discordId = null) {
     // Use provided discord ID or look it up from player name
     const playerId = discordId || profileNameToDiscordId[playerName];
 
+    // Helper to parse timestamp strings like "11/28/2025 7:43" or "11/28/2025 20:18"
+    function parseGameTimestamp(timestamp) {
+        if (timestamp.includes('/')) {
+            const [datePart, timePart] = timestamp.split(' ');
+            const [month, day, year] = datePart.split('/');
+            const [hour, minute] = timePart.split(':');
+            return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hour.padStart(2, '0')}:${minute.padStart(2, '0')}:00`);
+        }
+        return new Date(timestamp);
+    }
+
     // First try dynamic rank history (calculated from game outcomes)
     if (playerId && dynamicRankHistory[playerId]) {
         const history = dynamicRankHistory[playerId].history;
         if (history && history.length > 0) {
-            // Parse game end time
-            let gameTime;
-            if (gameEndTime.includes('/')) {
-                const [datePart, timePart] = gameEndTime.split(' ');
-                const [month, day, year] = datePart.split('/');
-                gameTime = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00`);
-            } else {
-                gameTime = new Date(gameEndTime);
-            }
+            const gameTime = parseGameTimestamp(gameEndTime);
 
             // Find the closest match within 5 minutes
             let closestMatch = null;
             let closestDiff = Infinity;
 
             for (const entry of history) {
-                let entryTime;
-                if (entry.timestamp.includes('/')) {
-                    const [datePart, timePart] = entry.timestamp.split(' ');
-                    const [month, day, year] = datePart.split('/');
-                    entryTime = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00`);
-                } else {
-                    entryTime = new Date(entry.timestamp);
-                }
+                const entryTime = parseGameTimestamp(entry.timestamp);
                 const diffMinutes = Math.abs((gameTime - entryTime) / (1000 * 60));
 
                 if (diffMinutes <= 5 && diffMinutes < closestDiff) {
@@ -1060,16 +1056,7 @@ function getRankAtTime(playerName, gameEndTime, discordId = null) {
         return null;
     }
 
-    // Parse game end time (format: "11/28/2025 20:18" or ISO format)
-    let gameTime;
-    if (gameEndTime.includes('/')) {
-        // Parse MM/DD/YYYY HH:MM format
-        const [datePart, timePart] = gameEndTime.split(' ');
-        const [month, day, year] = datePart.split('/');
-        gameTime = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00`);
-    } else {
-        gameTime = new Date(gameEndTime);
-    }
+    const gameTime = parseGameTimestamp(gameEndTime);
 
     // Find the CLOSEST history entry within 5 minutes tolerance
     // The entry's rank_before is what we want
@@ -1077,7 +1064,7 @@ function getRankAtTime(playerName, gameEndTime, discordId = null) {
     let closestDiff = Infinity;
 
     for (const entry of history) {
-        const entryTime = new Date(entry.timestamp);
+        const entryTime = parseGameTimestamp(entry.timestamp);
         const diffMinutes = Math.abs((gameTime - entryTime) / (1000 * 60));
 
         if (diffMinutes <= 5 && diffMinutes < closestDiff) {
