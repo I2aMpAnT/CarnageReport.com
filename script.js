@@ -502,14 +502,16 @@ function renderTwitchHubVods(filterQuery = '') {
     let html = '';
     for (const entry of filteredEntries.slice(0, 100)) { // Show up to 100 entries
         const date = entry.date.toLocaleDateString();
+        // Build embed URL with timestamp
+        const embedUrl = `https://player.twitch.tv/?video=${entry.vod.id}&parent=${SITE_DOMAIN}&time=${entry.game.timestampFormatted}&autoplay=false`;
 
         html += `
             <div class="twitch-hub-card" data-map="${entry.mapName}" data-gametype="${entry.gameType}">
-                <a href="${entry.vodUrl}" target="_blank" class="twitch-hub-thumbnail">
-                    <img src="${entry.thumbnail}" alt="VOD" onerror="this.src='assets/placeholder-vod.png'">
-                </a>
+                <div class="twitch-hub-embed-wrapper">
+                    <div class="vod-game-overlay" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</div>
+                    <iframe src="${embedUrl}" allowfullscreen></iframe>
+                </div>
                 <div class="twitch-hub-info">
-                    <span class="vod-game-info" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</span>
                     <div class="twitch-hub-meta">
                         <a href="https://twitch.tv/${entry.streamerChannel}" target="_blank" class="twitch-hub-streamer">${entry.streamer}</a>
                         <span class="twitch-hub-date">${date}</span>
