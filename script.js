@@ -1544,13 +1544,13 @@ function switchMainTab(tabName, updateHash = true) {
         loadTwitchHub();
     }
 
-    // Update URL hash for deep linking (e.g., /leaderboard, /twitch)
+    // Update URL hash for deep linking (e.g., #leaderboard, #twitch)
     if (updateHash) {
         const hashName = getHashNameForTab(tabName);
         if (hashName) {
-            history.replaceState(null, '', '/' + hashName);
+            history.replaceState(null, '', '#' + hashName);
         } else {
-            history.replaceState(null, '', '/');
+            history.replaceState(null, '', window.location.pathname);
         }
     }
 }
@@ -1582,9 +1582,9 @@ function getTabNameFromHash(hash) {
 
 // Handle URL-based tab navigation on page load
 function handleUrlNavigation() {
-    // Get path from URL (e.g., /leaderboard -> leaderboard)
-    const rawPath = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
-    const path = rawPath.toLowerCase();
+    // Get hash from URL (e.g., #leaderboard -> leaderboard)
+    const hash = window.location.hash.replace(/^#\/?/, '').replace(/\/$/, '');
+    const path = hash.toLowerCase();
 
     if (path) {
         // First check if it's a tab name
@@ -1595,7 +1595,7 @@ function handleUrlNavigation() {
         }
 
         // Check if it's a player name (try to find matching player)
-        const playerName = findPlayerByUrlPath(rawPath);
+        const playerName = findPlayerByUrlPath(hash);
         if (playerName) {
             // Small delay to ensure UI is ready
             setTimeout(() => {
@@ -1608,6 +1608,9 @@ function handleUrlNavigation() {
     // Default to gamehistory tab if no valid path
     switchMainTab('gamehistory', false);
 }
+
+// Listen for hash changes
+window.addEventListener('hashchange', handleUrlNavigation);
 
 // Find player by URL path (case-insensitive match against display names only)
 function findPlayerByUrlPath(urlPath) {
@@ -1746,23 +1749,6 @@ function createGameItem(game, gameNumber) {
         }
     }
 
-    // Build download dropdown HTML
-    let downloadDropdown = '<div class="game-download-dropdown" onclick="event.stopPropagation()">';
-    downloadDropdown += '<button class="download-icon-btn" onclick="toggleDownloadMenu(event, ' + gameNumber + ')" title="Download Files"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>';
-    downloadDropdown += `<div class="download-menu" id="download-menu-${gameNumber}">`;
-    if (game.public_url) {
-        downloadDropdown += `<a href="${game.public_url}" class="download-menu-item" target="_blank">Stats</a>`;
-    } else {
-        downloadDropdown += `<span class="download-menu-item disabled" onclick="alert('Sorry, it seems this file was lost')">Stats</span>`;
-    }
-    if (game.theater_url) {
-        downloadDropdown += `<a href="${game.theater_url}" class="download-menu-item" target="_blank">Telemetry</a>`;
-    } else {
-        downloadDropdown += `<span class="download-menu-item disabled" onclick="alert('Sorry, it seems this file was lost')">Telemetry</span>`;
-    }
-    downloadDropdown += '</div>';
-    downloadDropdown += '</div>';
-
     gameDiv.innerHTML = `
         <div class="game-header-bar ${winnerClass}" onclick="toggleGameDetails(${gameNumber})">
             <div class="game-header-left">
@@ -1774,8 +1760,7 @@ function createGameItem(game, gameNumber) {
                 </div>
             </div>
             <div class="game-header-right">
-                ${game.playlist ? `<span class="game-meta-tag playlist-tag">${game.playlist}</span>` : ''}
-                ${downloadDropdown}
+                <span class="game-meta-tag playlist-tag${!game.playlist ? ' custom-game' : ''}">${game.playlist || 'Custom Games'}</span>
                 ${dateDisplay ? `<span class="game-meta-tag date-tag">${dateDisplay}</span>` : ''}
                 <div class="expand-icon">▶</div>
             </div>
@@ -1915,8 +1900,30 @@ function renderGameContent(game) {
     html += `</div>`;
     html += teamScoreHtml;
     html += `</div>`;
+
+    // Download dropdown for expanded game view
+    const hasStats = game.public_url && game.public_url.trim() !== '';
+    const hasTelemetry = game.theater_url && game.theater_url.trim() !== '';
+    html += '<div class="game-download-dropdown">';
+    html += '<button class="download-icon-btn" onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle(\'show\');" title="Download game files">';
+    html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
+    html += '</button>';
+    html += '<div class="download-menu">';
+    if (hasStats) {
+        html += `<a href="${game.public_url}" class="download-menu-item" download onclick="event.stopPropagation();">Stats</a>`;
+    } else {
+        html += '<span class="download-menu-item disabled" onclick="event.stopPropagation(); alert(\'Sorry, it seems this file was lost\');">Stats</span>';
+    }
+    if (hasTelemetry) {
+        html += `<a href="${game.theater_url}" class="download-menu-item" download onclick="event.stopPropagation();">Telemetry</a>`;
+    } else {
+        html += '<span class="download-menu-item disabled" onclick="event.stopPropagation(); alert(\'Sorry, it seems this file was lost\');">Telemetry</span>';
+    }
     html += '</div>';
-    
+    html += '</div>';
+
+    html += '</div>';
+
     html += '<div class="tab-navigation">';
     html += '<button class="tab-btn active" onclick="switchGameTab(this, \'scoreboard\')">Scoreboard</button>';
     html += '<button class="tab-btn" onclick="switchGameTab(this, \'pvp\')">PVP</button>';
@@ -3495,11 +3502,12 @@ function closeSearchResults() {
     if (search2) search2.value = '';
 }
 
-function renderPlayerSearchResults(playerName) {
-    const stats = calculatePlayerStats(playerName);
-    const playerGames = gamesData.filter(game =>
-        game.players.some(p => p.name === playerName)
-    ).sort((a, b) => {
+function renderPlayerSearchResults(playerName, includeCustomGames = false) {
+    const stats = calculatePlayerStats(playerName, includeCustomGames);
+    // Always show all games in the list (ranked + custom)
+    const playerGames = gamesData.filter(game => {
+        return game.players.some(p => p.name === playerName);
+    }).sort((a, b) => {
         // Sort by date, most recent first
         const dateA = new Date(a.details['Start Time'] || a.details['End Time'] || 0);
         const dateB = new Date(b.details['Start Time'] || b.details['End Time'] || 0);
@@ -3509,8 +3517,17 @@ function renderPlayerSearchResults(playerName) {
     // Store medal breakdown for modal
     window.currentSearchMedalBreakdown = stats.medalBreakdown;
     window.currentSearchContext = playerName;
+    window.currentSearchPlayer = playerName;
 
     let html = '<div class="search-results-container">';
+
+    // Custom games filter checkbox
+    html += '<div class="stats-filter-row">';
+    html += `<label class="custom-games-toggle">`;
+    html += `<input type="checkbox" id="showCustomGames" ${includeCustomGames ? 'checked' : ''} onchange="toggleCustomGamesFilter()">`;
+    html += `<span>Include Custom Games in Stats</span>`;
+    html += `</label>`;
+    html += '</div>';
 
     // Player stats summary
     html += '<div class="player-stats-summary">';
@@ -3524,19 +3541,32 @@ function renderPlayerSearchResults(playerName) {
     html += `<div class="stat-card clickable-stat" onclick="showSearchMedalBreakdown()"><div class="stat-label">Total Medals</div><div class="stat-value">${stats.totalMedals}</div></div>`;
     html += '</div>';
     html += '</div>';
-    
+
     // Recent games header
     html += '<div class="section-header">Recent Games</div>';
-    
+
     // Games list
     html += '<div class="search-games-list">';
     playerGames.forEach((game, index) => {
         html += renderSearchGameCard(game, gamesData.length - gamesData.indexOf(game), playerName);
     });
     html += '</div>';
-    
+
     html += '</div>';
     return html;
+}
+
+function toggleCustomGamesFilter() {
+    const checkbox = document.getElementById('showCustomGames');
+    const includeCustomGames = checkbox ? checkbox.checked : false;
+    const playerName = window.currentSearchPlayer;
+
+    if (playerName) {
+        const searchResultsContent = document.getElementById('searchResultsContent');
+        if (searchResultsContent) {
+            searchResultsContent.innerHTML = renderPlayerSearchResults(playerName, includeCustomGames);
+        }
+    }
 }
 
 function renderMapSearchResults(mapName) {
@@ -4183,9 +4213,7 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     html += '</div>';
     html += '</div>';
     html += '<div class="game-header-right">';
-    if (game.playlist) {
-        html += `<span class="game-meta-tag playlist-tag">${game.playlist}</span>`;
-    }
+    html += `<span class="game-meta-tag playlist-tag${!game.playlist ? ' custom-game' : ''}">${game.playlist || 'Custom Games'}</span>`;
     if (startTime) {
         html += `<span class="game-meta-tag date-tag">${formatDateTime(startTime)}</span>`;
     }
@@ -4260,7 +4288,7 @@ function openPlayerModal(playerName) {
     }, 100);
 }
 
-function calculatePlayerStats(playerName) {
+function calculatePlayerStats(playerName, includeCustomGames = false) {
     const stats = {
         games: 0,
         wins: 0,
@@ -4276,6 +4304,12 @@ function calculatePlayerStats(playerName) {
     };
 
     gamesData.forEach(game => {
+        // Filter out custom games (games without playlist) unless includeCustomGames is true
+        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+        if (!includeCustomGames && !isRankedGame) {
+            return; // Skip custom games
+        }
+
         const player = game.players.find(p => p.name === playerName);
         if (player) {
             stats.games++;
