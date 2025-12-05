@@ -126,6 +126,9 @@
                     </div>
 
                     <div id="twitch-hub-vods" class="twitch-hub-content" style="display: block;">
+                        <div class="vod-search-container">
+                            <input type="text" id="vodSearchInput" class="vod-search-input" placeholder="Search by map, gametype, or player..." oninput="filterTwitchVods()">
+                        </div>
                         <div class="twitch-hub-loading">Loading VODs...</div>
                         <div id="twitch-vods-grid" class="twitch-hub-grid"></div>
                     </div>

@@ -233,6 +233,7 @@ function vodOverlapsWithGames(vod, gameRanges) {
 }
 
 // Find games that overlap with a VOD where the streamer participated
+// Returns array with timestamp offset for each game
 function findGamesForVod(vod) {
     const vodStart = new Date(vod.createdAt);
     const vodEnd = new Date(vodStart.getTime() + (vod.lengthSeconds * 1000));
@@ -252,17 +253,36 @@ function findGamesForVod(vod) {
             const gamePlayerNames = (game.players || []).map(p => (p.name || '').toLowerCase());
             const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
             if (wasInGame) {
+                // Calculate timestamp offset from VOD start to game start
+                const offsetSeconds = Math.max(0, Math.floor((startDate - vodStart) / 1000));
+                const players = (game.players || []).map(p => p.name).filter(Boolean);
+
                 matchingGames.push({
                     index: index,
                     mapName: game.details['Map Name'] || 'Unknown',
                     gameType: game.details['Variant Name'] || game.details['Game Type'] || 'Unknown',
-                    startTime: game.details['Start Time']
+                    startTime: game.details['Start Time'],
+                    timestampSeconds: offsetSeconds,
+                    timestampFormatted: formatVodTimestamp(offsetSeconds),
+                    players: players
                 });
             }
         }
     });
 
     return matchingGames;
+}
+
+// Format seconds to Twitch timestamp format (XhXmXs)
+function formatVodTimestamp(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    let result = '';
+    if (h > 0) result += `${h}h`;
+    if (m > 0 || h > 0) result += `${m}m`;
+    result += `${s}s`;
+    return result;
 }
 
 // Check if a clip came from a VOD that overlaps with games where the streamer participated
@@ -401,8 +421,43 @@ async function fetchTwitchClips(username) {
     }
 }
 
-// Render VODs in the Twitch Hub
-function renderTwitchHubVods() {
+// Store expanded VOD entries (one per game) for filtering
+let vodGameEntries = [];
+
+// Build VOD game entries - creates one entry per game covered by each VOD
+function buildVodGameEntries() {
+    vodGameEntries = [];
+
+    for (const vod of twitchHubVods) {
+        const matchingGames = findGamesForVod(vod);
+        const thumbnail = vod.previewThumbnailURL?.replace('%{width}', '320').replace('%{height}', '180') || '';
+
+        if (matchingGames.length > 0) {
+            // Create one entry per game
+            for (const game of matchingGames) {
+                vodGameEntries.push({
+                    vod: vod,
+                    game: game,
+                    thumbnail: thumbnail,
+                    vodUrl: `https://twitch.tv/videos/${vod.id}?t=${game.timestampFormatted}`,
+                    mapName: game.mapName,
+                    gameType: game.gameType,
+                    players: game.players,
+                    streamer: vod.user.displayName,
+                    streamerChannel: vod.user.twitchName,
+                    date: new Date(vod.createdAt),
+                    gameIndex: game.index
+                });
+            }
+        }
+    }
+
+    // Sort by date (newest first)
+    vodGameEntries.sort((a, b) => b.date - a.date);
+}
+
+// Render VODs in the Twitch Hub with optional filter
+function renderTwitchHubVods(filterQuery = '') {
     const container = document.getElementById('twitch-vods-grid');
     const loadingEl = container?.previousElementSibling;
 
@@ -412,50 +467,53 @@ function renderTwitchHubVods() {
         loadingEl.style.display = 'none';
     }
 
-    if (twitchHubVods.length === 0) {
+    // Build entries if not already built
+    if (vodGameEntries.length === 0 && twitchHubVods.length > 0) {
+        buildVodGameEntries();
+    }
+
+    if (vodGameEntries.length === 0) {
         container.innerHTML = '<div class="twitch-hub-empty">No VODs found</div>';
         return;
     }
 
+    // Filter entries based on search query
+    let filteredEntries = vodGameEntries;
+    if (filterQuery.trim()) {
+        const query = filterQuery.toLowerCase().trim();
+        filteredEntries = vodGameEntries.filter(entry => {
+            // Search by map name
+            if (entry.mapName.toLowerCase().includes(query)) return true;
+            // Search by game type
+            if (entry.gameType.toLowerCase().includes(query)) return true;
+            // Search by streamer name
+            if (entry.streamer.toLowerCase().includes(query)) return true;
+            // Search by player names
+            if (entry.players.some(p => p.toLowerCase().includes(query))) return true;
+            return false;
+        });
+    }
+
+    if (filteredEntries.length === 0) {
+        container.innerHTML = '<div class="twitch-hub-empty">No VODs match your search</div>';
+        return;
+    }
+
     let html = '';
-    for (const vod of twitchHubVods.slice(0, 50)) { // Show latest 50
-        const date = new Date(vod.createdAt).toLocaleDateString();
-        const duration = formatVodDuration(vod.lengthSeconds);
-        const thumbnail = vod.previewThumbnailURL?.replace('%{width}', '320').replace('%{height}', '180') || '';
-
-        // Find games that this VOD covers
-        const matchingGames = findGamesForVod(vod);
-
-        // Build game info display (show map/gametype instead of VOD title)
-        let gameInfoHtml = '';
-        if (matchingGames.length > 0) {
-            // Show first game's map/gametype as primary, with count if multiple
-            const firstGame = matchingGames[0];
-            const gameCount = matchingGames.length;
-            gameInfoHtml = `<span class="vod-game-info" data-game-index="${firstGame.index}" onclick="navigateToGame(${firstGame.index})">${firstGame.mapName} - ${firstGame.gameType}${gameCount > 1 ? ` (+${gameCount - 1} more)` : ''}</span>`;
-        } else {
-            gameInfoHtml = `<span class="vod-game-info">${vod.title}</span>`;
-        }
-
-        // Make thumbnail clickable to game if available, otherwise to Twitch
-        const thumbnailClick = matchingGames.length > 0
-            ? `onclick="navigateToGame(${matchingGames[0].index})" style="cursor:pointer"`
-            : '';
-        const thumbnailHref = matchingGames.length > 0 ? '#' : `https://twitch.tv/videos/${vod.id}`;
-        const thumbnailTarget = matchingGames.length > 0 ? '' : 'target="_blank"';
+    for (const entry of filteredEntries.slice(0, 100)) { // Show up to 100 entries
+        const date = entry.date.toLocaleDateString();
 
         html += `
-            <div class="twitch-hub-card">
-                <a href="${thumbnailHref}" ${thumbnailTarget} class="twitch-hub-thumbnail" ${thumbnailClick}>
-                    <img src="${thumbnail}" alt="VOD" onerror="this.src='assets/placeholder-vod.png'">
-                    <span class="twitch-hub-duration">${duration}</span>
+            <div class="twitch-hub-card" data-map="${entry.mapName}" data-gametype="${entry.gameType}">
+                <a href="${entry.vodUrl}" target="_blank" class="twitch-hub-thumbnail">
+                    <img src="${entry.thumbnail}" alt="VOD" onerror="this.src='assets/placeholder-vod.png'">
+                    <span class="twitch-hub-timestamp">${entry.game.timestampFormatted}</span>
                 </a>
                 <div class="twitch-hub-info">
-                    ${gameInfoHtml}
+                    <span class="vod-game-info" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</span>
                     <div class="twitch-hub-meta">
-                        <a href="https://twitch.tv/${vod.user.twitchName}" target="_blank" class="twitch-hub-streamer">${vod.user.displayName}</a>
+                        <a href="https://twitch.tv/${entry.streamerChannel}" target="_blank" class="twitch-hub-streamer">${entry.streamer}</a>
                         <span class="twitch-hub-date">${date}</span>
-                        <a href="https://twitch.tv/videos/${vod.id}" target="_blank" class="vod-twitch-link" title="Watch on Twitch">VOD</a>
                     </div>
                 </div>
             </div>
@@ -463,6 +521,14 @@ function renderTwitchHubVods() {
     }
 
     container.innerHTML = html;
+}
+
+// Filter VODs based on search input
+function filterTwitchVods() {
+    const searchInput = document.getElementById('vodSearchInput');
+    if (searchInput) {
+        renderTwitchHubVods(searchInput.value);
+    }
 }
 
 // Navigate to a specific game in the games list and expand it
@@ -1405,7 +1471,10 @@ async function loadGamesData() {
 
         console.log('[DEBUG] Initializing search...');
         initializeSearch();
-        
+
+        console.log('[DEBUG] Handling URL navigation...');
+        handleUrlNavigation();
+
         console.log('[DEBUG] All rendering complete!');
     } catch (error) {
         console.error('[ERROR] Failed to load games data:', error);
@@ -1436,7 +1505,7 @@ async function loadGamesData() {
     }
 }
 
-function switchMainTab(tabName) {
+function switchMainTab(tabName, updateHash = true) {
     const allMainTabs = document.querySelectorAll('.main-tab-content');
     allMainTabs.forEach(tab => tab.style.display = 'none');
 
@@ -1457,6 +1526,57 @@ function switchMainTab(tabName) {
     if (tabName === 'twitch') {
         loadTwitchHub();
     }
+
+    // Update URL hash for deep linking (e.g., /leaderboard, /twitch)
+    if (updateHash) {
+        const hashName = getHashNameForTab(tabName);
+        if (hashName) {
+            history.replaceState(null, '', '/' + hashName);
+        } else {
+            history.replaceState(null, '', '/');
+        }
+    }
+}
+
+// Map tab names to URL paths
+function getHashNameForTab(tabName) {
+    const tabToHash = {
+        'games': 'games',
+        'leaderboard': 'leaderboard',
+        'twitch': 'twitch',
+        'pvp': 'pvp',
+        'emblem': 'emblem'
+    };
+    return tabToHash[tabName] || null;
+}
+
+// Map URL paths to tab names
+function getTabNameFromHash(hash) {
+    const hashToTab = {
+        'games': 'games',
+        'leaderboard': 'leaderboard',
+        'twitch': 'twitch',
+        'pvp': 'pvp',
+        'emblem': 'emblem'
+    };
+    return hashToTab[hash] || null;
+}
+
+// Handle URL-based tab navigation on page load
+function handleUrlNavigation() {
+    // Get path from URL (e.g., /leaderboard -> leaderboard)
+    const path = window.location.pathname.replace(/^\//, '').replace(/\/$/, '').toLowerCase();
+
+    if (path) {
+        const tabName = getTabNameFromHash(path);
+        if (tabName) {
+            switchMainTab(tabName, false);
+            return;
+        }
+    }
+
+    // Default to games tab if no valid path
+    switchMainTab('games', false);
 }
 
 function renderGamesList() {
