@@ -1754,6 +1754,8 @@ function toggleGameDetails(gameNumber) {
             const game = gamesData[gameIndex];
             if (game) {
                 gameContent.innerHTML = renderGameContent(game);
+                // Load scoreboard emblems
+                loadScoreboardEmblems(gameContent);
             }
         }
     }
@@ -1896,7 +1898,7 @@ function renderScoreboard(game) {
     const details = game.details;
     const gameType = (details['Game Type'] || '').toLowerCase();
     const hasTeams = players.some(p => isValidTeam(p.team));
-    
+
     // Sort players: Red team first, then Blue team
     const sortedPlayers = [...players];
     if (hasTeams) {
@@ -1907,26 +1909,47 @@ function renderScoreboard(game) {
             return teamA - teamB;
         });
     }
-    
+
+    // Build map of player emblems from detailed_stats for this game
+    const playerEmblemsInGame = {};
+    if (game.detailed_stats) {
+        game.detailed_stats.forEach(stat => {
+            if (stat.player && stat.emblem_url) {
+                playerEmblemsInGame[stat.player] = stat.emblem_url;
+            }
+        });
+    }
+
     let html = '<div class="scoreboard">';
-    
-    // Determine columns - removed Team column
-    let columns = ['Player', 'Score', 'K', 'D', 'A', 'K/D'];
-    
-    // Build grid template - simplified without Team column
-    let gridTemplate = '2fr 80px 50px 50px 50px 70px';
-    
+
+    // Determine columns - added Emblem column
+    let columns = ['', 'Player', 'Score', 'K', 'D', 'A', 'K/D'];
+
+    // Build grid template - added emblem column
+    let gridTemplate = '40px 2fr 80px 50px 50px 50px 70px';
+
     // Header
     html += `<div class="scoreboard-header" style="grid-template-columns: ${gridTemplate}">`;
     columns.forEach(col => {
         html += `<div>${col}</div>`;
     });
     html += '</div>';
-    
+
     // Rows
     sortedPlayers.forEach(player => {
         const teamAttr = isValidTeam(player.team) ? `data-team="${player.team}"` : '';
         html += `<div class="scoreboard-row" ${teamAttr} style="grid-template-columns: ${gridTemplate}">`;
+
+        // Emblem column - prefer game's detailed_stats, fallback to getPlayerEmblem
+        const emblemUrl = playerEmblemsInGame[player.name] || getPlayerEmblem(player.name);
+        const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
+        html += '<div class="sb-emblem">';
+        if (emblemParams && typeof generateEmblemDataUrl === 'function') {
+            html += `<div class="emblem-placeholder sb-emblem-placeholder" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
+        } else {
+            html += '<div class="sb-emblem-empty"></div>';
+        }
+        html += '</div>';
 
         const displayName = getDisplayNameForProfile(player.name);
         html += `<div class="sb-player clickable-player" data-player="${player.name}">`;
@@ -1939,10 +1962,10 @@ function renderScoreboard(game) {
         html += `<div class="sb-deaths">${player.deaths || 0}</div>`;
         html += `<div class="sb-assists">${player.assists || 0}</div>`;
         html += `<div class="sb-kd">${calculateKD(player.kills, player.deaths)}</div>`;
-        
+
         html += '</div>';
     });
-    
+
     html += '</div>';
     return html;
 }
@@ -2787,6 +2810,7 @@ function renderLeaderboard(selectedPlaylist = null) {
     let html = '<div class="leaderboard">';
     html += '<div class="leaderboard-header">';
     html += '<div>Rank</div>';
+    html += '<div></div>'; // Emblem column - no header text
     html += '<div>Player</div>';
     html += '<div>Record</div>';
     html += '<div>K/D</div>';
@@ -2801,6 +2825,10 @@ function renderLeaderboard(selectedPlaylist = null) {
         // Use first profile name for data-player attribute (for game history lookups)
         // If no profile names, use discord name as fallback
         const playerDataAttr = player.profileNames.length > 0 ? player.profileNames[0] : player.displayName;
+
+        // Get player emblem
+        const emblemUrl = getPlayerEmblem(playerDataAttr) || getPlayerEmblem(player.discordId);
+        const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
 
         // For players with 0 games, show dashes instead of stats
         const hasGames = player.games > 0;
@@ -2820,6 +2848,13 @@ function renderLeaderboard(selectedPlaylist = null) {
 
         html += '<div class="leaderboard-row clickable-player" data-player="' + playerDataAttr + '" data-discord-id="' + player.discordId + '">';
         html += `<div class="lb-rank"><img src="${rankIconUrl}" alt="Rank ${player.rank}" class="rank-icon" /></div>`;
+        html += '<div class="lb-emblem">';
+        if (emblemParams && typeof generateEmblemDataUrl === 'function') {
+            html += `<div class="emblem-placeholder lb-emblem-placeholder" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
+        } else {
+            html += '<div class="lb-emblem-empty"></div>';
+        }
+        html += '</div>';
         html += `<div class="lb-player">${player.displayName}</div>`;
         html += `<div class="lb-record">${recordDisplay}</div>`;
         html += `<div class="lb-kd ${kdClass}">${kdDisplay}</div>`;
@@ -2828,6 +2863,45 @@ function renderLeaderboard(selectedPlaylist = null) {
 
     html += '</div>';
     leaderboardContainer.innerHTML = html;
+
+    // Load emblems async
+    loadLeaderboardEmblems();
+}
+
+// Load emblems for leaderboard rows
+async function loadLeaderboardEmblems() {
+    const placeholders = document.querySelectorAll('.lb-emblem-placeholder[data-emblem-params]');
+    for (const placeholder of placeholders) {
+        try {
+            const params = JSON.parse(placeholder.dataset.emblemParams);
+            if (typeof generateEmblemDataUrl === 'function') {
+                const dataUrl = await generateEmblemDataUrl(params);
+                if (dataUrl) {
+                    placeholder.innerHTML = `<img src="${dataUrl}" alt="Emblem" class="lb-emblem-img">`;
+                }
+            }
+        } catch (e) {
+            console.error('Error loading leaderboard emblem:', e);
+        }
+    }
+}
+
+// Load emblems for scoreboard rows within a container
+async function loadScoreboardEmblems(container) {
+    const placeholders = container.querySelectorAll('.sb-emblem-placeholder[data-emblem-params]');
+    for (const placeholder of placeholders) {
+        try {
+            const params = JSON.parse(placeholder.dataset.emblemParams);
+            if (typeof generateEmblemDataUrl === 'function') {
+                const dataUrl = await generateEmblemDataUrl(params);
+                if (dataUrl) {
+                    placeholder.innerHTML = `<img src="${dataUrl}" alt="Emblem" class="sb-emblem-img">`;
+                }
+            }
+        } catch (e) {
+            console.error('Error loading scoreboard emblem:', e);
+        }
+    }
 }
 
 function initializeSearch() {
