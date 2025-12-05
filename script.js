@@ -4680,6 +4680,9 @@ function showProfileWeaponKillsBreakdown() {
 
     // Calculate weapon kill stats for the player
     const weaponStats = {};
+    let totalMeleeMedals = 0;
+    let meleeWeaponKills = 0;
+    const meleeWeapons = ['energy sword', 'flag', 'bomb', 'oddball'];
 
     currentProfileGames.forEach(game => {
         const weaponData = game.weapons?.find(w => w.Player === currentProfilePlayer);
@@ -4691,11 +4694,27 @@ function showProfileWeaponKillsBreakdown() {
                     const kills = parseInt(weaponData[key]) || 0;
                     if (kills > 0) {
                         weaponStats[weaponName] = (weaponStats[weaponName] || 0) + kills;
+                        // Track melee weapon kills
+                        if (meleeWeapons.includes(weaponName.toLowerCase())) {
+                            meleeWeaponKills += kills;
+                        }
                     }
                 }
             });
         }
+
+        // Get melee medals (bone_cracker + assassin)
+        const medalData = game.medals?.find(m => m.player === currentProfilePlayer);
+        if (medalData) {
+            totalMeleeMedals += (medalData.bone_cracker || 0) + (medalData.assassin || 0);
+        }
     });
+
+    // Calculate beatdown kills (melee medals minus melee weapon kills)
+    const beatdownKills = Math.max(0, totalMeleeMedals - meleeWeaponKills);
+    if (beatdownKills > 0) {
+        weaponStats['melee'] = beatdownKills;
+    }
 
     // Sort by most kills and separate grenades from weapons
     const sortedWeapons = Object.entries(weaponStats).sort((a, b) => b[1] - a[1]);
