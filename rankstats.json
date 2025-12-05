@@ -247,7 +247,10 @@
     "kills": 61,
     "deaths": 44,
     "assists": 36,
-    "headshots": 48
+    "headshots": 48,
+    "in_game_names": [
+      ""
+    ]
   },
   "334212655613214721": {
     "xp": 490,
