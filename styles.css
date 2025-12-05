@@ -4646,13 +4646,8 @@ header {
     border: none;
 }
 
-.vod-game-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+.vod-game-header {
+    background: rgba(0, 0, 0, 0.6);
     color: var(--unsc-blue);
     padding: 8px 10px;
     font-family: 'Orbitron', sans-serif;
@@ -4660,12 +4655,12 @@ header {
     font-weight: 600;
     cursor: pointer;
     transition: color 0.2s ease, background 0.2s ease;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    text-align: center;
 }
 
-.vod-game-overlay:hover {
+.vod-game-header:hover {
     color: #00ff88;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 100%);
+    background: rgba(0, 0, 0, 0.8);
 }
 
 .twitch-hub-duration {

@@ -507,8 +507,8 @@ function renderTwitchHubVods(filterQuery = '') {
 
         html += `
             <div class="twitch-hub-card" data-map="${entry.mapName}" data-gametype="${entry.gameType}">
+                <div class="vod-game-header" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</div>
                 <div class="twitch-hub-embed-wrapper">
-                    <div class="vod-game-overlay" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</div>
                     <iframe src="${embedUrl}" allowfullscreen></iframe>
                 </div>
                 <div class="twitch-hub-info">
