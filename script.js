@@ -507,8 +507,8 @@ function renderTwitchHubVods(filterQuery = '') {
 
         html += `
             <div class="twitch-hub-card" data-map="${entry.mapName}" data-gametype="${entry.gameType}">
+                <div class="vod-game-header" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</div>
                 <div class="twitch-hub-embed-wrapper">
-                    <div class="vod-game-overlay" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</div>
                     <iframe src="${embedUrl}" allowfullscreen></iframe>
                 </div>
                 <div class="twitch-hub-info">
@@ -1127,9 +1127,9 @@ async function loadEmblems() {
     }
 }
 
-// Parse emblem parameters from a halo2pc.com URL or return null if not valid
+// Parse emblem parameters from emblem URL or return null if not valid
 function parseEmblemParams(url) {
-    if (!url || !url.includes('emblem.php')) return null;
+    if (!url || (!url.includes('emblem.php') && !url.includes('emblem.html'))) return null;
 
     try {
         const urlParams = new URL(url).searchParams;
