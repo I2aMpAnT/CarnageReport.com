@@ -507,7 +507,6 @@ function renderTwitchHubVods(filterQuery = '') {
             <div class="twitch-hub-card" data-map="${entry.mapName}" data-gametype="${entry.gameType}">
                 <a href="${entry.vodUrl}" target="_blank" class="twitch-hub-thumbnail">
                     <img src="${entry.thumbnail}" alt="VOD" onerror="this.src='assets/placeholder-vod.png'">
-                    <span class="twitch-hub-timestamp">${entry.game.timestampFormatted}</span>
                 </a>
                 <div class="twitch-hub-info">
                     <span class="vod-game-info" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</span>
