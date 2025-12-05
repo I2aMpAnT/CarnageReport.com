@@ -1745,18 +1745,21 @@ function createGameItem(game, gameNumber) {
             teamScoreDisplay = `<span class="game-meta-tag ${scoreTagClass}">${winnerDisplay}</span>`;
         }
     }
-    
-    // Build download buttons HTML
-    let downloadButtons = '';
+
+    // Build download dropdown HTML
+    let downloadDropdown = '';
     if (game.public_url || game.theater_url) {
-        downloadButtons = '<div class="game-download-buttons" onclick="event.stopPropagation()">';
+        downloadDropdown = '<div class="game-download-dropdown" onclick="event.stopPropagation()">';
+        downloadDropdown += '<button class="download-icon-btn" onclick="toggleDownloadMenu(event, ' + gameNumber + ')" title="Download Files">💾</button>';
+        downloadDropdown += `<div class="download-menu" id="download-menu-${gameNumber}">`;
         if (game.public_url) {
-            downloadButtons += `<a href="${game.public_url}" class="download-btn download-stats" title="Download Stats" target="_blank">STATS</a>`;
+            downloadDropdown += `<a href="${game.public_url}" class="download-menu-item" target="_blank">📊 Stats</a>`;
         }
         if (game.theater_url) {
-            downloadButtons += `<a href="${game.theater_url}" class="download-btn download-theater" title="Download Theater" target="_blank">FILM</a>`;
+            downloadDropdown += `<a href="${game.theater_url}" class="download-menu-item" target="_blank">🎬 Telemetry</a>`;
         }
-        downloadButtons += '</div>';
+        downloadDropdown += '</div>';
+        downloadDropdown += '</div>';
     }
 
     gameDiv.innerHTML = `
@@ -1771,7 +1774,7 @@ function createGameItem(game, gameNumber) {
             </div>
             <div class="game-header-right">
                 ${game.playlist ? `<span class="game-meta-tag playlist-tag">${game.playlist}</span>` : ''}
-                ${downloadButtons}
+                ${downloadDropdown}
                 ${dateDisplay ? `<span class="game-meta-tag date-tag">${dateDisplay}</span>` : ''}
                 <div class="expand-icon">▶</div>
             </div>
@@ -1785,6 +1788,29 @@ function createGameItem(game, gameNumber) {
     
     return gameDiv;
 }
+
+// Toggle download dropdown menu
+function toggleDownloadMenu(event, gameNumber) {
+    event.stopPropagation();
+    const menu = document.getElementById(`download-menu-${gameNumber}`);
+    if (!menu) return;
+
+    // Close all other open menus
+    document.querySelectorAll('.download-menu.show').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+    });
+
+    menu.classList.toggle('show');
+}
+
+// Close download menus when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.game-download-dropdown')) {
+        document.querySelectorAll('.download-menu.show').forEach(m => {
+            m.classList.remove('show');
+        });
+    }
+});
 
 function toggleGameDetails(gameNumber) {
     const gameItem = document.getElementById(`game-${gameNumber}`);

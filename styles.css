@@ -559,6 +559,80 @@ header {
     background: rgba(255, 200, 0, 0.2);
 }
 
+/* Download Dropdown */
+.game-download-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.download-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 200, 255, 0.3);
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.download-icon-btn:hover {
+    background: rgba(0, 200, 255, 0.2);
+    border-color: var(--unsc-blue);
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+}
+
+.download-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    min-width: 140px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.download-menu.show {
+    display: block;
+}
+
+.download-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-family: 'Overpass', sans-serif;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.download-menu-item:hover {
+    background: rgba(0, 217, 255, 0.1);
+    color: var(--primary-color);
+}
+
+.download-menu-item:first-child {
+    border-radius: 6px 6px 0 0;
+}
+
+.download-menu-item:last-child {
+    border-radius: 0 0 6px 6px;
+}
+
+.download-menu-item:only-child {
+    border-radius: 6px;
+}
+
 .expand-icon {
     flex-shrink: 0;
     min-width: 20px;
