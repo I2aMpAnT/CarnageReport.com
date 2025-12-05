@@ -1066,16 +1066,19 @@ def main():
 
             if user_id:
                 player_to_id[player_name] = user_id
-                # Update alias from players.json if available
+                # Update display name from players.json if available
                 if user_id in players:
                     player_data = players[user_id]
-                    # Set alias from first entry in aliases array (for website display)
-                    # Priority: aliases[0] > display_name
+                    # Set alias and discord_name from players.json
+                    # Priority: aliases[0] > display_name > existing discord_name
                     aliases = player_data.get('aliases', [])
+                    display_name = player_data.get('display_name', '')
                     if aliases:
                         rankstats[user_id]['alias'] = aliases[0]
-                    elif player_data.get('display_name'):
-                        rankstats[user_id]['alias'] = player_data['display_name']
+                        rankstats[user_id]['discord_name'] = aliases[0]
+                    elif display_name:
+                        rankstats[user_id]['alias'] = display_name
+                        rankstats[user_id]['discord_name'] = display_name
             else:
                 # Create new entry for unmatched player
                 temp_id = str(abs(hash(player_name)) % 10**18)
@@ -1503,7 +1506,7 @@ def main():
     ranked_players = [(uid, d) for uid, d in rankstats.items() if d.get('wins', 0) > 0 or d.get('losses', 0) > 0]
     ranked_players.sort(key=lambda x: (x[1].get('rank', 0), x[1].get('wins', 0)), reverse=True)
     for uid, d in ranked_players[:15]:
-        name = d.get('discord_name', 'Unknown')
+        name = d.get('alias') or d.get('discord_name', 'Unknown')
         rank = d.get('rank', 1)
         xp = d.get('xp', 0)
         wins = d.get('wins', 0)
