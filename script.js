@@ -232,6 +232,39 @@ function vodOverlapsWithGames(vod, gameRanges) {
     return false;
 }
 
+// Find games that overlap with a VOD where the streamer participated
+function findGamesForVod(vod) {
+    const vodStart = new Date(vod.createdAt);
+    const vodEnd = new Date(vodStart.getTime() + (vod.lengthSeconds * 1000));
+    const streamerInGameNames = getInGameNamesForDiscordId(vod.user.discordId);
+    const matchingGames = [];
+
+    gamesData.forEach((game, index) => {
+        if (!game.details || !game.details['Start Time'] || !game.details['End Time']) return;
+
+        const startDate = parseGameDateTime(game.details['Start Time']);
+        const endDate = parseGameDateTime(game.details['End Time']);
+        if (!startDate || !endDate) return;
+
+        // Check time overlap
+        if (vodStart <= endDate && vodEnd >= startDate) {
+            // Check if streamer was in this game
+            const gamePlayerNames = (game.players || []).map(p => (p.name || '').toLowerCase());
+            const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
+            if (wasInGame) {
+                matchingGames.push({
+                    index: index,
+                    mapName: game.details['Map Name'] || 'Unknown',
+                    gameType: game.details['Variant Name'] || game.details['Game Type'] || 'Unknown',
+                    startTime: game.details['Start Time']
+                });
+            }
+        }
+    });
+
+    return matchingGames;
+}
+
 // Check if a clip came from a VOD that overlaps with games where the streamer participated
 function clipOverlapsWithGames(clip, gameRanges, filteredVods) {
     // If clip doesn't have a source VOD, can't verify it came from a game
@@ -390,17 +423,39 @@ function renderTwitchHubVods() {
         const duration = formatVodDuration(vod.lengthSeconds);
         const thumbnail = vod.previewThumbnailURL?.replace('%{width}', '320').replace('%{height}', '180') || '';
 
+        // Find games that this VOD covers
+        const matchingGames = findGamesForVod(vod);
+
+        // Build game info display (show map/gametype instead of VOD title)
+        let gameInfoHtml = '';
+        if (matchingGames.length > 0) {
+            // Show first game's map/gametype as primary, with count if multiple
+            const firstGame = matchingGames[0];
+            const gameCount = matchingGames.length;
+            gameInfoHtml = `<span class="vod-game-info" data-game-index="${firstGame.index}" onclick="navigateToGame(${firstGame.index})">${firstGame.mapName} - ${firstGame.gameType}${gameCount > 1 ? ` (+${gameCount - 1} more)` : ''}</span>`;
+        } else {
+            gameInfoHtml = `<span class="vod-game-info">${vod.title}</span>`;
+        }
+
+        // Make thumbnail clickable to game if available, otherwise to Twitch
+        const thumbnailClick = matchingGames.length > 0
+            ? `onclick="navigateToGame(${matchingGames[0].index})" style="cursor:pointer"`
+            : '';
+        const thumbnailHref = matchingGames.length > 0 ? '#' : `https://twitch.tv/videos/${vod.id}`;
+        const thumbnailTarget = matchingGames.length > 0 ? '' : 'target="_blank"';
+
         html += `
             <div class="twitch-hub-card">
-                <a href="https://twitch.tv/videos/${vod.id}" target="_blank" class="twitch-hub-thumbnail">
-                    <img src="${thumbnail}" alt="${vod.title}" onerror="this.src='assets/placeholder-vod.png'">
+                <a href="${thumbnailHref}" ${thumbnailTarget} class="twitch-hub-thumbnail" ${thumbnailClick}>
+                    <img src="${thumbnail}" alt="VOD" onerror="this.src='assets/placeholder-vod.png'">
                     <span class="twitch-hub-duration">${duration}</span>
                 </a>
                 <div class="twitch-hub-info">
-                    <a href="https://twitch.tv/videos/${vod.id}" target="_blank" class="twitch-hub-title">${vod.title}</a>
+                    ${gameInfoHtml}
                     <div class="twitch-hub-meta">
                         <a href="https://twitch.tv/${vod.user.twitchName}" target="_blank" class="twitch-hub-streamer">${vod.user.displayName}</a>
                         <span class="twitch-hub-date">${date}</span>
+                        <a href="https://twitch.tv/videos/${vod.id}" target="_blank" class="vod-twitch-link" title="Watch on Twitch">VOD</a>
                     </div>
                 </div>
             </div>
@@ -408,6 +463,30 @@ function renderTwitchHubVods() {
     }
 
     container.innerHTML = html;
+}
+
+// Navigate to a specific game in the games list and expand it
+function navigateToGame(gameIndex) {
+    // Switch to Games History tab
+    const gamesTab = document.querySelector('[data-tab="games"]');
+    if (gamesTab) {
+        gamesTab.click();
+    }
+
+    // Calculate the game number (games are displayed in reverse order, newest first)
+    const gameNumber = gamesData.length - gameIndex;
+
+    // Scroll to and expand the game
+    setTimeout(() => {
+        const gameElement = document.getElementById(`game-${gameNumber}`);
+        if (gameElement) {
+            gameElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Expand if not already expanded
+            if (!gameElement.classList.contains('expanded')) {
+                toggleGameDetails(gameNumber);
+            }
+        }
+    }, 100);
 }
 
 // Render clips in the Twitch Hub
@@ -2149,10 +2228,11 @@ function renderAccuracy(game) {
         const accuracy = totalFired > 0 ? ((totalHit / totalFired) * 100).toFixed(1) : '0.0';
         const headshotPercent = totalHit > 0 ? ((totalHeadshots / totalHit) * 100).toFixed(0) : '0';
         
+        const accuracyDisplayName = getDisplayNameForProfile(playerName);
         html += `<div class="accuracy-row" ${teamAttr}>`;
         html += `<div class="accuracy-player-col clickable-player" data-player="${playerName}">`;
         html += getPreGameRankIconByName(playerName, game, 'small');
-        html += `<span class="player-name-text">${playerName}</span>`;
+        html += `<span class="player-name-text">${accuracyDisplayName}</span>`;
         html += `</div>`;
         html += `<div class="accuracy-total-col">${totalHit}</div>`;
         html += `<div class="accuracy-total-col">${totalFired}</div>`;
@@ -2210,11 +2290,12 @@ function renderWeapons(game) {
         const playerName = weaponData.Player;
         const team = playerTeams[playerName];
         const teamAttr = team ? `data-team="${team}"` : '';
-        
+        const weaponsDisplayName = getDisplayNameForProfile(playerName);
+
         html += `<div class="weapons-row" ${teamAttr}>`;
         html += `<div class="weapons-player-col clickable-player" data-player="${playerName}">`;
         html += getPreGameRankIconByName(playerName, game, 'small');
-        html += `<span class="player-name-text">${playerName}</span>`;
+        html += `<span class="player-name-text">${weaponsDisplayName}</span>`;
         html += `</div>`;
         html += `<div class="weapons-kills-col">`;
         

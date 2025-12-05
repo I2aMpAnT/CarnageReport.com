@@ -4631,6 +4631,36 @@ header {
     color: var(--text-muted);
 }
 
+.vod-game-info {
+    display: block;
+    font-size: 12px;
+    color: var(--unsc-blue);
+    margin-bottom: 5px;
+    font-family: 'Orbitron', sans-serif;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.vod-game-info:hover {
+    color: #00ff88;
+    text-decoration: underline;
+}
+
+.vod-twitch-link {
+    color: #9146FF;
+    text-decoration: none;
+    font-size: 10px;
+    padding: 2px 6px;
+    border: 1px solid #9146FF;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.vod-twitch-link:hover {
+    background: #9146FF;
+    color: white;
+}
+
 @media (max-width: 768px) {
     .twitch-hub-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
