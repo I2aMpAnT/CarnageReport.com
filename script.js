@@ -1538,7 +1538,8 @@ function getHashNameForTab(tabName) {
 // Map URL paths to tab names
 function getTabNameFromHash(hash) {
     const hashToTab = {
-        'games': 'games',
+        'games': 'gamehistory',
+        'gamehistory': 'gamehistory',
         'leaderboard': 'leaderboard',
         'twitch': 'twitch',
         'pvp': 'pvp',
@@ -1550,18 +1551,68 @@ function getTabNameFromHash(hash) {
 // Handle URL-based tab navigation on page load
 function handleUrlNavigation() {
     // Get path from URL (e.g., /leaderboard -> leaderboard)
-    const path = window.location.pathname.replace(/^\//, '').replace(/\/$/, '').toLowerCase();
+    const rawPath = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+    const path = rawPath.toLowerCase();
 
     if (path) {
+        // First check if it's a tab name
         const tabName = getTabNameFromHash(path);
         if (tabName) {
             switchMainTab(tabName, false);
             return;
         }
+
+        // Check if it's a player name (try to find matching player)
+        const playerName = findPlayerByUrlPath(rawPath);
+        if (playerName) {
+            // Small delay to ensure UI is ready
+            setTimeout(() => {
+                openPlayerProfile(playerName);
+            }, 100);
+            return;
+        }
     }
 
-    // Default to games tab if no valid path
-    switchMainTab('games', false);
+    // Default to gamehistory tab if no valid path
+    switchMainTab('gamehistory', false);
+}
+
+// Find player by URL path (case-insensitive match against display names and in-game names)
+function findPlayerByUrlPath(urlPath) {
+    const searchLower = decodeURIComponent(urlPath).toLowerCase();
+
+    // Search by discord display name first
+    for (const [discordId, data] of Object.entries(rankstatsData)) {
+        const displayName = data.display_name || data.discord_name || '';
+        if (displayName.toLowerCase() === searchLower) {
+            // Return the in-game name for this player
+            const profileNames = discordIdToProfileNames[discordId];
+            if (profileNames && profileNames.length > 0) {
+                return profileNames[0];
+            }
+            return displayName;
+        }
+    }
+
+    // Search by in-game name
+    for (const [profileName, discordId] of Object.entries(profileNameToDiscordId)) {
+        if (profileName.toLowerCase() === searchLower) {
+            return profileName;
+        }
+    }
+
+    // Partial match fallback (starts with)
+    for (const [discordId, data] of Object.entries(rankstatsData)) {
+        const displayName = data.display_name || data.discord_name || '';
+        if (displayName.toLowerCase().startsWith(searchLower)) {
+            const profileNames = discordIdToProfileNames[discordId];
+            if (profileNames && profileNames.length > 0) {
+                return profileNames[0];
+            }
+        }
+    }
+
+    return null;
 }
 
 function renderGamesList() {
