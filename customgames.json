@@ -1,0 +1,64 @@
+{
+  "matches": [
+    {
+      "timestamp": "11/28/2025 7:42",
+      "map": "Midship",
+      "gametype": "Team Slayer",
+      "variant": "MLG FFA 2007",
+      "winner": "Tie",
+      "red_team": [],
+      "blue_team": [],
+      "source_file": "20251128_074332.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 10:19 PM",
+      "map": "Midship",
+      "gametype": "capture_the_flag",
+      "variant": "MLG CTF MidWar",
+      "winner": "Red",
+      "red_team": [
+        "EpiiiC",
+        "WTFrenetic",
+        "AfroMaN",
+        "Keylord",
+        "STATSDEDI"
+      ],
+      "blue_team": [
+        "KidMode",
+        "iSiS RiNsY iSiS",
+        "cOn"
+      ],
+      "source_file": "20251205_222909.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 11:28 PM",
+      "map": "Midship",
+      "gametype": "Team Slayer",
+      "variant": "MLG FFA 2007",
+      "winner": "Tie",
+      "red_team": [],
+      "blue_team": [],
+      "source_file": "20251205_235823.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 4:02 AM",
+      "map": "Midship",
+      "gametype": "Team Slayer",
+      "variant": "MLG Free For All",
+      "winner": "Tie",
+      "red_team": [],
+      "blue_team": [],
+      "source_file": "20251206_041718.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 4:17 AM",
+      "map": "Midship",
+      "gametype": "Team Slayer",
+      "variant": "MLG Free For All",
+      "winner": "Tie",
+      "red_team": [],
+      "blue_team": [],
+      "source_file": "20251206_042331.xlsx"
+    }
+  ]
+}

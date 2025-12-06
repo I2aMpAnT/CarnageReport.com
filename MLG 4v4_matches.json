@@ -1,0 +1,670 @@
+{
+  "playlist": "MLG 4v4",
+  "matches": [
+    {
+      "timestamp": "11/28/2025 20:03",
+      "map": "Midship",
+      "gametype": "capture_the_flag",
+      "winner": "Red",
+      "red_team": [
+        "2D",
+        "KidMode",
+        "EpiiiC",
+        "Tetracide"
+      ],
+      "blue_team": [
+        "Rocky",
+        "Ralph Port",
+        "getitoutdaFLUD",
+        "roasted"
+      ],
+      "source_file": "20251128_201839.xlsx"
+    },
+    {
+      "timestamp": "11/28/2025 20:19",
+      "map": "Beaver Creek",
+      "gametype": "Team Slayer",
+      "winner": "Blue",
+      "red_team": [
+        "KidMode",
+        "2D",
+        "Tetracide",
+        "EpiiiC"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "roasted",
+        "Ralph Port",
+        "Rocky"
+      ],
+      "source_file": "20251128_202256.xlsx"
+    },
+    {
+      "timestamp": "11/28/2025 20:29",
+      "map": "Lockout",
+      "gametype": "Oddball",
+      "winner": "Blue",
+      "red_team": [
+        "KidMode",
+        "2D",
+        "Tetracide",
+        "EpiiiC"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "roasted",
+        "Ralph Port",
+        "Rocky"
+      ],
+      "source_file": "20251128_204504.xlsx"
+    },
+    {
+      "timestamp": "11/28/2025 20:45",
+      "map": "Warlock",
+      "gametype": "Team Slayer",
+      "winner": "Red",
+      "red_team": [
+        "EpiiiC",
+        "Tetracide",
+        "KidMode",
+        "2D"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "Ralph Port",
+        "Rocky",
+        "roasted"
+      ],
+      "source_file": "20251128_205019.xlsx"
+    },
+    {
+      "timestamp": "11/28/2025 20:50",
+      "map": "Sanctuary",
+      "gametype": "capture_the_flag",
+      "winner": "Red",
+      "red_team": [
+        "Tetracide",
+        "KidMode",
+        "2D",
+        "EpiiiC"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "Ralph Port",
+        "Rocky",
+        "roasted"
+      ],
+      "source_file": "20251128_210553.xlsx"
+    },
+    {
+      "timestamp": "12/2/2025 20:23",
+      "map": "Warlock",
+      "gametype": "capture_the_flag",
+      "winner": "Red",
+      "red_team": [
+        "Em Won 5 F 1 T",
+        "Rocky",
+        "getitoutdaFLUD",
+        "\ue101\ue100\ue101\ue103\ue075"
+      ],
+      "blue_team": [
+        "Dirk",
+        "AfroMaN",
+        "roasted",
+        "Keylord"
+      ],
+      "source_file": "20251202_203858.xlsx"
+    },
+    {
+      "timestamp": "12/2/2025 20:40",
+      "map": "Midship",
+      "gametype": "Team Slayer",
+      "winner": "Red",
+      "red_team": [
+        "Rocky",
+        "\ue101\ue100\ue101\ue103\ue075",
+        "Em Won 5 F 1 T",
+        "getitoutdaFLUD"
+      ],
+      "blue_team": [
+        "AfroMaN",
+        "Dirk",
+        "Keylord",
+        "roasted"
+      ],
+      "source_file": "20251202_204558.xlsx"
+    },
+    {
+      "timestamp": "12/2/2025 20:46",
+      "map": "Sanctuary",
+      "gametype": "capture_the_flag",
+      "winner": "Red",
+      "red_team": [
+        "Em Won 5 F 1 T",
+        "\ue101\ue100\ue101\ue103\ue075",
+        "Rocky",
+        "getitoutdaFLUD"
+      ],
+      "blue_team": [
+        "AfroMaN",
+        "Dirk",
+        "roasted",
+        "Keylord"
+      ],
+      "source_file": "20251202_210205.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 1:45 AM",
+      "map": "Warlock",
+      "gametype": "capture_the_flag",
+      "winner": "Red",
+      "red_team": [
+        "AfroMaN",
+        "shooter22",
+        "Hyrax",
+        "Sneaky Beaver"
+      ],
+      "blue_team": [
+        "popq2",
+        "DU7S",
+        "Curts GLORY",
+        "getitoutdaFLUD"
+      ],
+      "source_file": "20251205_015328.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 1:54 AM",
+      "map": "Sanctuary",
+      "gametype": "Team Slayer",
+      "winner": "Red",
+      "red_team": [
+        "Hyrax",
+        "Sneaky Beaver",
+        "AfroMaN",
+        "shooter22"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "DU7S",
+        "popq2",
+        "Curts GLORY"
+      ],
+      "source_file": "20251205_020151.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 2:02 AM",
+      "map": "Midship",
+      "gametype": "Bomb",
+      "winner": "Blue",
+      "red_team": [
+        "AfroMaN",
+        "shooter22",
+        "Hyrax",
+        "Sneaky Beaver"
+      ],
+      "blue_team": [
+        "DU7S",
+        "getitoutdaFLUD",
+        "popq2",
+        "Curts GLORY"
+      ],
+      "source_file": "20251205_021632.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 2:17 AM",
+      "map": "Lockout",
+      "gametype": "Team Slayer",
+      "winner": "Red",
+      "red_team": [
+        "Sneaky Beaver",
+        "shooter22",
+        "Hyrax",
+        "AfroMaN"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "Curts GLORY",
+        "popq2",
+        "DU7S"
+      ],
+      "source_file": "20251205_023212.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 2:33 AM",
+      "map": "Sanctuary",
+      "gametype": "capture_the_flag",
+      "winner": "Tie",
+      "red_team": [
+        "Hyrax",
+        "AfroMaN",
+        "shooter22",
+        "Sneaky Beaver"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "DU7S",
+        "popq2",
+        "Curts GLORY"
+      ],
+      "source_file": "20251205_023445.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 10:29 PM",
+      "map": "Beaver Creek",
+      "gametype": "Team Slayer",
+      "winner": "Blue",
+      "red_team": [
+        "EpiiiC",
+        "WTFrenetic",
+        "AfroMaN",
+        "Keylord"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "cOn",
+        "iSiS RiNsY iSiS",
+        "KidMode"
+      ],
+      "source_file": "20251205_223635.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 10:37 PM",
+      "map": "Lockout",
+      "gametype": "Oddball",
+      "winner": "Blue",
+      "red_team": [
+        "EpiiiC",
+        "Keylord",
+        "AfroMaN",
+        "WTFrenetic"
+      ],
+      "blue_team": [
+        "KidMode",
+        "iSiS RiNsY iSiS",
+        "cOn",
+        "getitoutdaFLUD"
+      ],
+      "source_file": "20251205_225101.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 10:51 PM",
+      "map": "Warlock",
+      "gametype": "Team Slayer",
+      "winner": "Blue",
+      "red_team": [
+        "AfroMaN",
+        "EpiiiC",
+        "Keylord",
+        "WTFrenetic"
+      ],
+      "blue_team": [
+        "KidMode",
+        "cOn",
+        "getitoutdaFLUD",
+        "iSiS RiNsY iSiS"
+      ],
+      "source_file": "20251205_225641.xlsx"
+    },
+    {
+      "timestamp": "12/5/2025 10:58 PM",
+      "map": "Sanctuary",
+      "gametype": "capture_the_flag",
+      "winner": "Blue",
+      "red_team": [
+        "WTFrenetic",
+        "EpiiiC",
+        "AfroMaN",
+        "Keylord"
+      ],
+      "blue_team": [
+        "KidMode",
+        "cOn",
+        "getitoutdaFLUD",
+        "iSiS RiNsY iSiS"
+      ],
+      "source_file": "20251205_231359.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 12:01 AM",
+      "map": "Midship",
+      "gametype": "Bomb",
+      "winner": "Red",
+      "red_team": [
+        "cOn",
+        "Keylord",
+        "popq22",
+        "WTFrenetic"
+      ],
+      "blue_team": [
+        "KidMode",
+        "EpiiiC",
+        "Hyrax",
+        "AfroMaN"
+      ],
+      "source_file": "20251206_001617.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 12:16 AM",
+      "map": "Sanctuary",
+      "gametype": "Team Slayer",
+      "winner": "Red",
+      "red_team": [
+        "WTFrenetic",
+        "popq22",
+        "cOn",
+        "Keylord"
+      ],
+      "blue_team": [
+        "AfroMaN",
+        "Hyrax",
+        "KidMode",
+        "EpiiiC"
+      ],
+      "source_file": "20251206_002326.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 12:24 AM",
+      "map": "Midship",
+      "gametype": "Oddball",
+      "winner": "Blue",
+      "red_team": [
+        "popq22",
+        "Keylord",
+        "cOn",
+        "WTFrenetic"
+      ],
+      "blue_team": [
+        "KidMode",
+        "Hyrax",
+        "EpiiiC",
+        "AfroMaN"
+      ],
+      "source_file": "20251206_003907.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 12:41 AM",
+      "map": "Lockout",
+      "gametype": "Team Slayer",
+      "winner": "Blue",
+      "red_team": [
+        "cOn",
+        "WTFrenetic",
+        "Keylord",
+        "popq22"
+      ],
+      "blue_team": [
+        "EpiiiC",
+        "AfroMaN",
+        "Hyrax",
+        "KidMode"
+      ],
+      "source_file": "20251206_005346.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 1:01 AM",
+      "map": "Warlock",
+      "gametype": "capture_the_flag",
+      "winner": "Blue",
+      "red_team": [
+        "popq22",
+        "cOn",
+        "Keylord",
+        "WTFrenetic"
+      ],
+      "blue_team": [
+        "Hyrax",
+        "KidMode",
+        "AfroMaN",
+        "EpiiiC"
+      ],
+      "source_file": "20251206_012212.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 1:24 AM",
+      "map": "Beaver Creek",
+      "gametype": "Team Slayer",
+      "winner": "Blue",
+      "red_team": [
+        "WTFrenetic",
+        "cOn",
+        "popq22",
+        "Keylord"
+      ],
+      "blue_team": [
+        "EpiiiC",
+        "AfroMaN",
+        "KidMode",
+        "Hyrax"
+      ],
+      "source_file": "20251206_013159.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 2:29 AM",
+      "map": "Midship",
+      "gametype": "capture_the_flag",
+      "winner": "Red",
+      "red_team": [
+        "RJ",
+        "popq22",
+        "cOn",
+        "Sneaky Beaver"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "Keylord",
+        "EpiiiC",
+        "Hyrax"
+      ],
+      "source_file": "20251206_024552.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 2:47 AM",
+      "map": "Beaver Creek",
+      "gametype": "Team Slayer",
+      "winner": "Red",
+      "red_team": [
+        "cOn",
+        "Sneaky Beaver",
+        "popq22",
+        "RJ"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "Keylord",
+        "Hyrax",
+        "EpiiiC"
+      ],
+      "source_file": "20251206_025423.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 2:55 AM",
+      "map": "Lockout",
+      "gametype": "Oddball",
+      "winner": "Blue",
+      "red_team": [
+        "RJ",
+        "Sneaky Beaver",
+        "cOn",
+        "popq22"
+      ],
+      "blue_team": [
+        "Keylord",
+        "EpiiiC",
+        "getitoutdaFLUD",
+        "Hyrax"
+      ],
+      "source_file": "20251206_031014.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 3:11 AM",
+      "map": "Warlock",
+      "gametype": "Team Slayer",
+      "winner": "Blue",
+      "red_team": [
+        "Sneaky Beaver",
+        "RJ",
+        "cOn",
+        "popq22"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "Keylord",
+        "Hyrax",
+        "EpiiiC"
+      ],
+      "source_file": "20251206_031629.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 3:18 AM",
+      "map": "Sanctuary",
+      "gametype": "capture_the_flag",
+      "winner": "Blue",
+      "red_team": [
+        "RJ",
+        "Sneaky Beaver",
+        "popq22",
+        "cOn"
+      ],
+      "blue_team": [
+        "EpiiiC",
+        "Hyrax",
+        "Keylord",
+        "getitoutdaFLUD"
+      ],
+      "source_file": "20251206_033331.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 3:34 AM",
+      "map": "Lockout",
+      "gametype": "Team Slayer",
+      "winner": "Red",
+      "red_team": [
+        "Sneaky Beaver",
+        "RJ",
+        "cOn",
+        "popq22"
+      ],
+      "blue_team": [
+        "Hyrax",
+        "getitoutdaFLUD",
+        "EpiiiC",
+        "Keylord"
+      ],
+      "source_file": "20251206_034108.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 3:43 AM",
+      "map": "Midship",
+      "gametype": "Bomb",
+      "winner": "Red",
+      "red_team": [
+        "RJ",
+        "Sneaky Beaver",
+        "popq22",
+        "cOn"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "Keylord",
+        "Hyrax",
+        "EpiiiC"
+      ],
+      "source_file": "20251206_035803.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 4:27 AM",
+      "map": "Warlock",
+      "gametype": "capture_the_flag",
+      "winner": "Tie",
+      "red_team": [
+        "Keylord",
+        "Future Trunks",
+        "Sneaky Beaver",
+        "shooter22"
+      ],
+      "blue_team": [
+        "MMMMMMMMMMM15F1T",
+        "RJ",
+        "getitoutdaFLUD",
+        "Hyrax"
+      ],
+      "source_file": "20251206_042800.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 4:28 AM",
+      "map": "Warlock",
+      "gametype": "capture_the_flag",
+      "winner": "Blue",
+      "red_team": [
+        "Future Trunks",
+        "shooter22",
+        "Sneaky Beaver",
+        "Keylord"
+      ],
+      "blue_team": [
+        "Hyrax",
+        "RJ",
+        "MMMMMMMMMMM15F1T",
+        "getitoutdaFLUD"
+      ],
+      "source_file": "20251206_044406.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 4:46 AM",
+      "map": "Sanctuary",
+      "gametype": "Team Slayer",
+      "winner": "Blue",
+      "red_team": [
+        "shooter22",
+        "Future Trunks",
+        "Sneaky Beaver",
+        "Keylord"
+      ],
+      "blue_team": [
+        "getitoutdaFLUD",
+        "MMMMMMMMMMM15F1T",
+        "RJ",
+        "Hyrax"
+      ],
+      "source_file": "20251206_045415.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 4:55 AM",
+      "map": "Midship",
+      "gametype": "Oddball",
+      "winner": "Blue",
+      "red_team": [
+        "Future Trunks",
+        "Keylord",
+        "shooter22",
+        "Sneaky Beaver"
+      ],
+      "blue_team": [
+        "RJ",
+        "Hyrax",
+        "getitoutdaFLUD",
+        "MMMMMMMMMMM15F1T"
+      ],
+      "source_file": "20251206_050850.xlsx"
+    },
+    {
+      "timestamp": "12/6/2025 5:10 AM",
+      "map": "Beaver Creek",
+      "gametype": "Team Slayer",
+      "winner": "Red",
+      "red_team": [
+        "Future Trunks",
+        "Sneaky Beaver",
+        "shooter22",
+        "Keylord"
+      ],
+      "blue_team": [
+        "MMMMMMMMMMM15F1T",
+        "getitoutdaFLUD",
+        "RJ",
+        "Hyrax"
+      ],
+      "source_file": "20251206_051617.xlsx"
+    }
+  ]
+}
