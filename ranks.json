@@ -1,0 +1,821 @@
+{
+  "1136095104663306240": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Hyrax",
+    "alias": "",
+    "playlists": {}
+  },
+  "283293015135748097": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Dirk",
+    "alias": "",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 1,
+        "xp": 0,
+        "wins": 0,
+        "losses": 3
+      }
+    }
+  },
+  "132652800378142720": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Hammie",
+    "alias": "RJ",
+    "playlists": {}
+  },
+  "136324687926919168": {
+    "primary_rank": 2,
+    "highest_rank": 3,
+    "discord_name": "roasted",
+    "alias": "roasted",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 2,
+        "xp": 181,
+        "wins": 2,
+        "losses": 6
+      }
+    }
+  },
+  "426757496557010948": {
+    "primary_rank": 6,
+    "highest_rank": 6,
+    "discord_name": "Rocky",
+    "alias": "Rocky",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 6,
+        "xp": 490,
+        "wins": 5,
+        "losses": 3
+      }
+    }
+  },
+  "412829053603807232": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Lefty",
+    "alias": "",
+    "playlists": {}
+  },
+  "232556390839746560": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "DSJ",
+    "alias": "",
+    "playlists": {}
+  },
+  "293794892893782017": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "FrEnZy",
+    "alias": "",
+    "playlists": {}
+  },
+  "293507586131492864": {
+    "primary_rank": 4,
+    "highest_rank": 4,
+    "discord_name": "Prince KidMode",
+    "alias": "KidMode",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 4,
+        "xp": 296,
+        "wins": 3,
+        "losses": 2
+      }
+    }
+  },
+  "284010072504270849": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "DU7S",
+    "alias": "",
+    "playlists": {}
+  },
+  "299780772456431627": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Gava",
+    "alias": "",
+    "playlists": {}
+  },
+  "210187331066396672": {
+    "primary_rank": 4,
+    "highest_rank": 4,
+    "discord_name": "Rinser",
+    "alias": "Rinser",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 4,
+        "xp": 300,
+        "wins": 3,
+        "losses": 0
+      }
+    }
+  },
+  "334212655613214721": {
+    "primary_rank": 6,
+    "highest_rank": 6,
+    "discord_name": "fluhd",
+    "alias": "getitoutdaFLUD",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 6,
+        "xp": 490,
+        "wins": 5,
+        "losses": 3
+      }
+    }
+  },
+  "212720585279537153": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Punny88",
+    "alias": "",
+    "playlists": {}
+  },
+  "385632391089356810": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "KraN",
+    "alias": "",
+    "playlists": {}
+  },
+  "1222926448084520970": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Old Man",
+    "alias": "",
+    "playlists": {}
+  },
+  "165626999891689474": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "SHOW5TOPPER",
+    "alias": "",
+    "playlists": {}
+  },
+  "486628967760003085": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "NaDeShY",
+    "alias": "",
+    "playlists": {}
+  },
+  "558138736966238219": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "waRRior Fresh",
+    "alias": "",
+    "playlists": {}
+  },
+  "294558721474953219": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "bignami",
+    "alias": "",
+    "playlists": {}
+  },
+  "395302282914168852": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "TimRager",
+    "alias": "",
+    "playlists": {}
+  },
+  "859153194839965718": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Curts GLORY",
+    "alias": "",
+    "playlists": {}
+  },
+  "943239550782803988": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "xX daVe Xx",
+    "alias": "",
+    "playlists": {}
+  },
+  "771859735938072596": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "JUiCE",
+    "alias": "",
+    "playlists": {}
+  },
+  "554332927614517269": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "TGS NaTuRaL",
+    "alias": "",
+    "playlists": {}
+  },
+  "658102055696859156": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "-NeiLuZ-",
+    "alias": "",
+    "playlists": {}
+  },
+  "384701805944111128": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Overseasons",
+    "alias": "",
+    "playlists": {}
+  },
+  "141912473744703489": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "LiaM",
+    "alias": "",
+    "playlists": {}
+  },
+  "556272092408971294": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Dro",
+    "alias": "",
+    "playlists": {}
+  },
+  "156907171433414656": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Lethal_HT",
+    "alias": "lethal_ht",
+    "playlists": {}
+  },
+  "900612436686680095": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "T.Robs",
+    "alias": "",
+    "playlists": {}
+  },
+  "652998057087991838": {
+    "primary_rank": 4,
+    "highest_rank": 4,
+    "discord_name": "TwoDashAngo",
+    "alias": "2D",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 4,
+        "xp": 296,
+        "wins": 3,
+        "losses": 2
+      }
+    }
+  },
+  "1380083223937290272": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Mr i Hockey",
+    "alias": "",
+    "playlists": {}
+  },
+  "314217230390919174": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "popq2",
+    "alias": "",
+    "playlists": {}
+  },
+  "1179648030375424032": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Ben",
+    "alias": "",
+    "playlists": {}
+  },
+  "1324420042494050338": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "DrugAbuse goose \ud83c\uddfa\ud83c\uddf8",
+    "alias": "",
+    "playlists": {}
+  },
+  "359216128959971329": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Hypnox",
+    "alias": "Hypnosis",
+    "playlists": {}
+  },
+  "276552139084398592": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "WoGG",
+    "alias": "",
+    "playlists": {}
+  },
+  "639932733392683048": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "fricken (retired)",
+    "alias": "",
+    "playlists": {}
+  },
+  "980246369161855017": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Byceps",
+    "alias": "",
+    "playlists": {}
+  },
+  "884896715432411178": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "I2aMpAnT",
+    "alias": "",
+    "playlists": {}
+  },
+  "601594438233620521": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "MadMikeWillEatU",
+    "alias": "",
+    "playlists": {}
+  },
+  "173926727117045760": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Gor3",
+    "alias": "",
+    "playlists": {}
+  },
+  "907034559248482314": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "MohnJorrow",
+    "alias": "",
+    "playlists": {}
+  },
+  "951202518396977203": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Wrecktangle\u2019s Mic",
+    "alias": "",
+    "playlists": {}
+  },
+  "797210177786347530": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "future trunks",
+    "alias": "",
+    "playlists": {}
+  },
+  "213096674023833610": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Faulty",
+    "alias": "",
+    "playlists": {}
+  },
+  "176191518837702666": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "J2",
+    "alias": "",
+    "playlists": {}
+  },
+  "225563156397686786": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Sup",
+    "alias": "",
+    "playlists": {}
+  },
+  "795707878388137995": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Sauce",
+    "alias": "",
+    "playlists": {}
+  },
+  "241980128631062539": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Conflictz",
+    "alias": "",
+    "playlists": {}
+  },
+  "694412691015598140": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "simon hagiwara",
+    "alias": "",
+    "playlists": {}
+  },
+  "851303681897791548": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Genkinz",
+    "alias": "",
+    "playlists": {}
+  },
+  "1351057247437852733": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "GoonerRat",
+    "alias": "",
+    "playlists": {}
+  },
+  "736026857572401214": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "heyitsarcadia",
+    "alias": "",
+    "playlists": {}
+  },
+  "359472455259127820": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "GT: HeroicFool69 (Stormcrow2)",
+    "alias": "",
+    "playlists": {}
+  },
+  "1126543913654698044": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Skaduf The Greatest Halo Player",
+    "alias": "",
+    "playlists": {}
+  },
+  "1118666385921425478": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "oKrazed",
+    "alias": "",
+    "playlists": {}
+  },
+  "1155320421672046672": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Csquared",
+    "alias": "",
+    "playlists": {}
+  },
+  "1258601786533609554": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Burn iTz",
+    "alias": "",
+    "playlists": {}
+  },
+  "710585633474740306": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "VirulentGrunt",
+    "alias": "",
+    "playlists": {}
+  },
+  "1051302763633573978": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "NomeOGx3",
+    "alias": "",
+    "playlists": {}
+  },
+  "1218796844088430692": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "ll Legend ll",
+    "alias": "",
+    "playlists": {}
+  },
+  "1343263695769305190": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Lux",
+    "alias": "",
+    "playlists": {}
+  },
+  "1233040240210477160": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "TeoulisComple \ud83c\uddec\ud83c\uddf7",
+    "alias": "happyhippoheythere",
+    "playlists": {}
+  },
+  "196752652569149440": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "BliNdFiRe",
+    "alias": "",
+    "playlists": {}
+  },
+  "1348067996761063535": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Zony",
+    "alias": "",
+    "playlists": {}
+  },
+  "1393893716338540675": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "lzl WeakSide",
+    "alias": "",
+    "playlists": {}
+  },
+  "161726300304834560": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Jay2",
+    "alias": "",
+    "playlists": {}
+  },
+  "210280313262309376": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Grave",
+    "alias": "",
+    "playlists": {}
+  },
+  "174522691917840384": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "BxSouljah",
+    "alias": "",
+    "playlists": {}
+  },
+  "154836949964816384": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "H4",
+    "alias": "",
+    "playlists": {}
+  },
+  "198564445105029120": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Vonlionton",
+    "alias": "",
+    "playlists": {}
+  },
+  "205738438773833728": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Xanticity",
+    "alias": "",
+    "playlists": {}
+  },
+  "799264724021280768": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "SoldieR",
+    "alias": "",
+    "playlists": {}
+  },
+  "164725201907613696": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "James | The Frenetic",
+    "alias": "",
+    "playlists": {}
+  },
+  "135116534388490240": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "J1",
+    "alias": "",
+    "playlists": {}
+  },
+  "296360818465964032": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Pinesauce",
+    "alias": "",
+    "playlists": {}
+  },
+  "1040724126836457624": {
+    "primary_rank": 4,
+    "highest_rank": 4,
+    "discord_name": "M15F1T",
+    "alias": "Em Won 5 F 1 T",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 4,
+        "xp": 300,
+        "wins": 3,
+        "losses": 0
+      }
+    }
+  },
+  "653385687852253215": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "DomerSimpson",
+    "alias": "domer_simpson",
+    "playlists": {}
+  },
+  "352157745530667009": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "TwoCaribous",
+    "alias": "",
+    "playlists": {}
+  },
+  "274372368686776321": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "sneakybeav3r",
+    "alias": "",
+    "playlists": {}
+  },
+  "156973309722886144": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "LD50 II",
+    "alias": "ld50_ii",
+    "playlists": {}
+  },
+  "173928028173369345": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "ZeeD",
+    "alias": "",
+    "playlists": {}
+  },
+  "175415359703089152": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Obi Juan",
+    "alias": "",
+    "playlists": {}
+  },
+  "390747330631958528": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "cOn",
+    "alias": "",
+    "playlists": {}
+  },
+  "180809401228197889": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "StoRmY v2",
+    "alias": "",
+    "playlists": {}
+  },
+  "164177623163994113": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "WildCherry",
+    "alias": "",
+    "playlists": {}
+  },
+  "174366760479358976": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Mathlete",
+    "alias": "",
+    "playlists": {}
+  },
+  "107703779188580352": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "helldotcom",
+    "alias": "",
+    "playlists": {}
+  },
+  "111190770756657152": {
+    "primary_rank": 4,
+    "highest_rank": 4,
+    "discord_name": "EpiiiC",
+    "alias": "EpiiiC",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 4,
+        "xp": 296,
+        "wins": 3,
+        "losses": 2
+      }
+    }
+  },
+  "84785392234012672": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "re4thewin",
+    "alias": "",
+    "playlists": {}
+  },
+  "335626718062837760": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "LosOjosRojos",
+    "alias": "losojosrojos",
+    "playlists": {}
+  },
+  "291104674839527424": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Siko",
+    "alias": "",
+    "playlists": {}
+  },
+  "301971773077848064": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Korin",
+    "alias": "",
+    "playlists": {}
+  },
+  "188009416556150784": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "side",
+    "alias": "",
+    "playlists": {}
+  },
+  "772288046905032704": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "UltiMeGa",
+    "alias": "",
+    "playlists": {}
+  },
+  "598584495641198592": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Welchs",
+    "alias": "",
+    "playlists": {}
+  },
+  "167766278860177408": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "CYRiX",
+    "alias": "",
+    "playlists": {}
+  },
+  "177913649728323584": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Kryptonite",
+    "alias": "",
+    "playlists": {}
+  },
+  "187356723135119360": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Cortalisk",
+    "alias": "",
+    "playlists": {}
+  },
+  "155302533345050624": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "Famous",
+    "alias": "",
+    "playlists": {}
+  },
+  "168151188741685248": {
+    "primary_rank": 1,
+    "highest_rank": 1,
+    "discord_name": "AfroMaN",
+    "alias": "",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 1,
+        "xp": 0,
+        "wins": 0,
+        "losses": 3
+      }
+    }
+  },
+  "269681242335739905": {
+    "primary_rank": 3,
+    "highest_rank": 3,
+    "discord_name": "keylord",
+    "alias": "Ralph Port",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 3,
+        "xp": 190,
+        "wins": 2,
+        "losses": 6
+      }
+    }
+  },
+  "175060415833833472": {
+    "primary_rank": 4,
+    "highest_rank": 4,
+    "discord_name": "Josiah",
+    "alias": "Tetracide",
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 4,
+        "xp": 296,
+        "wins": 3,
+        "losses": 2
+      }
+    }
+  }
+}
