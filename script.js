@@ -5110,74 +5110,98 @@ function showProfileAssistsBreakdown() {
     document.body.appendChild(overlay.firstChild);
 }
 
+// Global to store K/D breakdown data for re-rendering
+let kdBreakdownPlayerStats = {};
+
 // Show K/D breakdown - players with Killed/Killed by counts (using versus data)
-function showProfileKDBreakdown() {
+function showProfileKDBreakdown(sortMode = 'killedBy') {
     if (!currentProfilePlayer) return;
 
-    // Calculate kills and deaths against each opponent from versus data
-    const playerStats = {};
+    // Calculate kills and deaths against each opponent from versus data (only once)
+    if (Object.keys(kdBreakdownPlayerStats).length === 0 || !document.querySelector('.kd-breakdown-modal')) {
+        kdBreakdownPlayerStats = {};
 
-    currentProfileGames.forEach(game => {
-        if (!game.versus) return;
+        currentProfileGames.forEach(game => {
+            if (!game.versus) return;
 
-        // Get kills by this player
-        const versusData = game.versus[currentProfilePlayer];
-        if (versusData) {
-            Object.entries(versusData).forEach(([opponent, kills]) => {
-                if (opponent !== currentProfilePlayer && kills > 0) {
-                    if (!playerStats[opponent]) {
-                        playerStats[opponent] = { killed: 0, killedBy: 0, games: 0 };
+            // Get kills by this player
+            const versusData = game.versus[currentProfilePlayer];
+            if (versusData) {
+                Object.entries(versusData).forEach(([opponent, kills]) => {
+                    if (opponent !== currentProfilePlayer && kills > 0) {
+                        if (!kdBreakdownPlayerStats[opponent]) {
+                            kdBreakdownPlayerStats[opponent] = { killed: 0, killedBy: 0, games: 0 };
+                        }
+                        kdBreakdownPlayerStats[opponent].killed += kills;
                     }
-                    playerStats[opponent].killed += kills;
+                });
+            }
+
+            // Get deaths to this player (how many times each opponent killed currentProfilePlayer)
+            Object.entries(game.versus).forEach(([killer, victims]) => {
+                if (killer !== currentProfilePlayer && victims[currentProfilePlayer]) {
+                    const deaths = victims[currentProfilePlayer];
+                    if (deaths > 0) {
+                        if (!kdBreakdownPlayerStats[killer]) {
+                            kdBreakdownPlayerStats[killer] = { killed: 0, killedBy: 0, games: 0 };
+                        }
+                        kdBreakdownPlayerStats[killer].killedBy += deaths;
+                    }
                 }
             });
-        }
 
-        // Get deaths to this player (how many times each opponent killed currentProfilePlayer)
-        Object.entries(game.versus).forEach(([killer, victims]) => {
-            if (killer !== currentProfilePlayer && victims[currentProfilePlayer]) {
-                const deaths = victims[currentProfilePlayer];
-                if (deaths > 0) {
-                    if (!playerStats[killer]) {
-                        playerStats[killer] = { killed: 0, killedBy: 0, games: 0 };
-                    }
-                    playerStats[killer].killedBy += deaths;
+            // Count games together
+            game.players.forEach(p => {
+                if (p.name !== currentProfilePlayer && kdBreakdownPlayerStats[p.name]) {
+                    kdBreakdownPlayerStats[p.name].games++;
                 }
-            }
+            });
         });
+    }
 
-        // Count games together
-        game.players.forEach(p => {
-            if (p.name !== currentProfilePlayer && playerStats[p.name]) {
-                playerStats[p.name].games++;
-            }
-        });
-    });
-
-    // Sort by total interactions (killed + killedBy)
-    const sortedPlayers = Object.entries(playerStats)
-        .filter(([_, data]) => data.killed > 0 || data.killedBy > 0)
-        .sort((a, b) => (b[1].killed + b[1].killedBy) - (a[1].killed + a[1].killedBy));
+    // Sort based on mode
+    let sortedPlayers;
+    if (sortMode === 'killedBy') {
+        // Sort by who kills you most
+        sortedPlayers = Object.entries(kdBreakdownPlayerStats)
+            .filter(([_, data]) => data.killedBy > 0)
+            .sort((a, b) => b[1].killedBy - a[1].killedBy);
+    } else {
+        // Sort by who you kill most
+        sortedPlayers = Object.entries(kdBreakdownPlayerStats)
+            .filter(([_, data]) => data.killed > 0)
+            .sort((a, b) => b[1].killed - a[1].killed);
+    }
 
     // Create modal
     let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
-    html += '<div class="weapon-breakdown-modal" onclick="event.stopPropagation()">';
+    html += '<div class="weapon-breakdown-modal kd-breakdown-modal" onclick="event.stopPropagation()">';
     html += `<div class="weapon-breakdown-header">`;
     html += `<h2>${getDisplayNameForProfile(currentProfilePlayer)} - K/D Breakdown</h2>`;
     html += `<button class="modal-close" onclick="closeMedalBreakdown()">&times;</button>`;
     html += `</div>`;
-    html += '<div class="weapon-breakdown-grid player-breakdown-grid">';
+
+    // Toggle buttons
+    html += '<div class="kd-toggle-container">';
+    html += `<button class="kd-toggle-btn ${sortMode === 'killedBy' ? 'active' : ''}" onclick="event.stopPropagation(); reRenderKDBreakdown('killedBy')">Who Kills Me Most</button>`;
+    html += `<button class="kd-toggle-btn ${sortMode === 'killed' ? 'active' : ''}" onclick="event.stopPropagation(); reRenderKDBreakdown('killed')">Who I Kill Most</button>`;
+    html += '</div>';
+
+    html += '<div class="weapon-breakdown-grid player-breakdown-grid" id="kdBreakdownGrid">';
 
     if (sortedPlayers.length === 0) {
         html += '<div class="no-data">No player data available</div>';
     }
 
-    for (const [opponent, data] of sortedPlayers) {
+    for (let i = 0; i < sortedPlayers.length; i++) {
+        const [opponent, data] = sortedPlayers[i];
         const emblemUrl = getPlayerEmblem(opponent);
         const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
         const kd = data.killedBy > 0 ? (data.killed / data.killedBy).toFixed(2) : data.killed.toFixed(2);
+        const primaryStat = sortMode === 'killedBy' ? data.killedBy : data.killed;
 
-        html += `<div class="weapon-breakdown-item player-breakdown-item">`;
+        html += `<div class="weapon-breakdown-item player-breakdown-item player-faced-item">`;
+        html += `<span class="player-faced-rank">#${i + 1}</span>`;
         html += `<div class="player-breakdown-emblem">`;
         if (emblemParams && typeof generateEmblemDataUrl === 'function') {
             html += `<div class="emblem-placeholder" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
@@ -5193,6 +5217,7 @@ function showProfileKDBreakdown() {
         html += `</div>`;
         html += `<div class="weapon-breakdown-substats">K/D: ${kd} • ${data.games} games</div>`;
         html += `</div>`;
+        html += `<div class="kd-primary-stat">${primaryStat}</div>`;
         html += `</div>`;
     }
 
@@ -5207,6 +5232,17 @@ function showProfileKDBreakdown() {
 
     // Load emblems async
     loadBreakdownEmblems();
+}
+
+// Re-render K/D breakdown with new sort mode
+function reRenderKDBreakdown(sortMode) {
+    // Close current modal
+    const overlay = document.querySelector('.weapon-breakdown-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    // Re-open with new sort mode (data is cached in kdBreakdownPlayerStats)
+    showProfileKDBreakdown(sortMode);
 }
 
 // Show weapon kills breakdown with icons

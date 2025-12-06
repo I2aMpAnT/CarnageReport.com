@@ -3820,6 +3820,46 @@ header {
     font-size: 13px;
 }
 
+/* K/D Breakdown Toggle */
+.kd-toggle-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.kd-toggle-btn {
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.kd-toggle-btn:hover {
+    background: rgba(0, 217, 255, 0.1);
+    border-color: var(--primary-color);
+}
+
+.kd-toggle-btn.active {
+    background: rgba(0, 217, 255, 0.2);
+    border-color: var(--unsc-blue);
+    color: var(--unsc-blue);
+}
+
+.kd-primary-stat {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    color: var(--unsc-blue);
+    font-weight: 700;
+    min-width: 40px;
+    text-align: right;
+}
+
 /* Weapon Search Modal */
 .weapon-search-modal {
     max-width: 900px;
