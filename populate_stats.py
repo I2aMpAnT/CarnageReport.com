@@ -1475,14 +1475,15 @@ def main():
 
     print(f"  Found {len(all_player_names)} unique players")
 
-    # STEP 3a: Process games for stats (kills, deaths, etc.)
+    # STEP 3a: Process RANKED games for stats (kills, deaths, etc.)
+    # Only include games with a playlist - custom/unranked games are excluded from stats
     # In incremental mode, only process new games (old stats restored from saved state)
     if incremental_mode:
-        games_to_process_for_stats = [g for g in all_games if g.get('source_file') in new_files]
-        print(f"\n  Processing {len(games_to_process_for_stats)} NEW games for stats (incremental mode)...")
+        games_to_process_for_stats = [g for g in ranked_games if g.get('source_file') in new_files]
+        print(f"\n  Processing {len(games_to_process_for_stats)} NEW ranked games for stats (incremental mode)...")
     else:
-        games_to_process_for_stats = all_games
-        print(f"\n  Processing {len(games_to_process_for_stats)} games for stats...")
+        games_to_process_for_stats = ranked_games
+        print(f"\n  Processing {len(games_to_process_for_stats)} ranked games for stats...")
 
     for game_num, game in enumerate(games_to_process_for_stats, 1):
         game_name = game['details'].get('Variant Name', 'Unknown')
