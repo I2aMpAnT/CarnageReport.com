@@ -3074,7 +3074,7 @@ function renderLeaderboard(selectedPlaylist = null) {
         const profileNames = discordIdToProfileNames[discordId] || [];
 
         // Get rank and stats based on data source
-        let rank, wins, losses, games, kills, deaths;
+        let rank, wins, losses, games, kills, deaths, assists;
 
         if (usePlaylistStats) {
             // Per-playlist stats file format
@@ -3084,6 +3084,7 @@ function renderLeaderboard(selectedPlaylist = null) {
             games = wins + losses;
             kills = data.kills || 0;
             deaths = data.deaths || 0;
+            assists = data.assists || 0;
         } else {
             // ranks.json format with playlist data
             if (selectedPlaylist !== 'all' && data.playlists && data.playlists[selectedPlaylist]) {
@@ -3099,6 +3100,7 @@ function renderLeaderboard(selectedPlaylist = null) {
             games = data.total_games || 0;
             kills = data.kills || 0;
             deaths = data.deaths || 0;
+            assists = data.assists || 0;
         }
 
         return {
@@ -3112,6 +3114,7 @@ function renderLeaderboard(selectedPlaylist = null) {
             games: games || (wins + losses),
             kills: kills,
             deaths: deaths,
+            assists: assists,
             kd: deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2),
             winrate: (wins + losses) > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : '0.0',
             hasPlaylistData: usePlaylistStats || (wins > 0 || losses > 0),
@@ -3145,6 +3148,7 @@ function renderLeaderboard(selectedPlaylist = null) {
     html += '<div>Record</div>';
     html += '<div>Series</div>';
     html += '<div>K/D</div>';
+    html += '<div>Assists</div>';
     html += '</div>';
 
     if (filteredPlayers.length === 0) {
@@ -3194,6 +3198,9 @@ function renderLeaderboard(selectedPlaylist = null) {
             : '<span class="stat-empty">—</span>';
         html += `<div class="lb-series">${seriesDisplay}</div>`;
         html += `<div class="lb-kd ${kdClass}">${kdDisplay}</div>`;
+        // Assists
+        const assistsDisplay = hasGames ? player.assists : '<span class="stat-empty">—</span>';
+        html += `<div class="lb-assists">${assistsDisplay}</div>`;
         html += '</div>';
     });
 
@@ -5021,6 +5028,88 @@ function closeMedalBreakdown() {
     }
 }
 
+// Show assists breakdown by gametype and map
+function showProfileAssistsBreakdown() {
+    if (!currentProfilePlayer) return;
+
+    // Calculate assists by gametype and map
+    const assistsByGametype = {};
+    const assistsByMap = {};
+    let totalAssists = 0;
+
+    currentProfileGames.forEach(game => {
+        const player = game.players.find(p => p.name === currentProfilePlayer);
+        if (player && player.assists) {
+            const assists = parseInt(player.assists) || 0;
+            totalAssists += assists;
+
+            const gametype = game.details['Variant Name'] || game.details['Game Type'] || 'Unknown';
+            const mapName = game.details['Map Name'] || 'Unknown';
+
+            assistsByGametype[gametype] = (assistsByGametype[gametype] || 0) + assists;
+            assistsByMap[mapName] = (assistsByMap[mapName] || 0) + assists;
+        }
+    });
+
+    // Sort by most assists
+    const sortedGametypes = Object.entries(assistsByGametype).sort((a, b) => b[1] - a[1]);
+    const sortedMaps = Object.entries(assistsByMap).sort((a, b) => b[1] - a[1]);
+
+    // Create modal
+    let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
+    html += '<div class="weapon-breakdown-modal assists-modal" onclick="event.stopPropagation()">';
+    html += `<div class="weapon-breakdown-header">`;
+    html += `<h2>${currentProfilePlayer} - Assists Breakdown</h2>`;
+    html += `<button class="modal-close" onclick="closeMedalBreakdown()">&times;</button>`;
+    html += `</div>`;
+
+    // Two column layout for gametypes and maps
+    html += '<div class="assists-breakdown-container">';
+
+    // Gametypes column
+    html += '<div class="assists-breakdown-section">';
+    html += '<h3 class="assists-section-title">By Gametype</h3>';
+    html += '<div class="assists-breakdown-list">';
+    if (sortedGametypes.length === 0) {
+        html += '<div class="no-data">No assist data available</div>';
+    } else {
+        sortedGametypes.forEach(([gametype, count]) => {
+            const percentage = totalAssists > 0 ? ((count / totalAssists) * 100).toFixed(1) : 0;
+            html += `<div class="assists-breakdown-item">`;
+            html += `<div class="assists-breakdown-name">${gametype}</div>`;
+            html += `<div class="assists-breakdown-stats">${count} assists (${percentage}%)</div>`;
+            html += `</div>`;
+        });
+    }
+    html += '</div></div>';
+
+    // Maps column
+    html += '<div class="assists-breakdown-section">';
+    html += '<h3 class="assists-section-title">By Map</h3>';
+    html += '<div class="assists-breakdown-list">';
+    if (sortedMaps.length === 0) {
+        html += '<div class="no-data">No assist data available</div>';
+    } else {
+        sortedMaps.forEach(([mapName, count]) => {
+            const percentage = totalAssists > 0 ? ((count / totalAssists) * 100).toFixed(1) : 0;
+            html += `<div class="assists-breakdown-item">`;
+            html += `<div class="assists-breakdown-name">${mapName}</div>`;
+            html += `<div class="assists-breakdown-stats">${count} assists (${percentage}%)</div>`;
+            html += `</div>`;
+        });
+    }
+    html += '</div></div>';
+
+    html += '</div>'; // Close assists-breakdown-container
+    html += '</div>'; // Close modal
+    html += '</div>'; // Close overlay
+
+    // Add to page
+    const overlay = document.createElement('div');
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay.firstChild);
+}
+
 // Show K/D breakdown - players with Killed/Killed by counts (using versus data)
 function showProfileKDBreakdown() {
     if (!currentProfilePlayer) return;
@@ -5646,6 +5735,10 @@ function showSearchWeaponKillsBreakdown() {
 
     // Calculate weapon kill stats
     const weaponStats = {};
+    let totalMeleeMedals = 0;
+    let meleeWeaponKills = 0;
+    const meleeWeapons = ['energy sword', 'flag', 'bomb', 'oddball'];
+
     const playerGames = gamesData.filter(game =>
         game.players.some(p => p.name === playerName)
     );
@@ -5660,15 +5753,39 @@ function showSearchWeaponKillsBreakdown() {
                     const kills = parseInt(weaponData[key]) || 0;
                     if (kills > 0) {
                         weaponStats[weaponName] = (weaponStats[weaponName] || 0) + kills;
+                        // Track melee weapon kills
+                        if (meleeWeapons.includes(weaponName.toLowerCase())) {
+                            meleeWeaponKills += kills;
+                        }
                     }
                 }
             });
         }
+
+        // Get melee medals (bone_cracker + assassin)
+        const medalData = game.medals?.find(m => m.player === playerName);
+        if (medalData) {
+            totalMeleeMedals += (medalData.bone_cracker || 0) + (medalData.assassin || 0);
+        }
     });
 
-    // Sort by most kills
+    // Calculate beatdown kills (melee medals minus melee weapon kills)
+    const beatdownKills = Math.max(0, totalMeleeMedals - meleeWeaponKills);
+    if (beatdownKills > 0) {
+        weaponStats['melee'] = beatdownKills;
+    }
+
+    // Sort by most kills, but put grenades at the bottom
     const sortedWeapons = Object.entries(weaponStats).sort((a, b) => b[1] - a[1]);
     const totalKills = sortedWeapons.reduce((sum, [_, kills]) => sum + kills, 0);
+
+    // Separate grenades to show at bottom
+    const isGrenade = (name) => name.toLowerCase().includes('grenade');
+    const regularWeapons = sortedWeapons.filter(([weapon]) => !isGrenade(weapon));
+    const grenades = sortedWeapons.filter(([weapon]) => isGrenade(weapon));
+
+    // Combine: regular weapons first, then grenades
+    const orderedWeapons = [...regularWeapons, ...grenades];
 
     // Create modal
     let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
@@ -5679,11 +5796,11 @@ function showSearchWeaponKillsBreakdown() {
     html += `</div>`;
     html += '<div class="weapon-breakdown-grid">';
 
-    if (sortedWeapons.length === 0) {
+    if (orderedWeapons.length === 0) {
         html += '<div class="no-data">No weapon data available</div>';
     }
 
-    for (const [weapon, kills] of sortedWeapons) {
+    for (const [weapon, kills] of orderedWeapons) {
         const iconUrl = getWeaponIcon(weapon);
         const percentage = totalKills > 0 ? ((kills / totalKills) * 100).toFixed(1) : '0';
 
@@ -6104,6 +6221,10 @@ function renderProfileStats(stats) {
         <div class="profile-stat-card clickable-stat" onclick="showProfileWeaponDeathsBreakdown()">
             <div class="stat-value">${stats.deaths}</div>
             <div class="stat-label">Total Deaths</div>
+        </div>
+        <div class="profile-stat-card clickable-stat" onclick="showProfileAssistsBreakdown()">
+            <div class="stat-value">${stats.assists}</div>
+            <div class="stat-label">Assists</div>
         </div>
         <div class="profile-stat-card">
             <div class="stat-value">${stats.kpg}</div>
