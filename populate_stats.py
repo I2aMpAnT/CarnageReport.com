@@ -1831,29 +1831,71 @@ def main():
             # Determine winner team color
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
-            # Build player stats for match
+            # Build player stats for match - include ALL data from Excel
             player_stats = []
+            detailed_lookup = {s['player']: s for s in game.get('detailed_stats', [])}
+            medal_lookup = {m['player']: m for m in game.get('medals', [])}
+            weapon_lookup = {w['Player']: w for w in game.get('weapons', [])}
+
             for p in game['players']:
-                player_stats.append({
-                    'name': get_display_name(p['name']),
+                player_name = p['name']
+                display_name = get_display_name(player_name)
+
+                # Get detailed stats for this player
+                detailed = detailed_lookup.get(player_name, {})
+                medals = medal_lookup.get(player_name, {})
+                weapons = weapon_lookup.get(player_name, {})
+
+                player_entry = {
+                    'name': display_name,
                     'team': p.get('team', ''),
                     'kills': p.get('kills', 0),
                     'deaths': p.get('deaths', 0),
                     'assists': p.get('assists', 0),
-                    'score': p.get('score', '0')
-                })
+                    'score': p.get('score', '0'),
+                    'score_numeric': p.get('score_numeric', 0),
+                    'kda': p.get('kda', 0),
+                    'suicides': p.get('suicides', 0),
+                    'shots_fired': p.get('shots_fired', 0),
+                    'shots_hit': p.get('shots_hit', 0),
+                    'accuracy': p.get('accuracy', 0),
+                    'headshots': p.get('head_shots', 0),
+                    # Detailed stats
+                    'best_spree': detailed.get('best_spree', 0),
+                    'total_time_alive': detailed.get('total_time_alive', 0),
+                    'ctf_scores': detailed.get('ctf_scores', 0),
+                    'ctf_flag_steals': detailed.get('ctf_flag_steals', 0),
+                    'ctf_flag_saves': detailed.get('ctf_flag_saves', 0),
+                    'emblem_url': detailed.get('emblem_url', ''),
+                    # Medals (excluding 'player' key)
+                    'medals': {k: v for k, v in medals.items() if k != 'player'},
+                    # Weapons (excluding 'Player' key)
+                    'weapons': {k: v for k, v in weapons.items() if k != 'Player'}
+                }
+                player_stats.append(player_entry)
+
+            # Build versus data with display names
+            versus_data = {}
+            for player_name, opponents in game.get('versus', {}).items():
+                display_name = get_display_name(player_name)
+                versus_data[display_name] = {}
+                for opponent, kills in opponents.items():
+                    opponent_display = get_display_name(opponent.strip())
+                    versus_data[display_name][opponent_display] = kills
 
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
                 'gametype': get_base_gametype(game['details'].get('Variant Name', game['details'].get('Game Type', ''))),
                 'variant_name': game['details'].get('Variant Name', ''),
+                'duration': game['details'].get('Duration', '0:00'),
                 'red_score': red_score,
                 'blue_score': blue_score,
                 'winner': winner_team,
                 'red_team': red_team,
                 'blue_team': blue_team,
                 'player_stats': player_stats,
+                'versus': versus_data,
                 'source_file': game.get('source_file', '')
             }
 
@@ -1913,16 +1955,66 @@ def main():
                 red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
                 blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
 
+            # Build player stats with ALL data
+            player_stats = []
+            detailed_lookup = {s['player']: s for s in game.get('detailed_stats', [])}
+            medal_lookup = {m['player']: m for m in game.get('medals', [])}
+            weapon_lookup = {w['Player']: w for w in game.get('weapons', [])}
+
+            for p in game['players']:
+                player_name = p['name']
+                display_name = get_display_name(player_name)
+                detailed = detailed_lookup.get(player_name, {})
+                medals = medal_lookup.get(player_name, {})
+                weapons = weapon_lookup.get(player_name, {})
+
+                player_entry = {
+                    'name': display_name,
+                    'team': p.get('team', ''),
+                    'kills': p.get('kills', 0),
+                    'deaths': p.get('deaths', 0),
+                    'assists': p.get('assists', 0),
+                    'score': p.get('score', '0'),
+                    'score_numeric': p.get('score_numeric', 0),
+                    'kda': p.get('kda', 0),
+                    'suicides': p.get('suicides', 0),
+                    'shots_fired': p.get('shots_fired', 0),
+                    'shots_hit': p.get('shots_hit', 0),
+                    'accuracy': p.get('accuracy', 0),
+                    'headshots': p.get('head_shots', 0),
+                    'best_spree': detailed.get('best_spree', 0),
+                    'total_time_alive': detailed.get('total_time_alive', 0),
+                    'ctf_scores': detailed.get('ctf_scores', 0),
+                    'ctf_flag_steals': detailed.get('ctf_flag_steals', 0),
+                    'ctf_flag_saves': detailed.get('ctf_flag_saves', 0),
+                    'emblem_url': detailed.get('emblem_url', ''),
+                    'medals': {k: v for k, v in medals.items() if k != 'player'},
+                    'weapons': {k: v for k, v in weapons.items() if k != 'Player'}
+                }
+                player_stats.append(player_entry)
+
+            # Build versus data
+            versus_data = {}
+            for player_name, opponents in game.get('versus', {}).items():
+                display_name = get_display_name(player_name)
+                versus_data[display_name] = {}
+                for opponent, kills in opponents.items():
+                    opponent_display = get_display_name(opponent.strip())
+                    versus_data[display_name][opponent_display] = kills
+
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
                 'gametype': get_base_gametype(game['details'].get('Game Type', '')),
-                'variant': game['details'].get('Variant Name', 'Unknown'),
+                'variant_name': game['details'].get('Variant Name', 'Unknown'),
+                'duration': game['details'].get('Duration', '0:00'),
                 'red_score': red_score,
                 'blue_score': blue_score,
                 'winner': winner_team,
                 'red_team': red_team,
                 'blue_team': blue_team,
+                'player_stats': player_stats,
+                'versus': versus_data,
                 'source_file': game.get('source_file', '')
             }
             custom_data['matches'].append(match_entry)
