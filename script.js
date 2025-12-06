@@ -4,7 +4,7 @@ let gamesData = [];
 // Global player ranks (randomly assigned once)
 let playerRanks = {};
 
-// Full rankstats data from rankstats.json (keyed by discord ID)
+// Full player data from ranks.json (keyed by discord ID)
 let rankstatsData = {};
 
 // Rank history data from rankhistory.json (keyed by discord ID)
@@ -848,12 +848,12 @@ function isValidTeam(team) {
 // Store playlist ranks per player: { playerName: { playlist1: rank, playlist2: rank, ... } }
 let playerPlaylistRanks = {};
 
-// Load ranks from rankstats.json (pushed from server)
+// Load ranks from ranks.json (pushed from server)
 async function loadPlayerRanks() {
     try {
-        const response = await fetch('rankstats.json');
+        const response = await fetch('ranks.json');
         if (!response.ok) {
-            console.log('[RANKS] No rankstats.json found');
+            console.log('[RANKS] No ranks.json found');
             return;
         }
         const rankData = await response.json();
@@ -1305,7 +1305,7 @@ function getPlayerPlaylistRanks(playerName) {
     return playerPlaylistRanks[playerName] || null;
 }
 
-// Get rank icon HTML for a player (only if they have a rank in rankstats.json)
+// Get rank icon HTML for a player (only if they have a rank in ranks.json)
 // Supports both in-game profile names and discord names
 function getPlayerRankIcon(playerName, size = 'small') {
     // First try to get rank via profile name mapping
@@ -1629,7 +1629,7 @@ async function loadGamesData() {
             console.log('[DEBUG] First game:', gamesData[0]);
         }
         
-        // Load player ranks from rankstats.json (supports playlist-based ranks)
+        // Load player ranks from ranks.json (supports playlist-based ranks)
         console.log('[DEBUG] Loading player ranks...');
         await loadPlayerRanks();
 
@@ -3052,7 +3052,7 @@ function renderLeaderboard(selectedPlaylist = null) {
             kills = data.kills || 0;
             deaths = data.deaths || 0;
         } else {
-            // Legacy rankstats.json format
+            // ranks.json format with playlist data
             if (selectedPlaylist !== 'all' && data.playlists && data.playlists[selectedPlaylist]) {
                 const plData = data.playlists[selectedPlaylist];
                 rank = plData.rank || 1;
@@ -3070,8 +3070,8 @@ function renderLeaderboard(selectedPlaylist = null) {
 
         return {
             discordId: discordId,
-            // Priority: alias > display_name > discord_name
-            displayName: data.alias || data.display_name || data.discord_name || 'Unknown',
+            // Priority: discord_name > alias (alias was incorrectly set to in-game names)
+            displayName: data.discord_name || data.alias || data.display_name || 'Unknown',
             profileNames: profileNames,
             rank: rank,
             wins: wins,

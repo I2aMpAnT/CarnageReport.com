@@ -1363,19 +1363,9 @@ def main():
 
             if user_id:
                 player_to_id[player_name] = user_id
-                # Update display name from players.json if available
-                if user_id in players:
-                    player_data = players[user_id]
-                    # Set alias and discord_name from players.json
-                    # Priority: aliases[0] > display_name > existing discord_name
-                    aliases = player_data.get('aliases', [])
-                    display_name = player_data.get('display_name', '')
-                    if aliases:
-                        rankstats[user_id]['alias'] = aliases[0]
-                        rankstats[user_id]['discord_name'] = aliases[0]
-                    elif display_name:
-                        rankstats[user_id]['alias'] = display_name
-                        rankstats[user_id]['discord_name'] = display_name
+                # discord_name should already be set correctly in rankstats from players.json
+                # Don't overwrite with in-game names - those are only for identification
+                # Only set alias if player has explicitly set one (not from in-game names)
             else:
                 # Create new entry for unmatched player
                 temp_id = str(abs(hash(player_name)) % 10**18)
@@ -1740,29 +1730,45 @@ def main():
             if player_name in player_to_id:
                 player['discord_id'] = player_to_id[player_name]
 
-    # Save legacy rankstats.json (for backwards compatibility)
-    with open(RANKSTATS_FILE, 'w') as f:
-        json.dump(rankstats, f, indent=2)
-    print(f"  Saved {RANKSTATS_FILE} (legacy)")
-
-    # Save simple ranks.json for bot (discord_id -> rank per playlist)
+    # Save ranks.json - consolidated file for both bot and website
+    # Contains all player data needed by both systems
     ranks_data = {}
     for user_id, data in rankstats.items():
         ranks_data[user_id] = {
-            'primary_rank': data.get('rank', 1),
-            'highest_rank': data.get('highest_rank', 1),
+            # Core identity
             'discord_name': data.get('discord_name', ''),
             'alias': data.get('alias', ''),
+            'twitch_name': data.get('twitch_name', ''),
+            'twitch_url': data.get('twitch_url', ''),
+            # Ranking
+            'rank': data.get('rank', 1),
+            'highest_rank': data.get('highest_rank', 1),
+            'xp': data.get('xp', 0),
+            'mmr': data.get('mmr', 750),
+            # Overall stats
+            'wins': data.get('wins', 0),
+            'losses': data.get('losses', 0),
+            'total_games': data.get('total_games', 0),
+            'kills': data.get('kills', 0),
+            'deaths': data.get('deaths', 0),
+            'assists': data.get('assists', 0),
+            'headshots': data.get('headshots', 0),
+            # Series stats
+            'series_wins': data.get('series_wins', 0),
+            'series_losses': data.get('series_losses', 0),
+            # Per-playlist data
             'playlists': {}
         }
-        # Add per-playlist ranks
+        # Add per-playlist stats
         playlists_info = data.get('playlists', {})
         for playlist_name, pl_data in playlists_info.items():
             ranks_data[user_id]['playlists'][playlist_name] = {
                 'rank': pl_data.get('rank', 1),
+                'highest_rank': pl_data.get('highest_rank', 1),
                 'xp': pl_data.get('xp', 0),
                 'wins': pl_data.get('wins', 0),
-                'losses': pl_data.get('losses', 0)
+                'losses': pl_data.get('losses', 0),
+                'games': pl_data.get('games', 0)
             }
 
     with open(RANKS_FILE, 'w') as f:
@@ -2001,11 +2007,6 @@ def main():
         json.dump(series_data, f, indent=2)
     print(f"  Saved {SERIES_FILE} ({len(all_series)} series, {len(series_player_stats)} players)")
 
-    # Re-save rankstats with series data
-    with open(RANKSTATS_FILE, 'w') as f:
-        json.dump(rankstats, f, indent=2)
-    print(f"  Updated {RANKSTATS_FILE} with series stats")
-
     # Re-save ranks.json with series data
     for user_id in ranks_data:
         if user_id in series_player_stats:
@@ -2107,7 +2108,7 @@ def main():
     print("\nPushing stats to GitHub...")
     # Base files
     json_files = [
-        RANKSTATS_FILE, RANKS_FILE, RANKHISTORY_FILE, EMBLEMS_FILE,
+        RANKS_FILE, RANKHISTORY_FILE, EMBLEMS_FILE,
         PROCESSED_STATE_FILE, PLAYLISTS_FILE, SERIES_FILE
     ]
     # Add per-playlist files that were saved
