@@ -1620,6 +1620,13 @@ def main():
     all_playlists = [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE, PLAYLIST_DOUBLE_TEAM, PLAYLIST_HEAD_TO_HEAD]
     playlist_files_saved = []
 
+    # Helper function to get display name (alias or discord_name instead of in-game name)
+    def get_display_name(player_name):
+        user_id = player_to_id.get(player_name)
+        if user_id and user_id in rankstats:
+            return rankstats[user_id].get('alias') or rankstats[user_id].get('discord_name') or player_name
+        return player_name
+
     for playlist_name in all_playlists:
         playlist_games = games_by_playlist.get(playlist_name, [])
         if not playlist_games:
@@ -1629,8 +1636,12 @@ def main():
         matches_data = {'playlist': playlist_name, 'matches': []}
         for game in playlist_games:
             winners, losers = determine_winners_losers(game)
-            red_team = [p['name'] for p in game['players'] if p.get('team') == 'Red']
-            blue_team = [p['name'] for p in game['players'] if p.get('team') == 'Blue']
+            red_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Red']
+            blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
+
+            # Calculate team scores
+            red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
+            blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
 
             # Determine winner team color
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
@@ -1638,7 +1649,10 @@ def main():
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
-                'gametype': get_base_gametype(game['details'].get('Game Type', '')),
+                'gametype': get_base_gametype(game['details'].get('Variant Name', game['details'].get('Game Type', ''))),
+                'variant_name': game['details'].get('Variant Name', ''),
+                'red_score': red_score,
+                'blue_score': blue_score,
                 'winner': winner_team,
                 'red_team': red_team,
                 'blue_team': blue_team,
@@ -1684,8 +1698,8 @@ def main():
         custom_data = {'matches': []}
         for game in untagged_games:
             winners, losers = determine_winners_losers(game)
-            red_team = [p['name'] for p in game['players'] if p.get('team') == 'Red']
-            blue_team = [p['name'] for p in game['players'] if p.get('team') == 'Blue']
+            red_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Red']
+            blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
             match_entry = {

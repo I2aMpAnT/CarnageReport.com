@@ -1543,11 +1543,13 @@ async function loadGamesData() {
                                     'Start Time': match.timestamp,
                                     'Map Name': match.map,
                                     'Game Type': match.gametype,
-                                    'Variant Name': match.gametype
+                                    'Variant Name': match.variant_name || match.gametype
                                 },
                                 players: convertMatchToPlayers(match, playlist),
                                 playlist: playlist.name,
-                                source_file: match.source_file
+                                source_file: match.source_file,
+                                red_score: match.red_score,
+                                blue_score: match.blue_score
                             });
                         }
                     }
@@ -1838,22 +1840,29 @@ function createGameItem(game, gameNumber) {
     let teamScoreDisplay = '';
     const teams = {};
     const isOddball = displayGameType.toLowerCase().includes('oddball');
-    
-    players.forEach(player => {
-        const team = player.team;
-        if (isValidTeam(team)) {
-            const teamKey = team.toString().trim();
-            if (!teams[teamKey]) {
-                teams[teamKey] = 0;
+
+    // Use pre-calculated scores if available (from per-playlist matches)
+    if (game.red_score !== undefined && game.blue_score !== undefined) {
+        teams['Red'] = game.red_score;
+        teams['Blue'] = game.blue_score;
+    } else {
+        // Fall back to calculating from player scores
+        players.forEach(player => {
+            const team = player.team;
+            if (isValidTeam(team)) {
+                const teamKey = team.toString().trim();
+                if (!teams[teamKey]) {
+                    teams[teamKey] = 0;
+                }
+                // For Oddball, sum time values; for other games, sum scores
+                if (isOddball) {
+                    teams[teamKey] += timeToSeconds(player.score);
+                } else {
+                    teams[teamKey] += parseInt(player.score) || 0;
+                }
             }
-            // For Oddball, sum time values; for other games, sum scores
-            if (isOddball) {
-                teams[teamKey] += timeToSeconds(player.score);
-            } else {
-                teams[teamKey] += parseInt(player.score) || 0;
-            }
-        }
-    });
+        });
+    }
     
     // Determine winner
     let winnerClass = '';
