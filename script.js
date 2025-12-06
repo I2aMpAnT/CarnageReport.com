@@ -1557,13 +1557,19 @@ async function loadGamesData() {
                                     'Start Time': match.timestamp,
                                     'Map Name': match.map,
                                     'Game Type': match.gametype,
-                                    'Variant Name': match.variant_name || match.gametype
+                                    'Variant Name': match.variant_name || match.gametype,
+                                    'Duration': match.duration || '0:00'
                                 },
                                 players: convertMatchToPlayers(match, playlist),
                                 playlist: playlist.name,
                                 source_file: match.source_file,
                                 red_score: match.red_score,
-                                blue_score: match.blue_score
+                                blue_score: match.blue_score,
+                                // Include all match data for detailed views
+                                player_stats: match.player_stats || [],
+                                versus: match.versus || {},
+                                medals: match.player_stats ? match.player_stats.map(p => ({player: p.name, ...p.medals})) : [],
+                                weapons: match.player_stats ? match.player_stats.map(p => ({Player: p.name, ...p.weapons})) : []
                             });
                         }
                     }
@@ -1603,14 +1609,20 @@ async function loadGamesData() {
                     'Start Time': match.timestamp,
                     'Map Name': match.map,
                     'Game Type': match.gametype,
-                    'Variant Name': match.variant || match.variant_name || match.gametype
+                    'Variant Name': match.variant || match.variant_name || match.gametype,
+                    'Duration': match.duration || '0:00'
                 },
                 players: convertMatchToPlayers(match, { is_team: true }),
                 playlist: 'Custom Games',
                 source_file: match.source_file,
                 isCustomGame: true,
                 red_score: match.red_score,
-                blue_score: match.blue_score
+                blue_score: match.blue_score,
+                // Include all match data for detailed views
+                player_stats: match.player_stats || [],
+                versus: match.versus || {},
+                medals: match.player_stats ? match.player_stats.map(p => ({player: p.name, ...p.medals})) : [],
+                weapons: match.player_stats ? match.player_stats.map(p => ({Player: p.name, ...p.weapons})) : []
             });
         }
         console.log(`[DEBUG] Added ${customGamesData.length} custom games to gamesData`);
@@ -2187,12 +2199,12 @@ function renderScoreboard(game) {
         });
     }
 
-    // Build map of player emblems from detailed_stats for this game
+    // Build map of player emblems from player_stats for this game
     const playerEmblemsInGame = {};
-    if (game.detailed_stats) {
-        game.detailed_stats.forEach(stat => {
-            if (stat.player && stat.emblem_url) {
-                playerEmblemsInGame[stat.player] = stat.emblem_url;
+    if (game.player_stats) {
+        game.player_stats.forEach(stat => {
+            if (stat.name && stat.emblem_url) {
+                playerEmblemsInGame[stat.name] = stat.emblem_url;
             }
         });
     }
