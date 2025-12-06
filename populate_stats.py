@@ -1959,7 +1959,15 @@ def main():
                     'rank': pl_data.get('rank', 1),
                     'wins': pl_data.get('wins', 0),
                     'losses': pl_data.get('losses', 0),
-                    'highest_rank': pl_data.get('highest_rank', 1)
+                    'highest_rank': pl_data.get('highest_rank', 1),
+                    # Include overall stats for K/D display
+                    'kills': data.get('kills', 0),
+                    'deaths': data.get('deaths', 0),
+                    'assists': data.get('assists', 0),
+                    'headshots': data.get('headshots', 0),
+                    # Include series stats
+                    'series_wins': data.get('series_wins', 0),
+                    'series_losses': data.get('series_losses', 0)
                 }
 
         save_playlist_stats(playlist_name, stats_data)
