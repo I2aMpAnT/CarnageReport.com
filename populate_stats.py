@@ -31,6 +31,7 @@ ACTIVE_MATCHES_FILE = 'active_matches.json'
 RANKHISTORY_FILE = 'rankhistory.json'
 MANUAL_PLAYLISTS_FILE = 'manual_playlists.json'
 PROCESSED_STATE_FILE = 'processed_state.json'
+SERIES_FILE = 'series.json'
 
 # Base URL for downloadable files on the VPS
 STATS_BASE_URL = 'http://104.207.143.249/stats'
@@ -147,6 +148,159 @@ def save_custom_games(data):
     """Save custom games."""
     with open(CUSTOMGAMES_FILE, 'w') as f:
         json.dump(data, f, indent=2)
+
+def get_team_signature(game):
+    """
+    Get a unique signature for the team composition of a game.
+    Returns (frozenset of red team, frozenset of blue team) sorted by team.
+    This allows detecting when the same players are on the same teams.
+    """
+    red_team = frozenset(p['name'].lower() for p in game['players'] if p.get('team') == 'Red')
+    blue_team = frozenset(p['name'].lower() for p in game['players'] if p.get('team') == 'Blue')
+    # Return as tuple with teams sorted to ensure consistent ordering
+    return (red_team, blue_team)
+
+def detect_series(games, get_display_name_func):
+    """
+    Detect series from consecutive games with the same team composition.
+    A series ends when the player/team composition changes.
+
+    Returns:
+        list of series dicts with:
+        - series_id: unique identifier
+        - playlist: playlist name
+        - red_team: list of player names
+        - blue_team: list of player names
+        - games: list of game entries in the series
+        - red_wins: number of games won by red team
+        - blue_wins: number of games won by blue team
+        - winner: 'Red', 'Blue', or 'Ongoing'
+        - series_type: 'Bo3', 'Bo5', 'Bo7', or 'Custom'
+        - start_time: timestamp of first game
+        - end_time: timestamp of last game
+    """
+    if not games:
+        return []
+
+    # Sort games by timestamp
+    sorted_games = sorted(games, key=lambda g: g['details'].get('Start Time', ''))
+
+    series_list = []
+    current_series = None
+    series_counter = 0
+
+    for game in sorted_games:
+        team_sig = get_team_signature(game)
+        winners, _ = determine_winners_losers(game)
+
+        # Get team names
+        red_team = sorted([get_display_name_func(p['name']) for p in game['players'] if p.get('team') == 'Red'])
+        blue_team = sorted([get_display_name_func(p['name']) for p in game['players'] if p.get('team') == 'Blue'])
+
+        # Determine which team won this game
+        red_team_lower = [n.lower() for n in red_team]
+        game_winner = None
+        if winners:
+            winner_name_lower = winners[0].lower() if winners else None
+            # Check player_to_id for display name resolution
+            for p in game['players']:
+                if p['name'] in winners:
+                    if p.get('team') == 'Red':
+                        game_winner = 'Red'
+                    elif p.get('team') == 'Blue':
+                        game_winner = 'Blue'
+                    break
+
+        # Check if this continues the current series (same team composition)
+        if current_series and current_series['_team_sig'] == team_sig:
+            # Same series - add game
+            current_series['games'].append({
+                'timestamp': game['details'].get('Start Time', ''),
+                'map': game['details'].get('Map Name', 'Unknown'),
+                'gametype': get_base_gametype(game['details'].get('Game Type', '')),
+                'variant_name': game['details'].get('Variant Name', ''),
+                'winner': game_winner,
+                'source_file': game.get('source_file', '')
+            })
+            current_series['end_time'] = game['details'].get('Start Time', '')
+
+            if game_winner == 'Red':
+                current_series['red_wins'] += 1
+            elif game_winner == 'Blue':
+                current_series['blue_wins'] += 1
+        else:
+            # Different composition - close previous series if exists
+            if current_series:
+                # Finalize and add to list
+                del current_series['_team_sig']
+                _finalize_series(current_series)
+                series_list.append(current_series)
+
+            # Start new series
+            series_counter += 1
+            current_series = {
+                '_team_sig': team_sig,  # Internal, removed before saving
+                'series_id': f"series_{series_counter}",
+                'playlist': game.get('playlist', 'Unknown'),
+                'red_team': red_team,
+                'blue_team': blue_team,
+                'games': [{
+                    'timestamp': game['details'].get('Start Time', ''),
+                    'map': game['details'].get('Map Name', 'Unknown'),
+                    'gametype': get_base_gametype(game['details'].get('Game Type', '')),
+                    'variant_name': game['details'].get('Variant Name', ''),
+                    'winner': game_winner,
+                    'source_file': game.get('source_file', '')
+                }],
+                'red_wins': 1 if game_winner == 'Red' else 0,
+                'blue_wins': 1 if game_winner == 'Blue' else 0,
+                'start_time': game['details'].get('Start Time', ''),
+                'end_time': game['details'].get('Start Time', ''),
+                'winner': 'Ongoing',
+                'series_type': 'Custom'
+            }
+
+    # Don't forget the last series
+    if current_series:
+        del current_series['_team_sig']
+        _finalize_series(current_series)
+        series_list.append(current_series)
+
+    return series_list
+
+def _finalize_series(series):
+    """
+    Finalize a series by determining the winner and series type.
+    """
+    red_wins = series['red_wins']
+    blue_wins = series['blue_wins']
+    total_games = len(series['games'])
+
+    # Determine series type based on games played
+    if total_games <= 3:
+        series['series_type'] = 'Bo3'
+        wins_needed = 2
+    elif total_games <= 5:
+        series['series_type'] = 'Bo5'
+        wins_needed = 3
+    elif total_games <= 7:
+        series['series_type'] = 'Bo7'
+        wins_needed = 4
+    else:
+        series['series_type'] = 'Custom'
+        wins_needed = (total_games // 2) + 1
+
+    # Determine winner
+    if red_wins >= wins_needed:
+        series['winner'] = 'Red'
+    elif blue_wins >= wins_needed:
+        series['winner'] = 'Blue'
+    elif red_wins > blue_wins:
+        series['winner'] = 'Red'  # Series ended with red ahead
+    elif blue_wins > red_wins:
+        series['winner'] = 'Blue'  # Series ended with blue ahead
+    else:
+        series['winner'] = 'Tie'  # Equal wins when series ended
 
 def get_loss_factor(rank, loss_factors):
     """Get the loss factor for a given rank. Lower ranks lose less XP."""
@@ -1785,6 +1939,82 @@ def main():
         json.dump(rankhistory, f, indent=2)
     print(f"  Saved {RANKHISTORY_FILE} ({len(rankhistory)} players with history)")
 
+    # Detect and save series data (for manual playlists)
+    print("\n  Detecting series from ranked games...")
+    all_series = []
+    series_player_stats = {}  # Track series wins/losses per player
+
+    for playlist_name in all_playlists:
+        playlist_games = games_by_playlist.get(playlist_name, [])
+        if not playlist_games:
+            continue
+
+        # Detect series for this playlist
+        playlist_series = detect_series(playlist_games, get_display_name)
+        print(f"    {playlist_name}: {len(playlist_series)} series detected")
+
+        for series in playlist_series:
+            all_series.append(series)
+
+            # Track series wins/losses for players
+            winning_team = series['winner']
+            if winning_team in ['Red', 'Blue']:
+                # Get player discord IDs for each team
+                for player_name in series['red_team']:
+                    # Find discord ID from in-game name
+                    for ingame_name, discord_id in player_to_id.items():
+                        display = get_display_name(ingame_name)
+                        if display == player_name:
+                            if discord_id not in series_player_stats:
+                                series_player_stats[discord_id] = {'series_wins': 0, 'series_losses': 0}
+                            if winning_team == 'Red':
+                                series_player_stats[discord_id]['series_wins'] += 1
+                            else:
+                                series_player_stats[discord_id]['series_losses'] += 1
+                            break
+
+                for player_name in series['blue_team']:
+                    for ingame_name, discord_id in player_to_id.items():
+                        display = get_display_name(ingame_name)
+                        if display == player_name:
+                            if discord_id not in series_player_stats:
+                                series_player_stats[discord_id] = {'series_wins': 0, 'series_losses': 0}
+                            if winning_team == 'Blue':
+                                series_player_stats[discord_id]['series_wins'] += 1
+                            else:
+                                series_player_stats[discord_id]['series_losses'] += 1
+                            break
+
+    # Update rankstats with series wins/losses
+    for discord_id, stats in series_player_stats.items():
+        if discord_id in rankstats:
+            rankstats[discord_id]['series_wins'] = stats['series_wins']
+            rankstats[discord_id]['series_losses'] = stats['series_losses']
+
+    # Save series data for bot
+    series_data = {
+        'series': all_series,
+        'player_series_stats': series_player_stats,
+        'generated_at': datetime.now().isoformat()
+    }
+    with open(SERIES_FILE, 'w') as f:
+        json.dump(series_data, f, indent=2)
+    print(f"  Saved {SERIES_FILE} ({len(all_series)} series, {len(series_player_stats)} players)")
+
+    # Re-save rankstats with series data
+    with open(RANKSTATS_FILE, 'w') as f:
+        json.dump(rankstats, f, indent=2)
+    print(f"  Updated {RANKSTATS_FILE} with series stats")
+
+    # Re-save ranks.json with series data
+    for user_id in ranks_data:
+        if user_id in series_player_stats:
+            ranks_data[user_id]['series_wins'] = series_player_stats[user_id]['series_wins']
+            ranks_data[user_id]['series_losses'] = series_player_stats[user_id]['series_losses']
+    with open(RANKS_FILE, 'w') as f:
+        json.dump(ranks_data, f, indent=2)
+    print(f"  Updated {RANKS_FILE} with series stats")
+
     # Print summary
     print("\n" + "=" * 50)
     print("STATS POPULATION SUMMARY")
@@ -1803,6 +2033,15 @@ def main():
             playlist_counts[pl] = playlist_counts.get(pl, 0) + 1
     for pl, count in sorted(playlist_counts.items()):
         print(f"  {pl}: {count} games")
+
+    print(f"\nSeries Summary:")
+    print(f"  Total series detected: {len(all_series)}")
+    series_by_type = {}
+    for s in all_series:
+        st = s['series_type']
+        series_by_type[st] = series_by_type.get(st, 0) + 1
+    for st, count in sorted(series_by_type.items()):
+        print(f"  {st}: {count} series")
 
     print(f"\nTotal players with game data: {len(player_game_stats)}")
 
@@ -1869,7 +2108,7 @@ def main():
     # Base files
     json_files = [
         RANKSTATS_FILE, RANKS_FILE, RANKHISTORY_FILE, EMBLEMS_FILE,
-        PROCESSED_STATE_FILE, PLAYLISTS_FILE
+        PROCESSED_STATE_FILE, PLAYLISTS_FILE, SERIES_FILE
     ]
     # Add per-playlist files that were saved
     json_files.extend(playlist_files_saved)
