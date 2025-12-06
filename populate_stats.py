@@ -1515,11 +1515,8 @@ def main():
             if player_name in player_to_id:
                 player['discord_id'] = player_to_id[player_name]
 
-    # Save ALL games to gameshistory.json (includes ranked and unranked)
-    # Games have their playlist set from determine_playlist() - None for unranked
-    with open(GAMESDATA_FILE, 'w') as f:
-        json.dump(all_games, f, indent=2)
-    print(f"  Saved {GAMESDATA_FILE} ({len(all_games)} total games)")
+    # NOTE: gameshistory.json is managed by the bot, not this script
+    # This script only handles ranked stats files
 
     # Extract and save player emblems (most recent emblem for each player)
     # Maps discord_id to their emblem_url
@@ -1679,7 +1676,7 @@ def main():
     # Push JSON files to GitHub for website updates
     print("\nPushing stats to GitHub...")
     json_files = [
-        RANKSTATS_FILE, GAMESDATA_FILE, GAMESTATS_FILE, MATCHHISTORY_FILE,
+        RANKSTATS_FILE, GAMESTATS_FILE, MATCHHISTORY_FILE,
         RANKHISTORY_FILE, EMBLEMS_FILE, PROCESSED_STATE_FILE
     ]
 
