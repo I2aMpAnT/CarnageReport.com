@@ -119,6 +119,38 @@
         "AfroMaN",
         "EpiiiC",
         "James | The Frenetic",
+        "Keylord",
+        "STATSDEDI"
+      ],
+      "blue_team": [
+        "Prince KidMode",
+        "Rinser",
+        "cOn"
+      ],
+      "games": [
+        {
+          "timestamp": "12/5/2025 10:19 PM",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF MidWar",
+          "winner": "Red",
+          "source_file": "20251205_222909.xlsx"
+        }
+      ],
+      "red_wins": 1,
+      "blue_wins": 0,
+      "start_time": "12/5/2025 10:19 PM",
+      "end_time": "12/5/2025 10:19 PM",
+      "winner": "Red",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_4",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "AfroMaN",
+        "EpiiiC",
+        "James | The Frenetic",
         "Keylord"
       ],
       "blue_team": [
@@ -169,7 +201,7 @@
       "series_type": "Bo5"
     },
     {
-      "series_id": "series_4",
+      "series_id": "series_5",
       "playlist": "MLG 4v4",
       "red_team": [
         "AfroMaN",
@@ -233,7 +265,7 @@
       "series_type": "Bo5"
     },
     {
-      "series_id": "series_5",
+      "series_id": "series_6",
       "playlist": "MLG 4v4",
       "red_team": [
         "James | The Frenetic",
@@ -305,7 +337,7 @@
       "series_type": "Bo7"
     },
     {
-      "series_id": "series_6",
+      "series_id": "series_7",
       "playlist": "MLG 4v4",
       "red_team": [
         "Hammie",
@@ -385,7 +417,7 @@
       "series_type": "Bo7"
     },
     {
-      "series_id": "series_7",
+      "series_id": "series_8",
       "playlist": "MLG 4v4",
       "red_team": [
         "Jay2",
@@ -459,12 +491,12 @@
   ],
   "player_series_stats": {
     "111190770756657152": {
-      "series_wins": 2,
+      "series_wins": 3,
       "series_losses": 2
     },
     "293507586131492864": {
       "series_wins": 3,
-      "series_losses": 0
+      "series_losses": 1
     },
     "175060415833833472": {
       "series_wins": 1,
@@ -475,7 +507,7 @@
       "series_losses": 0
     },
     "269681242335739905": {
-      "series_wins": 0,
+      "series_wins": 1,
       "series_losses": 6
     },
     "426757496557010948": {
@@ -496,10 +528,10 @@
     },
     "210187331066396672": {
       "series_wins": 2,
-      "series_losses": 0
+      "series_losses": 1
     },
     "168151188741685248": {
-      "series_wins": 2,
+      "series_wins": 3,
       "series_losses": 2
     },
     "283293015135748097": {
@@ -507,12 +539,12 @@
       "series_losses": 1
     },
     "164725201907613696": {
-      "series_wins": 0,
+      "series_wins": 1,
       "series_losses": 2
     },
     "390747330631958528": {
       "series_wins": 2,
-      "series_losses": 1
+      "series_losses": 2
     },
     "1136095104663306240": {
       "series_wins": 3,
@@ -547,5 +579,5 @@
       "series_losses": 1
     }
   },
-  "generated_at": "2025-12-06T13:53:18.972000"
+  "generated_at": "2025-12-06T14:02:20.175207"
 }

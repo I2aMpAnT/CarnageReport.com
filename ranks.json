@@ -61,25 +61,25 @@
     "twitch_url": "https://twitch.tv/justinkeylord",
     "rank": 8,
     "highest_rank": 6,
-    "xp": 704,
+    "xp": 760,
     "mmr": 900,
-    "wins": 8,
+    "wins": 9,
     "losses": 22,
     "total_games": 35,
     "kills": 517,
     "deaths": 709,
     "assists": 435,
     "headshots": 340,
-    "series_wins": 0,
+    "series_wins": 1,
     "series_losses": 6,
     "playlists": {
       "MLG 4v4": {
         "rank": 8,
         "highest_rank": 6,
-        "xp": 704,
-        "wins": 8,
+        "xp": 760,
+        "wins": 9,
         "losses": 22,
-        "games": 31
+        "games": 32
       }
     }
   },
@@ -230,25 +230,25 @@
     "twitch_url": "https://twitch.tv/kidm0de",
     "rank": 11,
     "highest_rank": 11,
-    "xp": 1049,
+    "xp": 1042,
     "mmr": 1100,
     "wins": 11,
-    "losses": 4,
+    "losses": 5,
     "total_games": 17,
     "kills": 310,
     "deaths": 325,
     "assists": 201,
     "headshots": 214,
     "series_wins": 3,
-    "series_losses": 0,
+    "series_losses": 1,
     "playlists": {
       "MLG 4v4": {
         "rank": 11,
         "highest_rank": 11,
-        "xp": 1049,
+        "xp": 1042,
         "wins": 11,
-        "losses": 4,
-        "games": 15
+        "losses": 5,
+        "games": 16
       }
     }
   },
@@ -308,22 +308,22 @@
     "xp": 700,
     "mmr": 800,
     "wins": 7,
-    "losses": 0,
+    "losses": 1,
     "total_games": 9,
     "kills": 158,
     "deaths": 134,
     "assists": 79,
     "headshots": 113,
     "series_wins": 2,
-    "series_losses": 0,
+    "series_losses": 1,
     "playlists": {
       "MLG 4v4": {
         "rank": 8,
         "highest_rank": 5,
         "xp": 700,
         "wins": 7,
-        "losses": 0,
-        "games": 7
+        "losses": 1,
+        "games": 8
       }
     }
   },
@@ -1582,27 +1582,27 @@
     "discord_name": "James | The Frenetic",
     "twitch_name": "thefrenetic",
     "twitch_url": "https://twitch.tv/thefrenetic",
-    "rank": 2,
-    "highest_rank": 3,
-    "xp": 183,
+    "rank": 3,
+    "highest_rank": 4,
+    "xp": 270,
     "mmr": 1350,
-    "wins": 2,
+    "wins": 3,
     "losses": 8,
     "total_games": 12,
     "kills": 321,
     "deaths": 309,
     "assists": 170,
     "headshots": 235,
-    "series_wins": 0,
+    "series_wins": 1,
     "series_losses": 2,
     "playlists": {
       "MLG 4v4": {
-        "rank": 2,
-        "highest_rank": 3,
-        "xp": 183,
-        "wins": 2,
+        "rank": 3,
+        "highest_rank": 4,
+        "xp": 270,
+        "wins": 3,
         "losses": 8,
-        "games": 10
+        "games": 11
       }
     }
   },
@@ -1804,22 +1804,22 @@
     "xp": 861,
     "mmr": 1750,
     "wins": 10,
-    "losses": 7,
+    "losses": 8,
     "total_games": 19,
     "kills": 413,
     "deaths": 372,
     "assists": 288,
     "headshots": 271,
     "series_wins": 2,
-    "series_losses": 1,
+    "series_losses": 2,
     "playlists": {
       "MLG 4v4": {
         "rank": 9,
         "highest_rank": 9,
         "xp": 861,
         "wins": 10,
-        "losses": 7,
-        "games": 17
+        "losses": 8,
+        "games": 18
       }
     }
   },
@@ -1903,27 +1903,27 @@
     "discord_name": "EpiiiC",
     "twitch_name": "e212",
     "twitch_url": "https://twitch.tv/e212",
-    "rank": 9,
-    "highest_rank": 10,
-    "xp": 847,
+    "rank": 10,
+    "highest_rank": 11,
+    "xp": 912,
     "mmr": 1400,
-    "wins": 10,
+    "wins": 11,
     "losses": 12,
     "total_games": 24,
     "kills": 555,
     "deaths": 501,
     "assists": 343,
     "headshots": 394,
-    "series_wins": 2,
+    "series_wins": 3,
     "series_losses": 2,
     "playlists": {
       "MLG 4v4": {
-        "rank": 9,
-        "highest_rank": 10,
-        "xp": 847,
-        "wins": 10,
+        "rank": 10,
+        "highest_rank": 11,
+        "xp": 912,
+        "wins": 11,
         "losses": 12,
-        "games": 22
+        "games": 23
       }
     }
   },
@@ -2140,27 +2140,27 @@
     "discord_name": "AfroMaN",
     "twitch_name": "",
     "twitch_url": "",
-    "rank": 7,
-    "highest_rank": 7,
-    "xp": 663,
+    "rank": 8,
+    "highest_rank": 8,
+    "xp": 750,
     "mmr": 1200,
-    "wins": 7,
+    "wins": 8,
     "losses": 10,
     "total_games": 20,
     "kills": 466,
     "deaths": 368,
     "assists": 261,
     "headshots": 311,
-    "series_wins": 2,
+    "series_wins": 3,
     "series_losses": 2,
     "playlists": {
       "MLG 4v4": {
-        "rank": 7,
-        "highest_rank": 7,
-        "xp": 663,
-        "wins": 7,
+        "rank": 8,
+        "highest_rank": 8,
+        "xp": 750,
+        "wins": 8,
         "losses": 10,
-        "games": 18
+        "games": 19
       }
     }
   },
