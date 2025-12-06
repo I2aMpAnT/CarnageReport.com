@@ -220,9 +220,9 @@
         const ctx = canvas.getContext('2d');
 
         // Get all 4 colors
-        const emblemPrimary = parseInt(document.getElementById('emblemPrimary')?.value || 1);
-        const emblemSecondary = parseInt(document.getElementById('emblemSecondary')?.value || 0);
-        const bgPrimary = parseInt(document.getElementById('bgPrimary')?.value || 11);
+        const emblemPrimary = parseInt(document.getElementById('emblemPrimary')?.value || 0);
+        const emblemSecondary = parseInt(document.getElementById('emblemSecondary')?.value || 1);
+        const bgPrimary = parseInt(document.getElementById('bgPrimary')?.value || 10);
         const bgSecondary = parseInt(document.getElementById('bgSecondary')?.value || 0);
         const emblemForeground = parseInt(document.getElementById('emblemForeground')?.value || 0);
         const emblemBackground = parseInt(document.getElementById('emblemBackground')?.value || 0);
@@ -387,6 +387,54 @@
         link.click();
     }
 
+    // Generate an emblem as a data URL given parameters
+    // Returns a promise that resolves to a data URL string
+    window.generateEmblemDataUrl = async function(params) {
+        const {
+            P = 10,   // bgPrimary (player primary color)
+            S = 0,    // bgSecondary (player secondary color)
+            EP = 0,   // emblemPrimary
+            ES = 1,   // emblemSecondary
+            EF = 0,   // emblemForeground
+            EB = 0,   // emblemBackground
+            ET = 0    // emblemToggle
+        } = params || {};
+
+        const size = 256;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // Clear with black background
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, size, size);
+
+        // Get file paths
+        const fgFile = foregroundFiles[EF] || foregroundFiles[0];
+        const bgFile = backgroundFiles[EB] || backgroundFiles[0];
+        const fgPath = 'emblems/embems/' + encodeURIComponent(fgFile);
+        const bgPath = 'emblems/backgrounds/' + encodeURIComponent(bgFile);
+
+        try {
+            const [fgImg, bgImg] = await Promise.all([
+                loadImage(fgPath),
+                loadImage(bgPath)
+            ]);
+
+            // Draw background with player colors
+            drawBackground(ctx, bgImg, colorPalette[P] || colorPalette[0], colorPalette[S] || colorPalette[0]);
+
+            // Draw foreground with emblem colors
+            drawForeground(ctx, fgImg, colorPalette[EP] || colorPalette[0], colorPalette[ES] || colorPalette[0], ET);
+
+            return canvas.toDataURL('image/png');
+        } catch (e) {
+            console.error('Error generating emblem:', e);
+            return null;
+        }
+    }
+
     // Parse URL parameters and set emblem values
     // Parameters match halo2pc.com format:
     // P=primary color, S=secondary color, EP=emblem primary, ES=emblem secondary
@@ -431,9 +479,9 @@
     window.getEmblemUrl = function() {
         const emblemForeground = document.getElementById('emblemForeground')?.value || 0;
         const emblemBackground = document.getElementById('emblemBackground')?.value || 0;
-        const emblemPrimary = document.getElementById('emblemPrimary')?.value || 1;
-        const emblemSecondary = document.getElementById('emblemSecondary')?.value || 0;
-        const bgPrimary = document.getElementById('bgPrimary')?.value || 11;
+        const emblemPrimary = document.getElementById('emblemPrimary')?.value || 0;
+        const emblemSecondary = document.getElementById('emblemSecondary')?.value || 1;
+        const bgPrimary = document.getElementById('bgPrimary')?.value || 10;
         const bgSecondary = document.getElementById('bgSecondary')?.value || 0;
         const emblemToggle = document.getElementById('emblemToggle')?.checked ? 1 : 0;
 

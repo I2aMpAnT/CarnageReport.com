@@ -11,7 +11,7 @@ from datetime import datetime
 
 # GitHub Configuration
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')  # Personal Access Token
-GITHUB_REPO = "I2aMpAnT/H2CarnageReport.com"
+GITHUB_REPO = "I2aMpAnT/CarnageReport.com"
 GITHUB_BRANCH = "main"
 
 # JSON files to sync (local filename -> GitHub path)
