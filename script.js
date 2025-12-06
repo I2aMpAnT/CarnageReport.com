@@ -1894,12 +1894,13 @@ function createGameItem(game, gameNumber) {
     let teamScoreDisplay = '';
     const teams = {};
     const isOddball = displayGameType.toLowerCase().includes('oddball');
+    const isFFA = displayGameType.toLowerCase().includes('ffa') || displayGameType.toLowerCase().includes('free for all');
 
-    // Use pre-calculated scores if available (from per-playlist matches)
-    if (game.red_score !== undefined && game.blue_score !== undefined) {
+    // Use pre-calculated scores if available (from per-playlist matches) - skip for FFA
+    if (!isFFA && game.red_score !== undefined && game.blue_score !== undefined) {
         teams['Red'] = game.red_score;
         teams['Blue'] = game.blue_score;
-    } else {
+    } else if (!isFFA) {
         // Fall back to calculating from player scores
         players.forEach(player => {
             const team = player.team;

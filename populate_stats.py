@@ -1641,8 +1641,8 @@ def main():
     for user_id, player_names in user_id_to_names.items():
         # Ensure user exists in rankstats
         if user_id not in rankstats:
-            # Get discord_name from id_to_profile
-            discord_name = id_to_profile.get(user_id, player_names[0])
+            # Get discord_name from players.json or use first player name
+            discord_name = players.get(user_id, {}).get('discord_name', player_names[0])
             rankstats[user_id] = {
                 'discord_name': discord_name,
                 'total_games': 0,
