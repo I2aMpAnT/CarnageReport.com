@@ -1557,13 +1557,19 @@ async function loadGamesData() {
                                     'Start Time': match.timestamp,
                                     'Map Name': match.map,
                                     'Game Type': match.gametype,
-                                    'Variant Name': match.variant_name || match.gametype
+                                    'Variant Name': match.variant_name || match.gametype,
+                                    'Duration': match.duration || '0:00'
                                 },
                                 players: convertMatchToPlayers(match, playlist),
                                 playlist: playlist.name,
                                 source_file: match.source_file,
                                 red_score: match.red_score,
-                                blue_score: match.blue_score
+                                blue_score: match.blue_score,
+                                // Include all match data for detailed views (original structure)
+                                detailed_stats: match.detailed_stats || [],
+                                medals: match.medals || [],
+                                weapons: match.weapons || [],
+                                versus: match.versus || {}
                             });
                         }
                     }
@@ -1603,14 +1609,20 @@ async function loadGamesData() {
                     'Start Time': match.timestamp,
                     'Map Name': match.map,
                     'Game Type': match.gametype,
-                    'Variant Name': match.variant || match.variant_name || match.gametype
+                    'Variant Name': match.variant || match.variant_name || match.gametype,
+                    'Duration': match.duration || '0:00'
                 },
                 players: convertMatchToPlayers(match, { is_team: true }),
                 playlist: 'Custom Games',
                 source_file: match.source_file,
                 isCustomGame: true,
                 red_score: match.red_score,
-                blue_score: match.blue_score
+                blue_score: match.blue_score,
+                // Include all match data for detailed views (original structure)
+                detailed_stats: match.detailed_stats || [],
+                medals: match.medals || [],
+                weapons: match.weapons || [],
+                versus: match.versus || {}
             });
         }
         console.log(`[DEBUG] Added ${customGamesData.length} custom games to gamesData`);
