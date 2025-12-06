@@ -868,9 +868,9 @@ async function loadPlayerRanks() {
             let playerName = null;
             let ranks = {};
 
-            if (value.discord_name || value.alias) {
-                // Legacy format with discord_name/alias
-                playerName = value.alias || value.discord_name;
+            if (value.discord_name) {
+                // Use discord_name only
+                playerName = value.discord_name;
                 // Use the rank field directly if it exists, otherwise calculate from MMR
                 if (value.rank) {
                     ranks['Overall'] = value.rank;
@@ -3070,8 +3070,8 @@ function renderLeaderboard(selectedPlaylist = null) {
 
         return {
             discordId: discordId,
-            // Priority: discord_name > alias (alias was incorrectly set to in-game names)
-            displayName: data.discord_name || data.alias || data.display_name || 'Unknown',
+            // Use discord_name only - no aliases
+            displayName: data.discord_name || 'Unknown',
             profileNames: profileNames,
             rank: rank,
             wins: wins,

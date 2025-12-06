@@ -1065,13 +1065,27 @@ def determine_winners_losers(game):
     """Determine winning and losing teams for a 4v4 team game."""
     players = game['players']
 
+    # Check if this is a CTF game
+    variant_name = game['details'].get('Variant Name', '').lower()
+    game_type = game['details'].get('Game Type', '').lower()
+    is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
+
+    # Build detailed stats lookup for CTF
+    detailed = {}
+    if is_ctf and game.get('detailed_stats'):
+        detailed = {s['player']: s for s in game.get('detailed_stats', [])}
+
     teams = {}
     for player in players:
         team = player.get('team', '').strip()
         if team and team in ['Red', 'Blue']:
             if team not in teams:
                 teams[team] = {'score': 0, 'players': []}
-            teams[team]['score'] += player.get('score_numeric', 0)
+            # For CTF, use flag captures; otherwise use score_numeric
+            if is_ctf and detailed:
+                teams[team]['score'] += detailed.get(player['name'], {}).get('ctf_scores', 0)
+            else:
+                teams[team]['score'] += player.get('score_numeric', 0)
             teams[team]['players'].append(player['name'])
 
     if len(teams) == 2:
@@ -1735,9 +1749,8 @@ def main():
     ranks_data = {}
     for user_id, data in rankstats.items():
         ranks_data[user_id] = {
-            # Core identity
+            # Core identity - use discord_name only, no aliases
             'discord_name': data.get('discord_name', ''),
-            'alias': data.get('alias', ''),
             'twitch_name': data.get('twitch_name', ''),
             'twitch_url': data.get('twitch_url', ''),
             # Ranking
@@ -1780,11 +1793,11 @@ def main():
     all_playlists = [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE, PLAYLIST_DOUBLE_TEAM, PLAYLIST_HEAD_TO_HEAD]
     playlist_files_saved = []
 
-    # Helper function to get display name (alias or discord_name instead of in-game name)
+    # Helper function to get display name (discord_name instead of in-game name)
     def get_display_name(player_name):
         user_id = player_to_id.get(player_name)
         if user_id and user_id in rankstats:
-            return rankstats[user_id].get('alias') or rankstats[user_id].get('discord_name') or player_name
+            return rankstats[user_id].get('discord_name') or player_name
         return player_name
 
     for playlist_name in all_playlists:
@@ -1866,7 +1879,6 @@ def main():
                 pl_data = playlists_info[playlist_name]
                 stats_data['players'][user_id] = {
                     'discord_name': data.get('discord_name', ''),
-                    'alias': data.get('alias', ''),
                     'xp': pl_data.get('xp', 0),
                     'rank': pl_data.get('rank', 1),
                     'wins': pl_data.get('wins', 0),
@@ -2050,7 +2062,7 @@ def main():
     ranked_players = [(uid, d) for uid, d in rankstats.items() if d.get('wins', 0) > 0 or d.get('losses', 0) > 0]
     ranked_players.sort(key=lambda x: (x[1].get('rank', 0), x[1].get('wins', 0)), reverse=True)
     for uid, d in ranked_players[:15]:
-        name = d.get('alias') or d.get('discord_name', 'Unknown')
+        name = d.get('discord_name', 'Unknown')
         rank = d.get('rank', 1)
         xp = d.get('xp', 0)
         wins = d.get('wins', 0)
