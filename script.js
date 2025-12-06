@@ -1565,11 +1565,11 @@ async function loadGamesData() {
                                 source_file: match.source_file,
                                 red_score: match.red_score,
                                 blue_score: match.blue_score,
-                                // Include all match data for detailed views
-                                player_stats: match.player_stats || [],
-                                versus: match.versus || {},
-                                medals: match.player_stats ? match.player_stats.map(p => ({player: p.name, ...p.medals})) : [],
-                                weapons: match.player_stats ? match.player_stats.map(p => ({Player: p.name, ...p.weapons})) : []
+                                // Include all match data for detailed views (original structure)
+                                detailed_stats: match.detailed_stats || [],
+                                medals: match.medals || [],
+                                weapons: match.weapons || [],
+                                versus: match.versus || {}
                             });
                         }
                     }
@@ -1618,11 +1618,11 @@ async function loadGamesData() {
                 isCustomGame: true,
                 red_score: match.red_score,
                 blue_score: match.blue_score,
-                // Include all match data for detailed views
-                player_stats: match.player_stats || [],
-                versus: match.versus || {},
-                medals: match.player_stats ? match.player_stats.map(p => ({player: p.name, ...p.medals})) : [],
-                weapons: match.player_stats ? match.player_stats.map(p => ({Player: p.name, ...p.weapons})) : []
+                // Include all match data for detailed views (original structure)
+                detailed_stats: match.detailed_stats || [],
+                medals: match.medals || [],
+                weapons: match.weapons || [],
+                versus: match.versus || {}
             });
         }
         console.log(`[DEBUG] Added ${customGamesData.length} custom games to gamesData`);
@@ -2199,12 +2199,12 @@ function renderScoreboard(game) {
         });
     }
 
-    // Build map of player emblems from player_stats for this game
+    // Build map of player emblems from detailed_stats for this game
     const playerEmblemsInGame = {};
-    if (game.player_stats) {
-        game.player_stats.forEach(stat => {
-            if (stat.name && stat.emblem_url) {
-                playerEmblemsInGame[stat.name] = stat.emblem_url;
+    if (game.detailed_stats) {
+        game.detailed_stats.forEach(stat => {
+            if (stat.player && stat.emblem_url) {
+                playerEmblemsInGame[stat.player] = stat.emblem_url;
             }
         });
     }

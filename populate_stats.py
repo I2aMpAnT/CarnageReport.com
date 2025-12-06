@@ -1831,23 +1831,11 @@ def main():
             # Determine winner team color
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
-            # Build player stats for match - include ALL data from Excel
+            # Build player_stats array (basic player info with stats)
             player_stats = []
-            detailed_lookup = {s['player']: s for s in game.get('detailed_stats', [])}
-            medal_lookup = {m['player']: m for m in game.get('medals', [])}
-            weapon_lookup = {w['Player']: w for w in game.get('weapons', [])}
-
             for p in game['players']:
-                player_name = p['name']
-                display_name = get_display_name(player_name)
-
-                # Get detailed stats for this player
-                detailed = detailed_lookup.get(player_name, {})
-                medals = medal_lookup.get(player_name, {})
-                weapons = weapon_lookup.get(player_name, {})
-
-                player_entry = {
-                    'name': display_name,
+                player_stats.append({
+                    'name': get_display_name(p['name']),
                     'team': p.get('team', ''),
                     'kills': p.get('kills', 0),
                     'deaths': p.get('deaths', 0),
@@ -1859,22 +1847,47 @@ def main():
                     'shots_fired': p.get('shots_fired', 0),
                     'shots_hit': p.get('shots_hit', 0),
                     'accuracy': p.get('accuracy', 0),
-                    'headshots': p.get('head_shots', 0),
-                    # Detailed stats
-                    'best_spree': detailed.get('best_spree', 0),
-                    'total_time_alive': detailed.get('total_time_alive', 0),
-                    'ctf_scores': detailed.get('ctf_scores', 0),
-                    'ctf_flag_steals': detailed.get('ctf_flag_steals', 0),
-                    'ctf_flag_saves': detailed.get('ctf_flag_saves', 0),
-                    'emblem_url': detailed.get('emblem_url', ''),
-                    # Medals (excluding 'player' key)
-                    'medals': {k: v for k, v in medals.items() if k != 'player'},
-                    # Weapons (excluding 'Player' key)
-                    'weapons': {k: v for k, v in weapons.items() if k != 'Player'}
-                }
-                player_stats.append(player_entry)
+                    'headshots': p.get('head_shots', 0)
+                })
 
-            # Build versus data with display names
+            # Build detailed_stats array (Game Statistics sheet data with emblem URLs)
+            detailed_stats = []
+            for stat in game.get('detailed_stats', []):
+                detailed_stats.append({
+                    'player': get_display_name(stat.get('player', '')),
+                    'emblem_url': stat.get('emblem_url', ''),
+                    'kills': stat.get('kills', 0),
+                    'assists': stat.get('assists', 0),
+                    'deaths': stat.get('deaths', 0),
+                    'headshots': stat.get('headshots', 0),
+                    'betrayals': stat.get('betrayals', 0),
+                    'suicides': stat.get('suicides', 0),
+                    'best_spree': stat.get('best_spree', 0),
+                    'total_time_alive': stat.get('total_time_alive', 0),
+                    'ctf_scores': stat.get('ctf_scores', 0),
+                    'ctf_flag_steals': stat.get('ctf_flag_steals', 0),
+                    'ctf_flag_saves': stat.get('ctf_flag_saves', 0)
+                })
+
+            # Build medals array (Medal Stats sheet data)
+            medals = []
+            for medal in game.get('medals', []):
+                medal_entry = {'player': get_display_name(medal.get('player', ''))}
+                for k, v in medal.items():
+                    if k != 'player':
+                        medal_entry[k] = v
+                medals.append(medal_entry)
+
+            # Build weapons array (Weapon Statistics sheet data)
+            weapons = []
+            for weapon in game.get('weapons', []):
+                weapon_entry = {'Player': get_display_name(weapon.get('Player', ''))}
+                for k, v in weapon.items():
+                    if k != 'Player':
+                        weapon_entry[k] = v
+                weapons.append(weapon_entry)
+
+            # Build versus data with display names (Versus sheet - kill matrix)
             versus_data = {}
             for player_name, opponents in game.get('versus', {}).items():
                 display_name = get_display_name(player_name)
@@ -1895,6 +1908,9 @@ def main():
                 'red_team': red_team,
                 'blue_team': blue_team,
                 'player_stats': player_stats,
+                'detailed_stats': detailed_stats,
+                'medals': medals,
+                'weapons': weapons,
                 'versus': versus_data,
                 'source_file': game.get('source_file', '')
             }
@@ -1955,21 +1971,11 @@ def main():
                 red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
                 blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
 
-            # Build player stats with ALL data
+            # Build player_stats array (basic player info with stats)
             player_stats = []
-            detailed_lookup = {s['player']: s for s in game.get('detailed_stats', [])}
-            medal_lookup = {m['player']: m for m in game.get('medals', [])}
-            weapon_lookup = {w['Player']: w for w in game.get('weapons', [])}
-
             for p in game['players']:
-                player_name = p['name']
-                display_name = get_display_name(player_name)
-                detailed = detailed_lookup.get(player_name, {})
-                medals = medal_lookup.get(player_name, {})
-                weapons = weapon_lookup.get(player_name, {})
-
-                player_entry = {
-                    'name': display_name,
+                player_stats.append({
+                    'name': get_display_name(p['name']),
                     'team': p.get('team', ''),
                     'kills': p.get('kills', 0),
                     'deaths': p.get('deaths', 0),
@@ -1981,19 +1987,47 @@ def main():
                     'shots_fired': p.get('shots_fired', 0),
                     'shots_hit': p.get('shots_hit', 0),
                     'accuracy': p.get('accuracy', 0),
-                    'headshots': p.get('head_shots', 0),
-                    'best_spree': detailed.get('best_spree', 0),
-                    'total_time_alive': detailed.get('total_time_alive', 0),
-                    'ctf_scores': detailed.get('ctf_scores', 0),
-                    'ctf_flag_steals': detailed.get('ctf_flag_steals', 0),
-                    'ctf_flag_saves': detailed.get('ctf_flag_saves', 0),
-                    'emblem_url': detailed.get('emblem_url', ''),
-                    'medals': {k: v for k, v in medals.items() if k != 'player'},
-                    'weapons': {k: v for k, v in weapons.items() if k != 'Player'}
-                }
-                player_stats.append(player_entry)
+                    'headshots': p.get('head_shots', 0)
+                })
 
-            # Build versus data
+            # Build detailed_stats array (Game Statistics sheet data)
+            detailed_stats = []
+            for stat in game.get('detailed_stats', []):
+                detailed_stats.append({
+                    'player': get_display_name(stat.get('player', '')),
+                    'emblem_url': stat.get('emblem_url', ''),
+                    'kills': stat.get('kills', 0),
+                    'assists': stat.get('assists', 0),
+                    'deaths': stat.get('deaths', 0),
+                    'headshots': stat.get('headshots', 0),
+                    'betrayals': stat.get('betrayals', 0),
+                    'suicides': stat.get('suicides', 0),
+                    'best_spree': stat.get('best_spree', 0),
+                    'total_time_alive': stat.get('total_time_alive', 0),
+                    'ctf_scores': stat.get('ctf_scores', 0),
+                    'ctf_flag_steals': stat.get('ctf_flag_steals', 0),
+                    'ctf_flag_saves': stat.get('ctf_flag_saves', 0)
+                })
+
+            # Build medals array (Medal Stats sheet data)
+            medals = []
+            for medal in game.get('medals', []):
+                medal_entry = {'player': get_display_name(medal.get('player', ''))}
+                for k, v in medal.items():
+                    if k != 'player':
+                        medal_entry[k] = v
+                medals.append(medal_entry)
+
+            # Build weapons array (Weapon Statistics sheet data)
+            weapons = []
+            for weapon in game.get('weapons', []):
+                weapon_entry = {'Player': get_display_name(weapon.get('Player', ''))}
+                for k, v in weapon.items():
+                    if k != 'Player':
+                        weapon_entry[k] = v
+                weapons.append(weapon_entry)
+
+            # Build versus data (Versus sheet - kill matrix)
             versus_data = {}
             for player_name, opponents in game.get('versus', {}).items():
                 display_name = get_display_name(player_name)
@@ -2014,6 +2048,9 @@ def main():
                 'red_team': red_team,
                 'blue_team': blue_team,
                 'player_stats': player_stats,
+                'detailed_stats': detailed_stats,
+                'medals': medals,
+                'weapons': weapons,
                 'versus': versus_data,
                 'source_file': game.get('source_file', '')
             }
