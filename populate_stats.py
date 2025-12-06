@@ -2062,12 +2062,13 @@ def main():
 
     # Extract and save player emblems (most recent emblem for each player)
     # Maps discord_id to their emblem_url
+    # Emblems are in detailed_stats (from Game Statistics sheet), not players
     emblems = {}
     for game in all_games:
-        for player in game['players']:
-            emblem_url = player.get('emblem_url')
+        for stat in game.get('detailed_stats', []):
+            emblem_url = stat.get('emblem_url')
             if emblem_url:
-                player_name = player['name']
+                player_name = stat.get('player', '')
                 # Get discord ID for this player
                 user_id = player_to_id.get(player_name)
                 if user_id:
