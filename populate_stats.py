@@ -20,10 +20,12 @@ STATS_DIR = 'stats'
 STATS_PUBLIC_DIR = '/home/carnagereport/stats/public'
 STATS_PRIVATE_DIR = '/home/carnagereport/stats/private'
 STATS_THEATER_DIR = '/home/carnagereport/stats/theater'
-RANKSTATS_FILE = 'rankstats.json'
+RANKSTATS_FILE = 'rankstats.json'  # Legacy - will be replaced by per-playlist stats
 GAMESTATS_FILE = 'gamestats.json'
 MATCHHISTORY_FILE = 'matchhistory.json'
-GAMESDATA_FILE = 'gameshistory.json'
+GAMESDATA_FILE = 'gameshistory.json'  # Legacy - no longer used
+PLAYLISTS_FILE = 'playlists.json'
+CUSTOMGAMES_FILE = 'customgames.json'
 XP_CONFIG_FILE = 'xp_config.json'
 PLAYERS_FILE = '/home/carnagereport/bot/players.json'
 EMBLEMS_FILE = 'emblems.json'
@@ -72,6 +74,81 @@ PLAYLIST_MLG_4V4 = 'MLG 4v4'
 PLAYLIST_TEAM_HARDCORE = 'Team Hardcore'
 PLAYLIST_DOUBLE_TEAM = 'Double Team'
 PLAYLIST_HEAD_TO_HEAD = 'Head to Head'
+
+def get_base_gametype(game_type_field):
+    """
+    Convert Game Type field to display name.
+    Input: 'CTF', 'Slayer', 'Oddball', 'Assault', 'KoTH', 'Territories', 'Juggernaut'
+    Output: 'CTF', 'Team Slayer', 'Oddball', 'Bomb', 'King of the Hill', etc.
+    """
+    if not game_type_field:
+        return 'Unknown'
+    gt = game_type_field.strip().lower()
+    mapping = {
+        'ctf': 'CTF',
+        'capture the flag': 'CTF',
+        'slayer': 'Team Slayer',
+        'team slayer': 'Team Slayer',
+        'oddball': 'Oddball',
+        'assault': 'Bomb',
+        'bomb': 'Bomb',
+        'koth': 'King of the Hill',
+        'king of the hill': 'King of the Hill',
+        'king': 'King of the Hill',
+        'territories': 'Territories',
+        'juggernaut': 'Juggernaut',
+    }
+    return mapping.get(gt, game_type_field)
+
+def get_playlist_files(playlist_name):
+    """Get the matches and stats filenames for a playlist."""
+    return {
+        'matches': f'{playlist_name}_matches.json',
+        'stats': f'{playlist_name}_stats.json'
+    }
+
+def load_playlist_matches(playlist_name):
+    """Load existing matches for a playlist."""
+    files = get_playlist_files(playlist_name)
+    try:
+        with open(files['matches'], 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {'playlist': playlist_name, 'matches': []}
+
+def save_playlist_matches(playlist_name, matches_data):
+    """Save matches for a playlist."""
+    files = get_playlist_files(playlist_name)
+    with open(files['matches'], 'w') as f:
+        json.dump(matches_data, f, indent=2)
+
+def load_playlist_stats(playlist_name):
+    """Load existing stats for a playlist."""
+    files = get_playlist_files(playlist_name)
+    try:
+        with open(files['stats'], 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {'playlist': playlist_name, 'players': {}}
+
+def save_playlist_stats(playlist_name, stats_data):
+    """Save stats for a playlist."""
+    files = get_playlist_files(playlist_name)
+    with open(files['stats'], 'w') as f:
+        json.dump(stats_data, f, indent=2)
+
+def load_custom_games():
+    """Load existing custom games."""
+    try:
+        with open(CUSTOMGAMES_FILE, 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {'matches': []}
+
+def save_custom_games(data):
+    """Save custom games."""
+    with open(CUSTOMGAMES_FILE, 'w') as f:
+        json.dump(data, f, indent=2)
 
 def get_loss_factor(rank, loss_factors):
     """Get the loss factor for a given rank. Lower ranks lose less XP."""
@@ -1504,10 +1581,6 @@ def main():
     # STEP 5: Save all data files
     print("\nStep 5: Saving data files...")
 
-    with open(RANKSTATS_FILE, 'w') as f:
-        json.dump(rankstats, f, indent=2)
-    print(f"  Saved {RANKSTATS_FILE}")
-
     # Add discord_id to each player in all games (for frontend rank lookups)
     for game in all_games:
         for player in game['players']:
@@ -1515,8 +1588,99 @@ def main():
             if player_name in player_to_id:
                 player['discord_id'] = player_to_id[player_name]
 
-    # NOTE: gameshistory.json is managed by the bot, not this script
-    # This script only handles ranked stats files
+    # Save legacy rankstats.json (for backwards compatibility)
+    with open(RANKSTATS_FILE, 'w') as f:
+        json.dump(rankstats, f, indent=2)
+    print(f"  Saved {RANKSTATS_FILE} (legacy)")
+
+    # Save per-playlist matches and stats
+    print("\n  Saving per-playlist files...")
+    all_playlists = [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE, PLAYLIST_DOUBLE_TEAM, PLAYLIST_HEAD_TO_HEAD]
+    playlist_files_saved = []
+
+    for playlist_name in all_playlists:
+        playlist_games = games_by_playlist.get(playlist_name, [])
+        if not playlist_games:
+            continue
+
+        # Build matches for this playlist
+        matches_data = {'playlist': playlist_name, 'matches': []}
+        for game in playlist_games:
+            winners, losers = determine_winners_losers(game)
+            red_team = [p['name'] for p in game['players'] if p.get('team') == 'Red']
+            blue_team = [p['name'] for p in game['players'] if p.get('team') == 'Blue']
+
+            # Determine winner team color
+            winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
+
+            match_entry = {
+                'timestamp': game['details'].get('Start Time', ''),
+                'map': game['details'].get('Map Name', 'Unknown'),
+                'gametype': get_base_gametype(game['details'].get('Game Type', '')),
+                'winner': winner_team,
+                'red_team': red_team,
+                'blue_team': blue_team,
+                'source_file': game.get('source_file', '')
+            }
+
+            # For Head to Head, use player names instead of teams
+            if playlist_name == PLAYLIST_HEAD_TO_HEAD:
+                all_players = [p['name'] for p in game['players']]
+                match_entry['players'] = all_players
+                match_entry['winner'] = winners[0] if winners else 'Tie'
+                del match_entry['red_team']
+                del match_entry['blue_team']
+
+            matches_data['matches'].append(match_entry)
+
+        save_playlist_matches(playlist_name, matches_data)
+        playlist_files_saved.append(get_playlist_files(playlist_name)['matches'])
+        print(f"    Saved {get_playlist_files(playlist_name)['matches']} ({len(playlist_games)} matches)")
+
+        # Build stats for this playlist
+        stats_data = {'playlist': playlist_name, 'players': {}}
+        for user_id, data in rankstats.items():
+            playlists_info = data.get('playlists', {})
+            if playlist_name in playlists_info:
+                pl_data = playlists_info[playlist_name]
+                stats_data['players'][user_id] = {
+                    'discord_name': data.get('discord_name', ''),
+                    'alias': data.get('alias', ''),
+                    'xp': pl_data.get('xp', 0),
+                    'rank': pl_data.get('rank', 1),
+                    'wins': pl_data.get('wins', 0),
+                    'losses': pl_data.get('losses', 0),
+                    'highest_rank': pl_data.get('highest_rank', 1)
+                }
+
+        save_playlist_stats(playlist_name, stats_data)
+        playlist_files_saved.append(get_playlist_files(playlist_name)['stats'])
+        print(f"    Saved {get_playlist_files(playlist_name)['stats']} ({len(stats_data['players'])} players)")
+
+    # Save unranked games to customgames.json
+    if untagged_games:
+        custom_data = {'matches': []}
+        for game in untagged_games:
+            winners, losers = determine_winners_losers(game)
+            red_team = [p['name'] for p in game['players'] if p.get('team') == 'Red']
+            blue_team = [p['name'] for p in game['players'] if p.get('team') == 'Blue']
+            winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
+
+            match_entry = {
+                'timestamp': game['details'].get('Start Time', ''),
+                'map': game['details'].get('Map Name', 'Unknown'),
+                'gametype': get_base_gametype(game['details'].get('Game Type', '')),
+                'variant': game['details'].get('Variant Name', 'Unknown'),
+                'winner': winner_team,
+                'red_team': red_team,
+                'blue_team': blue_team,
+                'source_file': game.get('source_file', '')
+            }
+            custom_data['matches'].append(match_entry)
+
+        save_custom_games(custom_data)
+        playlist_files_saved.append(CUSTOMGAMES_FILE)
+        print(f"    Saved {CUSTOMGAMES_FILE} ({len(untagged_games)} custom games)")
 
     # Extract and save player emblems (most recent emblem for each player)
     # Maps discord_id to their emblem_url
@@ -1543,56 +1707,6 @@ def main():
     with open(RANKHISTORY_FILE, 'w') as f:
         json.dump(rankhistory, f, indent=2)
     print(f"  Saved {RANKHISTORY_FILE} ({len(rankhistory)} players with history)")
-
-    # Create gamestats.json (includes all games)
-    gamestats = {}
-    for i, game in enumerate(all_games, 1):
-        match_key = f"match_{i}"
-        gamestats[match_key] = {
-            "game_1": {
-                'map': game['details'].get('Map Name', 'Unknown'),
-                'gametype': game['details'].get('Variant Name', 'Unknown'),
-                'game_type': game['details'].get('Game Type', 'Unknown'),
-                'timestamp': game['details'].get('Start Time', ''),
-                'duration': game['details'].get('Duration', ''),
-                'playlist': game.get('playlist')  # None for unranked games
-            }
-        }
-
-    with open(GAMESTATS_FILE, 'w') as f:
-        json.dump(gamestats, f, indent=2)
-    print(f"  Saved {GAMESTATS_FILE}")
-
-    # Create matchhistory.json (includes all games with proper tagging)
-    matchhistory = {
-        'total_matches': len(all_games),
-        'total_ranked_matches': len(ranked_games),
-        'matches': []
-    }
-
-    for i, game in enumerate(all_games, 1):
-        winners, losers = determine_winners_losers(game)
-        red_team = [p['name'] for p in game['players'] if p.get('team') == 'Red']
-        blue_team = [p['name'] for p in game['players'] if p.get('team') == 'Blue']
-        playlist = game.get('playlist')
-
-        match_entry = {
-            'match_number': i,
-            'match_type': 'RANKED' if playlist else 'UNRANKED',
-            'playlist': playlist,  # None for unranked games
-            'timestamp': game['details'].get('Start Time', ''),
-            'map': game['details'].get('Map Name', 'Unknown'),
-            'gametype': game['details'].get('Variant Name', 'Unknown'),
-            'red_team': red_team,
-            'blue_team': blue_team,
-            'winners': winners,
-            'losers': losers
-        }
-        matchhistory['matches'].append(match_entry)
-
-    with open(MATCHHISTORY_FILE, 'w') as f:
-        json.dump(matchhistory, f, indent=2)
-    print(f"  Saved {MATCHHISTORY_FILE}")
 
     # Print summary
     print("\n" + "=" * 50)
@@ -1675,18 +1789,22 @@ def main():
 
     # Push JSON files to GitHub for website updates
     print("\nPushing stats to GitHub...")
+    # Base files
     json_files = [
-        RANKSTATS_FILE, GAMESTATS_FILE, MATCHHISTORY_FILE,
-        RANKHISTORY_FILE, EMBLEMS_FILE, PROCESSED_STATE_FILE
+        RANKSTATS_FILE, RANKHISTORY_FILE, EMBLEMS_FILE,
+        PROCESSED_STATE_FILE, PLAYLISTS_FILE
     ]
+    # Add per-playlist files that were saved
+    json_files.extend(playlist_files_saved)
 
     try:
         # Change to repository directory (script may run from different location)
         script_dir = os.path.dirname(os.path.abspath(__file__))
         os.chdir(script_dir)
 
-        # Add all JSON files
-        subprocess.run(['git', 'add'] + json_files, check=True)
+        # Add all JSON files (filter out any that don't exist)
+        existing_files = [f for f in json_files if os.path.exists(f)]
+        subprocess.run(['git', 'add'] + existing_files, check=True)
 
         # Check if there are changes to commit
         result = subprocess.run(['git', 'diff', '--cached', '--quiet'], capture_output=True)
