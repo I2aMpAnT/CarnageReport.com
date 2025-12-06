@@ -1632,13 +1632,20 @@ def main():
             red_team = [p['name'] for p in game['players'] if p.get('team') == 'Red']
             blue_team = [p['name'] for p in game['players'] if p.get('team') == 'Blue']
 
+            # Calculate team scores
+            red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
+            blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
+
             # Determine winner team color
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
-                'gametype': get_base_gametype(game['details'].get('Game Type', '')),
+                'gametype': get_base_gametype(game['details'].get('Variant Name', game['details'].get('Game Type', ''))),
+                'variant_name': game['details'].get('Variant Name', ''),
+                'red_score': red_score,
+                'blue_score': blue_score,
                 'winner': winner_team,
                 'red_team': red_team,
                 'blue_team': blue_team,
