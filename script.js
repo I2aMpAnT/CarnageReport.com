@@ -1393,6 +1393,20 @@ let showCustomGames = false;
 
 // Convert match data from {playlist}_matches.json to gamesData player format
 function convertMatchToPlayers(match, playlist) {
+    // Use player_stats if available (includes kills, deaths, assists)
+    if (match.player_stats && match.player_stats.length > 0) {
+        return match.player_stats.map(p => ({
+            name: p.name,
+            team: p.team,
+            kills: p.kills || 0,
+            deaths: p.deaths || 0,
+            assists: p.assists || 0,
+            score: p.score || '0',
+            winner: p.team === match.winner
+        }));
+    }
+
+    // Fall back to basic team lists
     const players = [];
 
     if (playlist.is_team === false) {
@@ -1580,6 +1594,26 @@ async function loadGamesData() {
         if (hiddenCount > 0) {
             console.log('[DEBUG] Filtered out', hiddenCount, 'hidden game(s)');
         }
+
+        // Always load custom games (shown in Recent Games, but not in stats unless checkbox is on)
+        await loadCustomGames();
+        for (const match of customGamesData) {
+            gamesData.push({
+                details: {
+                    'Start Time': match.timestamp,
+                    'Map Name': match.map,
+                    'Game Type': match.gametype,
+                    'Variant Name': match.variant || match.variant_name || match.gametype
+                },
+                players: convertMatchToPlayers(match, { is_team: true }),
+                playlist: 'Custom Games',
+                source_file: match.source_file,
+                isCustomGame: true,
+                red_score: match.red_score,
+                blue_score: match.blue_score
+            });
+        }
+        console.log(`[DEBUG] Added ${customGamesData.length} custom games to gamesData`);
 
         console.log('[DEBUG] Games loaded successfully!');
         console.log('[DEBUG] Number of games:', gamesData.length);

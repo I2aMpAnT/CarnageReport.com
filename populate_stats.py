@@ -1639,12 +1639,36 @@ def main():
             red_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Red']
             blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
 
+            # Check if this is a CTF game (need to use flag captures for score)
+            variant_name = game['details'].get('Variant Name', '').lower()
+            game_type = game['details'].get('Game Type', '').lower()
+            is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
+
             # Calculate team scores
-            red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
-            blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
+            if is_ctf and game.get('detailed_stats'):
+                # For CTF, use flag captures from detailed stats
+                detailed = {s['player']: s for s in game.get('detailed_stats', [])}
+                red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
+                blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
+            else:
+                # For other games, use score_numeric
+                red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
+                blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
 
             # Determine winner team color
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
+
+            # Build player stats for match
+            player_stats = []
+            for p in game['players']:
+                player_stats.append({
+                    'name': get_display_name(p['name']),
+                    'team': p.get('team', ''),
+                    'kills': p.get('kills', 0),
+                    'deaths': p.get('deaths', 0),
+                    'assists': p.get('assists', 0),
+                    'score': p.get('score', '0')
+                })
 
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
@@ -1656,6 +1680,7 @@ def main():
                 'winner': winner_team,
                 'red_team': red_team,
                 'blue_team': blue_team,
+                'player_stats': player_stats,
                 'source_file': game.get('source_file', '')
             }
 
@@ -1702,11 +1727,27 @@ def main():
             blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
+            # Check if this is a CTF game
+            variant_name = game['details'].get('Variant Name', '').lower()
+            game_type = game['details'].get('Game Type', '').lower()
+            is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
+
+            # Calculate team scores
+            if is_ctf and game.get('detailed_stats'):
+                detailed = {s['player']: s for s in game.get('detailed_stats', [])}
+                red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
+                blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
+            else:
+                red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
+                blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
+
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
                 'gametype': get_base_gametype(game['details'].get('Game Type', '')),
                 'variant': game['details'].get('Variant Name', 'Unknown'),
+                'red_score': red_score,
+                'blue_score': blue_score,
                 'winner': winner_team,
                 'red_team': red_team,
                 'blue_team': blue_team,
