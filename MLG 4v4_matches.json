@@ -10,20 +10,20 @@
       "blue_score": 1,
       "winner": "Red",
       "red_team": [
-        "2D",
-        "KidMode",
+        "TwoDashAngo",
+        "Prince KidMode",
         "EpiiiC",
-        "Tetracide"
+        "Josiah"
       ],
       "blue_team": [
         "Rocky",
         "keylord",
-        "getitoutdaFLUD",
+        "fluhd",
         "roasted"
       ],
       "player_stats": [
         {
-          "name": "2D",
+          "name": "TwoDashAngo",
           "team": "Red",
           "kills": 23,
           "deaths": 29,
@@ -31,7 +31,7 @@
           "score": "2"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Red",
           "kills": 27,
           "deaths": 27,
@@ -47,7 +47,7 @@
           "score": "1"
         },
         {
-          "name": "Tetracide",
+          "name": "Josiah",
           "team": "Red",
           "kills": 30,
           "deaths": 26,
@@ -71,7 +71,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 30,
           "deaths": 30,
@@ -98,20 +98,20 @@
       "blue_score": 33,
       "winner": "Blue",
       "red_team": [
-        "KidMode",
-        "2D",
-        "Tetracide",
+        "Prince KidMode",
+        "TwoDashAngo",
+        "Josiah",
         "EpiiiC"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "roasted",
         "keylord",
         "Rocky"
       ],
       "player_stats": [
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 10,
           "deaths": 3,
@@ -143,7 +143,7 @@
           "score": "6"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Red",
           "kills": 7,
           "deaths": 6,
@@ -151,7 +151,7 @@
           "score": "7"
         },
         {
-          "name": "2D",
+          "name": "TwoDashAngo",
           "team": "Red",
           "kills": 5,
           "deaths": 11,
@@ -159,7 +159,7 @@
           "score": "5"
         },
         {
-          "name": "Tetracide",
+          "name": "Josiah",
           "team": "Red",
           "kills": 4,
           "deaths": 6,
@@ -186,20 +186,20 @@
       "blue_score": 70,
       "winner": "Blue",
       "red_team": [
-        "KidMode",
-        "2D",
-        "Tetracide",
+        "Prince KidMode",
+        "TwoDashAngo",
+        "Josiah",
         "EpiiiC"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "roasted",
         "keylord",
         "Rocky"
       ],
       "player_stats": [
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 29,
           "deaths": 24,
@@ -231,7 +231,7 @@
           "score": ":24"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Red",
           "kills": 35,
           "deaths": 27,
@@ -239,7 +239,7 @@
           "score": ":51"
         },
         {
-          "name": "2D",
+          "name": "TwoDashAngo",
           "team": "Red",
           "kills": 18,
           "deaths": 27,
@@ -247,7 +247,7 @@
           "score": ":46"
         },
         {
-          "name": "Tetracide",
+          "name": "Josiah",
           "team": "Red",
           "kills": 28,
           "deaths": 20,
@@ -275,12 +275,12 @@
       "winner": "Red",
       "red_team": [
         "EpiiiC",
-        "Tetracide",
-        "KidMode",
-        "2D"
+        "Josiah",
+        "Prince KidMode",
+        "TwoDashAngo"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "keylord",
         "Rocky",
         "roasted"
@@ -295,7 +295,7 @@
           "score": "17"
         },
         {
-          "name": "Tetracide",
+          "name": "Josiah",
           "team": "Red",
           "kills": 16,
           "deaths": 6,
@@ -303,7 +303,7 @@
           "score": "16"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Red",
           "kills": 10,
           "deaths": 7,
@@ -311,7 +311,7 @@
           "score": "10"
         },
         {
-          "name": "2D",
+          "name": "TwoDashAngo",
           "team": "Red",
           "kills": 7,
           "deaths": 9,
@@ -319,7 +319,7 @@
           "score": "7"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 10,
           "deaths": 14,
@@ -362,20 +362,20 @@
       "blue_score": 0,
       "winner": "Red",
       "red_team": [
-        "Tetracide",
-        "KidMode",
-        "2D",
+        "Josiah",
+        "Prince KidMode",
+        "TwoDashAngo",
         "EpiiiC"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "keylord",
         "Rocky",
         "roasted"
       ],
       "player_stats": [
         {
-          "name": "Tetracide",
+          "name": "Josiah",
           "team": "Red",
           "kills": 19,
           "deaths": 21,
@@ -383,7 +383,7 @@
           "score": "1"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Red",
           "kills": 25,
           "deaths": 12,
@@ -391,7 +391,7 @@
           "score": "0"
         },
         {
-          "name": "2D",
+          "name": "TwoDashAngo",
           "team": "Red",
           "kills": 21,
           "deaths": 26,
@@ -407,7 +407,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 26,
           "deaths": 19,
@@ -452,7 +452,7 @@
       "red_team": [
         "Em Won 5 F 1 T",
         "Rocky",
-        "getitoutdaFLUD",
+        "fluhd",
         "Rinser"
       ],
       "blue_team": [
@@ -479,7 +479,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Red",
           "kills": 40,
           "deaths": 26,
@@ -541,7 +541,7 @@
         "Rocky",
         "Rinser",
         "Em Won 5 F 1 T",
-        "getitoutdaFLUD"
+        "fluhd"
       ],
       "blue_team": [
         "AfroMaN",
@@ -575,7 +575,7 @@
           "score": "11"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Red",
           "kills": 11,
           "deaths": 12,
@@ -629,7 +629,7 @@
         "Em Won 5 F 1 T",
         "Rinser",
         "Rocky",
-        "getitoutdaFLUD"
+        "fluhd"
       ],
       "blue_team": [
         "AfroMaN",
@@ -663,7 +663,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Red",
           "kills": 29,
           "deaths": 23,
@@ -723,7 +723,7 @@
         "popq22",
         "DU7S",
         "Curts GLORY",
-        "getitoutdaFLUD"
+        "fluhd"
       ],
       "player_stats": [
         {
@@ -783,7 +783,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 17,
           "deaths": 14,
@@ -808,7 +808,7 @@
         "shooter22"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "DU7S",
         "popq22",
         "Curts GLORY"
@@ -847,7 +847,7 @@
           "score": "7"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 16,
           "deaths": 10,
@@ -897,7 +897,7 @@
       ],
       "blue_team": [
         "DU7S",
-        "getitoutdaFLUD",
+        "fluhd",
         "popq22",
         "Curts GLORY"
       ],
@@ -911,7 +911,7 @@
           "score": "2"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 35,
           "deaths": 22,
@@ -984,7 +984,7 @@
         "AfroMaN"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "Curts GLORY",
         "popq22",
         "DU7S"
@@ -1023,7 +1023,7 @@
           "score": "7"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 20,
           "deaths": 18,
@@ -1072,14 +1072,14 @@
         "sneakybeav3r"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "DU7S",
         "popq22",
         "Curts GLORY"
       ],
       "player_stats": [
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 3,
           "deaths": 2,
@@ -1160,14 +1160,14 @@
         "keylord"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "cOn",
         "Rinser",
-        "KidMode"
+        "Prince KidMode"
       ],
       "player_stats": [
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 18,
           "deaths": 11,
@@ -1191,7 +1191,7 @@
           "score": "11"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 10,
           "deaths": 17,
@@ -1248,14 +1248,14 @@
         "James | The Frenetic"
       ],
       "blue_team": [
-        "KidMode",
+        "Prince KidMode",
         "Rinser",
         "cOn",
-        "getitoutdaFLUD"
+        "fluhd"
       ],
       "player_stats": [
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 20,
           "deaths": 24,
@@ -1279,7 +1279,7 @@
           "score": ":45"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 29,
           "deaths": 24,
@@ -1336,14 +1336,14 @@
         "James | The Frenetic"
       ],
       "blue_team": [
-        "KidMode",
+        "Prince KidMode",
         "cOn",
-        "getitoutdaFLUD",
+        "fluhd",
         "Rinser"
       ],
       "player_stats": [
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 14,
           "deaths": 8,
@@ -1359,7 +1359,7 @@
           "score": "14"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 13,
           "deaths": 17,
@@ -1424,14 +1424,14 @@
         "keylord"
       ],
       "blue_team": [
-        "KidMode",
+        "Prince KidMode",
         "cOn",
-        "getitoutdaFLUD",
+        "fluhd",
         "Rinser"
       ],
       "player_stats": [
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 21,
           "deaths": 29,
@@ -1447,7 +1447,7 @@
           "score": "1"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 26,
           "deaths": 22,
@@ -1512,7 +1512,7 @@
         "James | The Frenetic"
       ],
       "blue_team": [
-        "KidMode",
+        "Prince KidMode",
         "EpiiiC",
         "Hyrax",
         "AfroMaN"
@@ -1551,7 +1551,7 @@
           "score": "0"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 30,
           "deaths": 24,
@@ -1602,7 +1602,7 @@
       "blue_team": [
         "AfroMaN",
         "Hyrax",
-        "KidMode",
+        "Prince KidMode",
         "EpiiiC"
       ],
       "player_stats": [
@@ -1655,7 +1655,7 @@
           "score": "8"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 7,
           "deaths": 13,
@@ -1688,14 +1688,14 @@
         "James | The Frenetic"
       ],
       "blue_team": [
-        "KidMode",
+        "Prince KidMode",
         "Hyrax",
         "EpiiiC",
         "AfroMaN"
       ],
       "player_stats": [
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 25,
           "deaths": 26,
@@ -1779,7 +1779,7 @@
         "EpiiiC",
         "AfroMaN",
         "Hyrax",
-        "KidMode"
+        "Prince KidMode"
       ],
       "player_stats": [
         {
@@ -1807,7 +1807,7 @@
           "score": "11"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 9,
           "deaths": 11,
@@ -1865,7 +1865,7 @@
       ],
       "blue_team": [
         "Hyrax",
-        "KidMode",
+        "Prince KidMode",
         "AfroMaN",
         "EpiiiC"
       ],
@@ -1879,7 +1879,7 @@
           "score": "2"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 38,
           "deaths": 37,
@@ -1954,7 +1954,7 @@
       "blue_team": [
         "EpiiiC",
         "AfroMaN",
-        "KidMode",
+        "Prince KidMode",
         "Hyrax"
       ],
       "player_stats": [
@@ -1975,7 +1975,7 @@
           "score": "14"
         },
         {
-          "name": "KidMode",
+          "name": "Prince KidMode",
           "team": "Blue",
           "kills": 11,
           "deaths": 15,
@@ -2040,7 +2040,7 @@
         "sneakybeav3r"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "keylord",
         "EpiiiC",
         "Hyrax"
@@ -2079,7 +2079,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 38,
           "deaths": 33,
@@ -2128,7 +2128,7 @@
         "Hammie"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "keylord",
         "Hyrax",
         "EpiiiC"
@@ -2167,7 +2167,7 @@
           "score": "8"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 17,
           "deaths": 14,
@@ -2218,7 +2218,7 @@
       "blue_team": [
         "keylord",
         "EpiiiC",
-        "getitoutdaFLUD",
+        "fluhd",
         "Hyrax"
       ],
       "player_stats": [
@@ -2239,7 +2239,7 @@
           "score": ":59"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 39,
           "deaths": 26,
@@ -2304,14 +2304,14 @@
         "popq22"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "keylord",
         "Hyrax",
         "EpiiiC"
       ],
       "player_stats": [
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 17,
           "deaths": 10,
@@ -2395,7 +2395,7 @@
         "EpiiiC",
         "Hyrax",
         "keylord",
-        "getitoutdaFLUD"
+        "fluhd"
       ],
       "player_stats": [
         {
@@ -2423,7 +2423,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 24,
           "deaths": 25,
@@ -2481,7 +2481,7 @@
       ],
       "blue_team": [
         "Hyrax",
-        "getitoutdaFLUD",
+        "fluhd",
         "EpiiiC",
         "keylord"
       ],
@@ -2527,7 +2527,7 @@
           "score": "7"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 7,
           "deaths": 11,
@@ -2568,7 +2568,7 @@
         "cOn"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "keylord",
         "Hyrax",
         "EpiiiC"
@@ -2607,7 +2607,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 27,
           "deaths": 30,
@@ -2658,7 +2658,7 @@
       "blue_team": [
         "Em Won 5 F 1 T",
         "Hammie",
-        "getitoutdaFLUD",
+        "fluhd",
         "Hyrax"
       ],
       "player_stats": [
@@ -2695,7 +2695,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 0,
           "deaths": 0,
@@ -2747,7 +2747,7 @@
         "Hyrax",
         "Hammie",
         "Em Won 5 F 1 T",
-        "getitoutdaFLUD"
+        "fluhd"
       ],
       "player_stats": [
         {
@@ -2775,7 +2775,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 37,
           "deaths": 24,
@@ -2832,14 +2832,14 @@
         "keylord"
       ],
       "blue_team": [
-        "getitoutdaFLUD",
+        "fluhd",
         "Em Won 5 F 1 T",
         "Hammie",
         "Hyrax"
       ],
       "player_stats": [
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 17,
           "deaths": 12,
@@ -2922,7 +2922,7 @@
       "blue_team": [
         "Hammie",
         "Hyrax",
-        "getitoutdaFLUD",
+        "fluhd",
         "Em Won 5 F 1 T"
       ],
       "player_stats": [
@@ -2943,7 +2943,7 @@
           "score": "1:21"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 34,
           "deaths": 24,
@@ -3009,7 +3009,7 @@
       ],
       "blue_team": [
         "Em Won 5 F 1 T",
-        "getitoutdaFLUD",
+        "fluhd",
         "Hammie",
         "Hyrax"
       ],
@@ -3055,7 +3055,7 @@
           "score": "16"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 13,
           "deaths": 13,
@@ -3098,7 +3098,7 @@
       "blue_team": [
         "Hammie",
         "Em Won 5 F 1 T",
-        "getitoutdaFLUD",
+        "fluhd",
         "Hyrax"
       ],
       "player_stats": [
@@ -3119,7 +3119,7 @@
           "score": "0"
         },
         {
-          "name": "getitoutdaFLUD",
+          "name": "fluhd",
           "team": "Blue",
           "kills": 38,
           "deaths": 22,

@@ -4,14 +4,14 @@
       "series_id": "series_1",
       "playlist": "MLG 4v4",
       "red_team": [
-        "2D",
         "EpiiiC",
-        "KidMode",
-        "Tetracide"
+        "Josiah",
+        "Prince KidMode",
+        "TwoDashAngo"
       ],
       "blue_team": [
         "Rocky",
-        "getitoutdaFLUD",
+        "fluhd",
         "keylord",
         "roasted"
       ],
@@ -71,7 +71,7 @@
         "Em Won 5 F 1 T",
         "Rinser",
         "Rocky",
-        "getitoutdaFLUD"
+        "fluhd"
       ],
       "blue_team": [
         "AfroMaN",
@@ -122,10 +122,10 @@
         "keylord"
       ],
       "blue_team": [
-        "KidMode",
+        "Prince KidMode",
         "Rinser",
         "cOn",
-        "getitoutdaFLUD"
+        "fluhd"
       ],
       "games": [
         {
@@ -180,7 +180,7 @@
       "blue_team": [
         "Curts GLORY",
         "DU7S",
-        "getitoutdaFLUD",
+        "fluhd",
         "popq22"
       ],
       "games": [
@@ -245,7 +245,7 @@
         "AfroMaN",
         "EpiiiC",
         "Hyrax",
-        "KidMode"
+        "Prince KidMode"
       ],
       "games": [
         {
@@ -316,7 +316,7 @@
       "blue_team": [
         "EpiiiC",
         "Hyrax",
-        "getitoutdaFLUD",
+        "fluhd",
         "keylord"
       ],
       "games": [
@@ -397,7 +397,7 @@
         "Em Won 5 F 1 T",
         "Hammie",
         "Hyrax",
-        "getitoutdaFLUD"
+        "fluhd"
       ],
       "games": [
         {
@@ -458,19 +458,19 @@
     }
   ],
   "player_series_stats": {
-    "652998057087991838": {
-      "series_wins": 1,
-      "series_losses": 0
-    },
     "111190770756657152": {
       "series_wins": 2,
       "series_losses": 2
+    },
+    "175060415833833472": {
+      "series_wins": 1,
+      "series_losses": 0
     },
     "293507586131492864": {
       "series_wins": 3,
       "series_losses": 0
     },
-    "175060415833833472": {
+    "652998057087991838": {
       "series_wins": 1,
       "series_losses": 0
     },
@@ -547,5 +547,5 @@
       "series_losses": 1
     }
   },
-  "generated_at": "2025-12-06T11:48:15.735789"
+  "generated_at": "2025-12-06T12:00:48.610846"
 }
