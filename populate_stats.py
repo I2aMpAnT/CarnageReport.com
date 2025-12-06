@@ -11,6 +11,7 @@ import pandas as pd
 import json
 import os
 import requests
+import subprocess
 from datetime import datetime
 
 # File paths
@@ -53,6 +54,16 @@ VALID_MLG_4V4_COMBOS = {
 
 # Minimum game duration in seconds to count (filters out restarts)
 MIN_GAME_DURATION_SECONDS = 120  # 2 minutes
+
+# Dedicated server names to filter out (not real players)
+DEDICATED_SERVER_NAMES = {'statsdedi', 'dedi', 'dedicated', 'server'}
+
+# Hardcoded Unicode name to Discord ID mappings
+# For players whose names contain special characters that may not resolve correctly
+UNICODE_NAME_MAPPINGS = {
+    'isis rinsy isis': '210187331066396672',
+    'isisrinsyisis': '210187331066396672',
+}
 
 # Playlist types
 PLAYLIST_MLG_4V4 = 'MLG 4v4'
@@ -220,6 +231,18 @@ def load_player_state_from_processed(processed_state):
     Returns dict of {user_id: {playlist: {'xp': int, 'rank': int, ...}}}
     """
     return processed_state.get("player_state", {})
+
+def is_dedicated_server(player_name):
+    """Check if a player name is a dedicated server (not a real player)."""
+    name_lower = player_name.strip().lower()
+    # Check exact matches
+    if name_lower in DEDICATED_SERVER_NAMES:
+        return True
+    # Check if name contains 'dedi' as part of name
+    if 'dedi' in name_lower and len(name_lower) <= 15:
+        return True
+    return False
+
 
 def is_valid_mlg_combo(map_name, base_gametype):
     """Check if map + base gametype is a valid MLG 4v4 combination.
@@ -506,11 +529,24 @@ def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord,
     Resolve a player's in-game name to their Discord ID using multiple methods.
 
     Priority:
+    0. Hardcoded Unicode name mappings (for special characters)
     1. Identity file MAC -> Discord ID (most reliable)
     2. Profile lookup from players.json aliases
     3. Discord name match in rankstats
     """
     name_lower = player_name.strip().lower()
+
+    # Strip Unicode invisible characters and normalize
+    name_stripped = ''.join(c for c in name_lower if c.isalnum() or c.isspace()).strip()
+    name_no_spaces = name_stripped.replace(' ', '')
+
+    # Method 0: Check hardcoded Unicode name mappings first
+    if name_lower in UNICODE_NAME_MAPPINGS:
+        return UNICODE_NAME_MAPPINGS[name_lower]
+    if name_stripped in UNICODE_NAME_MAPPINGS:
+        return UNICODE_NAME_MAPPINGS[name_stripped]
+    if name_no_spaces in UNICODE_NAME_MAPPINGS:
+        return UNICODE_NAME_MAPPINGS[name_no_spaces]
 
     # Method 1: Use identity file MAC address
     if name_lower in identity_name_to_mac:
@@ -1049,6 +1085,13 @@ def main():
     all_player_names = set()
     player_to_id = {}  # {player_name: discord_id}
 
+    # In incremental mode, restore previous player name -> ID mappings
+    if incremental_mode:
+        saved_name_to_id = processed_state.get("player_name_to_id", {})
+        if saved_name_to_id:
+            player_to_id.update(saved_name_to_id)
+            print(f"  Restored {len(saved_name_to_id)} player name->ID mappings from saved state")
+
     for game in all_games:
         game_file = game.get('source_file', '')
         game_source_dir = game.get('source_dir', STATS_DIR)
@@ -1065,6 +1108,12 @@ def main():
 
         for player in game['players']:
             player_name = player['name']
+
+            # Skip dedicated servers (not real players)
+            if is_dedicated_server(player_name):
+                print(f"    Skipping dedicated server: '{player_name}' in {game_file}")
+                continue
+
             all_player_names.add(player_name)
 
             # Skip if already resolved
@@ -1111,15 +1160,36 @@ def main():
 
             # Initialize overall stats tracking (from ALL games) - only if not already initialized
             if player_name not in player_game_stats:
-                player_game_stats[player_name] = {
-                    'kills': 0, 'deaths': 0, 'assists': 0,
-                    'games': 0, 'headshots': 0
-                }
-                # Initialize per-playlist tracking (only from ranked games)
-                player_playlist_xp[player_name] = {}
-                player_playlist_wins[player_name] = {}
-                player_playlist_losses[player_name] = {}
-                player_playlist_games[player_name] = {}
+                # Check if we have saved state for this player (in incremental mode)
+                if incremental_mode and user_id and user_id in saved_player_state:
+                    saved = saved_player_state[user_id]
+                    player_game_stats[player_name] = {
+                        'kills': saved.get('kills', 0),
+                        'deaths': saved.get('deaths', 0),
+                        'assists': saved.get('assists', 0),
+                        'games': saved.get('total_games', 0),
+                        'headshots': saved.get('headshots', 0)
+                    }
+                    # Restore per-playlist tracking from saved state
+                    player_playlist_xp[player_name] = {}
+                    player_playlist_wins[player_name] = {}
+                    player_playlist_losses[player_name] = {}
+                    player_playlist_games[player_name] = {}
+                    for pl, pl_state in saved.get('playlists', {}).items():
+                        player_playlist_xp[player_name][pl] = pl_state.get('xp', 0)
+                        player_playlist_wins[player_name][pl] = pl_state.get('wins', 0)
+                        player_playlist_losses[player_name][pl] = pl_state.get('losses', 0)
+                        player_playlist_games[player_name][pl] = pl_state.get('games', 0)
+                else:
+                    player_game_stats[player_name] = {
+                        'kills': 0, 'deaths': 0, 'assists': 0,
+                        'games': 0, 'headshots': 0
+                    }
+                    # Initialize per-playlist tracking (only from ranked games)
+                    player_playlist_xp[player_name] = {}
+                    player_playlist_wins[player_name] = {}
+                    player_playlist_losses[player_name] = {}
+                    player_playlist_games[player_name] = {}
 
     # Track current rank per player per playlist
     player_playlist_rank = {}  # {player_name: {playlist: rank}}
@@ -1128,6 +1198,13 @@ def main():
     for name in all_player_names:
         player_playlist_rank[name] = {}
         player_playlist_highest_rank[name] = {}
+        # In incremental mode, restore saved ranks
+        if incremental_mode and name in player_to_id:
+            user_id = player_to_id[name]
+            if user_id in saved_player_state:
+                for pl, pl_state in saved_player_state[user_id].get('playlists', {}).items():
+                    player_playlist_rank[name][pl] = pl_state.get('rank', 1)
+                    player_playlist_highest_rank[name][pl] = pl_state.get('highest_rank', 1)
 
     # In incremental mode, restore player XP/rank state from saved state
     if incremental_mode and saved_player_state:
@@ -1175,6 +1252,14 @@ def main():
         for player in game['players']:
             player_name = player['name']
 
+            # Skip dedicated servers
+            if is_dedicated_server(player_name):
+                continue
+
+            # Skip if not in player_game_stats (shouldn't happen, but be safe)
+            if player_name not in player_game_stats:
+                continue
+
             # Update cumulative stats
             player_game_stats[player_name]['kills'] += player.get('kills', 0)
             player_game_stats[player_name]['deaths'] += player.get('deaths', 0)
@@ -1217,7 +1302,16 @@ def main():
 
         for player in game['players']:
             player_name = player['name']
+
+            # Skip dedicated servers
+            if is_dedicated_server(player_name):
+                continue
+
             user_id = player_to_id.get(player_name)
+
+            # Skip if not properly resolved
+            if player_name not in player_playlist_xp:
+                continue
 
             # Initialize playlist tracking if needed
             if playlist not in player_playlist_xp[player_name]:
@@ -1554,7 +1648,8 @@ def main():
     new_processed_state = {
         "games": {game['source_file']: game.get('playlist') for game in all_games},
         "manual_playlists_hash": get_manual_playlists_hash(manual_playlists),
-        "player_state": new_player_state
+        "player_state": new_player_state,
+        "player_name_to_id": player_to_id  # Save name->id mapping for incremental mode
     }
     save_processed_state(new_processed_state)
     print(f"  Saved {PROCESSED_STATE_FILE} ({len(new_player_state)} players, {len(all_games)} games)")
@@ -1573,6 +1668,52 @@ def main():
             print(f"  Warning: Webhook returned status {response.status_code}")
     except Exception as e:
         print(f"  Error sending webhook: {e}")
+
+    # Push JSON files to GitHub for website updates
+    print("\nPushing stats to GitHub...")
+    json_files = [
+        RANKSTATS_FILE, GAMESDATA_FILE, GAMESTATS_FILE, MATCHHISTORY_FILE,
+        RANKHISTORY_FILE, EMBLEMS_FILE, PROCESSED_STATE_FILE
+    ]
+
+    try:
+        # Change to repository directory (script may run from different location)
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(script_dir)
+
+        # Add all JSON files
+        subprocess.run(['git', 'add'] + json_files, check=True)
+
+        # Check if there are changes to commit
+        result = subprocess.run(['git', 'diff', '--cached', '--quiet'], capture_output=True)
+        if result.returncode == 0:
+            print("  No changes to commit")
+        else:
+            # Commit and push
+            commit_msg = f"Update stats ({len(all_games)} games, {len(rankstats)} players)"
+            subprocess.run(['git', 'commit', '-m', commit_msg], check=True)
+            print(f"  Committed: {commit_msg}")
+
+            # Push to origin main with retry logic
+            max_retries = 4
+            for attempt in range(max_retries):
+                try:
+                    subprocess.run(['git', 'push', 'origin', 'main'], check=True, timeout=60)
+                    print("  Pushed to GitHub successfully!")
+                    break
+                except subprocess.CalledProcessError as e:
+                    if attempt < max_retries - 1:
+                        wait_time = 2 ** (attempt + 1)  # 2, 4, 8, 16 seconds
+                        print(f"  Push failed, retrying in {wait_time}s...")
+                        import time
+                        time.sleep(wait_time)
+                    else:
+                        print(f"  Error: Failed to push after {max_retries} attempts")
+                        raise
+    except subprocess.CalledProcessError as e:
+        print(f"  Git error: {e}")
+    except Exception as e:
+        print(f"  Error pushing to GitHub: {e}")
 
 
 if __name__ == '__main__':
