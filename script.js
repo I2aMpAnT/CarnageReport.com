@@ -159,16 +159,30 @@ let twitchHubClips = [];
 function getGameTimeRanges() {
     const ranges = [];
     gamesData.forEach(game => {
-        if (game.details && game.details['Start Time'] && game.details['End Time']) {
+        if (game.details && game.details['Start Time']) {
             // Parse "11/28/2025 20:03" format
             const startStr = game.details['Start Time'];
-            const endStr = game.details['End Time'];
             const startDate = parseGameDateTime(startStr);
-            const endDate = parseGameDateTime(endStr);
-            if (startDate && endDate) {
-                // Get all player names in this game
-                const playerNames = (game.players || []).map(p => p.name).filter(Boolean);
-                ranges.push({ start: startDate, end: endDate, players: playerNames });
+            if (startDate) {
+                // Calculate end time from duration if End Time not available
+                let endDate;
+                if (game.details['End Time']) {
+                    endDate = parseGameDateTime(game.details['End Time']);
+                } else if (game.details['Duration']) {
+                    // Parse duration like "15:23" or "5:30" (mm:ss)
+                    const durationStr = game.details['Duration'];
+                    const durationParts = durationStr.split(':');
+                    const durationMs = (parseInt(durationParts[0] || 0) * 60 + parseInt(durationParts[1] || 0)) * 1000;
+                    endDate = new Date(startDate.getTime() + durationMs);
+                } else {
+                    // Default to 15 minutes if no duration
+                    endDate = new Date(startDate.getTime() + 15 * 60 * 1000);
+                }
+                if (endDate) {
+                    // Get all player names in this game
+                    const playerNames = (game.players || []).map(p => p.name).filter(Boolean);
+                    ranges.push({ start: startDate, end: endDate, players: playerNames });
+                }
             }
         }
     });
@@ -1563,6 +1577,9 @@ async function loadGamesData() {
                                 players: convertMatchToPlayers(match, playlist),
                                 playlist: playlist.name,
                                 source_file: match.source_file,
+                                // Construct URLs from source_file
+                                public_url: match.source_file ? `stats/public/${match.source_file}` : null,
+                                theater_url: match.source_file ? `stats/theater/${match.source_file.replace('.xlsx', '_telemetry.xlsx')}` : null,
                                 red_score: match.red_score,
                                 blue_score: match.blue_score,
                                 // Include all match data for detailed views (original structure)
@@ -1615,6 +1632,9 @@ async function loadGamesData() {
                 players: convertMatchToPlayers(match, { is_team: true }),
                 playlist: 'Custom Games',
                 source_file: match.source_file,
+                // Construct URLs from source_file
+                public_url: match.source_file ? `stats/public/${match.source_file}` : null,
+                theater_url: match.source_file ? `stats/theater/${match.source_file.replace('.xlsx', '_telemetry.xlsx')}` : null,
                 isCustomGame: true,
                 red_score: match.red_score,
                 blue_score: match.blue_score,
