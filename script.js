@@ -1579,7 +1579,7 @@ async function loadGamesData() {
                                 source_file: match.source_file,
                                 // Construct URLs from source_file
                                 public_url: match.source_file ? `stats/public/${match.source_file}` : null,
-                                theater_url: match.source_file ? `stats/theater/${match.source_file.replace('.xlsx', '_telemetry.xlsx')}` : null,
+                                theater_url: match.source_file ? `stats/theater/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
                                 red_score: match.red_score,
                                 blue_score: match.blue_score,
                                 // Include all match data for detailed views (original structure)
@@ -1634,7 +1634,7 @@ async function loadGamesData() {
                 source_file: match.source_file,
                 // Construct URLs from source_file
                 public_url: match.source_file ? `stats/public/${match.source_file}` : null,
-                theater_url: match.source_file ? `stats/theater/${match.source_file.replace('.xlsx', '_telemetry.xlsx')}` : null,
+                theater_url: match.source_file ? `stats/theater/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
                 isCustomGame: true,
                 red_score: match.red_score,
                 blue_score: match.blue_score,
