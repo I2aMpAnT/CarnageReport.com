@@ -548,11 +548,15 @@ def get_download_urls(game_filename):
         'theater_url': None
     }
 
-    # Check for public stats file
-    public_filename = f"{timestamp}.xlsx"
-    public_path = os.path.join(STATS_PUBLIC_DIR, public_filename)
+    # Check for stats file in public directory first, then private
+    stats_filename = f"{timestamp}.xlsx"
+    public_path = os.path.join(STATS_PUBLIC_DIR, stats_filename)
+    private_path = os.path.join(STATS_PRIVATE_DIR, stats_filename)
+
     if os.path.exists(public_path):
-        downloads['public_url'] = f"{STATS_BASE_URL}/public/{public_filename}"
+        downloads['public_url'] = f"{STATS_BASE_URL}/public/{stats_filename}"
+    elif os.path.exists(private_path):
+        downloads['public_url'] = f"{STATS_BASE_URL}/private/{stats_filename}"
 
     # Check for theater file (.csv)
     theater_filename = f"{timestamp}.csv"
@@ -565,7 +569,7 @@ def get_download_urls(game_filename):
 
 def get_all_game_files():
     """
-    Get all game files from both local stats dir and VPS public folder.
+    Get all game files from local stats dir and VPS public/private folders.
     Returns a list of tuples: (filename, source_dir)
     """
     game_files = []
@@ -583,6 +587,14 @@ def get_all_game_files():
                 # Only add if not already in the list
                 if not any(gf[0] == f for gf in game_files):
                     game_files.append((f, STATS_PUBLIC_DIR))
+
+    # VPS private directory (if accessible)
+    if os.path.exists(STATS_PRIVATE_DIR):
+        for f in os.listdir(STATS_PRIVATE_DIR):
+            if f.endswith('.xlsx') and '_identity' not in f:
+                # Only add if not already in the list
+                if not any(gf[0] == f for gf in game_files):
+                    game_files.append((f, STATS_PRIVATE_DIR))
 
     # Sort by filename (timestamp)
     game_files.sort(key=lambda x: x[0])
