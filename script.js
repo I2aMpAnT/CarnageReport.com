@@ -897,6 +897,55 @@ function formatDateTime(startTime) {
     return startTime;
 }
 
+// Map variant names to base gametypes
+function getBaseGametype(variantName, playlist = '') {
+    if (!variantName) return 'Unknown';
+    const name = variantName.toLowerCase();
+    const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore';
+
+    let baseType = '';
+
+    // CTF variants
+    if (name.includes('flag') || name.includes('ctf')) {
+        baseType = 'Capture the Flag';
+    }
+    // Oddball variants
+    else if (name.includes('oddball') || name.includes('ball')) {
+        baseType = 'Oddball';
+    }
+    // King of the Hill variants
+    else if (name.includes('king') || name.includes('koth') || name.includes('hill')) {
+        baseType = 'King of the Hill';
+    }
+    // Assault variants
+    else if (name.includes('assault') || name.includes('bomb')) {
+        baseType = 'Bomb';
+    }
+    // Territories variants
+    else if (name.includes('territor')) {
+        baseType = 'Territories';
+    }
+    // FFA / Slayer variants
+    else if (name.includes('ffa') || name.includes('free for all') || name.includes('rumble')) {
+        baseType = 'Free For All';
+    }
+    // Team Slayer variants (check after FFA)
+    else if (name.includes('slayer') || name.includes(' ts') || name === 'ts' || name.endsWith('ts')) {
+        baseType = 'Team Slayer';
+    }
+    // Default: return original
+    else {
+        return variantName;
+    }
+
+    // Add MLG prefix and 2007 suffix for MLG playlists
+    if (isMLG) {
+        return `MLG ${baseType} 2007`;
+    }
+
+    return baseType;
+}
+
 // Format duration from M:SS to "Mmin SSsec"
 function formatDuration(duration) {
     if (!duration) return '0min 0sec';
@@ -1984,7 +2033,7 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     const details = game.details;
     const players = game.players;
     
-    let displayGameType = details['Game Type'] || 'Unknown';
+    let displayGameType = getBaseGametype(details['Game Type'], game.playlist);
     let mapName = details['Map Name'] || 'Unknown Map';
     let duration = formatDuration(details['Duration'] || '0:00');
     let startTime = details['Start Time'] || '';
@@ -2137,18 +2186,19 @@ function toggleGameDetails(idPrefix, gameNumber) {
 function renderGameContent(game) {
     const mapName = game.details['Map Name'] || 'Unknown';
     const mapImage = mapImages[mapName] || defaultMapImage;
-    let gameType = game.details['Game Type'] || 'Unknown';
+    const rawGameType = game.details['Game Type'] || 'Unknown';
+    const displayGameType = getBaseGametype(rawGameType, game.playlist);
     const duration = formatDuration(game.details['Duration'] || '0:00');
     const startTime = game.details['Start Time'] || '';
-    
+
     // Format the start time
     const formattedTime = formatDateTime(startTime);
-    
+
     // Calculate team scores
     let teamScoreHtml = '';
     const teams = {};
     let hasRealTeams = false;
-    const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
+    const isOddball = rawGameType.toLowerCase().includes('oddball') || rawGameType.toLowerCase().includes('ball');
     
     game.players.forEach(player => {
         const team = player.team;
@@ -2203,7 +2253,7 @@ function renderGameContent(game) {
     html += `</div>`;
     html += `</div>`;
     html += `<div class="game-info-panel">`;
-    html += `<div class="game-type-title">${gameType}</div>`;
+    html += `<div class="game-type-title">${displayGameType}</div>`;
     html += `<div class="game-meta-info">`;
     html += `<span><i class="icon-clock"></i> ${duration}</span>`;
     html += `<span><i class="icon-calendar"></i> ${formattedTime}</span>`;
@@ -3297,6 +3347,8 @@ function renderLeaderboard(selectedPlaylist = null) {
     html += '<div>Player</div>';
     html += '<div>Record</div>';
     if (showSeries) html += '<div>Series</div>';
+    html += '<div>Kills</div>';
+    html += '<div>Deaths</div>';
     html += '<div>K/D</div>';
     html += '<div>Assists</div>';
     html += '</div>';
@@ -3349,9 +3401,14 @@ function renderLeaderboard(selectedPlaylist = null) {
                 : '<span class="stat-empty">—</span>';
             html += `<div class="lb-series">${seriesDisplay}</div>`;
         }
+        // Kills and Deaths
+        const killsDisplay = hasGames ? player.kills.toLocaleString() : '<span class="stat-empty">—</span>';
+        const deathsDisplay = hasGames ? player.deaths.toLocaleString() : '<span class="stat-empty">—</span>';
+        html += `<div class="lb-kills">${killsDisplay}</div>`;
+        html += `<div class="lb-deaths">${deathsDisplay}</div>`;
         html += `<div class="lb-kd ${kdClass}">${kdDisplay}</div>`;
         // Assists
-        const assistsDisplay = hasGames ? player.assists : '<span class="stat-empty">—</span>';
+        const assistsDisplay = hasGames ? player.assists.toLocaleString() : '<span class="stat-empty">—</span>';
         html += `<div class="lb-assists">${assistsDisplay}</div>`;
         html += '</div>';
     });
@@ -4593,13 +4650,14 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     const details = game.details;
     const players = game.players;
     const mapName = details['Map Name'] || 'Unknown';
-    let gameType = details['Game Type'] || 'Unknown';
+    const rawGameType = details['Game Type'] || 'Unknown';
+    const displayGameType = getBaseGametype(rawGameType, game.playlist);
     const startTime = details['Start Time'] || '';
 
     // Calculate team scores
     let teamScoreHtml = '';
     const teams = {};
-    const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
+    const isOddball = rawGameType.toLowerCase().includes('oddball') || rawGameType.toLowerCase().includes('ball');
 
     players.forEach(player => {
         const team = player.team;
@@ -4640,7 +4698,7 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     html += '<div class="game-header-left">';
     html += `<div class="game-number">Game ${gameNumber}</div>`;
     html += '<div class="game-info">';
-    html += `<span class="game-meta-tag game-type-tag">${gameType}</span>`;
+    html += `<span class="game-meta-tag game-type-tag">${displayGameType}</span>`;
     html += `<span class="game-meta-tag">${mapName}</span>`;
     html += teamScoreHtml;
     html += '</div>';
@@ -4724,6 +4782,7 @@ function openPlayerModal(playerName) {
 function calculatePlayerStats(playerName, includeCustomGames = false) {
     const stats = {
         games: 0,
+        rankedGames: 0,
         wins: 0,
         kills: 0,
         deaths: 0,
@@ -4737,40 +4796,18 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
     };
 
     gamesData.forEach(game => {
-        // Filter out custom games (games without playlist) unless includeCustomGames is true
         const isRankedGame = game.playlist && game.playlist.trim() !== '';
+
+        // Skip custom games for game count unless includeCustomGames is true
         if (!includeCustomGames && !isRankedGame) {
-            return; // Skip custom games
+            return;
         }
 
         const player = game.players.find(p => p.name === playerName);
         if (player) {
             stats.games++;
 
-            // Check if player won (using proper team game logic)
-            const hasTeams = game.players.some(p => isValidTeam(p.team));
-            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
-
-            if (hasTeams && isValidTeam(player.team)) {
-                const teams = {};
-                game.players.forEach(p => {
-                    if (isValidTeam(p.team)) {
-                        if (isOddball) {
-                            teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
-                        } else {
-                            teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
-                        }
-                    }
-                });
-                const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
-                if (sortedTeams[0] && sortedTeams[0][0] === player.team) stats.wins++;
-            } else {
-                // FFA - check if highest score
-                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
-                if ((parseInt(player.score) || 0) === maxScore) stats.wins++;
-            }
-
+            // Always count stats from all visible games
             stats.kills += player.kills || 0;
             stats.deaths += player.deaths || 0;
             stats.assists += player.assists || 0;
@@ -4780,7 +4817,7 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
                 stats.accuracyCount++;
             }
 
-            // Count medals from game.medals array
+            // Count medals from all visible games
             if (game.medals) {
                 const playerMedals = game.medals.find(m => m.player === playerName);
                 if (playerMedals) {
@@ -4793,6 +4830,33 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
                     });
                 }
             }
+
+            // Only count wins/losses from ranked games - NEVER from custom games
+            if (isRankedGame) {
+                stats.rankedGames++;
+
+                const hasTeams = game.players.some(p => isValidTeam(p.team));
+                const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+                const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
+
+                if (hasTeams && isValidTeam(player.team)) {
+                    const teams = {};
+                    game.players.forEach(p => {
+                        if (isValidTeam(p.team)) {
+                            if (isOddball) {
+                                teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
+                            } else {
+                                teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
+                            }
+                        }
+                    });
+                    const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
+                    if (sortedTeams[0] && sortedTeams[0][0] === player.team) stats.wins++;
+                } else {
+                    // FFA - check if 1st place
+                    if (player.place === '1st' || player.place === 1) stats.wins++;
+                }
+            }
         }
 
         const gameStat = game.stats ? game.stats.find(s => s.Player === playerName) : null;
@@ -4802,7 +4866,7 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
     });
 
     stats.kd = stats.deaths > 0 ? (stats.kills / stats.deaths).toFixed(2) : stats.kills.toFixed(2);
-    stats.winrate = stats.games > 0 ? ((stats.wins / stats.games) * 100).toFixed(1) : '0.0';
+    stats.winrate = stats.rankedGames > 0 ? ((stats.wins / stats.rankedGames) * 100).toFixed(1) : '0.0';
     stats.avgAccuracy = stats.accuracyCount > 0 ? (stats.accuracy / stats.accuracyCount).toFixed(1) : '0.0';
     stats.kpg = stats.games > 0 ? (stats.kills / stats.games).toFixed(1) : '0.0';
 
@@ -5040,64 +5104,49 @@ function filterProfileByWinLoss(filterType) {
     
     let filteredGames = [...currentProfileGames];
     
+    // Helper function to check if game is ranked (not custom)
+    const isRankedGame = (game) => game.playlist && game.playlist.trim() !== '';
+
+    // Helper function to determine if player won
+    const didPlayerWin = (game, player) => {
+        const hasTeams = game.players.some(p => isValidTeam(p.team));
+        const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+        const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
+
+        if (hasTeams && isValidTeam(player.team)) {
+            // Team game - check if player's team won
+            const teams = {};
+            game.players.forEach(p => {
+                if (isValidTeam(p.team)) {
+                    if (isOddball) {
+                        teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
+                    } else {
+                        teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
+                    }
+                }
+            });
+            const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
+            return sortedTeams[0] && sortedTeams[0][0] === player.team;
+        } else {
+            // FFA - check if 1st place
+            return player.place === '1st' || player.place === 1;
+        }
+    };
+
     if (filterType === 'wins') {
         filteredGames = currentProfileGames.filter(game => {
-            const player = game.playerData;
-            const hasTeams = game.players.some(p => isValidTeam(p.team));
-            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
-            
-            if (hasTeams && isValidTeam(player.team)) {
-                // Team game - check if player's team won
-                const teams = {};
-                game.players.forEach(p => {
-                    if (isValidTeam(p.team)) {
-                        if (isOddball) {
-                            teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
-                        } else {
-                            teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
-                        }
-                    }
-                });
-                const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
-                return sortedTeams[0] && sortedTeams[0][0] === player.team;
-            } else {
-                // FFA - check if player had highest score
-                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
-                return (parseInt(player.score) || 0) === maxScore;
-            }
+            if (!isRankedGame(game)) return false;
+            return didPlayerWin(game, game.playerData);
         });
-        
+
         // Highlight wins card
         event.target.closest('.profile-stat-card').classList.add('stat-active');
     } else if (filterType === 'losses') {
         filteredGames = currentProfileGames.filter(game => {
-            const player = game.playerData;
-            const hasTeams = game.players.some(p => isValidTeam(p.team));
-            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
-            
-            if (hasTeams && isValidTeam(player.team)) {
-                // Team game - check if player's team lost
-                const teams = {};
-                game.players.forEach(p => {
-                    if (isValidTeam(p.team)) {
-                        if (isOddball) {
-                            teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
-                        } else {
-                            teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
-                        }
-                    }
-                });
-                const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
-                return sortedTeams[0] && sortedTeams[0][0] !== player.team;
-            } else {
-                // FFA - check if player didn't have highest score
-                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
-                return (parseInt(player.score) || 0) !== maxScore;
-            }
+            if (!isRankedGame(game)) return false;
+            return !didPlayerWin(game, game.playerData);
         });
-        
+
         // Highlight losses card
         event.target.closest('.profile-stat-card').classList.add('stat-active');
     }
@@ -5258,7 +5307,9 @@ function showProfileWinrateBreakdown() {
     const statsByGametype = {};
 
     for (const game of currentProfileGames) {
-        if (game.isCustomGame) continue;
+        // Skip custom/unranked games
+        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+        if (!isRankedGame) continue;
 
         const mapName = game.details['Map Name'] || 'Unknown';
         const gameType = game.details['Game Type'] || 'Unknown';
@@ -6527,35 +6578,46 @@ function returnToMainPage() {
     history.replaceState(null, '', window.location.pathname);
 }
 
-function calculatePlayerOverallStats(playerName) {
-    let games = 0, wins = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
-    
+function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
+    let rankedGames = 0, wins = 0;
+    let totalGames = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
+
     gamesData.forEach(game => {
         const player = game.players.find(p => p.name === playerName);
-        if (player) {
-            games++;
-            kills += player.kills || 0;
-            deaths += player.deaths || 0;
-            assists += player.assists || 0;
-            totalScore += parseInt(player.score) || 0;
-            
-            // Count total medals from game.medals array (only Halo 2 medals)
-            if (game.medals) {
-                const playerMedals = game.medals.find(m => m.player === playerName);
-                if (playerMedals) {
-                    Object.entries(playerMedals).forEach(([key, count]) => {
-                        if (key !== 'player' && medalIcons[key]) {
-                            totalMedals += parseInt(count) || 0;
-                        }
-                    });
-                }
+        if (!player) return;
+
+        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+
+        // Skip custom games unless checkbox is checked
+        if (!isRankedGame && !includeCustomGames) return;
+
+        // Count stats from visible games
+        totalGames++;
+        kills += player.kills || 0;
+        deaths += player.deaths || 0;
+        assists += player.assists || 0;
+        totalScore += parseInt(player.score) || 0;
+
+        // Count medals from visible games
+        if (game.medals) {
+            const playerMedals = game.medals.find(m => m.player === playerName);
+            if (playerMedals) {
+                Object.entries(playerMedals).forEach(([key, count]) => {
+                    if (key !== 'player' && medalIcons[key]) {
+                        totalMedals += parseInt(count) || 0;
+                    }
+                });
             }
-            
-            // Check if player won
+        }
+
+        // Only count wins/losses from ranked games - NEVER from custom games
+        if (isRankedGame) {
+            rankedGames++;
+
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
             const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
-            
+
             if (hasTeams && isValidTeam(player.team)) {
                 const teams = {};
                 game.players.forEach(p => {
@@ -6570,13 +6632,12 @@ function calculatePlayerOverallStats(playerName) {
                 const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
                 if (sortedTeams[0] && sortedTeams[0][0] === player.team) wins++;
             } else {
-                // FFA - check if highest score
-                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
-                if ((parseInt(player.score) || 0) === maxScore) wins++;
+                // FFA - check if 1st place
+                if (player.place === '1st' || player.place === 1) wins++;
             }
         }
     });
-    
+
     // Get series wins/losses from rank data
     const discordId = profileNameToDiscordId[playerName];
     const rankData = discordId ? rankstatsData[discordId] : null;
@@ -6584,22 +6645,32 @@ function calculatePlayerOverallStats(playerName) {
     const seriesLosses = rankData ? (rankData.series_losses || 0) : 0;
 
     return {
-        games,
+        games: totalGames,
+        rankedGames,
         wins,
-        losses: games - wins,
-        winRate: games > 0 ? ((wins / games) * 100).toFixed(1) : 0,
+        losses: rankedGames - wins,
+        winRate: rankedGames > 0 ? ((wins / rankedGames) * 100).toFixed(1) : 0,
         kills,
         deaths,
         assists,
         kd: deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2),
-        kpg: games > 0 ? (kills / games).toFixed(1) : 0,
-        dpg: games > 0 ? (deaths / games).toFixed(1) : 0,
+        kpg: totalGames > 0 ? (kills / totalGames).toFixed(1) : 0,
+        dpg: totalGames > 0 ? (deaths / totalGames).toFixed(1) : 0,
         totalScore,
-        avgScore: games > 0 ? Math.round(totalScore / games) : 0,
+        avgScore: totalGames > 0 ? Math.round(totalScore / totalGames) : 0,
         totalMedals,
         seriesWins,
         seriesLosses
     };
+}
+
+// Toggle custom games inclusion in profile stats
+function toggleProfileCustomGames() {
+    if (!currentProfilePlayer) return;
+    const checkbox = document.getElementById('profileIncludeCustomGames');
+    const includeCustomGames = checkbox ? checkbox.checked : false;
+    const stats = calculatePlayerOverallStats(currentProfilePlayer, includeCustomGames);
+    renderProfileStats(stats);
 }
 
 function renderProfileStats(stats) {
