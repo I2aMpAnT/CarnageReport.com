@@ -897,6 +897,36 @@ function formatDateTime(startTime) {
     return startTime;
 }
 
+// Map variant names to base gametypes
+function getBaseGametype(variantName) {
+    if (!variantName) return 'Unknown';
+    const name = variantName.toLowerCase();
+
+    // CTF variants
+    if (name.includes('flag') || name.includes('ctf')) return 'CTF';
+
+    // Oddball variants
+    if (name.includes('oddball') || name.includes('ball')) return 'Oddball';
+
+    // King of the Hill variants
+    if (name.includes('king') || name.includes('koth') || name.includes('hill')) return 'KotH';
+
+    // Assault variants
+    if (name.includes('assault') || name.includes('bomb')) return 'Assault';
+
+    // Territories variants
+    if (name.includes('territor')) return 'Territories';
+
+    // FFA / Slayer variants
+    if (name.includes('ffa') || name.includes('free for all') || name.includes('rumble')) return 'FFA';
+
+    // Team Slayer variants (check after FFA)
+    if (name.includes('slayer') || name.includes(' ts') || name === 'ts' || name.endsWith(' ts')) return 'Team Slayer';
+
+    // Default: return original if no match
+    return variantName;
+}
+
 // Format duration from M:SS to "Mmin SSsec"
 function formatDuration(duration) {
     if (!duration) return '0min 0sec';
@@ -1984,7 +2014,7 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     const details = game.details;
     const players = game.players;
     
-    let displayGameType = details['Game Type'] || 'Unknown';
+    let displayGameType = getBaseGametype(details['Game Type']);
     let mapName = details['Map Name'] || 'Unknown Map';
     let duration = formatDuration(details['Duration'] || '0:00');
     let startTime = details['Start Time'] || '';
