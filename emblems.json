@@ -1,6 +1,6 @@
 {
   "884896715432411178": {
-    "emblem_url": "https://www.halo2pc.com/test-pages/CartoStat/Emblem/emblem.php?P=11&S=0&EP=1&ES=0&EF=8&EB=4&ET=0",
+    "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=1&ES=0&EF=8&EB=4&ET=0",
     "player_name": "I2aMpAnT",
     "discord_name": "I2aMpAnT"
   },
@@ -113,5 +113,10 @@
     "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=0&EP=0&ES=1&EF=44&EB=1&ET=0",
     "player_name": "Future Trunks",
     "discord_name": "future trunks"
+  },
+  "1218796844088430692": {
+    "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=2&EP=1&ES=0&EF=52&EB=4&ET=0",
+    "player_name": "Legend",
+    "discord_name": "ll Legend ll"
   }
 }
