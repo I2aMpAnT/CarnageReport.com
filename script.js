@@ -5098,64 +5098,49 @@ function filterProfileByWinLoss(filterType) {
     
     let filteredGames = [...currentProfileGames];
     
+    // Helper function to check if game is ranked (not custom)
+    const isRankedGame = (game) => game.playlist && game.playlist.trim() !== '';
+
+    // Helper function to determine if player won
+    const didPlayerWin = (game, player) => {
+        const hasTeams = game.players.some(p => isValidTeam(p.team));
+        const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+        const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
+
+        if (hasTeams && isValidTeam(player.team)) {
+            // Team game - check if player's team won
+            const teams = {};
+            game.players.forEach(p => {
+                if (isValidTeam(p.team)) {
+                    if (isOddball) {
+                        teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
+                    } else {
+                        teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
+                    }
+                }
+            });
+            const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
+            return sortedTeams[0] && sortedTeams[0][0] === player.team;
+        } else {
+            // FFA - check if 1st place
+            return player.place === '1st' || player.place === 1;
+        }
+    };
+
     if (filterType === 'wins') {
         filteredGames = currentProfileGames.filter(game => {
-            const player = game.playerData;
-            const hasTeams = game.players.some(p => isValidTeam(p.team));
-            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
-            
-            if (hasTeams && isValidTeam(player.team)) {
-                // Team game - check if player's team won
-                const teams = {};
-                game.players.forEach(p => {
-                    if (isValidTeam(p.team)) {
-                        if (isOddball) {
-                            teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
-                        } else {
-                            teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
-                        }
-                    }
-                });
-                const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
-                return sortedTeams[0] && sortedTeams[0][0] === player.team;
-            } else {
-                // FFA - check if player had highest score
-                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
-                return (parseInt(player.score) || 0) === maxScore;
-            }
+            if (!isRankedGame(game)) return false;
+            return didPlayerWin(game, game.playerData);
         });
-        
+
         // Highlight wins card
         event.target.closest('.profile-stat-card').classList.add('stat-active');
     } else if (filterType === 'losses') {
         filteredGames = currentProfileGames.filter(game => {
-            const player = game.playerData;
-            const hasTeams = game.players.some(p => isValidTeam(p.team));
-            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
-            
-            if (hasTeams && isValidTeam(player.team)) {
-                // Team game - check if player's team lost
-                const teams = {};
-                game.players.forEach(p => {
-                    if (isValidTeam(p.team)) {
-                        if (isOddball) {
-                            teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
-                        } else {
-                            teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
-                        }
-                    }
-                });
-                const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
-                return sortedTeams[0] && sortedTeams[0][0] !== player.team;
-            } else {
-                // FFA - check if player didn't have highest score
-                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
-                return (parseInt(player.score) || 0) !== maxScore;
-            }
+            if (!isRankedGame(game)) return false;
+            return !didPlayerWin(game, game.playerData);
         });
-        
+
         // Highlight losses card
         event.target.closest('.profile-stat-card').classList.add('stat-active');
     }
@@ -5316,7 +5301,9 @@ function showProfileWinrateBreakdown() {
     const statsByGametype = {};
 
     for (const game of currentProfileGames) {
-        if (game.isCustomGame) continue;
+        // Skip custom/unranked games
+        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+        if (!isRankedGame) continue;
 
         const mapName = game.details['Map Name'] || 'Unknown';
         const gameType = game.details['Game Type'] || 'Unknown';
@@ -6587,8 +6574,12 @@ function returnToMainPage() {
 
 function calculatePlayerOverallStats(playerName) {
     let games = 0, wins = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
-    
+
     gamesData.forEach(game => {
+        // Skip custom games (games without playlist) to match leaderboard/other stats
+        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+        if (!isRankedGame) return;
+
         const player = game.players.find(p => p.name === playerName);
         if (player) {
             games++;
@@ -6596,7 +6587,7 @@ function calculatePlayerOverallStats(playerName) {
             deaths += player.deaths || 0;
             assists += player.assists || 0;
             totalScore += parseInt(player.score) || 0;
-            
+
             // Count total medals from game.medals array (only Halo 2 medals)
             if (game.medals) {
                 const playerMedals = game.medals.find(m => m.player === playerName);
@@ -6608,12 +6599,12 @@ function calculatePlayerOverallStats(playerName) {
                     });
                 }
             }
-            
+
             // Check if player won
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
             const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
-            
+
             if (hasTeams && isValidTeam(player.team)) {
                 const teams = {};
                 game.players.forEach(p => {
@@ -6628,9 +6619,8 @@ function calculatePlayerOverallStats(playerName) {
                 const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
                 if (sortedTeams[0] && sortedTeams[0][0] === player.team) wins++;
             } else {
-                // FFA - check if highest score
-                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
-                if ((parseInt(player.score) || 0) === maxScore) wins++;
+                // FFA - check if 1st place
+                if (player.place === '1st' || player.place === 1) wins++;
             }
         }
     });
