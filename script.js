@@ -2279,18 +2279,20 @@ function renderGameContent(game) {
     // Download dropdown for expanded game view
     const hasStats = game.public_url && game.public_url.trim() !== '';
     const hasTelemetry = game.theater_url && game.theater_url.trim() !== '';
+    const statsFilename = game.public_url ? game.public_url.split('/').pop() : '';
+    const telemetryFilename = game.theater_url ? game.theater_url.split('/').pop() : '';
     html += '<div class="game-download-dropdown">';
     html += '<button class="download-icon-btn" onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle(\'show\');" title="Download game files">';
     html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
     html += '</button>';
     html += '<div class="download-menu">';
     if (hasStats) {
-        html += `<a href="${game.public_url}" class="download-menu-item" download onclick="event.stopPropagation();">Stats</a>`;
+        html += `<a href="${game.public_url}" class="download-menu-item" download="${statsFilename}" onclick="event.stopPropagation();">Stats</a>`;
     } else {
         html += '<span class="download-menu-item disabled" onclick="event.stopPropagation(); alert(\'Sorry, it seems this file was lost\');">Stats</span>';
     }
     if (hasTelemetry) {
-        html += `<a href="${game.theater_url}" class="download-menu-item" download onclick="event.stopPropagation();">Telemetry</a>`;
+        html += `<a href="${game.theater_url}" class="download-menu-item" download="${telemetryFilename}" onclick="event.stopPropagation();">Telemetry</a>`;
     } else {
         html += '<span class="download-menu-item disabled" onclick="event.stopPropagation(); alert(\'Sorry, it seems this file was lost\');">Telemetry</span>';
     }
