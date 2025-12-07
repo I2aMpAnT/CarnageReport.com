@@ -1727,9 +1727,9 @@ async function loadGamesData() {
                                 players: convertMatchToPlayers(match, playlist),
                                 playlist: playlist.name,
                                 source_file: match.source_file,
-                                // Construct URLs from source_file
-                                public_url: match.source_file ? `stats/${match.source_file}` : null,
-                                theater_url: match.source_file ? `stats/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
+                                // Construct URLs from source_file (hosted on VPS)
+                                public_url: match.source_file ? `http://104.207.143.249/stats/public/${match.source_file}` : null,
+                                theater_url: match.source_file ? `http://104.207.143.249/stats/theater/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
                                 red_score: match.red_score,
                                 blue_score: match.blue_score,
                                 // Include all match data for detailed views (original structure)
@@ -1782,9 +1782,9 @@ async function loadGamesData() {
                 players: convertMatchToPlayers(match, { is_team: true }),
                 playlist: 'Custom Games',
                 source_file: match.source_file,
-                // Construct URLs from source_file
-                public_url: match.source_file ? `stats/${match.source_file}` : null,
-                theater_url: match.source_file ? `stats/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
+                // Construct URLs from source_file (hosted on VPS)
+                public_url: match.source_file ? `http://104.207.143.249/stats/public/${match.source_file}` : null,
+                theater_url: match.source_file ? `http://104.207.143.249/stats/theater/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
                 isCustomGame: true,
                 red_score: match.red_score,
                 blue_score: match.blue_score,
