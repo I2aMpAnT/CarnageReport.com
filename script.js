@@ -6578,7 +6578,7 @@ function returnToMainPage() {
     history.replaceState(null, '', window.location.pathname);
 }
 
-function calculatePlayerOverallStats(playerName) {
+function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
     let rankedGames = 0, wins = 0;
     let totalGames = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
 
@@ -6588,14 +6588,17 @@ function calculatePlayerOverallStats(playerName) {
 
         const isRankedGame = game.playlist && game.playlist.trim() !== '';
 
-        // Always count stats from all games (including custom when shown)
+        // Skip custom games unless checkbox is checked
+        if (!isRankedGame && !includeCustomGames) return;
+
+        // Count stats from visible games
         totalGames++;
         kills += player.kills || 0;
         deaths += player.deaths || 0;
         assists += player.assists || 0;
         totalScore += parseInt(player.score) || 0;
 
-        // Count medals from all games
+        // Count medals from visible games
         if (game.medals) {
             const playerMedals = game.medals.find(m => m.player === playerName);
             if (playerMedals) {
@@ -6659,6 +6662,15 @@ function calculatePlayerOverallStats(playerName) {
         seriesWins,
         seriesLosses
     };
+}
+
+// Toggle custom games inclusion in profile stats
+function toggleProfileCustomGames() {
+    if (!currentProfilePlayer) return;
+    const checkbox = document.getElementById('profileIncludeCustomGames');
+    const includeCustomGames = checkbox ? checkbox.checked : false;
+    const stats = calculatePlayerOverallStats(currentProfilePlayer, includeCustomGames);
+    renderProfileStats(stats);
 }
 
 function renderProfileStats(stats) {

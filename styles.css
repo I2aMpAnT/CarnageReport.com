@@ -3655,6 +3655,12 @@ header {
     margin-bottom: 40px;
 }
 
+.profile-stats-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+}
+
 .profile-overall-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
