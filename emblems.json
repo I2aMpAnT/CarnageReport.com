@@ -15,7 +15,7 @@
     "discord_name": "roasted"
   },
   "175060415833833472": {
-    "emblem_url": "https://www.halo2pc.com/test-pages/CartoStat/Emblem/emblem.php?P=1&S=12&EP=4&ES=3&EF=22&EB=14&ET=0",
+    "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=12&EP=4&ES=3&EF=22&EB=14&ET=0",
     "player_name": "Tetracide",
     "discord_name": "Tetracide"
   },
@@ -106,7 +106,7 @@
   },
   "132652800378142720": {
     "emblem_url": "https://carnagereport.com/emblem.html?P=0&S=11&EP=11&ES=1&EF=30&EB=13&ET=0",
-    "player_name": "RJ",
+    "player_name": "DontPullUrHammy",
     "discord_name": "Hammie"
   },
   "797210177786347530": {
@@ -128,5 +128,20 @@
     "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=11&EP=11&ES=0&EF=39&EB=11&ET=0",
     "player_name": "s tier SIMON",
     "discord_name": "simon hagiwara"
+  },
+  "607283926399446186": {
+    "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
+    "player_name": "Tech",
+    "discord_name": "Tech"
+  },
+  "305033769319752441": {
+    "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
+    "player_name": "Nark",
+    "discord_name": "Nark"
+  },
+  "165626999891689474": {
+    "emblem_url": "https://carnagereport.com/emblem.html?P=13&S=4&EP=2&ES=13&EF=11&EB=15&ET=0",
+    "player_name": "SHOW5TOPPER",
+    "discord_name": "SHOW5TOPPER"
   }
 }
