@@ -658,10 +658,10 @@ header {
 
 .game-type-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 600;
     color: var(--unsc-blue);
-    text-shadow: 0 0 8px rgba(0, 200, 255, 0.5);
+    text-shadow: 0 0 6px rgba(0, 200, 255, 0.4);
     cursor: default;
 }
 
