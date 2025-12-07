@@ -3208,10 +3208,13 @@ function renderLeaderboard(selectedPlaylist = null) {
             (selectedPlaylist === 'all' && (wins > 0 || losses > 0 || games > 0)) ||
             (selectedPlaylist !== 'all' && data.playlists && data.playlists[selectedPlaylist]);
 
+        // Always get series wins from rankstatsData (not playlist-specific stats)
+        const globalData = rankstatsData[discordId] || {};
+
         return {
             discordId: discordId,
             // Use display_name if available, then discord_name
-            displayName: data.display_name || data.discord_name || 'Unknown',
+            displayName: data.display_name || data.discord_name || globalData.display_name || globalData.discord_name || 'Unknown',
             profileNames: profileNames,
             rank: rank,
             wins: wins,
@@ -3223,8 +3226,8 @@ function renderLeaderboard(selectedPlaylist = null) {
             kd: deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2),
             winrate: (wins + losses) > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : '0.0',
             hasPlaylistData: hasDataForPlaylist,
-            seriesWins: data.series_wins || 0,
-            seriesLosses: data.series_losses || 0
+            seriesWins: globalData.series_wins || 0,
+            seriesLosses: globalData.series_losses || 0
         };
     });
 
