@@ -543,6 +543,78 @@
       "end_time": "12/7/2025 2:01",
       "winner": "Blue",
       "series_type": "Bo5"
+    },
+    {
+      "series_id": "series_10",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Hyrax",
+        "Jay2",
+        "Keylord",
+        "fluhd"
+      ],
+      "blue_team": [
+        "Grave",
+        "future trunks",
+        "simon hagiwara",
+        "sneakybeav3r"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 3:25",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "MLG Bomb 07",
+          "winner": null,
+          "source_file": "20251207_034246.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 3:43",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "MLG Bomb 07",
+          "winner": "Red",
+          "source_file": "20251207_035321.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 3:57",
+          "map": "Sanctuary",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS Sanc 2007",
+          "winner": "Blue",
+          "source_file": "20251207_040505.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 4:06",
+          "map": "Warlock",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF MidWar",
+          "winner": "Blue",
+          "source_file": "20251207_042051.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 4:22",
+          "map": "Lockout",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Red",
+          "source_file": "20251207_042931.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 4:29",
+          "map": "Midship",
+          "gametype": "Oddball",
+          "variant_name": "MLG Ball 2007",
+          "winner": null,
+          "source_file": "20251207_043658.xlsx"
+        }
+      ],
+      "red_wins": 2,
+      "blue_wins": 2,
+      "start_time": "12/7/2025 3:25",
+      "end_time": "12/7/2025 4:29",
+      "winner": "Tie",
+      "series_type": "Bo7"
     }
   ],
   "player_series_stats": {
@@ -643,5 +715,5 @@
       "series_losses": 0
     }
   },
-  "generated_at": "2025-12-07T08:02:09.292599"
+  "generated_at": "2025-12-07T17:39:12.258598"
 }
