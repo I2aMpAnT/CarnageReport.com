@@ -658,10 +658,10 @@ header {
 
 .game-number {
     font-family: 'Orbitron', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--shield-blue);
-    min-width: 80px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 45px;
 }
 
 .game-info {
