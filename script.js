@@ -596,17 +596,25 @@ function renderTwitchHubVods(filterQuery = '') {
         return;
     }
 
+    // Limit entries on mobile to prevent crashes
+    const isMobile = window.innerWidth <= 768;
+    const maxEntries = isMobile ? 20 : 100;
+
     let html = '';
-    for (const entry of filteredEntries.slice(0, 100)) { // Show up to 100 entries
+    for (const entry of filteredEntries.slice(0, maxEntries)) {
         const date = entry.date.toLocaleDateString();
         // Build embed URL with timestamp
         const embedUrl = `https://player.twitch.tv/?video=${entry.vod.id}&parent=${SITE_DOMAIN}&time=${entry.game.timestampFormatted}&autoplay=false`;
+        const vodUrl = `https://twitch.tv/videos/${entry.vod.id}?t=${entry.game.timestampFormatted}`;
 
         html += `
             <div class="twitch-hub-card" data-map="${entry.mapName}" data-gametype="${entry.gameType}">
                 <div class="vod-game-header" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</div>
-                <div class="twitch-hub-embed-wrapper">
-                    <iframe src="${embedUrl}" allowfullscreen="true" allow="fullscreen"></iframe>
+                <div class="twitch-hub-embed-wrapper" data-embed-url="${embedUrl}" data-vod-url="${vodUrl}">
+                    <div class="twitch-lazy-placeholder" onclick="loadTwitchEmbed(this)">
+                        <div class="twitch-lazy-icon">▶</div>
+                        <div class="twitch-lazy-text">Click to load video</div>
+                    </div>
                 </div>
                 <div class="twitch-hub-info">
                     <div class="twitch-hub-meta">
@@ -619,6 +627,41 @@ function renderTwitchHubVods(filterQuery = '') {
     }
 
     container.innerHTML = html;
+
+    // Set up IntersectionObserver for lazy loading on desktop (auto-load when visible)
+    if (!isMobile) {
+        setupTwitchLazyLoading();
+    }
+}
+
+// Load a single Twitch embed when clicked
+function loadTwitchEmbed(placeholder) {
+    const wrapper = placeholder.parentElement;
+    const embedUrl = wrapper.dataset.embedUrl;
+    if (embedUrl) {
+        wrapper.innerHTML = `<iframe src="${embedUrl}" allowfullscreen="true" allow="fullscreen" loading="lazy"></iframe>`;
+    }
+}
+
+// Lazy load Twitch embeds using IntersectionObserver
+function setupTwitchLazyLoading() {
+    const placeholders = document.querySelectorAll('.twitch-lazy-placeholder');
+    if (placeholders.length === 0) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const placeholder = entry.target;
+                loadTwitchEmbed(placeholder);
+                observer.unobserve(placeholder);
+            }
+        });
+    }, {
+        rootMargin: '200px', // Load when within 200px of viewport
+        threshold: 0
+    });
+
+    placeholders.forEach(placeholder => observer.observe(placeholder));
 }
 
 // Filter VODs based on search input
@@ -1941,9 +1984,7 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     const details = game.details;
     const players = game.players;
     
-    let displayGameType = details['Game Type'] || details['Variant Name'] || 'Unknown';
-    // Add playlist prefix to gametype
-    displayGameType = getGametypeWithPrefix(displayGameType, game.playlist);
+    let displayGameType = details['Game Type'] || 'Unknown';
     let mapName = details['Map Name'] || 'Unknown Map';
     let duration = formatDuration(details['Duration'] || '0:00');
     let startTime = details['Start Time'] || '';
@@ -1957,7 +1998,7 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     // Calculate team scores for team games
     let teamScoreDisplay = '';
     const teams = {};
-    const isOddball = displayGameType.toLowerCase().includes('oddball');
+    const isOddball = displayGameType.toLowerCase().includes('oddball') || displayGameType.toLowerCase().includes('ball');
     const isFFA = displayGameType.toLowerCase().includes('ffa') || displayGameType.toLowerCase().includes('free for all');
 
     // Use pre-calculated scores if available (from per-playlist matches) - skip for FFA
@@ -1987,8 +2028,8 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     let winnerClass = '';
     let scoreTagClass = '';
     
-    if (Object.keys(teams).length > 1) {
-        // Team game - find winning team (need at least 2 different teams)
+    if (Object.keys(teams).length === 2) {
+        // Team game - find winning team (exactly 2 teams; more than 2 = FFA)
         const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
         if (sortedTeams.length > 0 && sortedTeams[0][1] > 0) {
             const winningTeam = sortedTeams[0][0].toLowerCase();
@@ -2096,9 +2137,7 @@ function toggleGameDetails(idPrefix, gameNumber) {
 function renderGameContent(game) {
     const mapName = game.details['Map Name'] || 'Unknown';
     const mapImage = mapImages[mapName] || defaultMapImage;
-    let gameType = game.details['Game Type'] || game.details['Variant Name'] || 'Unknown';
-    // Add playlist prefix to gametype
-    gameType = getGametypeWithPrefix(gameType, game.playlist);
+    let gameType = game.details['Game Type'] || 'Unknown';
     const duration = formatDuration(game.details['Duration'] || '0:00');
     const startTime = game.details['Start Time'] || '';
     
@@ -2109,7 +2148,7 @@ function renderGameContent(game) {
     let teamScoreHtml = '';
     const teams = {};
     let hasRealTeams = false;
-    const isOddball = gameType.toLowerCase().includes('oddball');
+    const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
     
     game.players.forEach(player => {
         const team = player.team;
@@ -2128,8 +2167,8 @@ function renderGameContent(game) {
         }
     });
     
-    if (hasRealTeams && Object.keys(teams).length > 1) {
-        // Team game - show team scores (need at least 2 teams)
+    if (hasRealTeams && Object.keys(teams).length === 2) {
+        // Team game - show team scores (exactly 2 teams; more than 2 = FFA)
         const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
         teamScoreHtml = '<div class="game-final-score">';
         sortedTeams.forEach(([team, score], index) => {
@@ -2355,7 +2394,7 @@ function renderScoreboard(game) {
         html += `</div>`;
 
         // Format score as time for oddball games
-        const isOddball = gameType.includes('oddball');
+        const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
         const displayScore = isOddball && player.score ? player.score : (player.score || 0);
         html += `<div class="sb-score">${displayScore}</div>`;
         html += `<div class="sb-kills">${player.kills || 0}</div>`;
@@ -3208,10 +3247,13 @@ function renderLeaderboard(selectedPlaylist = null) {
             (selectedPlaylist === 'all' && (wins > 0 || losses > 0 || games > 0)) ||
             (selectedPlaylist !== 'all' && data.playlists && data.playlists[selectedPlaylist]);
 
+        // Always get series wins from rankstatsData (not playlist-specific stats)
+        const globalData = rankstatsData[discordId] || {};
+
         return {
             discordId: discordId,
             // Use display_name if available, then discord_name
-            displayName: data.display_name || data.discord_name || 'Unknown',
+            displayName: data.display_name || data.discord_name || globalData.display_name || globalData.discord_name || 'Unknown',
             profileNames: profileNames,
             rank: rank,
             wins: wins,
@@ -3223,8 +3265,8 @@ function renderLeaderboard(selectedPlaylist = null) {
             kd: deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2),
             winrate: (wins + losses) > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : '0.0',
             hasPlaylistData: hasDataForPlaylist,
-            seriesWins: data.series_wins || 0,
-            seriesLosses: data.series_losses || 0
+            seriesWins: globalData.series_wins || 0,
+            seriesLosses: globalData.series_losses || 0
         };
     });
 
@@ -3744,7 +3786,7 @@ function calculatePlayerSearchStats(playerName) {
             // Check if player won (using same logic as calculatePlayerOverallStats)
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
             if (hasTeams && isValidTeam(player.team)) {
                 const teams = {};
@@ -4551,15 +4593,13 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     const details = game.details;
     const players = game.players;
     const mapName = details['Map Name'] || 'Unknown';
-    let gameType = details['Game Type'] || details['Variant Name'] || 'Unknown';
-    // Add playlist prefix to gametype
-    gameType = getGametypeWithPrefix(gameType, game.playlist);
+    let gameType = details['Game Type'] || 'Unknown';
     const startTime = details['Start Time'] || '';
 
     // Calculate team scores
     let teamScoreHtml = '';
     const teams = {};
-    const isOddball = gameType.toLowerCase().includes('oddball');
+    const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
     players.forEach(player => {
         const team = player.team;
@@ -4710,7 +4750,7 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
             // Check if player won (using proper team game logic)
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
             if (hasTeams && isValidTeam(player.team)) {
                 const teams = {};
@@ -4831,7 +4871,7 @@ function calculateHeadToHead(player1, player2) {
                 opposingGames++;
                 // Determine winner by team score
                 const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-                const isOddball = gameType.toLowerCase().includes('oddball');
+                const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
                 const teams = {};
                 game.players.forEach(p => {
                     if (isValidTeam(p.team)) {
@@ -5005,7 +5045,7 @@ function filterProfileByWinLoss(filterType) {
             const player = game.playerData;
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
             
             if (hasTeams && isValidTeam(player.team)) {
                 // Team game - check if player's team won
@@ -5035,7 +5075,7 @@ function filterProfileByWinLoss(filterType) {
             const player = game.playerData;
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
             
             if (hasTeams && isValidTeam(player.team)) {
                 // Team game - check if player's team lost
@@ -5227,7 +5267,7 @@ function showProfileWinrateBreakdown() {
 
         // Determine if player won
         let isWin = false;
-        const isOddball = (game.details['Game Type'] || '').toLowerCase().includes('oddball');
+        const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
         // Check if it's a team game
         const hasTeams = game.players.some(p => isValidTeam(p.team));
@@ -6514,7 +6554,7 @@ function calculatePlayerOverallStats(playerName) {
             // Check if player won
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
             
             if (hasTeams && isValidTeam(player.team)) {
                 const teams = {};
@@ -6697,7 +6737,7 @@ function filterPlayerGames(preFilteredGames = null) {
                 const player = game.playerData;
                 const hasTeams = game.players.some(p => isValidTeam(p.team));
                 const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-                const isOddball = gameType.toLowerCase().includes('oddball');
+                const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
                 
                 if (hasTeams && isValidTeam(player.team)) {
                     const teams = {};
@@ -6722,7 +6762,7 @@ function filterPlayerGames(preFilteredGames = null) {
                 const player = game.playerData;
                 const hasTeams = game.players.some(p => isValidTeam(p.team));
                 const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-                const isOddball = gameType.toLowerCase().includes('oddball');
+                const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
                 
                 if (hasTeams && isValidTeam(player.team)) {
                     const teams = {};
