@@ -487,6 +487,62 @@
       "end_time": "12/6/2025 5:17 AM",
       "winner": "Blue",
       "series_type": "Bo7"
+    },
+    {
+      "series_id": "series_9",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "AfroMaN",
+        "James | The Frenetic",
+        "Prince KidMode",
+        "ll Legend ll"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Keylord",
+        "fluhd",
+        "sneakybeav3r"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 1:17",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG MidWar CTF",
+          "winner": "Blue",
+          "source_file": "20251207_013248.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 1:34",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Blue",
+          "source_file": "20251207_014119.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 1:42",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "MLG bawl",
+          "winner": "Blue",
+          "source_file": "20251207_015415.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 2:01",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Blue",
+          "source_file": "20251207_020617.xlsx"
+        }
+      ],
+      "red_wins": 0,
+      "blue_wins": 4,
+      "start_time": "12/7/2025 1:17",
+      "end_time": "12/7/2025 2:01",
+      "winner": "Blue",
+      "series_type": "Bo5"
     }
   ],
   "player_series_stats": {
@@ -496,7 +552,7 @@
     },
     "293507586131492864": {
       "series_wins": 3,
-      "series_losses": 1
+      "series_losses": 2
     },
     "175060415833833472": {
       "series_wins": 1,
@@ -507,7 +563,7 @@
       "series_losses": 0
     },
     "269681242335739905": {
-      "series_wins": 1,
+      "series_wins": 2,
       "series_losses": 6
     },
     "426757496557010948": {
@@ -515,7 +571,7 @@
       "series_losses": 1
     },
     "334212655613214721": {
-      "series_wins": 3,
+      "series_wins": 4,
       "series_losses": 3
     },
     "136324687926919168": {
@@ -532,7 +588,7 @@
     },
     "168151188741685248": {
       "series_wins": 3,
-      "series_losses": 2
+      "series_losses": 3
     },
     "283293015135748097": {
       "series_wins": 0,
@@ -540,7 +596,7 @@
     },
     "164725201907613696": {
       "series_wins": 1,
-      "series_losses": 2
+      "series_losses": 3
     },
     "390747330631958528": {
       "series_wins": 2,
@@ -555,7 +611,7 @@
       "series_losses": 1
     },
     "274372368686776321": {
-      "series_wins": 2,
+      "series_wins": 3,
       "series_losses": 1
     },
     "859153194839965718": {
@@ -577,7 +633,15 @@
     "797210177786347530": {
       "series_wins": 0,
       "series_losses": 1
+    },
+    "1218796844088430692": {
+      "series_wins": 0,
+      "series_losses": 1
+    },
+    "884896715432411178": {
+      "series_wins": 1,
+      "series_losses": 0
     }
   },
-  "generated_at": "2025-12-07T07:58:39.668037"
+  "generated_at": "2025-12-07T08:02:09.292599"
 }
