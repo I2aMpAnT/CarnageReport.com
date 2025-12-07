@@ -1640,8 +1640,8 @@ header {
 
 .leaderboard-header {
     display: grid;
-    grid-template-columns: 50px 40px 2fr 120px 70px 80px 70px;
-    gap: 15px;
+    grid-template-columns: 50px 40px 2fr 120px 70px 70px 70px 70px 70px;
+    gap: 12px;
     padding: 12px 20px;
     background: linear-gradient(90deg, rgba(168, 212, 255, 0.15), rgba(168, 212, 255, 0.05));
     border-bottom: 3px solid var(--unsc-blue);
@@ -1655,8 +1655,8 @@ header {
 
 .leaderboard-row {
     display: grid;
-    grid-template-columns: 50px 40px 2fr 120px 70px 80px 70px;
-    gap: 15px;
+    grid-template-columns: 50px 40px 2fr 120px 70px 70px 70px 70px 70px;
+    gap: 12px;
     padding: 8px 20px;
     border-bottom: 1px solid rgba(168, 212, 255, 0.1);
     transition: all 0.3s ease;
@@ -1665,6 +1665,13 @@ header {
 }
 
 .lb-series {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+}
+
+.lb-kills,
+.lb-deaths {
     text-align: center;
     font-family: 'Orbitron', sans-serif;
     font-size: 14px;
@@ -4469,10 +4476,10 @@ header {
     
     .leaderboard-header,
     .leaderboard-row {
-        min-width: 600px;
-        grid-template-columns: 50px 40px 1fr 70px 50px 60px 50px;
-        gap: 8px;
-        padding: 12px 8px;
+        min-width: 750px;
+        grid-template-columns: 45px 35px 1fr 90px 50px 55px 55px 50px 50px;
+        gap: 6px;
+        padding: 10px 8px;
     }
 
     .leaderboard-header {

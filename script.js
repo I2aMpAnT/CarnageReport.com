@@ -3347,6 +3347,8 @@ function renderLeaderboard(selectedPlaylist = null) {
     html += '<div>Player</div>';
     html += '<div>Record</div>';
     if (showSeries) html += '<div>Series</div>';
+    html += '<div>Kills</div>';
+    html += '<div>Deaths</div>';
     html += '<div>K/D</div>';
     html += '<div>Assists</div>';
     html += '</div>';
@@ -3399,9 +3401,14 @@ function renderLeaderboard(selectedPlaylist = null) {
                 : '<span class="stat-empty">—</span>';
             html += `<div class="lb-series">${seriesDisplay}</div>`;
         }
+        // Kills and Deaths
+        const killsDisplay = hasGames ? player.kills.toLocaleString() : '<span class="stat-empty">—</span>';
+        const deathsDisplay = hasGames ? player.deaths.toLocaleString() : '<span class="stat-empty">—</span>';
+        html += `<div class="lb-kills">${killsDisplay}</div>`;
+        html += `<div class="lb-deaths">${deathsDisplay}</div>`;
         html += `<div class="lb-kd ${kdClass}">${kdDisplay}</div>`;
         // Assists
-        const assistsDisplay = hasGames ? player.assists : '<span class="stat-empty">—</span>';
+        const assistsDisplay = hasGames ? player.assists.toLocaleString() : '<span class="stat-empty">—</span>';
         html += `<div class="lb-assists">${assistsDisplay}</div>`;
         html += '</div>';
     });
