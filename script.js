@@ -4782,6 +4782,7 @@ function openPlayerModal(playerName) {
 function calculatePlayerStats(playerName, includeCustomGames = false) {
     const stats = {
         games: 0,
+        rankedGames: 0,
         wins: 0,
         kills: 0,
         deaths: 0,
@@ -4795,40 +4796,18 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
     };
 
     gamesData.forEach(game => {
-        // Filter out custom games (games without playlist) unless includeCustomGames is true
         const isRankedGame = game.playlist && game.playlist.trim() !== '';
+
+        // Skip custom games for game count unless includeCustomGames is true
         if (!includeCustomGames && !isRankedGame) {
-            return; // Skip custom games
+            return;
         }
 
         const player = game.players.find(p => p.name === playerName);
         if (player) {
             stats.games++;
 
-            // Check if player won (using proper team game logic)
-            const hasTeams = game.players.some(p => isValidTeam(p.team));
-            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
-
-            if (hasTeams && isValidTeam(player.team)) {
-                const teams = {};
-                game.players.forEach(p => {
-                    if (isValidTeam(p.team)) {
-                        if (isOddball) {
-                            teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
-                        } else {
-                            teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
-                        }
-                    }
-                });
-                const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
-                if (sortedTeams[0] && sortedTeams[0][0] === player.team) stats.wins++;
-            } else {
-                // FFA - check if highest score
-                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
-                if ((parseInt(player.score) || 0) === maxScore) stats.wins++;
-            }
-
+            // Always count stats from all visible games
             stats.kills += player.kills || 0;
             stats.deaths += player.deaths || 0;
             stats.assists += player.assists || 0;
@@ -4838,7 +4817,7 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
                 stats.accuracyCount++;
             }
 
-            // Count medals from game.medals array
+            // Count medals from all visible games
             if (game.medals) {
                 const playerMedals = game.medals.find(m => m.player === playerName);
                 if (playerMedals) {
@@ -4851,6 +4830,33 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
                     });
                 }
             }
+
+            // Only count wins/losses from ranked games - NEVER from custom games
+            if (isRankedGame) {
+                stats.rankedGames++;
+
+                const hasTeams = game.players.some(p => isValidTeam(p.team));
+                const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+                const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
+
+                if (hasTeams && isValidTeam(player.team)) {
+                    const teams = {};
+                    game.players.forEach(p => {
+                        if (isValidTeam(p.team)) {
+                            if (isOddball) {
+                                teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
+                            } else {
+                                teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
+                            }
+                        }
+                    });
+                    const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
+                    if (sortedTeams[0] && sortedTeams[0][0] === player.team) stats.wins++;
+                } else {
+                    // FFA - check if 1st place
+                    if (player.place === '1st' || player.place === 1) stats.wins++;
+                }
+            }
         }
 
         const gameStat = game.stats ? game.stats.find(s => s.Player === playerName) : null;
@@ -4860,7 +4866,7 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
     });
 
     stats.kd = stats.deaths > 0 ? (stats.kills / stats.deaths).toFixed(2) : stats.kills.toFixed(2);
-    stats.winrate = stats.games > 0 ? ((stats.wins / stats.games) * 100).toFixed(1) : '0.0';
+    stats.winrate = stats.rankedGames > 0 ? ((stats.wins / stats.rankedGames) * 100).toFixed(1) : '0.0';
     stats.avgAccuracy = stats.accuracyCount > 0 ? (stats.accuracy / stats.accuracyCount).toFixed(1) : '0.0';
     stats.kpg = stats.games > 0 ? (stats.kills / stats.games).toFixed(1) : '0.0';
 
@@ -6573,34 +6579,38 @@ function returnToMainPage() {
 }
 
 function calculatePlayerOverallStats(playerName) {
-    let games = 0, wins = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
+    let rankedGames = 0, wins = 0;
+    let totalGames = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
 
     gamesData.forEach(game => {
-        // Skip custom games (games without playlist) to match leaderboard/other stats
-        const isRankedGame = game.playlist && game.playlist.trim() !== '';
-        if (!isRankedGame) return;
-
         const player = game.players.find(p => p.name === playerName);
-        if (player) {
-            games++;
-            kills += player.kills || 0;
-            deaths += player.deaths || 0;
-            assists += player.assists || 0;
-            totalScore += parseInt(player.score) || 0;
+        if (!player) return;
 
-            // Count total medals from game.medals array (only Halo 2 medals)
-            if (game.medals) {
-                const playerMedals = game.medals.find(m => m.player === playerName);
-                if (playerMedals) {
-                    Object.entries(playerMedals).forEach(([key, count]) => {
-                        if (key !== 'player' && medalIcons[key]) {
-                            totalMedals += parseInt(count) || 0;
-                        }
-                    });
-                }
+        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+
+        // Always count stats from all games (including custom when shown)
+        totalGames++;
+        kills += player.kills || 0;
+        deaths += player.deaths || 0;
+        assists += player.assists || 0;
+        totalScore += parseInt(player.score) || 0;
+
+        // Count medals from all games
+        if (game.medals) {
+            const playerMedals = game.medals.find(m => m.player === playerName);
+            if (playerMedals) {
+                Object.entries(playerMedals).forEach(([key, count]) => {
+                    if (key !== 'player' && medalIcons[key]) {
+                        totalMedals += parseInt(count) || 0;
+                    }
+                });
             }
+        }
 
-            // Check if player won
+        // Only count wins/losses from ranked games - NEVER from custom games
+        if (isRankedGame) {
+            rankedGames++;
+
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
             const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
@@ -6624,7 +6634,7 @@ function calculatePlayerOverallStats(playerName) {
             }
         }
     });
-    
+
     // Get series wins/losses from rank data
     const discordId = profileNameToDiscordId[playerName];
     const rankData = discordId ? rankstatsData[discordId] : null;
@@ -6632,18 +6642,19 @@ function calculatePlayerOverallStats(playerName) {
     const seriesLosses = rankData ? (rankData.series_losses || 0) : 0;
 
     return {
-        games,
+        games: totalGames,
+        rankedGames,
         wins,
-        losses: games - wins,
-        winRate: games > 0 ? ((wins / games) * 100).toFixed(1) : 0,
+        losses: rankedGames - wins,
+        winRate: rankedGames > 0 ? ((wins / rankedGames) * 100).toFixed(1) : 0,
         kills,
         deaths,
         assists,
         kd: deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2),
-        kpg: games > 0 ? (kills / games).toFixed(1) : 0,
-        dpg: games > 0 ? (deaths / games).toFixed(1) : 0,
+        kpg: totalGames > 0 ? (kills / totalGames).toFixed(1) : 0,
+        dpg: totalGames > 0 ? (deaths / totalGames).toFixed(1) : 0,
         totalScore,
-        avgScore: games > 0 ? Math.round(totalScore / games) : 0,
+        avgScore: totalGames > 0 ? Math.round(totalScore / totalGames) : 0,
         totalMedals,
         seriesWins,
         seriesLosses
