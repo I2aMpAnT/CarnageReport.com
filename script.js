@@ -3183,13 +3183,16 @@ function renderLeaderboard(selectedPlaylist = null) {
         return parseFloat(b.kd) - parseFloat(a.kd);
     });
 
+    // Only show series column for MLG 4v4 and Team Hardcore
+    const showSeries = selectedPlaylist === 'MLG 4v4' || selectedPlaylist === 'Team Hardcore' || selectedPlaylist === 'all';
+
     let html = '<div class="leaderboard">';
     html += '<div class="leaderboard-header">';
     html += '<div>Rank</div>';
     html += '<div></div>'; // Emblem column - no header text
     html += '<div>Player</div>';
     html += '<div>Record</div>';
-    html += '<div>Series</div>';
+    if (showSeries) html += '<div>Series</div>';
     html += '<div>K/D</div>';
     html += '<div>Assists</div>';
     html += '</div>';
@@ -3235,11 +3238,13 @@ function renderLeaderboard(selectedPlaylist = null) {
         html += '</div>';
         html += `<div class="lb-player">${player.displayName}</div>`;
         html += `<div class="lb-record">${recordDisplay}</div>`;
-        // Series wins-losses
-        const seriesDisplay = (player.seriesWins > 0 || player.seriesLosses > 0)
-            ? `${player.seriesWins}-${player.seriesLosses}`
-            : '<span class="stat-empty">—</span>';
-        html += `<div class="lb-series">${seriesDisplay}</div>`;
+        // Series wins-losses (only for MLG 4v4 and Team Hardcore)
+        if (showSeries) {
+            const seriesDisplay = (player.seriesWins > 0 || player.seriesLosses > 0)
+                ? `${player.seriesWins}-${player.seriesLosses}`
+                : '<span class="stat-empty">—</span>';
+            html += `<div class="lb-series">${seriesDisplay}</div>`;
+        }
         html += `<div class="lb-kd ${kdClass}">${kdDisplay}</div>`;
         // Assists
         const assistsDisplay = hasGames ? player.assists : '<span class="stat-empty">—</span>';
