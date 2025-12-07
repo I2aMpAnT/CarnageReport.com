@@ -275,13 +275,16 @@ function formatDateTimeLocal(date) {
     return `${month} ${day}${getOrdinal(day)} ${year}, ${displayHours}:${String(minutes).padStart(2, '0')} ${ampm}`;
 }
 
-// Get in-game names for a Discord ID (from in_game_names array or discord_name)
+// Get in-game names for a Discord ID (from in_game_names array, display_name, or discord_name)
 function getInGameNamesForDiscordId(discordId) {
     const data = rankstatsData[discordId];
     if (!data) return [];
     const names = [];
     if (data.in_game_names && Array.isArray(data.in_game_names)) {
         names.push(...data.in_game_names);
+    }
+    if (data.display_name) {
+        names.push(data.display_name);
     }
     if (data.discord_name) {
         names.push(data.discord_name);
@@ -320,11 +323,26 @@ function findGamesForVod(vod) {
     const matchingGames = [];
 
     gamesData.forEach((game, index) => {
-        if (!game.details || !game.details['Start Time'] || !game.details['End Time']) return;
+        if (!game.details || !game.details['Start Time']) return;
 
         const startDate = parseGameDateTime(game.details['Start Time']);
-        const endDate = parseGameDateTime(game.details['End Time']);
-        if (!startDate || !endDate) return;
+        if (!startDate) return;
+
+        // Calculate end date from End Time or Duration
+        let endDate;
+        if (game.details['End Time']) {
+            endDate = parseGameDateTime(game.details['End Time']);
+        } else if (game.details['Duration']) {
+            // Parse duration like "15:23" (mm:ss)
+            const durationStr = game.details['Duration'];
+            const durationParts = durationStr.split(':');
+            const durationMs = (parseInt(durationParts[0] || 0) * 60 + parseInt(durationParts[1] || 0)) * 1000;
+            endDate = new Date(startDate.getTime() + durationMs);
+        } else {
+            // Default to 15 minutes
+            endDate = new Date(startDate.getTime() + 15 * 60 * 1000);
+        }
+        if (!endDate) return;
 
         // Check time overlap
         if (vodStart <= endDate && vodEnd >= startDate) {
@@ -1602,8 +1620,8 @@ async function loadGamesData() {
                                 playlist: playlist.name,
                                 source_file: match.source_file,
                                 // Construct URLs from source_file
-                                public_url: match.source_file ? `stats/public/${match.source_file}` : null,
-                                theater_url: match.source_file ? `stats/theater/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
+                                public_url: match.source_file ? `stats/${match.source_file}` : null,
+                                theater_url: match.source_file ? `stats/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
                                 red_score: match.red_score,
                                 blue_score: match.blue_score,
                                 // Include all match data for detailed views (original structure)
@@ -1657,8 +1675,8 @@ async function loadGamesData() {
                 playlist: 'Custom Games',
                 source_file: match.source_file,
                 // Construct URLs from source_file
-                public_url: match.source_file ? `stats/public/${match.source_file}` : null,
-                theater_url: match.source_file ? `stats/theater/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
+                public_url: match.source_file ? `stats/${match.source_file}` : null,
+                theater_url: match.source_file ? `stats/${match.source_file.replace('.xlsx', '_theater.csv')}` : null,
                 isCustomGame: true,
                 red_score: match.red_score,
                 blue_score: match.blue_score,
@@ -2258,13 +2276,54 @@ function renderScoreboard(game) {
         });
     }
 
+    // Build map of weapon stats for each player
+    const playerWeaponStats = {};
+    if (game.weapons) {
+        game.weapons.forEach(weaponData => {
+            const playerName = weaponData.Player;
+            if (!playerName) return;
+
+            let grenadeKills = 0;
+            let meleeKills = 0;
+
+            // Count grenade kills
+            grenadeKills += parseInt(weaponData['frag grenade kills']) || 0;
+            grenadeKills += parseInt(weaponData['plasma grenade kills']) || 0;
+
+            // Energy sword is a melee weapon
+            meleeKills += parseInt(weaponData['energy sword kills']) || 0;
+
+            playerWeaponStats[playerName] = { grenadeKills, meleeKills };
+        });
+    }
+
+    // Also calculate beatdown kills from medals
+    if (game.medals) {
+        game.medals.forEach(medalData => {
+            const playerName = medalData.player;
+            if (!playerName) return;
+
+            // bone_cracker and assassin are melee medals
+            const meleeMedals = (parseInt(medalData.bone_cracker) || 0) + (parseInt(medalData.assassin) || 0);
+
+            // Subtract sword kills (already counted) to get pure beatdowns
+            const swordKills = playerWeaponStats[playerName]?.meleeKills || 0;
+            const beatdowns = Math.max(0, meleeMedals - swordKills);
+
+            if (!playerWeaponStats[playerName]) {
+                playerWeaponStats[playerName] = { grenadeKills: 0, meleeKills: 0 };
+            }
+            playerWeaponStats[playerName].meleeKills += beatdowns;
+        });
+    }
+
     let html = '<div class="scoreboard">';
 
-    // Determine columns - added Emblem column
-    let columns = ['', 'Player', 'Score', 'K', 'D', 'A', 'K/D'];
+    // Determine columns - added Emblem, Grenade, Melee columns
+    let columns = ['', 'Player', 'Score', 'K', 'D', 'A', 'G', 'M', 'K/D'];
 
-    // Build grid template - added emblem column
-    let gridTemplate = '40px 2fr 80px 50px 50px 50px 70px';
+    // Build grid template - added emblem, grenade, melee columns
+    let gridTemplate = '40px 2fr 80px 50px 50px 50px 40px 40px 70px';
 
     // Header
     html += `<div class="scoreboard-header" style="grid-template-columns: ${gridTemplate}">`;
@@ -2302,6 +2361,9 @@ function renderScoreboard(game) {
         html += `<div class="sb-kills">${player.kills || 0}</div>`;
         html += `<div class="sb-deaths">${player.deaths || 0}</div>`;
         html += `<div class="sb-assists">${player.assists || 0}</div>`;
+        const pWeaponStats = playerWeaponStats[player.name] || { grenadeKills: 0, meleeKills: 0 };
+        html += `<div class="sb-grenades" title="Grenade Kills">${pWeaponStats.grenadeKills}</div>`;
+        html += `<div class="sb-melee" title="Melee Kills">${pWeaponStats.meleeKills}</div>`;
         html += `<div class="sb-kd">${calculateKD(player.kills, player.deaths)}</div>`;
 
         html += '</div>';
@@ -4644,7 +4706,31 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
         const player = game.players.find(p => p.name === playerName);
         if (player) {
             stats.games++;
-            if (player.place === '1st') stats.wins++;
+
+            // Check if player won (using proper team game logic)
+            const hasTeams = game.players.some(p => isValidTeam(p.team));
+            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+            const isOddball = gameType.toLowerCase().includes('oddball');
+
+            if (hasTeams && isValidTeam(player.team)) {
+                const teams = {};
+                game.players.forEach(p => {
+                    if (isValidTeam(p.team)) {
+                        if (isOddball) {
+                            teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
+                        } else {
+                            teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
+                        }
+                    }
+                });
+                const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
+                if (sortedTeams[0] && sortedTeams[0][0] === player.team) stats.wins++;
+            } else {
+                // FFA - check if highest score
+                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
+                if ((parseInt(player.score) || 0) === maxScore) stats.wins++;
+            }
+
             stats.kills += player.kills || 0;
             stats.deaths += player.deaths || 0;
             stats.assists += player.assists || 0;
@@ -4723,35 +4809,57 @@ function calculateHeadToHead(player1, player2) {
     let player2Wins = 0;
     let player1Kills = 0;
     let player2Kills = 0;
-    
+    let sameteamGames = 0;
+    let opposingGames = 0;
+
     gamesData.forEach(game => {
         const p1 = game.players.find(p => p.name === player1);
         const p2 = game.players.find(p => p.name === player2);
-        
+
         if (p1 && p2) {
             gamesPlayed++;
-            
-            // Check if on different teams
-            if (p1.team !== p2.team && p1.team !== 'none' && p2.team !== 'none') {
-                // Determine winner by team score or placement
-                const p1Rank = parseInt(p1.place) || 99;
-                const p2Rank = parseInt(p2.place) || 99;
-                
-                if (p1Rank < p2Rank) player1Wins++;
-                else if (p2Rank < p1Rank) player2Wins++;
-            }
-            
             player1Kills += p1.kills || 0;
             player2Kills += p2.kills || 0;
+
+            // Check if on different teams
+            const onSameTeam = isValidTeam(p1.team) && isValidTeam(p2.team) && p1.team === p2.team;
+            const onDifferentTeams = isValidTeam(p1.team) && isValidTeam(p2.team) && p1.team !== p2.team;
+
+            if (onSameTeam) {
+                sameteamGames++;
+            } else if (onDifferentTeams) {
+                opposingGames++;
+                // Determine winner by team score
+                const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+                const isOddball = gameType.toLowerCase().includes('oddball');
+                const teams = {};
+                game.players.forEach(p => {
+                    if (isValidTeam(p.team)) {
+                        if (isOddball) {
+                            teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
+                        } else {
+                            teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
+                        }
+                    }
+                });
+                const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
+                if (sortedTeams[0]) {
+                    const winningTeam = sortedTeams[0][0];
+                    if (p1.team === winningTeam && sortedTeams[0][1] > sortedTeams[1][1]) player1Wins++;
+                    else if (p2.team === winningTeam && sortedTeams[0][1] > sortedTeams[1][1]) player2Wins++;
+                }
+            }
         }
     });
-    
+
     return {
         gamesPlayed,
         player1Wins,
         player2Wins,
         player1Kills,
-        player2Kills
+        player2Kills,
+        sameteamGames,
+        opposingGames
     };
 }
 
@@ -5099,6 +5207,113 @@ function closeMedalBreakdown() {
     if (overlay) {
         overlay.remove();
     }
+}
+
+// Show winrate breakdown by map and gametype
+function showProfileWinrateBreakdown() {
+    if (!currentProfilePlayer) return;
+
+    // Calculate wins/losses by map and gametype
+    const statsByMap = {};
+    const statsByGametype = {};
+
+    for (const game of currentProfileGames) {
+        if (game.isCustomGame) continue;
+
+        const mapName = game.details['Map Name'] || 'Unknown';
+        const gameType = game.details['Game Type'] || 'Unknown';
+        const player = game.players.find(p => p.name === currentProfilePlayer);
+        if (!player) continue;
+
+        // Determine if player won
+        let isWin = false;
+        const isOddball = (game.details['Game Type'] || '').toLowerCase().includes('oddball');
+
+        // Check if it's a team game
+        const hasTeams = game.players.some(p => isValidTeam(p.team));
+
+        if (hasTeams && isValidTeam(player.team)) {
+            // Calculate team scores
+            const teams = {};
+            game.players.forEach(p => {
+                if (isValidTeam(p.team)) {
+                    if (isOddball) {
+                        teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
+                    } else {
+                        teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
+                    }
+                }
+            });
+            const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
+            isWin = sortedTeams[0] && sortedTeams[0][0] === player.team;
+        } else {
+            // FFA - check placement
+            isWin = player.place === '1st' || player.place === 1;
+        }
+
+        // Track by map
+        if (!statsByMap[mapName]) {
+            statsByMap[mapName] = { wins: 0, losses: 0 };
+        }
+        if (isWin) {
+            statsByMap[mapName].wins++;
+        } else {
+            statsByMap[mapName].losses++;
+        }
+
+        // Track by gametype
+        if (!statsByGametype[gameType]) {
+            statsByGametype[gameType] = { wins: 0, losses: 0 };
+        }
+        if (isWin) {
+            statsByGametype[gameType].wins++;
+        } else {
+            statsByGametype[gameType].losses++;
+        }
+    }
+
+    // Sort by total games played descending
+    const sortedMaps = Object.entries(statsByMap)
+        .map(([name, stats]) => ({ name, ...stats, total: stats.wins + stats.losses }))
+        .sort((a, b) => b.total - a.total);
+
+    const sortedGametypes = Object.entries(statsByGametype)
+        .map(([name, stats]) => ({ name, ...stats, total: stats.wins + stats.losses }))
+        .sort((a, b) => b.total - a.total);
+
+    // Build HTML
+    let html = `<h2>${getDisplayNameForProfile(currentProfilePlayer)} - Win Rate Breakdown</h2>`;
+    html += '<button class="close-breakdown-btn" onclick="closeBreakdownOverlay()">Close</button>';
+
+    // By Gametype section
+    html += '<div class="breakdown-section"><h3>By Gametype</h3>';
+    if (sortedGametypes.length === 0) {
+        html += '<p class="no-data">No games played</p>';
+    } else {
+        html += '<table class="breakdown-table"><thead><tr><th>Gametype</th><th>Wins</th><th>Losses</th><th>Win Rate</th></tr></thead><tbody>';
+        for (const gt of sortedGametypes) {
+            const winRate = gt.total > 0 ? ((gt.wins / gt.total) * 100).toFixed(1) : '0.0';
+            html += `<tr><td>${gt.name}</td><td class="stat-win">${gt.wins}</td><td class="stat-loss">${gt.losses}</td><td>${winRate}%</td></tr>`;
+        }
+        html += '</tbody></table>';
+    }
+    html += '</div>';
+
+    // By Map section
+    html += '<div class="breakdown-section"><h3>By Map</h3>';
+    if (sortedMaps.length === 0) {
+        html += '<p class="no-data">No games played</p>';
+    } else {
+        html += '<table class="breakdown-table"><thead><tr><th>Map</th><th>Wins</th><th>Losses</th><th>Win Rate</th></tr></thead><tbody>';
+        for (const map of sortedMaps) {
+            const winRate = map.total > 0 ? ((map.wins / map.total) * 100).toFixed(1) : '0.0';
+            html += `<tr><td>${map.name}</td><td class="stat-win">${map.wins}</td><td class="stat-loss">${map.losses}</td><td>${winRate}%</td></tr>`;
+        }
+        html += '</tbody></table>';
+    }
+    html += '</div>';
+
+    showBreakdownOverlay(html);
 }
 
 // Show assists breakdown by gametype and map
@@ -6160,6 +6375,18 @@ function openPlayerProfile(playerName) {
     document.getElementById('profilePlayerName').textContent = displayName;
     document.getElementById('profileRankIcon').innerHTML = getPlayerRankIcon(playerName, 'large');
 
+    // Set Twitch link if player has a linked Twitch account
+    const twitchLinkElement = document.getElementById('profileTwitchLink');
+    const discordIdForTwitch = profileNameToDiscordId[playerName];
+    const twitchData = discordIdForTwitch ? rankstatsData[discordIdForTwitch] : null;
+    if (twitchData && twitchData.twitch_url && twitchData.twitch_name && !twitchData.twitch_name.includes('google.com')) {
+        twitchLinkElement.innerHTML = `<a href="${twitchData.twitch_url}" target="_blank" class="twitch-icon-link" title="Watch on Twitch: ${twitchData.twitch_name}"><svg class="twitch-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57V4.714zm4.715 0H18v5.143h-1.714V4.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0H6zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714v9.429z"/></svg></a>`;
+        twitchLinkElement.style.display = 'inline-flex';
+    } else {
+        twitchLinkElement.innerHTML = '';
+        twitchLinkElement.style.display = 'none';
+    }
+
     // Calculate overall stats
     const stats = calculatePlayerOverallStats(playerName);
     renderProfileStats(stats);
@@ -6310,6 +6537,12 @@ function calculatePlayerOverallStats(playerName) {
         }
     });
     
+    // Get series wins/losses from rank data
+    const discordId = profileNameToDiscordId[playerName];
+    const rankData = discordId ? rankstatsData[discordId] : null;
+    const seriesWins = rankData ? (rankData.series_wins || 0) : 0;
+    const seriesLosses = rankData ? (rankData.series_losses || 0) : 0;
+
     return {
         games,
         wins,
@@ -6323,7 +6556,9 @@ function calculatePlayerOverallStats(playerName) {
         dpg: games > 0 ? (deaths / games).toFixed(1) : 0,
         totalScore,
         avgScore: games > 0 ? Math.round(totalScore / games) : 0,
-        totalMedals
+        totalMedals,
+        seriesWins,
+        seriesLosses
     };
 }
 
@@ -6342,10 +6577,16 @@ function renderProfileStats(stats) {
             <div class="stat-value">${stats.losses}</div>
             <div class="stat-label">Losses</div>
         </div>
-        <div class="profile-stat-card">
+        <div class="profile-stat-card clickable-stat" onclick="showProfileWinrateBreakdown()">
             <div class="stat-value">${stats.winRate}%</div>
             <div class="stat-label">Win Rate</div>
         </div>
+        ${(stats.seriesWins > 0 || stats.seriesLosses > 0) ? `
+        <div class="profile-stat-card">
+            <div class="stat-value">${stats.seriesWins}-${stats.seriesLosses}</div>
+            <div class="stat-label">Series W/L</div>
+        </div>
+        ` : ''}
         <div class="profile-stat-card highlight clickable-stat" onclick="showProfileKDBreakdown()">
             <div class="stat-value">${stats.kd}</div>
             <div class="stat-label">K/D Ratio</div>
