@@ -57,6 +57,21 @@ const mapImages = {
 // Default map image if not found
 const defaultMapImage = 'mapimages/Midship.jpeg';
 
+// Get gametype with playlist prefix for display
+function getGametypeWithPrefix(gameType, playlist) {
+    if (!playlist) return gameType;
+
+    const playlistLower = playlist.toLowerCase();
+    if (playlistLower === 'mlg 4v4' || playlistLower === 'team hardcore') {
+        return 'MLG ' + gameType;
+    } else if (playlistLower === 'double team') {
+        return '2v2 ' + gameType;
+    } else if (playlistLower === 'head to head') {
+        return '1v1 ' + gameType;
+    }
+    return gameType;
+}
+
 // Twitch VOD cache (username -> VOD data)
 const twitchVodCache = {};
 const TWITCH_GQL_URL = 'https://gql.twitch.tv/gql';
@@ -1895,11 +1910,11 @@ function renderGamesList() {
     populateMainFilters();
 }
 
-function createGameItem(game, gameNumber) {
+function createGameItem(game, gameNumber, idPrefix = 'game') {
     const gameDiv = document.createElement('div');
     gameDiv.className = 'game-item';
-    gameDiv.id = `game-${gameNumber}`;
-    
+    gameDiv.id = `${idPrefix}-${gameNumber}`;
+
     // Store the actual gamesData index for reliable game lookup
     // Use originalIndex if it exists (from profile games), otherwise find it
     const gameDataIndex = game.originalIndex !== undefined ? game.originalIndex : gamesData.indexOf(game);
@@ -1908,7 +1923,9 @@ function createGameItem(game, gameNumber) {
     const details = game.details;
     const players = game.players;
     
-    let displayGameType = details['Variant Name'] || details['Game Type'] || 'Unknown';
+    let displayGameType = details['Game Type'] || details['Variant Name'] || 'Unknown';
+    // Add playlist prefix to gametype
+    displayGameType = getGametypeWithPrefix(displayGameType, game.playlist);
     let mapName = details['Map Name'] || 'Unknown Map';
     let duration = formatDuration(details['Duration'] || '0:00');
     let startTime = details['Start Time'] || '';
@@ -1984,11 +2001,11 @@ function createGameItem(game, gameNumber) {
     }
 
     gameDiv.innerHTML = `
-        <div class="game-header-bar ${winnerClass}" onclick="toggleGameDetails(${gameNumber})">
+        <div class="game-header-bar ${winnerClass}" onclick="toggleGameDetails('${idPrefix}', ${gameNumber})">
             <div class="game-header-left">
-                <div class="game-number">${displayGameType}</div>
+                <div class="game-number">Game ${gameNumber}</div>
                 <div class="game-info">
-                    <span class="game-meta-tag game-num-tag">Game ${gameNumber}</span>
+                    <span class="game-meta-tag game-type-tag">${displayGameType}</span>
                     <span class="game-meta-tag">${mapName}</span>
                     ${teamScoreDisplay}
                 </div>
@@ -2001,7 +2018,7 @@ function createGameItem(game, gameNumber) {
         </div>
         <div class="game-details">
             <div class="game-details-content">
-                <div id="game-content-${gameNumber}"></div>
+                <div id="${idPrefix}-content-${gameNumber}"></div>
             </div>
         </div>
     `;
@@ -2032,19 +2049,19 @@ document.addEventListener('click', function(event) {
     }
 });
 
-function toggleGameDetails(gameNumber) {
-    const gameItem = document.getElementById(`game-${gameNumber}`);
-    const gameContent = document.getElementById(`game-content-${gameNumber}`);
-    
+function toggleGameDetails(idPrefix, gameNumber) {
+    const gameItem = document.getElementById(`${idPrefix}-${gameNumber}`);
+    const gameContent = document.getElementById(`${idPrefix}-content-${gameNumber}`);
+
     if (!gameItem) return;
-    
+
     const isExpanded = gameItem.classList.contains('expanded');
-    
+
     if (isExpanded) {
         gameItem.classList.remove('expanded');
     } else {
         gameItem.classList.add('expanded');
-        
+
         if (!gameContent.innerHTML) {
             // Get the stored game index from data attribute
             const gameIndex = parseInt(gameItem.getAttribute('data-game-index'));
@@ -2061,7 +2078,9 @@ function toggleGameDetails(gameNumber) {
 function renderGameContent(game) {
     const mapName = game.details['Map Name'] || 'Unknown';
     const mapImage = mapImages[mapName] || defaultMapImage;
-    const gameType = game.details['Variant Name'] || game.details['Game Type'] || 'Unknown';
+    let gameType = game.details['Game Type'] || game.details['Variant Name'] || 'Unknown';
+    // Add playlist prefix to gametype
+    gameType = getGametypeWithPrefix(gameType, game.playlist);
     const duration = formatDuration(game.details['Duration'] || '0:00');
     const startTime = game.details['Start Time'] || '';
     
@@ -2276,7 +2295,10 @@ function renderScoreboard(game) {
         html += `<span class="player-name-text">${displayName}</span>`;
         html += `</div>`;
 
-        html += `<div class="sb-score">${player.score || 0}</div>`;
+        // Format score as time for oddball games
+        const isOddball = gameType.includes('oddball');
+        const displayScore = isOddball && player.score ? player.score : (player.score || 0);
+        html += `<div class="sb-score">${displayScore}</div>`;
         html += `<div class="sb-kills">${player.kills || 0}</div>`;
         html += `<div class="sb-deaths">${player.deaths || 0}</div>`;
         html += `<div class="sb-assists">${player.assists || 0}</div>`;
@@ -2594,13 +2616,15 @@ function renderMedals(game) {
         html += `<span class="player-name-text">${medalPlayerDisplayName}</span>`;
         html += `</div>`;
         html += `<div class="medals-icons-col">`;
-        
-        // Get all medals for this player (excluding the 'player' key)
+
+        // Get all medals for this player (excluding the 'player' key), sorted by count descending
         let hasMedals = false;
-        Object.entries(playerMedals).forEach(([medalKey, count]) => {
-            // Skip 'player' key and any medals with 0 count (handles both string "0" and number 0)
+        const playerMedalEntries = Object.entries(playerMedals)
+            .filter(([medalKey, count]) => medalKey !== 'player' && (parseInt(count) || 0) > 0)
+            .sort((a, b) => (parseInt(b[1]) || 0) - (parseInt(a[1]) || 0));
+
+        playerMedalEntries.forEach(([medalKey, count]) => {
             const medalCount = parseInt(count) || 0;
-            if (medalKey === 'player' || medalCount === 0) return;
 
             const iconPath = getMedalIcon(medalKey);
             const medalName = formatMedalName(medalKey);
@@ -3096,26 +3120,36 @@ function renderLeaderboard(selectedPlaylist = null) {
             assists = data.assists || 0;
         } else {
             // ranks.json format with playlist data
-            if (selectedPlaylist !== 'all' && data.playlists && data.playlists[selectedPlaylist]) {
+            const hasSpecificPlaylistData = selectedPlaylist !== 'all' && data.playlists && data.playlists[selectedPlaylist];
+            if (hasSpecificPlaylistData) {
                 const plData = data.playlists[selectedPlaylist];
                 rank = plData.rank || 1;
                 wins = plData.wins || 0;
                 losses = plData.losses || 0;
+                games = plData.games || (wins + losses);
+                kills = plData.kills || data.kills || 0;
+                deaths = plData.deaths || data.deaths || 0;
+                assists = plData.assists || data.assists || 0;
             } else {
                 rank = data.rank || 1;
                 wins = data.wins || 0;
                 losses = data.losses || 0;
+                games = data.total_games || 0;
+                kills = data.kills || 0;
+                deaths = data.deaths || 0;
+                assists = data.assists || 0;
             }
-            games = data.total_games || 0;
-            kills = data.kills || 0;
-            deaths = data.deaths || 0;
-            assists = data.assists || 0;
         }
+
+        // Determine if player has data for this specific playlist
+        const hasDataForPlaylist = usePlaylistStats ||
+            (selectedPlaylist === 'all' && (wins > 0 || losses > 0 || games > 0)) ||
+            (selectedPlaylist !== 'all' && data.playlists && data.playlists[selectedPlaylist]);
 
         return {
             discordId: discordId,
-            // Use discord_name only - no aliases
-            displayName: data.discord_name || 'Unknown',
+            // Use display_name if available, then discord_name
+            displayName: data.display_name || data.discord_name || 'Unknown',
             profileNames: profileNames,
             rank: rank,
             wins: wins,
@@ -3126,7 +3160,7 @@ function renderLeaderboard(selectedPlaylist = null) {
             assists: assists,
             kd: deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2),
             winrate: (wins + losses) > 0 ? ((wins / (wins + losses)) * 100).toFixed(1) : '0.0',
-            hasPlaylistData: usePlaylistStats || (wins > 0 || losses > 0),
+            hasPlaylistData: hasDataForPlaylist,
             seriesWins: data.series_wins || 0,
             seriesLosses: data.series_losses || 0
         };
@@ -3632,17 +3666,40 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
 
 function calculatePlayerSearchStats(playerName) {
     let games = 0, wins = 0, kills = 0, deaths = 0;
-    
+
     gamesData.forEach(game => {
         const player = game.players.find(p => p.name === playerName);
         if (player) {
             games++;
-            if (player.place === '1st') wins++;
             kills += player.kills || 0;
             deaths += player.deaths || 0;
+
+            // Check if player won (using same logic as calculatePlayerOverallStats)
+            const hasTeams = game.players.some(p => isValidTeam(p.team));
+            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+            const isOddball = gameType.toLowerCase().includes('oddball');
+
+            if (hasTeams && isValidTeam(player.team)) {
+                const teams = {};
+                game.players.forEach(p => {
+                    if (isValidTeam(p.team)) {
+                        if (isOddball) {
+                            teams[p.team] = (teams[p.team] || 0) + timeToSeconds(p.score);
+                        } else {
+                            teams[p.team] = (teams[p.team] || 0) + (parseInt(p.score) || 0);
+                        }
+                    }
+                });
+                const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
+                if (sortedTeams[0] && sortedTeams[0][0] === player.team) wins++;
+            } else {
+                // FFA - check if highest score
+                const maxScore = Math.max(...game.players.map(p => parseInt(p.score) || 0));
+                if ((parseInt(player.score) || 0) === maxScore) wins++;
+            }
         }
     });
-    
+
     const kd = deaths > 0 ? (kills / deaths).toFixed(2) : kills.toFixed(2);
     return { games, wins, kd };
 }
@@ -4427,7 +4484,9 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     const details = game.details;
     const players = game.players;
     const mapName = details['Map Name'] || 'Unknown';
-    const gameType = details['Variant Name'] || 'Unknown';
+    let gameType = details['Game Type'] || details['Variant Name'] || 'Unknown';
+    // Add playlist prefix to gametype
+    gameType = getGametypeWithPrefix(gameType, game.playlist);
     const startTime = details['Start Time'] || '';
 
     // Calculate team scores
@@ -4472,9 +4531,9 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     let html = `<div class="game-item" id="${searchCardId}">`;
     html += `<div class="game-header-bar ${winnerClass}" onclick="toggleSearchGameDetails('${searchCardId}', ${gameNumber})">`;
     html += '<div class="game-header-left">';
-    html += `<div class="game-number">${gameType}</div>`;
+    html += `<div class="game-number">Game ${gameNumber}</div>`;
     html += '<div class="game-info">';
-    html += `<span class="game-meta-tag game-num-tag">Game ${gameNumber}</span>`;
+    html += `<span class="game-meta-tag game-type-tag">${gameType}</span>`;
     html += `<span class="game-meta-tag">${mapName}</span>`;
     html += teamScoreHtml;
     html += '</div>';
@@ -5123,7 +5182,7 @@ function showProfileAssistsBreakdown() {
 let kdBreakdownPlayerStats = {};
 
 // Show K/D breakdown - players with Killed/Killed by counts (using versus data)
-function showProfileKDBreakdown(sortMode = 'killedBy') {
+function showProfileKDBreakdown(sortMode = 'killed') {
     if (!currentProfilePlayer) return;
 
     // Calculate kills and deaths against each opponent from versus data (only once)
@@ -6169,6 +6228,33 @@ function closePlayerProfile() {
     currentProfileGames = [];
 }
 
+function returnToMainPage() {
+    // Hide profile page
+    document.getElementById('playerProfilePage').style.display = 'none';
+    // Hide search results page
+    document.getElementById('searchResultsPage').style.display = 'none';
+    // Show main stats area
+    document.getElementById('statsArea').style.display = 'block';
+    // Clear search input
+    const searchInput = document.getElementById('playerSearch');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    // Clear any search dropdown results
+    const searchResults = document.getElementById('searchResults');
+    if (searchResults) {
+        searchResults.innerHTML = '';
+        searchResults.style.display = 'none';
+    }
+    // Reset profile state
+    currentProfilePlayer = null;
+    currentProfileGames = [];
+    // Switch to game history tab
+    switchMainTab('gamehistory');
+    // Clear URL hash
+    history.replaceState(null, '', window.location.pathname);
+}
+
 function calculatePlayerOverallStats(playerName) {
     let games = 0, wins = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
     
@@ -6426,13 +6512,13 @@ function filterPlayerGames(preFilteredGames = null) {
 function renderProfileGames(games) {
     const container = document.getElementById('profileGamesList');
     container.innerHTML = '';
-    
+
     games.forEach((game, idx) => {
         const gameNumber = game.originalIndex + 1;
-        const gameDiv = createGameItem(game, gameNumber);
+        const gameDiv = createGameItem(game, gameNumber, 'profile-game');
         container.appendChild(gameDiv);
     });
-    
+
     if (games.length === 0) {
         container.innerHTML = '<div class="no-games">No games found matching filters</div>';
     }
