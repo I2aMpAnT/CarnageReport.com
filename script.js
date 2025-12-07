@@ -1955,7 +1955,7 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     // Calculate team scores for team games
     let teamScoreDisplay = '';
     const teams = {};
-    const isOddball = displayGameType.toLowerCase().includes('oddball');
+    const isOddball = displayGameType.toLowerCase().includes('oddball') || displayGameType.toLowerCase().includes('ball');
     const isFFA = displayGameType.toLowerCase().includes('ffa') || displayGameType.toLowerCase().includes('free for all');
 
     // Use pre-calculated scores if available (from per-playlist matches) - skip for FFA
@@ -2105,7 +2105,7 @@ function renderGameContent(game) {
     let teamScoreHtml = '';
     const teams = {};
     let hasRealTeams = false;
-    const isOddball = gameType.toLowerCase().includes('oddball');
+    const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
     
     game.players.forEach(player => {
         const team = player.team;
@@ -2351,7 +2351,7 @@ function renderScoreboard(game) {
         html += `</div>`;
 
         // Format score as time for oddball games
-        const isOddball = gameType.includes('oddball');
+        const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
         const displayScore = isOddball && player.score ? player.score : (player.score || 0);
         html += `<div class="sb-score">${displayScore}</div>`;
         html += `<div class="sb-kills">${player.kills || 0}</div>`;
@@ -3743,7 +3743,7 @@ function calculatePlayerSearchStats(playerName) {
             // Check if player won (using same logic as calculatePlayerOverallStats)
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
             if (hasTeams && isValidTeam(player.team)) {
                 const teams = {};
@@ -4556,7 +4556,7 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     // Calculate team scores
     let teamScoreHtml = '';
     const teams = {};
-    const isOddball = (details['Game Type'] || '').toLowerCase().includes('oddball');
+    const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
     players.forEach(player => {
         const team = player.team;
@@ -4707,7 +4707,7 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
             // Check if player won (using proper team game logic)
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
             if (hasTeams && isValidTeam(player.team)) {
                 const teams = {};
@@ -4828,7 +4828,7 @@ function calculateHeadToHead(player1, player2) {
                 opposingGames++;
                 // Determine winner by team score
                 const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-                const isOddball = gameType.toLowerCase().includes('oddball');
+                const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
                 const teams = {};
                 game.players.forEach(p => {
                     if (isValidTeam(p.team)) {
@@ -5002,7 +5002,7 @@ function filterProfileByWinLoss(filterType) {
             const player = game.playerData;
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
             
             if (hasTeams && isValidTeam(player.team)) {
                 // Team game - check if player's team won
@@ -5032,7 +5032,7 @@ function filterProfileByWinLoss(filterType) {
             const player = game.playerData;
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
             
             if (hasTeams && isValidTeam(player.team)) {
                 // Team game - check if player's team lost
@@ -5224,7 +5224,7 @@ function showProfileWinrateBreakdown() {
 
         // Determine if player won
         let isWin = false;
-        const isOddball = (game.details['Game Type'] || '').toLowerCase().includes('oddball');
+        const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
         // Check if it's a team game
         const hasTeams = game.players.some(p => isValidTeam(p.team));
@@ -6511,7 +6511,7 @@ function calculatePlayerOverallStats(playerName) {
             // Check if player won
             const hasTeams = game.players.some(p => isValidTeam(p.team));
             const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-            const isOddball = gameType.toLowerCase().includes('oddball');
+            const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
             
             if (hasTeams && isValidTeam(player.team)) {
                 const teams = {};
@@ -6694,7 +6694,7 @@ function filterPlayerGames(preFilteredGames = null) {
                 const player = game.playerData;
                 const hasTeams = game.players.some(p => isValidTeam(p.team));
                 const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-                const isOddball = gameType.toLowerCase().includes('oddball');
+                const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
                 
                 if (hasTeams && isValidTeam(player.team)) {
                     const teams = {};
@@ -6719,7 +6719,7 @@ function filterPlayerGames(preFilteredGames = null) {
                 const player = game.playerData;
                 const hasTeams = game.players.some(p => isValidTeam(p.team));
                 const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
-                const isOddball = gameType.toLowerCase().includes('oddball');
+                const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
                 
                 if (hasTeams && isValidTeam(player.team)) {
                     const teams = {};
