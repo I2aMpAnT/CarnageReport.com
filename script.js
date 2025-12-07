@@ -2111,9 +2111,8 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     gameDiv.innerHTML = `
         <div class="game-header-bar ${winnerClass}" onclick="toggleGameDetails('${idPrefix}', ${gameNumber})">
             <div class="game-header-left">
-                <div class="game-number">Game ${gameNumber}</div>
                 <div class="game-info">
-                    <span class="game-meta-tag game-type-tag">${displayGameType}</span>
+                    <span class="game-type-title" title="Game ${gameNumber}">${displayGameType}</span>
                     <span class="game-meta-tag">${mapName}</span>
                     ${teamScoreDisplay}
                 </div>
@@ -4696,9 +4695,8 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     let html = `<div class="game-item" id="${searchCardId}">`;
     html += `<div class="game-header-bar ${winnerClass}" onclick="toggleSearchGameDetails('${searchCardId}', ${gameNumber})">`;
     html += '<div class="game-header-left">';
-    html += `<div class="game-number">Game ${gameNumber}</div>`;
     html += '<div class="game-info">';
-    html += `<span class="game-meta-tag game-type-tag">${displayGameType}</span>`;
+    html += `<span class="game-type-title" title="Game ${gameNumber}">${displayGameType}</span>`;
     html += `<span class="game-meta-tag">${mapName}</span>`;
     html += teamScoreHtml;
     html += '</div>';
