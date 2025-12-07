@@ -898,7 +898,7 @@ function formatDateTime(startTime) {
 }
 
 // Map variant names to base gametypes
-function getBaseGametype(variantName, playlist = '') {
+function getBaseGametype(variantName, playlist = '', game = null) {
     if (!variantName) return 'Unknown';
     const name = variantName.toLowerCase();
     const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore';
@@ -925,21 +925,37 @@ function getBaseGametype(variantName, playlist = '') {
     else if (name.includes('territor')) {
         baseType = 'Territories';
     }
-    // FFA / Slayer variants
+    // FFA / Slayer variants - check name first
     else if (name.includes('ffa') || name.includes('free for all') || name.includes('rumble')) {
         baseType = 'Free For All';
     }
-    // Team Slayer variants (check after FFA)
+    // Slayer - could be Team Slayer or FFA depending on team count
     else if (name.includes('slayer') || name.includes(' ts') || name === 'ts' || name.endsWith('ts')) {
-        baseType = 'Team Slayer';
+        // If we have game data, check team count to determine if it's actually FFA
+        if (game && game.players) {
+            const teams = new Set();
+            game.players.forEach(p => {
+                if (isValidTeam(p.team)) {
+                    teams.add(p.team);
+                }
+            });
+            // If no valid teams or more than 2 teams, it's FFA
+            if (teams.size === 0 || teams.size > 2) {
+                baseType = 'Free For All';
+            } else {
+                baseType = 'Team Slayer';
+            }
+        } else {
+            baseType = 'Team Slayer';
+        }
     }
     // Default: return original
     else {
         return variantName;
     }
 
-    // Add MLG prefix and 2007 suffix for MLG playlists
-    if (isMLG) {
+    // Add MLG prefix and 2007 suffix for MLG playlists (but not for FFA)
+    if (isMLG && baseType !== 'Free For All') {
         return `MLG ${baseType} 2007`;
     }
 
@@ -2033,7 +2049,7 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     const details = game.details;
     const players = game.players;
     
-    let displayGameType = getBaseGametype(details['Game Type'], game.playlist);
+    let displayGameType = getBaseGametype(details['Game Type'], game.playlist, game);
     let mapName = details['Map Name'] || 'Unknown Map';
     let duration = formatDuration(details['Duration'] || '0:00');
     let startTime = details['Start Time'] || '';
@@ -2186,7 +2202,7 @@ function renderGameContent(game) {
     const mapName = game.details['Map Name'] || 'Unknown';
     const mapImage = mapImages[mapName] || defaultMapImage;
     const rawGameType = game.details['Game Type'] || 'Unknown';
-    const displayGameType = getBaseGametype(rawGameType, game.playlist);
+    const displayGameType = getBaseGametype(rawGameType, game.playlist, game);
     const duration = formatDuration(game.details['Duration'] || '0:00');
     const startTime = game.details['Start Time'] || '';
 
@@ -4133,7 +4149,11 @@ function renderMapSearchResults(mapName) {
 }
 
 function renderGametypeSearchResults(gametypeName) {
-    const gametypeGames = gamesData.filter(game => game.details['Variant Name'] === gametypeName);
+    // Filter by base gametype, not variant name
+    const gametypeGames = gamesData.filter(game => {
+        const rawType = game.details['Variant Name'] || game.details['Game Type'] || '';
+        return getBaseGametype(rawType, game.playlist, game) === gametypeName;
+    });
 
     // Calculate gametype stats including medals and player kills
     let totalGames = gametypeGames.length;
@@ -4650,7 +4670,7 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     const players = game.players;
     const mapName = details['Map Name'] || 'Unknown';
     const rawGameType = details['Game Type'] || 'Unknown';
-    const displayGameType = getBaseGametype(rawGameType, game.playlist);
+    const displayGameType = getBaseGametype(rawGameType, game.playlist, game);
     const startTime = details['Start Time'] || '';
 
     // Calculate team scores
@@ -6736,15 +6756,16 @@ function getPlayerGames(playerName) {
 function populateProfileFilters() {
     const maps = new Map();
     const gametypes = new Map();
-    
+
     currentProfileGames.forEach(game => {
         const mapName = game.details['Map Name'];
-        const gameType = game.details['Variant Name'] || game.details['Game Type'];
+        const rawType = game.details['Variant Name'] || game.details['Game Type'] || '';
+        const baseGametype = getBaseGametype(rawType, game.playlist, game);
         if (mapName) {
             maps.set(mapName, (maps.get(mapName) || 0) + 1);
         }
-        if (gameType) {
-            gametypes.set(gameType, (gametypes.get(gameType) || 0) + 1);
+        if (baseGametype) {
+            gametypes.set(baseGametype, (gametypes.get(baseGametype) || 0) + 1);
         }
     });
     
@@ -6858,7 +6879,10 @@ function filterPlayerGames(preFilteredGames = null) {
         games = games.filter(g => g.details['Map Name'] === profileCurrentMapFilter);
     }
     if (profileCurrentGametypeFilter) {
-        games = games.filter(g => (g.details['Variant Name'] || g.details['Game Type']) === profileCurrentGametypeFilter);
+        games = games.filter(g => {
+            const rawType = g.details['Variant Name'] || g.details['Game Type'] || '';
+            return getBaseGametype(rawType, g.playlist, g) === profileCurrentGametypeFilter;
+        });
     }
     
     renderProfileGames(games);
@@ -7126,7 +7150,10 @@ function filterGames(preFilteredGames = null) {
         games = games.filter(g => g.details['Map Name'] === currentMapFilter);
     }
     if (currentGametypeFilter) {
-        games = games.filter(g => (g.details['Variant Name'] || g.details['Game Type']) === currentGametypeFilter);
+        games = games.filter(g => {
+            const rawType = g.details['Variant Name'] || g.details['Game Type'] || '';
+            return getBaseGametype(rawType, g.playlist, g) === currentGametypeFilter;
+        });
     }
     
     renderFilteredGames(games);
