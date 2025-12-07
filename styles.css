@@ -656,18 +656,20 @@ header {
     transition: transform 0.3s ease;
 }
 
-.game-number {
+.game-type-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    min-width: 45px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--unsc-blue);
+    text-shadow: 0 0 8px rgba(0, 200, 255, 0.5);
+    cursor: default;
 }
 
 .game-info {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .game-meta-tag {
@@ -4372,15 +4374,15 @@ header {
         justify-content: space-between;
     }
     
-    .game-number {
-        font-size: 16px;
+    .game-type-title {
+        font-size: 14px;
     }
-    
+
     .game-meta-tag {
         font-size: 11px;
         padding: 4px 8px;
     }
-    
+
     .game-info {
         flex-wrap: wrap;
     }
@@ -4834,10 +4836,6 @@ header {
     .game-map-thumb {
         width: 70px;
         height: 45px;
-    }
-    
-    .game-number {
-        font-size: 14px;
     }
 }
 
