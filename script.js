@@ -1941,9 +1941,7 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     const details = game.details;
     const players = game.players;
     
-    let displayGameType = details['Game Type'] || details['Variant Name'] || 'Unknown';
-    // Add playlist prefix to gametype
-    displayGameType = getGametypeWithPrefix(displayGameType, game.playlist);
+    let displayGameType = details['Game Type'] || 'Unknown';
     let mapName = details['Map Name'] || 'Unknown Map';
     let duration = formatDuration(details['Duration'] || '0:00');
     let startTime = details['Start Time'] || '';
@@ -2096,9 +2094,7 @@ function toggleGameDetails(idPrefix, gameNumber) {
 function renderGameContent(game) {
     const mapName = game.details['Map Name'] || 'Unknown';
     const mapImage = mapImages[mapName] || defaultMapImage;
-    let gameType = game.details['Game Type'] || game.details['Variant Name'] || 'Unknown';
-    // Add playlist prefix to gametype
-    gameType = getGametypeWithPrefix(gameType, game.playlist);
+    let gameType = game.details['Game Type'] || 'Unknown';
     const duration = formatDuration(game.details['Duration'] || '0:00');
     const startTime = game.details['Start Time'] || '';
     
@@ -4554,15 +4550,13 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     const details = game.details;
     const players = game.players;
     const mapName = details['Map Name'] || 'Unknown';
-    let gameType = details['Game Type'] || details['Variant Name'] || 'Unknown';
-    // Add playlist prefix to gametype
-    gameType = getGametypeWithPrefix(gameType, game.playlist);
+    let gameType = details['Game Type'] || 'Unknown';
     const startTime = details['Start Time'] || '';
 
     // Calculate team scores
     let teamScoreHtml = '';
     const teams = {};
-    const isOddball = gameType.toLowerCase().includes('oddball');
+    const isOddball = (details['Game Type'] || '').toLowerCase().includes('oddball');
 
     players.forEach(player => {
         const team = player.team;
