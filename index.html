@@ -33,13 +33,13 @@
                     </div>
                 </div>
             </div>
-            <img src="HaloCarnageReport Logo.png" alt="Carnage Report Logo" class="logo">
+            <img src="HaloCarnageReport Logo.png" alt="Carnage Report Logo" class="logo" onclick="returnToMainPage()" style="cursor: pointer;">
         </header>
 
         <div class="search-section">
             <div class="search-container">
                 <div class="search-box">
-                    <input type="text" id="playerSearch" class="search-input" placeholder="Search player...">
+                    <input type="text" id="playerSearch" class="search-input" placeholder="Search players, maps, weapons, medals...">
                     <div id="searchResults" class="search-results"></div>
                 </div>
             </div>
@@ -311,6 +311,7 @@
                     <div id="profileEmblem" class="profile-emblem"></div>
                     <div id="profileRankIcon" class="profile-rank"></div>
                     <h1 id="profilePlayerName" class="profile-name"></h1>
+                    <span id="profileTwitchLink" class="profile-twitch-link"></span>
                 </div>
             </div>
             <div class="profile-playlist-ranks-section">

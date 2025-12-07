@@ -1117,10 +1117,15 @@ header {
     gap: 10px;
 }
 
-.sb-score, .sb-kills, .sb-deaths, .sb-assists, .sb-kd {
+.sb-score, .sb-kills, .sb-deaths, .sb-assists, .sb-grenades, .sb-melee, .sb-kd {
     text-align: center;
     font-family: 'Orbitron', sans-serif;
     font-weight: 600;
+}
+
+.sb-grenades, .sb-melee {
+    font-size: 12px;
+    color: var(--text-secondary);
 }
 
 .place-badge {
@@ -1635,7 +1640,7 @@ header {
 
 .leaderboard-header {
     display: grid;
-    grid-template-columns: 50px 40px 2fr 120px 70px 80px;
+    grid-template-columns: 50px 40px 2fr 120px 70px 80px 70px;
     gap: 15px;
     padding: 12px 20px;
     background: linear-gradient(90deg, rgba(168, 212, 255, 0.15), rgba(168, 212, 255, 0.05));
@@ -1650,7 +1655,7 @@ header {
 
 .leaderboard-row {
     display: grid;
-    grid-template-columns: 50px 40px 2fr 120px 70px 80px;
+    grid-template-columns: 50px 40px 2fr 120px 70px 80px 70px;
     gap: 15px;
     padding: 8px 20px;
     border-bottom: 1px solid rgba(168, 212, 255, 0.1);
@@ -1660,6 +1665,12 @@ header {
 }
 
 .lb-series {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+}
+
+.lb-assists {
     text-align: center;
     font-family: 'Orbitron', sans-serif;
     font-size: 14px;
@@ -3011,6 +3022,48 @@ header {
     overflow-y: auto;
 }
 
+.breakdown-section h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(168, 212, 255, 0.2);
+}
+
+.breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.breakdown-table th,
+.breakdown-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(168, 212, 255, 0.1);
+}
+
+.breakdown-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.breakdown-table tr:hover {
+    background: rgba(0, 217, 255, 0.05);
+}
+
+.stat-win {
+    color: #4ade80;
+}
+
+.stat-loss {
+    color: #f87171;
+}
+
 .breakdown-section .section-header {
     font-size: 14px;
     margin-bottom: 10px;
@@ -3509,6 +3562,34 @@ header {
     margin: 0;
 }
 
+.profile-twitch-link {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 12px;
+}
+
+.twitch-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: #9146ff;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+.twitch-icon-link:hover {
+    color: #a970ff;
+    transform: scale(1.15);
+    background: rgba(145, 70, 255, 0.15);
+}
+
+.twitch-icon {
+    width: 22px;
+    height: 22px;
+}
+
 /* Playlist Ranks Section */
 .profile-playlist-ranks-section {
     margin-bottom: 30px;
@@ -3753,6 +3834,105 @@ header {
 .player-faced-item .weapon-breakdown-name:hover {
     color: var(--unsc-blue);
     text-decoration: underline;
+}
+
+/* Assists Breakdown Modal */
+.assists-modal {
+    max-width: 900px;
+}
+
+.assists-breakdown-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.assists-breakdown-section {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.assists-section-title {
+    color: var(--unsc-blue);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.assists-breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.assists-breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(0, 217, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.assists-breakdown-item:hover {
+    background: rgba(0, 217, 255, 0.1);
+    border-color: var(--primary-color);
+}
+
+.assists-breakdown-name {
+    color: var(--text-primary);
+    font-family: 'Overpass', sans-serif;
+    font-size: 14px;
+}
+
+.assists-breakdown-stats {
+    color: var(--unsc-blue);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+}
+
+/* K/D Breakdown Toggle */
+.kd-toggle-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.kd-toggle-btn {
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.kd-toggle-btn:hover {
+    background: rgba(0, 217, 255, 0.1);
+    border-color: var(--primary-color);
+}
+
+.kd-toggle-btn.active {
+    background: rgba(0, 217, 255, 0.2);
+    border-color: var(--unsc-blue);
+    color: var(--unsc-blue);
+}
+
+.kd-primary-stat {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    color: var(--unsc-blue);
+    font-weight: 700;
+    min-width: 40px;
+    text-align: right;
 }
 
 /* Weapon Search Modal */
@@ -4289,8 +4469,8 @@ header {
     
     .leaderboard-header,
     .leaderboard-row {
-        min-width: 550px;
-        grid-template-columns: 50px 40px 1fr 70px 50px 60px;
+        min-width: 600px;
+        grid-template-columns: 50px 40px 1fr 70px 50px 60px 50px;
         gap: 8px;
         padding: 12px 8px;
     }
