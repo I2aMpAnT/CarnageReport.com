@@ -5160,6 +5160,39 @@ header {
     border: none;
 }
 
+.twitch-lazy-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.twitch-lazy-placeholder:hover {
+    background: linear-gradient(135deg, #252545 0%, #1e2d52 100%);
+}
+
+.twitch-lazy-icon {
+    font-size: 48px;
+    color: #9147ff;
+    margin-bottom: 8px;
+    transition: transform 0.2s ease;
+}
+
+.twitch-lazy-placeholder:hover .twitch-lazy-icon {
+    transform: scale(1.1);
+}
+
+.twitch-lazy-text {
+    color: #a0a0a0;
+    font-size: 12px;
+    font-family: 'Orbitron', sans-serif;
+}
+
 .vod-game-header {
     background: rgba(0, 0, 0, 0.6);
     color: var(--unsc-blue);

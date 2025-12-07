@@ -596,17 +596,25 @@ function renderTwitchHubVods(filterQuery = '') {
         return;
     }
 
+    // Limit entries on mobile to prevent crashes
+    const isMobile = window.innerWidth <= 768;
+    const maxEntries = isMobile ? 20 : 100;
+
     let html = '';
-    for (const entry of filteredEntries.slice(0, 100)) { // Show up to 100 entries
+    for (const entry of filteredEntries.slice(0, maxEntries)) {
         const date = entry.date.toLocaleDateString();
         // Build embed URL with timestamp
         const embedUrl = `https://player.twitch.tv/?video=${entry.vod.id}&parent=${SITE_DOMAIN}&time=${entry.game.timestampFormatted}&autoplay=false`;
+        const vodUrl = `https://twitch.tv/videos/${entry.vod.id}?t=${entry.game.timestampFormatted}`;
 
         html += `
             <div class="twitch-hub-card" data-map="${entry.mapName}" data-gametype="${entry.gameType}">
                 <div class="vod-game-header" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</div>
-                <div class="twitch-hub-embed-wrapper">
-                    <iframe src="${embedUrl}" allowfullscreen="true" allow="fullscreen"></iframe>
+                <div class="twitch-hub-embed-wrapper" data-embed-url="${embedUrl}" data-vod-url="${vodUrl}">
+                    <div class="twitch-lazy-placeholder" onclick="loadTwitchEmbed(this)">
+                        <div class="twitch-lazy-icon">▶</div>
+                        <div class="twitch-lazy-text">Click to load video</div>
+                    </div>
                 </div>
                 <div class="twitch-hub-info">
                     <div class="twitch-hub-meta">
@@ -619,6 +627,41 @@ function renderTwitchHubVods(filterQuery = '') {
     }
 
     container.innerHTML = html;
+
+    // Set up IntersectionObserver for lazy loading on desktop (auto-load when visible)
+    if (!isMobile) {
+        setupTwitchLazyLoading();
+    }
+}
+
+// Load a single Twitch embed when clicked
+function loadTwitchEmbed(placeholder) {
+    const wrapper = placeholder.parentElement;
+    const embedUrl = wrapper.dataset.embedUrl;
+    if (embedUrl) {
+        wrapper.innerHTML = `<iframe src="${embedUrl}" allowfullscreen="true" allow="fullscreen" loading="lazy"></iframe>`;
+    }
+}
+
+// Lazy load Twitch embeds using IntersectionObserver
+function setupTwitchLazyLoading() {
+    const placeholders = document.querySelectorAll('.twitch-lazy-placeholder');
+    if (placeholders.length === 0) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const placeholder = entry.target;
+                loadTwitchEmbed(placeholder);
+                observer.unobserve(placeholder);
+            }
+        });
+    }, {
+        rootMargin: '200px', // Load when within 200px of viewport
+        threshold: 0
+    });
+
+    placeholders.forEach(placeholder => observer.observe(placeholder));
 }
 
 // Filter VODs based on search input
@@ -1985,8 +2028,8 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     let winnerClass = '';
     let scoreTagClass = '';
     
-    if (Object.keys(teams).length > 1) {
-        // Team game - find winning team (need at least 2 different teams)
+    if (Object.keys(teams).length === 2) {
+        // Team game - find winning team (exactly 2 teams; more than 2 = FFA)
         const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
         if (sortedTeams.length > 0 && sortedTeams[0][1] > 0) {
             const winningTeam = sortedTeams[0][0].toLowerCase();
@@ -2124,8 +2167,8 @@ function renderGameContent(game) {
         }
     });
     
-    if (hasRealTeams && Object.keys(teams).length > 1) {
-        // Team game - show team scores (need at least 2 teams)
+    if (hasRealTeams && Object.keys(teams).length === 2) {
+        // Team game - show team scores (exactly 2 teams; more than 2 = FFA)
         const sortedTeams = Object.entries(teams).sort((a, b) => b[1] - a[1]);
         teamScoreHtml = '<div class="game-final-score">';
         sortedTeams.forEach(([team, score], index) => {
