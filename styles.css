@@ -803,14 +803,14 @@ header {
     justify-content: center;
 }
 
-.game-type-title {
+.game-info-panel .game-type-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--unsc-blue);
+    margin-bottom: 10px;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
 .game-meta-info {
