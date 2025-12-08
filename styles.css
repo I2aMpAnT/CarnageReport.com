@@ -658,10 +658,9 @@ header {
 
 .game-type-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 10px;
+    font-weight: 500;
     color: var(--unsc-blue);
-    text-shadow: 0 0 4px rgba(0, 200, 255, 0.3);
     cursor: default;
 }
 
@@ -804,14 +803,14 @@ header {
     justify-content: center;
 }
 
-.game-type-title {
+.game-info-panel .game-type-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--unsc-blue);
+    margin-bottom: 10px;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
 .game-meta-info {
