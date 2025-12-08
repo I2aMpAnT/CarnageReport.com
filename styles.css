@@ -658,7 +658,7 @@ header {
 
 .game-type-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 500;
     color: var(--unsc-blue);
     cursor: default;
