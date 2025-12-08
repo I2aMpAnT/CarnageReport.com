@@ -80152,14 +80152,14 @@
         "Hammie"
       ],
       "blue_team": [
-        "Tech",
+        "ksin0",
         "SHOW5TOPPER",
         "Rocky",
         "I2aMpAnT"
       ],
       "player_stats": [
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 30,
           "deaths": 37,
@@ -80304,7 +80304,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 30,
           "assists": 23,
@@ -80438,7 +80438,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 2,
           "triple_kill": 0,
           "killtacular": 0,
@@ -80770,7 +80770,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -81758,8 +81758,8 @@
         }
       ],
       "versus": {
-        "Tech": {
-          "Tech": 0,
+        "ksin0": {
+          "ksin0": 0,
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
@@ -81769,7 +81769,7 @@
           "Hammie": 7
         },
         "SHOW5TOPPER": {
-          "Tech": 0,
+          "ksin0": 0,
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 1,
@@ -81779,7 +81779,7 @@
           "Hammie": 11
         },
         "Rocky": {
-          "Tech": 0,
+          "ksin0": 0,
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
@@ -81789,7 +81789,7 @@
           "Hammie": 12
         },
         "I2aMpAnT": {
-          "Tech": 0,
+          "ksin0": 0,
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
@@ -81799,7 +81799,7 @@
           "Hammie": 9
         },
         "James | The Frenetic": {
-          "Tech": 12,
+          "ksin0": 12,
           "SHOW5TOPPER": 6,
           "Rocky": 13,
           "I2aMpAnT": 7,
@@ -81809,7 +81809,7 @@
           "Hammie": 0
         },
         "Nark": {
-          "Tech": 12,
+          "ksin0": 12,
           "SHOW5TOPPER": 8,
           "Rocky": 8,
           "I2aMpAnT": 12,
@@ -81819,7 +81819,7 @@
           "Hammie": 0
         },
         "roasted": {
-          "Tech": 5,
+          "ksin0": 5,
           "SHOW5TOPPER": 4,
           "Rocky": 9,
           "I2aMpAnT": 10,
@@ -81829,7 +81829,7 @@
           "Hammie": 0
         },
         "Hammie": {
-          "Tech": 8,
+          "ksin0": 8,
           "SHOW5TOPPER": 14,
           "Rocky": 4,
           "I2aMpAnT": 8,
@@ -81860,7 +81860,7 @@
         "SHOW5TOPPER",
         "Rocky",
         "I2aMpAnT",
-        "Tech"
+        "ksin0"
       ],
       "player_stats": [
         {
@@ -81976,7 +81976,7 @@
           "pre_game_rank": 6
         },
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 7,
           "deaths": 12,
@@ -82009,7 +82009,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 7,
           "assists": 7,
@@ -82143,7 +82143,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -82475,7 +82475,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -83471,7 +83471,7 @@
           "SHOW5TOPPER": 4,
           "Rocky": 5,
           "I2aMpAnT": 4,
-          "Tech": 7
+          "ksin0": 7
         },
         "Nark": {
           "James | The Frenetic": 0,
@@ -83481,7 +83481,7 @@
           "SHOW5TOPPER": 2,
           "Rocky": 6,
           "I2aMpAnT": 3,
-          "Tech": 3
+          "ksin0": 3
         },
         "Hammie": {
           "James | The Frenetic": 0,
@@ -83491,7 +83491,7 @@
           "SHOW5TOPPER": 4,
           "Rocky": 1,
           "I2aMpAnT": 3,
-          "Tech": 1
+          "ksin0": 1
         },
         "roasted": {
           "James | The Frenetic": 0,
@@ -83501,7 +83501,7 @@
           "SHOW5TOPPER": 1,
           "Rocky": 4,
           "I2aMpAnT": 1,
-          "Tech": 1
+          "ksin0": 1
         },
         "SHOW5TOPPER": {
           "James | The Frenetic": 3,
@@ -83511,7 +83511,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "Rocky": {
           "James | The Frenetic": 2,
@@ -83521,7 +83521,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "I2aMpAnT": {
           "James | The Frenetic": 2,
@@ -83531,9 +83531,9 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         },
-        "Tech": {
+        "ksin0": {
           "James | The Frenetic": 2,
           "Nark": 2,
           "Hammie": 2,
@@ -83541,7 +83541,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         }
       },
       "source_file": "20251207_133236.xlsx"
@@ -83564,7 +83564,7 @@
       "blue_team": [
         "SHOW5TOPPER",
         "Rocky",
-        "Tech",
+        "ksin0",
         "I2aMpAnT"
       ],
       "player_stats": [
@@ -83665,7 +83665,7 @@
           "pre_game_rank": 6
         },
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 21,
           "deaths": 30,
@@ -83714,7 +83714,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 21,
           "assists": 14,
@@ -83848,7 +83848,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -84180,7 +84180,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -85175,7 +85175,7 @@
           "James | The Frenetic": 0,
           "SHOW5TOPPER": 4,
           "Rocky": 3,
-          "Tech": 9,
+          "ksin0": 9,
           "I2aMpAnT": 5
         },
         "roasted": {
@@ -85185,7 +85185,7 @@
           "James | The Frenetic": 0,
           "SHOW5TOPPER": 2,
           "Rocky": 4,
-          "Tech": 3,
+          "ksin0": 3,
           "I2aMpAnT": 6
         },
         "Nark": {
@@ -85195,7 +85195,7 @@
           "James | The Frenetic": 0,
           "SHOW5TOPPER": 5,
           "Rocky": 13,
-          "Tech": 8,
+          "ksin0": 8,
           "I2aMpAnT": 7
         },
         "James | The Frenetic": {
@@ -85205,7 +85205,7 @@
           "James | The Frenetic": 1,
           "SHOW5TOPPER": 12,
           "Rocky": 5,
-          "Tech": 10,
+          "ksin0": 10,
           "I2aMpAnT": 7
         },
         "SHOW5TOPPER": {
@@ -85215,7 +85215,7 @@
           "James | The Frenetic": 5,
           "SHOW5TOPPER": 0,
           "Rocky": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "I2aMpAnT": 0
         },
         "Rocky": {
@@ -85225,17 +85225,17 @@
           "James | The Frenetic": 9,
           "SHOW5TOPPER": 0,
           "Rocky": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "I2aMpAnT": 0
         },
-        "Tech": {
+        "ksin0": {
           "Hammie": 4,
           "roasted": 5,
           "Nark": 5,
           "James | The Frenetic": 7,
           "SHOW5TOPPER": 0,
           "Rocky": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "I2aMpAnT": 0
         },
         "I2aMpAnT": {
@@ -85245,7 +85245,7 @@
           "James | The Frenetic": 4,
           "SHOW5TOPPER": 0,
           "Rocky": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "I2aMpAnT": 2
         }
       },
@@ -85269,7 +85269,7 @@
       "blue_team": [
         "Rocky",
         "I2aMpAnT",
-        "Tech",
+        "ksin0",
         "SHOW5TOPPER"
       ],
       "player_stats": [
@@ -85370,7 +85370,7 @@
           "pre_game_rank": 5
         },
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 9,
           "deaths": 11,
@@ -85419,7 +85419,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 9,
           "assists": 6,
@@ -85553,7 +85553,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 2,
           "triple_kill": 0,
           "killtacular": 0,
@@ -85885,7 +85885,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -86880,7 +86880,7 @@
           "roasted": 0,
           "Rocky": 5,
           "I2aMpAnT": 7,
-          "Tech": 6,
+          "ksin0": 6,
           "SHOW5TOPPER": 6
         },
         "Hammie": {
@@ -86890,7 +86890,7 @@
           "roasted": 0,
           "Rocky": 3,
           "I2aMpAnT": 4,
-          "Tech": 4,
+          "ksin0": 4,
           "SHOW5TOPPER": 2
         },
         "Nark": {
@@ -86900,7 +86900,7 @@
           "roasted": 0,
           "Rocky": 2,
           "I2aMpAnT": 3,
-          "Tech": 1,
+          "ksin0": 1,
           "SHOW5TOPPER": 1
         },
         "roasted": {
@@ -86910,7 +86910,7 @@
           "roasted": 0,
           "Rocky": 1,
           "I2aMpAnT": 1,
-          "Tech": 0,
+          "ksin0": 0,
           "SHOW5TOPPER": 4
         },
         "Rocky": {
@@ -86920,7 +86920,7 @@
           "roasted": 6,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "SHOW5TOPPER": 0
         },
         "I2aMpAnT": {
@@ -86930,17 +86930,17 @@
           "roasted": 5,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "SHOW5TOPPER": 0
         },
-        "Tech": {
+        "ksin0": {
           "James | The Frenetic": 3,
           "Hammie": 1,
           "Nark": 4,
           "roasted": 1,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "SHOW5TOPPER": 0
         },
         "SHOW5TOPPER": {
@@ -86950,7 +86950,7 @@
           "roasted": 2,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "SHOW5TOPPER": 0
         }
       },
@@ -86975,7 +86975,7 @@
         "SHOW5TOPPER",
         "I2aMpAnT",
         "Rocky",
-        "Tech"
+        "ksin0"
       ],
       "player_stats": [
         {
@@ -87091,7 +87091,7 @@
           "pre_game_rank": 6
         },
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 16,
           "deaths": 27,
@@ -87124,7 +87124,7 @@
           "ctf_flag_saves": 1
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 16,
           "assists": 12,
@@ -87258,7 +87258,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -87590,7 +87590,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -88586,7 +88586,7 @@
           "SHOW5TOPPER": 4,
           "I2aMpAnT": 4,
           "Rocky": 5,
-          "Tech": 8
+          "ksin0": 8
         },
         "Nark": {
           "roasted": 0,
@@ -88596,7 +88596,7 @@
           "SHOW5TOPPER": 6,
           "I2aMpAnT": 2,
           "Rocky": 4,
-          "Tech": 7
+          "ksin0": 7
         },
         "Hammie": {
           "roasted": 0,
@@ -88606,7 +88606,7 @@
           "SHOW5TOPPER": 7,
           "I2aMpAnT": 9,
           "Rocky": 4,
-          "Tech": 4
+          "ksin0": 4
         },
         "James | The Frenetic": {
           "roasted": 0,
@@ -88616,7 +88616,7 @@
           "SHOW5TOPPER": 8,
           "I2aMpAnT": 8,
           "Rocky": 8,
-          "Tech": 8
+          "ksin0": 8
         },
         "SHOW5TOPPER": {
           "roasted": 6,
@@ -88626,7 +88626,7 @@
           "SHOW5TOPPER": 0,
           "I2aMpAnT": 0,
           "Rocky": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "I2aMpAnT": {
           "roasted": 3,
@@ -88636,7 +88636,7 @@
           "SHOW5TOPPER": 0,
           "I2aMpAnT": 0,
           "Rocky": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "Rocky": {
           "roasted": 10,
@@ -88646,9 +88646,9 @@
           "SHOW5TOPPER": 0,
           "I2aMpAnT": 0,
           "Rocky": 0,
-          "Tech": 0
+          "ksin0": 0
         },
-        "Tech": {
+        "ksin0": {
           "roasted": 2,
           "Nark": 3,
           "Hammie": 9,
@@ -88656,7 +88656,7 @@
           "SHOW5TOPPER": 0,
           "I2aMpAnT": 0,
           "Rocky": 0,
-          "Tech": 0
+          "ksin0": 0
         }
       },
       "source_file": "20251207_141047.xlsx"
@@ -88677,7 +88677,7 @@
         "James | The Frenetic"
       ],
       "blue_team": [
-        "Tech",
+        "ksin0",
         "I2aMpAnT",
         "SHOW5TOPPER",
         "Rocky"
@@ -88748,7 +88748,7 @@
           "pre_game_rank": 7
         },
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 18,
           "deaths": 32,
@@ -88829,7 +88829,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 18,
           "assists": 21,
@@ -88963,7 +88963,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -89295,7 +89295,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -90288,7 +90288,7 @@
           "roasted": 0,
           "Tetracide": 0,
           "James | The Frenetic": 0,
-          "Tech": 9,
+          "ksin0": 9,
           "I2aMpAnT": 7,
           "SHOW5TOPPER": 7,
           "Rocky": 7
@@ -90298,7 +90298,7 @@
           "roasted": 0,
           "Tetracide": 0,
           "James | The Frenetic": 0,
-          "Tech": 7,
+          "ksin0": 7,
           "I2aMpAnT": 6,
           "SHOW5TOPPER": 11,
           "Rocky": 3
@@ -90308,7 +90308,7 @@
           "roasted": 0,
           "Tetracide": 0,
           "James | The Frenetic": 0,
-          "Tech": 7,
+          "ksin0": 7,
           "I2aMpAnT": 16,
           "SHOW5TOPPER": 4,
           "Rocky": 11
@@ -90318,17 +90318,17 @@
           "roasted": 0,
           "Tetracide": 0,
           "James | The Frenetic": 0,
-          "Tech": 8,
+          "ksin0": 8,
           "I2aMpAnT": 6,
           "SHOW5TOPPER": 11,
           "Rocky": 9
         },
-        "Tech": {
+        "ksin0": {
           "Nark": 2,
           "roasted": 7,
           "Tetracide": 4,
           "James | The Frenetic": 5,
-          "Tech": 1,
+          "ksin0": 1,
           "I2aMpAnT": 0,
           "SHOW5TOPPER": 0,
           "Rocky": 0
@@ -90338,7 +90338,7 @@
           "roasted": 5,
           "Tetracide": 3,
           "James | The Frenetic": 7,
-          "Tech": 0,
+          "ksin0": 0,
           "I2aMpAnT": 0,
           "SHOW5TOPPER": 0,
           "Rocky": 0
@@ -90348,7 +90348,7 @@
           "roasted": 10,
           "Tetracide": 10,
           "James | The Frenetic": 10,
-          "Tech": 0,
+          "ksin0": 0,
           "I2aMpAnT": 0,
           "SHOW5TOPPER": 0,
           "Rocky": 0
@@ -90358,7 +90358,7 @@
           "roasted": 9,
           "Tetracide": 8,
           "James | The Frenetic": 8,
-          "Tech": 0,
+          "ksin0": 0,
           "I2aMpAnT": 0,
           "SHOW5TOPPER": 0,
           "Rocky": 0
@@ -90385,7 +90385,7 @@
         "SHOW5TOPPER",
         "Rocky",
         "I2aMpAnT",
-        "Tech"
+        "ksin0"
       ],
       "player_stats": [
         {
@@ -90501,7 +90501,7 @@
           "pre_game_rank": 5
         },
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 8,
           "deaths": 15,
@@ -90534,7 +90534,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 8,
           "assists": 8,
@@ -90668,7 +90668,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -91000,7 +91000,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -91996,7 +91996,7 @@
           "SHOW5TOPPER": 3,
           "Rocky": 5,
           "I2aMpAnT": 6,
-          "Tech": 5
+          "ksin0": 5
         },
         "James | The Frenetic": {
           "Tetracide": 0,
@@ -92006,7 +92006,7 @@
           "SHOW5TOPPER": 2,
           "Rocky": 4,
           "I2aMpAnT": 2,
-          "Tech": 5
+          "ksin0": 5
         },
         "Nark": {
           "Tetracide": 0,
@@ -92016,7 +92016,7 @@
           "SHOW5TOPPER": 5,
           "Rocky": 1,
           "I2aMpAnT": 4,
-          "Tech": 3
+          "ksin0": 3
         },
         "roasted": {
           "Tetracide": 0,
@@ -92026,7 +92026,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 1,
           "I2aMpAnT": 2,
-          "Tech": 2
+          "ksin0": 2
         },
         "SHOW5TOPPER": {
           "Tetracide": 2,
@@ -92036,7 +92036,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "Rocky": {
           "Tetracide": 2,
@@ -92046,7 +92046,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "I2aMpAnT": {
           "Tetracide": 3,
@@ -92056,9 +92056,9 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         },
-        "Tech": {
+        "ksin0": {
           "Tetracide": 3,
           "James | The Frenetic": 2,
           "Nark": 1,
@@ -92066,7 +92066,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         }
       },
       "source_file": "20251207_145730.xlsx"
@@ -92090,7 +92090,7 @@
         "SHOW5TOPPER",
         "Rocky",
         "I2aMpAnT",
-        "Tech"
+        "ksin0"
       ],
       "player_stats": [
         {
@@ -92206,7 +92206,7 @@
           "pre_game_rank": 5
         },
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 22,
           "deaths": 30,
@@ -92239,7 +92239,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 22,
           "assists": 23,
@@ -92373,7 +92373,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 3,
           "triple_kill": 0,
           "killtacular": 0,
@@ -92705,7 +92705,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -93701,7 +93701,7 @@
           "SHOW5TOPPER": 6,
           "Rocky": 8,
           "I2aMpAnT": 5,
-          "Tech": 6
+          "ksin0": 6
         },
         "James | The Frenetic": {
           "Nark": 0,
@@ -93711,7 +93711,7 @@
           "SHOW5TOPPER": 8,
           "Rocky": 6,
           "I2aMpAnT": 12,
-          "Tech": 10
+          "ksin0": 10
         },
         "roasted": {
           "Nark": 0,
@@ -93721,7 +93721,7 @@
           "SHOW5TOPPER": 6,
           "Rocky": 4,
           "I2aMpAnT": 6,
-          "Tech": 7
+          "ksin0": 7
         },
         "Tetracide": {
           "Nark": 0,
@@ -93731,7 +93731,7 @@
           "SHOW5TOPPER": 7,
           "Rocky": 9,
           "I2aMpAnT": 9,
-          "Tech": 7
+          "ksin0": 7
         },
         "SHOW5TOPPER": {
           "Nark": 5,
@@ -93741,7 +93741,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "Rocky": {
           "Nark": 10,
@@ -93751,7 +93751,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "I2aMpAnT": {
           "Nark": 10,
@@ -93761,9 +93761,9 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         },
-        "Tech": {
+        "ksin0": {
           "Nark": 0,
           "James | The Frenetic": 8,
           "roasted": 7,
@@ -93771,7 +93771,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0
+          "ksin0": 0
         }
       },
       "source_file": "20251207_151311.xlsx"
@@ -93795,7 +93795,7 @@
         "SHOW5TOPPER",
         "Rocky",
         "I2aMpAnT",
-        "Tech"
+        "ksin0"
       ],
       "player_stats": [
         {
@@ -93847,7 +93847,7 @@
           "pre_game_rank": 5
         },
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 10,
           "deaths": 7,
@@ -93944,7 +93944,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 10,
           "assists": 8,
@@ -94078,7 +94078,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 2,
           "triple_kill": 0,
           "killtacular": 0,
@@ -94410,7 +94410,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -95402,7 +95402,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "James | The Frenetic": 2,
           "Tetracide": 4,
           "roasted": 4,
@@ -95412,7 +95412,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "James | The Frenetic": 2,
           "Tetracide": 4,
           "roasted": 3,
@@ -95422,17 +95422,17 @@
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "James | The Frenetic": 5,
           "Tetracide": 1,
           "roasted": 3,
           "Nark": 3
         },
-        "Tech": {
+        "ksin0": {
           "SHOW5TOPPER": 0,
           "Rocky": 0,
           "I2aMpAnT": 0,
-          "Tech": 0,
+          "ksin0": 0,
           "James | The Frenetic": 3,
           "Tetracide": 1,
           "roasted": 3,
@@ -95442,7 +95442,7 @@
           "SHOW5TOPPER": 3,
           "Rocky": 7,
           "I2aMpAnT": 4,
-          "Tech": 2,
+          "ksin0": 2,
           "James | The Frenetic": 0,
           "Tetracide": 0,
           "roasted": 0,
@@ -95452,7 +95452,7 @@
           "SHOW5TOPPER": 3,
           "Rocky": 1,
           "I2aMpAnT": 3,
-          "Tech": 3,
+          "ksin0": 3,
           "James | The Frenetic": 1,
           "Tetracide": 0,
           "roasted": 0,
@@ -95462,7 +95462,7 @@
           "SHOW5TOPPER": 0,
           "Rocky": 1,
           "I2aMpAnT": 4,
-          "Tech": 1,
+          "ksin0": 1,
           "James | The Frenetic": 0,
           "Tetracide": 0,
           "roasted": 0,
@@ -95472,7 +95472,7 @@
           "SHOW5TOPPER": 2,
           "Rocky": 2,
           "I2aMpAnT": 0,
-          "Tech": 1,
+          "ksin0": 1,
           "James | The Frenetic": 0,
           "Tetracide": 0,
           "roasted": 0,
@@ -95500,7 +95500,7 @@
         "SHOW5TOPPER",
         "I2aMpAnT",
         "Rocky",
-        "Tech"
+        "ksin0"
       ],
       "player_stats": [
         {
@@ -95616,7 +95616,7 @@
           "pre_game_rank": 6
         },
         {
-          "name": "Tech",
+          "name": "ksin0",
           "team": "Blue",
           "kills": 21,
           "deaths": 30,
@@ -95649,7 +95649,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
           "kills": 21,
           "assists": 18,
@@ -95783,7 +95783,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Tech",
+          "player": "ksin0",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -96115,7 +96115,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Tech",
+          "Player": "ksin0",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -97111,7 +97111,7 @@
           "SHOW5TOPPER": 8,
           "I2aMpAnT": 8,
           "Rocky": 5,
-          "Tech": 10
+          "ksin0": 10
         },
         "Nark": {
           "James | The Frenetic": 0,
@@ -97121,7 +97121,7 @@
           "SHOW5TOPPER": 10,
           "I2aMpAnT": 10,
           "Rocky": 5,
-          "Tech": 10
+          "ksin0": 10
         },
         "Tetracide": {
           "James | The Frenetic": 0,
@@ -97131,7 +97131,7 @@
           "SHOW5TOPPER": 4,
           "I2aMpAnT": 9,
           "Rocky": 9,
-          "Tech": 5
+          "ksin0": 5
         },
         "roasted": {
           "James | The Frenetic": 0,
@@ -97141,7 +97141,7 @@
           "SHOW5TOPPER": 7,
           "I2aMpAnT": 4,
           "Rocky": 7,
-          "Tech": 5
+          "ksin0": 5
         },
         "SHOW5TOPPER": {
           "James | The Frenetic": 8,
@@ -97151,7 +97151,7 @@
           "SHOW5TOPPER": 0,
           "I2aMpAnT": 0,
           "Rocky": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "I2aMpAnT": {
           "James | The Frenetic": 7,
@@ -97161,7 +97161,7 @@
           "SHOW5TOPPER": 0,
           "I2aMpAnT": 0,
           "Rocky": 0,
-          "Tech": 0
+          "ksin0": 0
         },
         "Rocky": {
           "James | The Frenetic": 11,
@@ -97171,9 +97171,9 @@
           "SHOW5TOPPER": 0,
           "I2aMpAnT": 0,
           "Rocky": 0,
-          "Tech": 0
+          "ksin0": 0
         },
-        "Tech": {
+        "ksin0": {
           "James | The Frenetic": 4,
           "Nark": 7,
           "Tetracide": 3,
@@ -97181,7 +97181,7 @@
           "SHOW5TOPPER": 0,
           "I2aMpAnT": 0,
           "Rocky": 0,
-          "Tech": 0
+          "ksin0": 0
         }
       },
       "source_file": "20251207_153539.xlsx"

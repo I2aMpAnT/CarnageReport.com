@@ -549,7 +549,7 @@
         "I2aMpAnT",
         "Rocky",
         "SHOW5TOPPER",
-        "Tech"
+        "ksin0"
       ],
       "games": [
         {
@@ -613,7 +613,7 @@
         "I2aMpAnT",
         "Rocky",
         "SHOW5TOPPER",
-        "Tech"
+        "ksin0"
       ],
       "games": [
         {
@@ -693,7 +693,7 @@
         "I2aMpAnT",
         "Rocky",
         "SHOW5TOPPER",
-        "Tech"
+        "ksin0"
       ],
       "games": [
         {
@@ -813,7 +813,7 @@
         "I2aMpAnT",
         "Rocky",
         "SHOW5TOPPER",
-        "Tech"
+        "ksin0"
       ],
       "games": [
         {
@@ -1106,7 +1106,7 @@
       "series_wins": 0,
       "series_losses": 1
     },
-    "667066099550759107": {
+    "605038496954245871": {
       "series_wins": 4,
       "series_losses": 2
     },
@@ -1122,7 +1122,7 @@
       "series_wins": 2,
       "series_losses": 4
     },
-    "799336008113786438": {
+    "260603669924413441": {
       "series_wins": 1,
       "series_losses": 3
     },
@@ -1131,5 +1131,5 @@
       "series_losses": 3
     }
   },
-  "generated_at": "2025-12-08T10:05:53.272656"
+  "generated_at": "2025-12-08T10:18:13.697087"
 }

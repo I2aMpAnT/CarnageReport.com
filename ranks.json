@@ -2209,7 +2209,7 @@
       }
     }
   },
-  "796014858692607348": {
+  "409425597452047348": {
     "discord_name": "Xemu",
     "twitch_name": "",
     "twitch_url": "",
@@ -2228,35 +2228,7 @@
     "series_losses": 0,
     "playlists": {}
   },
-  "799336008113786438": {
-    "discord_name": "Tech",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 2,
-    "highest_rank": 2,
-    "xp": 186,
-    "mmr": 750,
-    "wins": 2,
-    "losses": 8,
-    "total_games": 10,
-    "kills": 162,
-    "deaths": 231,
-    "assists": 140,
-    "headshots": 94,
-    "series_wins": 1,
-    "series_losses": 3,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 2,
-        "highest_rank": 2,
-        "xp": 186,
-        "wins": 2,
-        "losses": 8,
-        "games": 10
-      }
-    }
-  },
-  "667066099550759107": {
+  "605038496954245871": {
     "discord_name": "Nark",
     "twitch_name": "",
     "twitch_url": "",
@@ -2284,27 +2256,8 @@
       }
     }
   },
-  "778200632659574437": {
+  "507112476625112827": {
     "discord_name": "D5",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 1,
-    "highest_rank": 1,
-    "xp": 0,
-    "mmr": 750,
-    "wins": 0,
-    "losses": 0,
-    "total_games": 0,
-    "kills": 0,
-    "deaths": 0,
-    "assists": 0,
-    "headshots": 0,
-    "series_wins": 0,
-    "series_losses": 0,
-    "playlists": {}
-  },
-  "464587303968085723": {
-    "discord_name": "Defense",
     "twitch_name": "",
     "twitch_url": "",
     "rank": 1,
@@ -2347,6 +2300,34 @@
         "wins": 10,
         "losses": 4,
         "games": 14
+      }
+    }
+  },
+  "260603669924413441": {
+    "discord_name": "ksin0",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 2,
+    "highest_rank": 2,
+    "xp": 186,
+    "mmr": 750,
+    "wins": 2,
+    "losses": 8,
+    "total_games": 10,
+    "kills": 162,
+    "deaths": 231,
+    "assists": 140,
+    "headshots": 94,
+    "series_wins": 1,
+    "series_losses": 3,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 2,
+        "highest_rank": 2,
+        "xp": 186,
+        "wins": 2,
+        "losses": 8,
+        "games": 10
       }
     }
   }
