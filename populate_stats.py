@@ -1756,6 +1756,21 @@ def main():
         total_headshots = 0
 
         for player_name in player_names:
+            # Initialize all player dicts if missing
+            if player_name not in player_game_stats:
+                player_game_stats[player_name] = {'kills': 0, 'deaths': 0, 'assists': 0, 'games': 0, 'headshots': 0}
+            if player_name not in player_playlist_xp:
+                player_playlist_xp[player_name] = {}
+            if player_name not in player_playlist_wins:
+                player_playlist_wins[player_name] = {}
+            if player_name not in player_playlist_losses:
+                player_playlist_losses[player_name] = {}
+            if player_name not in player_playlist_games:
+                player_playlist_games[player_name] = {}
+            if player_name not in player_playlist_rank:
+                player_playlist_rank[player_name] = {}
+            if player_name not in player_playlist_highest_rank:
+                player_playlist_highest_rank[player_name] = {}
             stats = player_game_stats[player_name]
             total_games += stats['games']
             total_kills += stats['kills']
@@ -1774,6 +1789,10 @@ def main():
         total_wins = 0
         total_losses = 0
         for player_name in player_names:
+            if player_name not in player_playlist_wins:
+                player_playlist_wins[player_name] = {}
+            if player_name not in player_playlist_losses:
+                player_playlist_losses[player_name] = {}
             total_wins += sum(player_playlist_wins[player_name].values())
             total_losses += sum(player_playlist_losses[player_name].values())
 
