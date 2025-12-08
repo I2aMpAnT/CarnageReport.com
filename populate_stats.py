@@ -33,6 +33,15 @@ MANUAL_PLAYLISTS_FILE = 'manual_playlists.json'
 PROCESSED_STATE_FILE = 'processed_state.json'
 SERIES_FILE = 'series.json'
 
+# Bot match history files (on VPS at /home/carnagereport/bot/)
+BOT_DIR = '/home/carnagereport/bot'
+MATCH_HISTORY_FILES = {
+    'Head to Head': f'{BOT_DIR}/head_to_head_matches.json',
+    'Double Team': f'{BOT_DIR}/double_team_matches.json',
+    'Team Hardcore': f'{BOT_DIR}/team_hardcore_matches.json',
+    'MLG 4v4': f'{BOT_DIR}/MLG4v4.json',
+}
+
 # Base URL for downloadable files on the VPS
 STATS_BASE_URL = 'http://104.207.143.249/stats'
 
@@ -347,104 +356,35 @@ def load_rankhistory():
 
 def load_active_matches():
     """
-    Load active matches from playlist-specific match files.
+    Load active and completed matches from per-playlist match history files.
 
-    Checks playlists.json to find available playlists, then looks for
-    {playlist_slug}_matches.json files to find active matches.
+    Uses MATCH_HISTORY_FILES dict which maps playlist names to absolute file paths
+    in the bot directory (/home/carnagereport/bot/).
 
-    Bot format in {playlist}_matches.json:
-    {
-        "active_matches": [{
-            "playlist": "head_to_head",
-            "playlist_name": "Head to Head",
-            "team1": {"player_names": ["player1"]},
-            "team2": {"player_names": ["player2"]},
-            "result": "STARTED"
-        }]
-    }
-
-    Returns normalized format or None if no active match.
+    Returns list of all matches (active + completed) with playlist info, or None.
     """
-    # First try the legacy active_matches.json format
-    try:
-        with open(ACTIVE_MATCHES_FILE, 'r') as f:
-            data = json.load(f)
-            if data.get('active_match'):
-                return data.get('active_match')
-    except:
-        pass
+    all_matches = []
 
-    # Load playlists.json to find all playlist files to check
-    playlist_files_to_check = []
-    try:
-        with open(PLAYLISTS_FILE, 'r') as f:
-            playlists_data = json.load(f)
-            # playlists.json might be a list or dict of playlists
-            if isinstance(playlists_data, list):
-                for pl in playlists_data:
-                    if isinstance(pl, dict):
-                        slug = pl.get('slug') or pl.get('name', '').lower().replace(' ', '_')
-                    else:
-                        slug = str(pl).lower().replace(' ', '_')
-                    playlist_files_to_check.append(f"{slug}_matches.json")
-            elif isinstance(playlists_data, dict):
-                for key, pl in playlists_data.items():
-                    if isinstance(pl, dict):
-                        slug = pl.get('slug') or key.lower().replace(' ', '_')
-                    else:
-                        slug = key.lower().replace(' ', '_')
-                    playlist_files_to_check.append(f"{slug}_matches.json")
-    except:
-        pass
-
-    # Also check common playlist files directly
-    common_files = [
-        'head_to_head_matches.json',
-        'double_team_matches.json',
-        'mlg_4v4_matches.json',
-        'team_hardcore_matches.json',
-        'ranked_mlg_4v4_matches.json'
-    ]
-    for f in common_files:
-        if f not in playlist_files_to_check:
-            playlist_files_to_check.append(f)
-
-    # Check each playlist file for active matches
-    for match_file in playlist_files_to_check:
+    for playlist_name, filename in MATCH_HISTORY_FILES.items():
         try:
-            with open(match_file, 'r') as f:
+            with open(filename, 'r') as f:
                 data = json.load(f)
-                active_matches = data.get('active_matches', [])
 
-                for match in active_matches:
-                    # Only consider matches that are STARTED (not completed)
-                    if match.get('result') == 'STARTED':
-                        # Normalize to expected format
-                        playlist_name = match.get('playlist_name') or match.get('playlist', '')
-                        # Convert snake_case to Title Case if needed
-                        if '_' in playlist_name:
-                            playlist_name = playlist_name.replace('_', ' ').title()
+                # Add active matches
+                for match in data.get('active_matches', []):
+                    match['_playlist'] = playlist_name
+                    all_matches.append(match)
 
-                        # Get player names from team1/team2 structure
-                        team1 = match.get('team1', {})
-                        team2 = match.get('team2', {})
-                        team1_players = team1.get('player_names', [])
-                        team2_players = team2.get('player_names', [])
+                # Add completed matches
+                for match in data.get('matches', []):
+                    match['_playlist'] = playlist_name
+                    all_matches.append(match)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(f"  Warning: Error loading {filename}: {e}")
 
-                        return {
-                            'playlist': playlist_name,
-                            'start_time': match.get('start_time'),
-                            'red_team': team1_players,
-                            'blue_team': team2_players,
-                            'discord_ids': {
-                                'red': team1.get('player_ids', []),
-                                'blue': team2.get('player_ids', [])
-                            }
-                        }
-        except:
-            continue
-
-    return None
+    return all_matches if all_matches else None
 
 def load_manual_playlists():
     """
@@ -637,35 +577,123 @@ def get_game_players(file_path):
     except:
         return []
 
-def players_match_active_match(game_players, active_match):
+def players_match_active_match(game_players, match, ingame_to_discord=None):
     """
-    Check if game players match the active match players.
-    Returns True if most players from the game are in the active match.
+    Check if game players match a match entry's players.
+    Handles both old format (red_team/blue_team) and new format (team1/team2).
+    Returns True if most players from the game are in the match.
+
+    Args:
+        game_players: List of in-game player names from the XLSX file
+        match: Match entry from bot's match history
+        ingame_to_discord: Optional dict mapping in-game names to Discord names
     """
-    if not active_match:
+    if not match:
         return False
 
-    active_players = set()
-    if active_match.get('red_team'):
-        active_players.update([p.lower() for p in active_match['red_team']])
-    if active_match.get('blue_team'):
-        active_players.update([p.lower() for p in active_match['blue_team']])
+    match_players = set()
 
-    if not active_players:
+    # New format: team1/team2 with player_names
+    if match.get('team1'):
+        match_players.update([p.lower() for p in match['team1'].get('player_names', [])])
+    if match.get('team2'):
+        match_players.update([p.lower() for p in match['team2'].get('player_names', [])])
+
+    # Old format fallback: red_team/blue_team
+    if not match_players:
+        if match.get('red_team'):
+            match_players.update([p.lower() for p in match['red_team']])
+        if match.get('blue_team'):
+            match_players.update([p.lower() for p in match['blue_team']])
+
+    if not match_players:
         return False
 
-    game_players_lower = [p.lower() for p in game_players]
-    matches = sum(1 for p in game_players_lower if p in active_players)
+    # For each game player, check both their in-game name AND resolved Discord name
+    matches = 0
+    for player in game_players:
+        player_lower = player.lower()
 
-    # At least 75% of game players should be in active match
+        # Direct match with in-game name
+        if player_lower in match_players:
+            matches += 1
+            continue
+
+        # Try resolved Discord name (from identity file -> MAC -> Discord)
+        if ingame_to_discord:
+            discord_name = ingame_to_discord.get(player_lower, '')
+            if discord_name and discord_name.lower() in match_players:
+                matches += 1
+                continue
+
+    # At least 75% of game players should be in match
     return matches >= len(game_players) * 0.75
 
-def determine_playlist(file_path, active_match=None, manual_playlists=None):
+
+def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_discord=None):
+    """
+    Find a match entry that corresponds to a game based on timestamp window and players.
+
+    Args:
+        game_timestamp: Game start time as datetime or string
+        all_matches: List of match entries from load_active_matches()
+        game_players: List of player names from the game
+        ingame_to_discord: Optional dict mapping in-game names to Discord names
+
+    Returns:
+        Matching match entry or None
+    """
+    if not all_matches:
+        return None
+
+    # Parse game timestamp
+    if isinstance(game_timestamp, str):
+        try:
+            game_dt = datetime.fromisoformat(game_timestamp.replace('Z', '+00:00'))
+        except:
+            return None
+    else:
+        game_dt = game_timestamp
+
+    for match in all_matches:
+        # Parse match timestamps
+        start_time = match.get('start_time')
+        end_time = match.get('end_time')
+
+        if not start_time:
+            continue
+
+        try:
+            start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+        except:
+            continue
+
+        # Check if game is within match time window
+        if game_dt < start_dt:
+            continue
+
+        if end_time:
+            try:
+                end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                if game_dt > end_dt:
+                    continue
+            except:
+                pass
+        # If no end_time (active match), game just needs to be after start
+
+        # Check if players match
+        if players_match_active_match(game_players, match, ingame_to_discord):
+            return match
+
+    return None
+
+
+def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingame_to_discord=None):
     """
     Determine the appropriate playlist for a game based on:
     1. Manual override from manual_playlists.json (highest priority)
     2. Game duration (must be >= 2 minutes to filter restarts)
-    3. Active match from Discord bot (if any)
+    3. Match from Discord bot (matched by timestamp window and players)
 
     Returns: playlist name string or None if game doesn't qualify for any playlist
     """
@@ -683,42 +711,47 @@ def determine_playlist(file_path, active_match=None, manual_playlists=None):
     is_team = is_team_game(file_path)
     game_players = get_game_players(file_path)
 
-    # Get map and base gametype from game details
+    # Get map, base gametype, and start time from game details
     try:
         game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
         if len(game_details_df) > 0:
             row = game_details_df.iloc[0]
             map_name = str(row.get('Map Name', '')).strip()
-            base_gametype = str(row.get('Game Type', '')).strip()  # Use base gametype, not variant
+            base_gametype = str(row.get('Game Type', '')).strip()
+            game_start_time = row.get('Start Time', '')
         else:
             map_name = ''
             base_gametype = ''
+            game_start_time = ''
     except:
         map_name = ''
         base_gametype = ''
+        game_start_time = ''
 
-    # If there's an active match, check if this game matches it
-    if active_match:
-        active_playlist = active_match.get('playlist', '')
+    # Try to find a matching bot match by timestamp and players
+    if all_matches:
+        matched_entry = find_match_for_game(game_start_time, all_matches, game_players, ingame_to_discord)
 
-        # Head to Head: 1v1 games
-        if active_playlist == PLAYLIST_HEAD_TO_HEAD:
-            if player_count == 2 and players_match_active_match(game_players, active_match):
-                return PLAYLIST_HEAD_TO_HEAD
+        if matched_entry:
+            playlist = matched_entry.get('_playlist') or matched_entry.get('playlist_name', '')
 
-        # Double Team: 2v2 team games
-        elif active_playlist == PLAYLIST_DOUBLE_TEAM:
-            if player_count == 4 and is_team and players_match_active_match(game_players, active_match):
-                return PLAYLIST_DOUBLE_TEAM
+            # Head to Head: 1v1 games
+            if playlist == PLAYLIST_HEAD_TO_HEAD:
+                if player_count == 2:
+                    return PLAYLIST_HEAD_TO_HEAD
 
-        # MLG 4v4 or Team Hardcore: 4v4 team games with valid map + base gametype
-        elif active_playlist in [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE]:
-            if player_count == 8 and is_team:
-                if is_valid_mlg_combo(map_name, base_gametype):
-                    if players_match_active_match(game_players, active_match):
-                        return active_playlist
+            # Double Team: 2v2 team games
+            elif playlist == PLAYLIST_DOUBLE_TEAM:
+                if player_count == 4 and is_team:
+                    return PLAYLIST_DOUBLE_TEAM
 
-    # No active match or game doesn't match active match = UNRANKED
+            # MLG 4v4 or Team Hardcore: 4v4 team games with valid map + base gametype
+            elif playlist in [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE]:
+                if player_count == 8 and is_team:
+                    if is_valid_mlg_combo(map_name, base_gametype):
+                        return playlist
+
+    # No matching bot session = UNRANKED
     # Games MUST have a bot session to be tagged with a playlist
     return None
 
@@ -735,6 +768,34 @@ def build_mac_to_discord_lookup(players):
             normalized_mac = mac.replace(':', '').lower()
             mac_to_user[normalized_mac] = user_id
     return mac_to_user
+
+
+def build_ingame_to_discord_mapping(all_identity_mappings, mac_to_discord, players):
+    """
+    Build a mapping from in-game names to Discord display names.
+
+    This is used to match players in game files (which have in-game names) to
+    bot match entries (which have Discord names).
+
+    Flow: in-game name -> MAC (from identity) -> Discord ID -> display name
+    """
+    ingame_to_discord = {}
+
+    # Combine all identity mappings
+    combined_identity = {}
+    for mapping in all_identity_mappings.values():
+        combined_identity.update(mapping)
+
+    # For each in-game name, try to find the Discord display name
+    for ingame_name_lower, mac in combined_identity.items():
+        discord_id = mac_to_discord.get(mac)
+        if discord_id and discord_id in players:
+            player_data = players[discord_id]
+            display_name = player_data.get('display_name') or player_data.get('discord_name', '')
+            if display_name:
+                ingame_to_discord[ingame_name_lower] = display_name
+
+    return ingame_to_discord
 
 
 def parse_identity_file(identity_path):
@@ -1227,16 +1288,30 @@ def main():
     mac_to_discord = build_mac_to_discord_lookup(players)
     print(f"Built {len(mac_to_discord)} MAC->Discord mappings")
 
-    # Load active matches from Discord bot (if any)
-    active_match = load_active_matches()
-    if active_match:
-        print(f"\nActive match detected: {active_match.get('playlist', 'Unknown')} playlist")
-        if active_match.get('red_team'):
-            print(f"  Red team: {', '.join(active_match['red_team'])}")
-        if active_match.get('blue_team'):
-            print(f"  Blue team: {', '.join(active_match['blue_team'])}")
+    # Load identity files for in-game name -> Discord mapping
+    print("\nLoading identity files for in-game name -> Discord mapping...")
+    identity_dir = STATS_PRIVATE_DIR if os.path.exists(STATS_PRIVATE_DIR) else STATS_DIR
+    all_identity_mappings = {}
+    if os.path.exists(identity_dir):
+        identity_files = sorted([f for f in os.listdir(identity_dir) if '_identity.xlsx' in f])
+        for identity_file in identity_files:
+            identity_path = os.path.join(identity_dir, identity_file)
+            name_to_mac = parse_identity_file(identity_path)
+            all_identity_mappings[identity_file] = name_to_mac
+        print(f"  Loaded {len(identity_files)} identity file(s) with {sum(len(m) for m in all_identity_mappings.values())} player mappings")
+
+    # Build in-game name to Discord display name mapping
+    ingame_to_discord = build_ingame_to_discord_mapping(all_identity_mappings, mac_to_discord, players)
+    print(f"Built {len(ingame_to_discord)} in-game->Discord name mappings")
+
+    # Load matches from Discord bot match history files
+    all_matches = load_active_matches()
+    if all_matches:
+        active_count = sum(1 for m in all_matches if m.get('result') == 'STARTED' or not m.get('end_time'))
+        completed_count = len(all_matches) - active_count
+        print(f"\nLoaded {len(all_matches)} matches from bot ({active_count} active, {completed_count} completed)")
     else:
-        print("\nNo active match detected")
+        print("\nNo bot matches loaded")
 
     # Load manual playlist overrides (if any)
     manual_playlists = load_manual_playlists()
@@ -1331,7 +1406,7 @@ def main():
 
     for filename, source_dir in all_game_files:
         file_path = os.path.join(source_dir, filename)
-        playlist = determine_playlist(file_path, active_match, manual_playlists)
+        playlist = determine_playlist(file_path, all_matches, manual_playlists, ingame_to_discord)
 
         game = parse_excel_file(file_path)
         game['source_file'] = filename
