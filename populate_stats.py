@@ -2435,8 +2435,25 @@ def main():
                 'playlists': data.get('playlists', {})
             }
 
+    # Build games dict - preserve old playlist assignments if game wasn't re-matched
+    # This prevents losing ranked status if bot files temporarily unavailable
+    old_games = processed_state.get("games", {})
+    new_games = {}
+    for game in all_games:
+        filename = game['source_file']
+        new_playlist = game.get('playlist')
+        old_playlist = old_games.get(filename)
+
+        # If game was previously ranked but now unranked (and not a full rebuild),
+        # preserve the old playlist assignment
+        if new_playlist is None and old_playlist is not None and not needs_full_rebuild:
+            new_games[filename] = old_playlist
+            game['playlist'] = old_playlist  # Also update the game object
+        else:
+            new_games[filename] = new_playlist
+
     new_processed_state = {
-        "games": {game['source_file']: game.get('playlist') for game in all_games},
+        "games": new_games,
         "manual_playlists_hash": get_manual_playlists_hash(manual_playlists),
         "player_state": new_player_state,
         "player_name_to_id": player_to_id  # Save name->id mapping for incremental mode
