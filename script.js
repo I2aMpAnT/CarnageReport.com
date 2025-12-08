@@ -993,6 +993,14 @@ function secondsToTime(totalSeconds) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
+// Format Oddball score for display (ensures "0:56" instead of ":56")
+function formatOddballScore(score) {
+    if (!score) return '0:00';
+    // Convert to seconds and back to ensure consistent M:SS format
+    const totalSeconds = timeToSeconds(score);
+    return secondsToTime(totalSeconds);
+}
+
 // Helper function to check if team is valid (not none/null/empty)
 function isValidTeam(team) {
     if (!team) return false;
@@ -2462,7 +2470,7 @@ function renderScoreboard(game) {
 
         // Format score as time for oddball games
         const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
-        const displayScore = isOddball && player.score ? player.score : (player.score || 0);
+        const displayScore = isOddball ? formatOddballScore(player.score) : (player.score || 0);
         html += `<div class="sb-score">${displayScore}</div>`;
         html += `<div class="sb-kills">${player.kills || 0}</div>`;
         html += `<div class="sb-deaths">${player.deaths || 0}</div>`;
