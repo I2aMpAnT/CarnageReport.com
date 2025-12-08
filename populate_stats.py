@@ -1396,7 +1396,7 @@ def main():
                     'discord_name': player_name,
                     'rank': 1
                 }
-                print(f"    Warning: Could not resolve '{player_name}' to Discord ID")
+                print(f"    Warning: Could not resolve '{player_name}' to Discord ID (in {game_file})")
 
             # Initialize overall stats tracking (from ALL games) - only if not already initialized
             if player_name not in player_game_stats:
