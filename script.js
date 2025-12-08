@@ -2075,7 +2075,12 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     const isFFA = displayGameType.toLowerCase().includes('ffa') || displayGameType.toLowerCase().includes('free for all');
 
     // Use pre-calculated scores if available (from per-playlist matches) - skip for FFA
-    if (!isFFA && game.red_score !== undefined && game.blue_score !== undefined) {
+    // For Oddball, don't trust pre-calculated scores if both are 0 (likely old data)
+    const hasValidPreCalcScores = !isFFA &&
+        game.red_score !== undefined && game.blue_score !== undefined &&
+        !(isOddball && game.red_score === 0 && game.blue_score === 0);
+
+    if (hasValidPreCalcScores) {
         teams['Red'] = game.red_score;
         teams['Blue'] = game.blue_score;
     } else if (!isFFA) {
