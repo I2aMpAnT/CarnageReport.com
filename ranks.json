@@ -378,20 +378,29 @@
     "discord_name": "KraN",
     "twitch_name": "kranlive",
     "twitch_url": "https://twitch.tv/kranlive",
-    "rank": 1,
-    "highest_rank": 1,
-    "xp": 0,
+    "rank": 9,
+    "highest_rank": 10,
+    "xp": 831,
     "mmr": 950,
-    "wins": 0,
-    "losses": 0,
-    "total_games": 0,
-    "kills": 0,
-    "deaths": 0,
-    "assists": 0,
-    "headshots": 0,
-    "series_wins": 0,
-    "series_losses": 0,
-    "playlists": {}
+    "wins": 10,
+    "losses": 6,
+    "total_games": 16,
+    "kills": 328,
+    "deaths": 290,
+    "assists": 210,
+    "headshots": 200,
+    "series_wins": 4,
+    "series_losses": 2,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 9,
+        "highest_rank": 10,
+        "xp": 831,
+        "wins": 10,
+        "losses": 6,
+        "games": 16
+      }
+    }
   },
   "1222926448084520970": {
     "discord_name": "Old Man",
@@ -2208,72 +2217,6 @@
         "games": 23
       }
     }
-  },
-  "285512168107305832": {
-    "discord_name": "Xemu",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 1,
-    "highest_rank": 1,
-    "xp": 0,
-    "mmr": 750,
-    "wins": 0,
-    "losses": 0,
-    "total_games": 0,
-    "kills": 0,
-    "deaths": 0,
-    "assists": 0,
-    "headshots": 0,
-    "series_wins": 0,
-    "series_losses": 0,
-    "playlists": {}
-  },
-  "787008496706177832": {
-    "discord_name": "Nark",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 9,
-    "highest_rank": 10,
-    "xp": 831,
-    "mmr": 750,
-    "wins": 10,
-    "losses": 6,
-    "total_games": 16,
-    "kills": 328,
-    "deaths": 290,
-    "assists": 210,
-    "headshots": 200,
-    "series_wins": 4,
-    "series_losses": 2,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 9,
-        "highest_rank": 10,
-        "xp": 831,
-        "wins": 10,
-        "losses": 6,
-        "games": 16
-      }
-    }
-  },
-  "125875496104058887": {
-    "discord_name": "D5",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 1,
-    "highest_rank": 1,
-    "xp": 0,
-    "mmr": 750,
-    "wins": 0,
-    "losses": 0,
-    "total_games": 0,
-    "kills": 0,
-    "deaths": 0,
-    "assists": 0,
-    "headshots": 0,
-    "series_wins": 0,
-    "series_losses": 0,
-    "playlists": {}
   },
   "260603669924413441": {
     "discord_name": "ksin0",

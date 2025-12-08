@@ -5349,7 +5349,7 @@
       "blue_team": [],
       "player_stats": [
         {
-          "name": "Xemu",
+          "name": "roasted",
           "team": "none",
           "kills": 0,
           "deaths": 0,
@@ -5398,7 +5398,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Xemu",
+          "player": "roasted",
           "emblem_url": "https://carnagereport.com/emblem.html?P=13&S=0&EP=7&ES=7&EF=10&EB=24&ET=0",
           "kills": 0,
           "assists": 0,
@@ -5442,7 +5442,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Xemu",
+          "player": "roasted",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -5612,7 +5612,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Xemu",
+          "Player": "roasted",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -5754,12 +5754,7 @@
         }
       ],
       "versus": {
-        "Xemu": {
-          "Xemu": 0,
-          "roasted": 0
-        },
         "roasted": {
-          "Xemu": 0,
           "roasted": 0
         }
       },
@@ -7723,7 +7718,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Nark",
+          "name": "KraN",
           "team": "none",
           "kills": 12,
           "deaths": 14,
@@ -7819,7 +7814,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Nark",
+          "player": "KraN",
           "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
           "kills": 12,
           "assists": 4,
@@ -7935,7 +7930,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Nark",
+          "player": "KraN",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -8327,7 +8322,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Nark",
+          "Player": "KraN",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -8895,7 +8890,7 @@
         "ksin0": {
           "ksin0": 0,
           "roasted": 13,
-          "Nark": 4,
+          "KraN": 4,
           "James | The Frenetic": 1,
           "Hammie": 0,
           "SHOW5TOPPER": 1
@@ -8903,15 +8898,15 @@
         "roasted": {
           "ksin0": 10,
           "roasted": 0,
-          "Nark": 6,
+          "KraN": 6,
           "James | The Frenetic": 0,
           "Hammie": 0,
           "SHOW5TOPPER": 0
         },
-        "Nark": {
+        "KraN": {
           "ksin0": 6,
           "roasted": 5,
-          "Nark": 0,
+          "KraN": 0,
           "James | The Frenetic": 1,
           "Hammie": 0,
           "SHOW5TOPPER": 0
@@ -8919,7 +8914,7 @@
         "James | The Frenetic": {
           "ksin0": 0,
           "roasted": 2,
-          "Nark": 2,
+          "KraN": 2,
           "James | The Frenetic": 0,
           "Hammie": 3,
           "SHOW5TOPPER": 0
@@ -8927,7 +8922,7 @@
         "Hammie": {
           "ksin0": 1,
           "roasted": 0,
-          "Nark": 1,
+          "KraN": 1,
           "James | The Frenetic": 2,
           "Hammie": 0,
           "SHOW5TOPPER": 0
@@ -8935,7 +8930,7 @@
         "SHOW5TOPPER": {
           "ksin0": 0,
           "roasted": 0,
-          "Nark": 1,
+          "KraN": 1,
           "James | The Frenetic": 0,
           "Hammie": 1,
           "SHOW5TOPPER": 0
@@ -9020,7 +9015,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Nark",
+          "name": "KraN",
           "team": "none",
           "kills": 33,
           "deaths": 45,
@@ -9116,7 +9111,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Nark",
+          "player": "KraN",
           "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
           "kills": 33,
           "assists": 30,
@@ -9262,7 +9257,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Nark",
+          "player": "KraN",
           "double_kill": 2,
           "triple_kill": 1,
           "killtacular": 0,
@@ -9708,7 +9703,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Nark",
+          "Player": "KraN",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -10560,7 +10555,7 @@
           "Hammie": 10,
           "ksin0": 8,
           "Rocky": 10,
-          "Nark": 9,
+          "KraN": 9,
           "SHOW5TOPPER": 8,
           "roasted": 8,
           "I2aMpAnT": 6
@@ -10570,7 +10565,7 @@
           "Hammie": 0,
           "ksin0": 13,
           "Rocky": 9,
-          "Nark": 9,
+          "KraN": 9,
           "SHOW5TOPPER": 4,
           "roasted": 12,
           "I2aMpAnT": 3
@@ -10580,7 +10575,7 @@
           "Hammie": 11,
           "ksin0": 0,
           "Rocky": 6,
-          "Nark": 6,
+          "KraN": 6,
           "SHOW5TOPPER": 8,
           "roasted": 5,
           "I2aMpAnT": 10
@@ -10590,17 +10585,17 @@
           "Hammie": 5,
           "ksin0": 7,
           "Rocky": 0,
-          "Nark": 7,
+          "KraN": 7,
           "SHOW5TOPPER": 1,
           "roasted": 6,
           "I2aMpAnT": 3
         },
-        "Nark": {
+        "KraN": {
           "James | The Frenetic": 6,
           "Hammie": 5,
           "ksin0": 5,
           "Rocky": 4,
-          "Nark": 0,
+          "KraN": 0,
           "SHOW5TOPPER": 4,
           "roasted": 5,
           "I2aMpAnT": 4
@@ -10610,7 +10605,7 @@
           "Hammie": 3,
           "ksin0": 4,
           "Rocky": 2,
-          "Nark": 7,
+          "KraN": 7,
           "SHOW5TOPPER": 0,
           "roasted": 5,
           "I2aMpAnT": 5
@@ -10620,7 +10615,7 @@
           "Hammie": 4,
           "ksin0": 7,
           "Rocky": 3,
-          "Nark": 4,
+          "KraN": 4,
           "SHOW5TOPPER": 4,
           "roasted": 0,
           "I2aMpAnT": 2
@@ -10630,7 +10625,7 @@
           "Hammie": 2,
           "ksin0": 3,
           "Rocky": 2,
-          "Nark": 3,
+          "KraN": 3,
           "SHOW5TOPPER": 7,
           "roasted": 2,
           "I2aMpAnT": 0
@@ -10699,7 +10694,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Nark",
+          "name": "KraN",
           "team": "none",
           "kills": 17,
           "deaths": 24,
@@ -10811,7 +10806,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Nark",
+          "player": "KraN",
           "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
           "kills": 17,
           "assists": 22,
@@ -10957,7 +10952,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Nark",
+          "player": "KraN",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -11403,7 +11398,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Nark",
+          "Player": "KraN",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -12254,7 +12249,7 @@
           "James | The Frenetic": 0,
           "ksin0": 6,
           "Tetracide": 7,
-          "Nark": 8,
+          "KraN": 8,
           "I2aMpAnT": 4,
           "roasted": 12,
           "Rocky": 0,
@@ -12264,7 +12259,7 @@
           "James | The Frenetic": 8,
           "ksin0": 1,
           "Tetracide": 6,
-          "Nark": 4,
+          "KraN": 4,
           "I2aMpAnT": 5,
           "roasted": 3,
           "Rocky": 0,
@@ -12274,17 +12269,17 @@
           "James | The Frenetic": 5,
           "ksin0": 7,
           "Tetracide": 0,
-          "Nark": 4,
+          "KraN": 4,
           "I2aMpAnT": 3,
           "roasted": 3,
           "Rocky": 1,
           "SHOW5TOPPER": 0
         },
-        "Nark": {
+        "KraN": {
           "James | The Frenetic": 3,
           "ksin0": 6,
           "Tetracide": 3,
-          "Nark": 0,
+          "KraN": 0,
           "I2aMpAnT": 2,
           "roasted": 3,
           "Rocky": 0,
@@ -12294,7 +12289,7 @@
           "James | The Frenetic": 3,
           "ksin0": 3,
           "Tetracide": 4,
-          "Nark": 3,
+          "KraN": 3,
           "I2aMpAnT": 0,
           "roasted": 2,
           "Rocky": 0,
@@ -12304,7 +12299,7 @@
           "James | The Frenetic": 4,
           "ksin0": 4,
           "Tetracide": 2,
-          "Nark": 5,
+          "KraN": 5,
           "I2aMpAnT": 1,
           "roasted": 0,
           "Rocky": 0,
@@ -12314,7 +12309,7 @@
           "James | The Frenetic": 0,
           "ksin0": 0,
           "Tetracide": 0,
-          "Nark": 0,
+          "KraN": 0,
           "I2aMpAnT": 0,
           "roasted": 0,
           "Rocky": 0,
@@ -12324,7 +12319,7 @@
           "James | The Frenetic": 0,
           "ksin0": 0,
           "Tetracide": 0,
-          "Nark": 0,
+          "KraN": 0,
           "I2aMpAnT": 0,
           "roasted": 0,
           "Rocky": 0,
@@ -12344,7 +12339,7 @@
       "winner": "Red",
       "red_team": [
         "Rocky",
-        "Nark",
+        "KraN",
         "Rinser",
         "simon hagiwara"
       ],
@@ -12372,7 +12367,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Nark",
+          "name": "KraN",
           "team": "Red",
           "kills": 13,
           "deaths": 10,
@@ -12486,7 +12481,7 @@
       ],
       "detailed_stats": [
         {
-          "player": "Nark",
+          "player": "KraN",
           "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
           "kills": 13,
           "assists": 10,
@@ -12608,7 +12603,7 @@
       ],
       "medals": [
         {
-          "player": "Nark",
+          "player": "KraN",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -12826,7 +12821,7 @@
       ],
       "weapons": [
         {
-          "Player": "Nark",
+          "Player": "KraN",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -13957,7 +13952,7 @@
       "versus": {
         "Rocky": {
           "Rocky": 0,
-          "Nark": 0,
+          "KraN": 0,
           "Rinser": 0,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 5,
@@ -13965,9 +13960,9 @@
           "I2aMpAnT": 7,
           "roasted": 6
         },
-        "Nark": {
+        "KraN": {
           "Rocky": 0,
-          "Nark": 0,
+          "KraN": 0,
           "Rinser": 0,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 1,
@@ -13977,7 +13972,7 @@
         },
         "Rinser": {
           "Rocky": 0,
-          "Nark": 0,
+          "KraN": 0,
           "Rinser": 0,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 4,
@@ -13987,7 +13982,7 @@
         },
         "simon hagiwara": {
           "Rocky": 0,
-          "Nark": 0,
+          "KraN": 0,
           "Rinser": 0,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 1,
@@ -13997,7 +13992,7 @@
         },
         "SHOW5TOPPER": {
           "Rocky": 4,
-          "Nark": 4,
+          "KraN": 4,
           "Rinser": 4,
           "simon hagiwara": 1,
           "SHOW5TOPPER": 0,
@@ -14007,7 +14002,7 @@
         },
         "Prince KidMode": {
           "Rocky": 4,
-          "Nark": 1,
+          "KraN": 1,
           "Rinser": 3,
           "simon hagiwara": 3,
           "SHOW5TOPPER": 0,
@@ -14017,7 +14012,7 @@
         },
         "I2aMpAnT": {
           "Rocky": 2,
-          "Nark": 3,
+          "KraN": 3,
           "Rinser": 2,
           "simon hagiwara": 2,
           "SHOW5TOPPER": 0,
@@ -14027,7 +14022,7 @@
         },
         "roasted": {
           "Rocky": 3,
-          "Nark": 2,
+          "KraN": 2,
           "Rinser": 1,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 0,

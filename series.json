@@ -492,7 +492,7 @@
       "series_id": "series_9",
       "playlist": "MLG 4v4",
       "red_team": [
-        "Nark",
+        "KraN",
         "Rinser",
         "Rocky",
         "simon hagiwara"
@@ -542,7 +542,7 @@
       "red_team": [
         "Hammie",
         "James | The Frenetic",
-        "Nark",
+        "KraN",
         "roasted"
       ],
       "blue_team": [
@@ -606,7 +606,7 @@
       "red_team": [
         "Hammie",
         "James | The Frenetic",
-        "Nark",
+        "KraN",
         "roasted"
       ],
       "blue_team": [
@@ -686,7 +686,7 @@
       "red_team": [
         "Hammie",
         "James | The Frenetic",
-        "Nark",
+        "KraN",
         "roasted"
       ],
       "blue_team": [
@@ -724,7 +724,7 @@
       "series_id": "series_15",
       "playlist": "MLG 4v4",
       "red_team": [
-        "Nark",
+        "KraN",
         "Rinser",
         "Rocky",
         "simon hagiwara"
@@ -805,7 +805,7 @@
       "playlist": "MLG 4v4",
       "red_team": [
         "James | The Frenetic",
-        "Nark",
+        "KraN",
         "Tetracide",
         "roasted"
       ],
@@ -1106,7 +1106,7 @@
       "series_wins": 0,
       "series_losses": 1
     },
-    "787008496706177832": {
+    "385632391089356810": {
       "series_wins": 4,
       "series_losses": 2
     },
@@ -1131,5 +1131,5 @@
       "series_losses": 3
     }
   },
-  "generated_at": "2025-12-08T10:31:02.223246"
+  "generated_at": "2025-12-08T10:43:50.315299"
 }
