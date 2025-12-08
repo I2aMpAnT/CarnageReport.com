@@ -1776,6 +1776,32 @@ async function loadGamesData() {
             console.log('[DEBUG] Filtered out', hiddenCount, 'hidden game(s)');
         }
 
+        // Filter out invalid/junk games (bad data from corrupt files)
+        const beforeJunkFilter = gamesData.length;
+        gamesData = gamesData.filter(game => {
+            const details = game.details || {};
+            const startTime = details['Start Time'] || '';
+            const mapName = details['Map Name'] || '';
+            const gameType = details['Game Type'] || '';
+            const variantName = details['Variant Name'] || '';
+
+            // Filter out games with invalid dates (year < 2000 or invalid)
+            if (startTime) {
+                const year = new Date(startTime).getFullYear();
+                if (isNaN(year) || year < 2000) return false;
+            }
+
+            // Filter out games with "nan" map or "none" gametype
+            if (mapName.toLowerCase() === 'nan' || mapName === '') return false;
+            if (gameType.toLowerCase() === 'none' && variantName.toLowerCase() === 'none') return false;
+
+            return true;
+        });
+        const junkCount = beforeJunkFilter - gamesData.length;
+        if (junkCount > 0) {
+            console.log('[DEBUG] Filtered out', junkCount, 'invalid/junk game(s)');
+        }
+
         // Always load custom games (shown in Recent Games, but not in stats unless checkbox is on)
         await loadCustomGames();
         for (const match of customGamesData) {
