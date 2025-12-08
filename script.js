@@ -1782,8 +1782,6 @@ async function loadGamesData() {
             const details = game.details || {};
             const startTime = details['Start Time'] || '';
             const mapName = details['Map Name'] || '';
-            const gameType = details['Game Type'] || '';
-            const variantName = details['Variant Name'] || '';
 
             // Filter out games with invalid dates (year < 2000 or invalid)
             if (startTime) {
@@ -1791,9 +1789,8 @@ async function loadGamesData() {
                 if (isNaN(year) || year < 2000) return false;
             }
 
-            // Filter out games with "nan" map or "none" gametype
+            // Filter out games with "nan" map
             if (mapName.toLowerCase() === 'nan' || mapName === '') return false;
-            if (gameType.toLowerCase() === 'none' && variantName.toLowerCase() === 'none') return false;
 
             return true;
         });
