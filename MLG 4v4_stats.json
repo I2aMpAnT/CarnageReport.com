@@ -365,7 +365,7 @@
       "series_wins": 0,
       "series_losses": 0
     },
-    "827825544337769261": {
+    "787008496706177832": {
       "discord_name": "Nark",
       "xp": 831,
       "rank": 9,
@@ -376,20 +376,6 @@
       "deaths": 290,
       "assists": 210,
       "headshots": 200,
-      "series_wins": 0,
-      "series_losses": 0
-    },
-    "175060415833833472": {
-      "discord_name": "Tetracide",
-      "xp": 956,
-      "rank": 10,
-      "wins": 10,
-      "losses": 4,
-      "highest_rank": 10,
-      "kills": 310,
-      "deaths": 237,
-      "assists": 184,
-      "headshots": 215,
       "series_wins": 0,
       "series_losses": 0
     },
@@ -404,6 +390,20 @@
       "deaths": 231,
       "assists": 140,
       "headshots": 94,
+      "series_wins": 0,
+      "series_losses": 0
+    },
+    "175060415833833472": {
+      "discord_name": "Tetracide",
+      "xp": 956,
+      "rank": 10,
+      "wins": 10,
+      "losses": 4,
+      "highest_rank": 10,
+      "kills": 310,
+      "deaths": 237,
+      "assists": 184,
+      "headshots": 215,
       "series_wins": 0,
       "series_losses": 0
     }

@@ -2209,7 +2209,7 @@
       }
     }
   },
-  "604898813267246076": {
+  "285512168107305832": {
     "discord_name": "Xemu",
     "twitch_name": "",
     "twitch_url": "",
@@ -2228,7 +2228,7 @@
     "series_losses": 0,
     "playlists": {}
   },
-  "827825544337769261": {
+  "787008496706177832": {
     "discord_name": "Nark",
     "twitch_name": "",
     "twitch_url": "",
@@ -2256,7 +2256,7 @@
       }
     }
   },
-  "158852441336229606": {
+  "125875496104058887": {
     "discord_name": "D5",
     "twitch_name": "",
     "twitch_url": "",
@@ -2274,34 +2274,6 @@
     "series_wins": 0,
     "series_losses": 0,
     "playlists": {}
-  },
-  "175060415833833472": {
-    "discord_name": "Tetracide",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 10,
-    "highest_rank": 10,
-    "xp": 956,
-    "mmr": 750,
-    "wins": 10,
-    "losses": 4,
-    "total_games": 14,
-    "kills": 310,
-    "deaths": 237,
-    "assists": 184,
-    "headshots": 215,
-    "series_wins": 3,
-    "series_losses": 1,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 10,
-        "highest_rank": 10,
-        "xp": 956,
-        "wins": 10,
-        "losses": 4,
-        "games": 14
-      }
-    }
   },
   "260603669924413441": {
     "discord_name": "ksin0",
@@ -2328,6 +2300,34 @@
         "wins": 2,
         "losses": 8,
         "games": 10
+      }
+    }
+  },
+  "175060415833833472": {
+    "discord_name": "Tetracide",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 10,
+    "highest_rank": 10,
+    "xp": 956,
+    "mmr": 750,
+    "wins": 10,
+    "losses": 4,
+    "total_games": 14,
+    "kills": 310,
+    "deaths": 237,
+    "assists": 184,
+    "headshots": 215,
+    "series_wins": 3,
+    "series_losses": 1,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 10,
+        "highest_rank": 10,
+        "xp": 956,
+        "wins": 10,
+        "losses": 4,
+        "games": 14
       }
     }
   }
