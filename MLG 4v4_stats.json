@@ -379,20 +379,6 @@
       "series_wins": 0,
       "series_losses": 0
     },
-    "260603669924413441": {
-      "discord_name": "ksin0",
-      "xp": 186,
-      "rank": 2,
-      "wins": 2,
-      "losses": 8,
-      "highest_rank": 2,
-      "kills": 162,
-      "deaths": 231,
-      "assists": 140,
-      "headshots": 94,
-      "series_wins": 0,
-      "series_losses": 0
-    },
     "175060415833833472": {
       "discord_name": "Tetracide",
       "xp": 956,
@@ -404,6 +390,20 @@
       "deaths": 237,
       "assists": 184,
       "headshots": 215,
+      "series_wins": 0,
+      "series_losses": 0
+    },
+    "260603669924413441": {
+      "discord_name": "ksin0",
+      "xp": 186,
+      "rank": 2,
+      "wins": 2,
+      "losses": 8,
+      "highest_rank": 2,
+      "kills": 162,
+      "deaths": 231,
+      "assists": 140,
+      "headshots": 94,
       "series_wins": 0,
       "series_losses": 0
     }

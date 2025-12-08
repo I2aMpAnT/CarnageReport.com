@@ -2218,34 +2218,6 @@
       }
     }
   },
-  "260603669924413441": {
-    "discord_name": "ksin0",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 2,
-    "highest_rank": 2,
-    "xp": 186,
-    "mmr": 750,
-    "wins": 2,
-    "losses": 8,
-    "total_games": 10,
-    "kills": 162,
-    "deaths": 231,
-    "assists": 140,
-    "headshots": 94,
-    "series_wins": 1,
-    "series_losses": 3,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 2,
-        "highest_rank": 2,
-        "xp": 186,
-        "wins": 2,
-        "losses": 8,
-        "games": 10
-      }
-    }
-  },
   "175060415833833472": {
     "discord_name": "Tetracide",
     "twitch_name": "",
@@ -2271,6 +2243,34 @@
         "wins": 10,
         "losses": 4,
         "games": 14
+      }
+    }
+  },
+  "260603669924413441": {
+    "discord_name": "ksin0",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 2,
+    "highest_rank": 2,
+    "xp": 186,
+    "mmr": 750,
+    "wins": 2,
+    "losses": 8,
+    "total_games": 10,
+    "kills": 162,
+    "deaths": 231,
+    "assists": 140,
+    "headshots": 94,
+    "series_wins": 1,
+    "series_losses": 3,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 2,
+        "highest_rank": 2,
+        "xp": 186,
+        "wins": 2,
+        "losses": 8,
+        "games": 10
       }
     }
   }
