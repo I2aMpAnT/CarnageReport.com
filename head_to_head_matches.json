@@ -1,13 +1,14 @@
 {
-  "total_matches": 1,
-  "matches": [
+  "total_matches": 0,
+  "matches": [],
+  "active_matches": [
     {
       "match_number": 1,
       "playlist": "head_to_head",
       "playlist_name": "Head to Head",
-      "timestamp": "2025-12-08T10:53:56.128983",
-      "timestamp_display": "2025-12-08 10:53:56",
-      "result": "TIE",
+      "timestamp": "2025-12-08T13:33:08.471549",
+      "timestamp_display": "2025-12-08 13:33:08",
+      "result": "STARTED",
       "team1": {
         "player_ids": [
           884896715432411178
@@ -30,6 +31,5 @@
       },
       "games": []
     }
-  ],
-  "active_matches": []
+  ]
 }
