@@ -894,8 +894,9 @@ def parse_score(score_val):
     if ':' in score_str:
         parts = score_str.split(':')
         try:
-            minutes = int(parts[0])
-            seconds = int(parts[1]) if len(parts) > 1 else 0
+            # Handle empty minutes (e.g., ":56" means 0 minutes)
+            minutes = int(parts[0]) if parts[0] else 0
+            seconds = int(parts[1]) if len(parts) > 1 and parts[1] else 0
             return minutes * 60 + seconds, score_str
         except:
             return 0, score_str

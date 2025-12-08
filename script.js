@@ -6609,6 +6609,7 @@ function returnToMainPage() {
 function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
     let rankedGames = 0, wins = 0;
     let totalGames = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
+    let totalBallTime = 0, flagCaptures = 0, flagReturns = 0, flagSteals = 0, bombArms = 0, totalShotsFired = 0;
 
     gamesData.forEach(game => {
         const player = game.players.find(p => p.name === playerName);
@@ -6626,13 +6627,43 @@ function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
         assists += player.assists || 0;
         totalScore += parseInt(player.score) || 0;
 
-        // Count medals from visible games
+        // Track Oddball time
+        const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+        const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
+        if (isOddball && player.score) {
+            totalBallTime += timeToSeconds(player.score);
+        }
+
+        // Track CTF stats from detailed_stats
+        if (game.detailed_stats) {
+            const detailedStats = game.detailed_stats.find(s => s.player === playerName);
+            if (detailedStats) {
+                flagCaptures += detailedStats.ctf_scores || 0;
+                flagReturns += detailedStats.ctf_flag_saves || 0;
+                flagSteals += detailedStats.ctf_flag_steals || 0;
+            }
+        }
+
+        // Track Bomb Arms and medals
         if (game.medals) {
             const playerMedals = game.medals.find(m => m.player === playerName);
             if (playerMedals) {
+                bombArms += playerMedals.bomb_planted || 0;
                 Object.entries(playerMedals).forEach(([key, count]) => {
                     if (key !== 'player' && medalIcons[key]) {
                         totalMedals += parseInt(count) || 0;
+                    }
+                });
+            }
+        }
+
+        // Track shots fired from weapons
+        if (game.weapons) {
+            const playerWeapons = game.weapons.find(w => w.Player === playerName);
+            if (playerWeapons) {
+                Object.entries(playerWeapons).forEach(([key, value]) => {
+                    if (key.endsWith('shots fired')) {
+                        totalShotsFired += parseInt(value) || 0;
                     }
                 });
             }
@@ -6688,7 +6719,15 @@ function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
         avgScore: totalGames > 0 ? Math.round(totalScore / totalGames) : 0,
         totalMedals,
         seriesWins,
-        seriesLosses
+        seriesLosses,
+        totalBallTime,
+        ballTimeDisplay: secondsToTime(totalBallTime),
+        flagCaptures,
+        flagReturns,
+        flagSteals,
+        bombArms,
+        totalShotsFired,
+        avgShotsFired: totalGames > 0 ? Math.round(totalShotsFired / totalGames) : 0
     };
 }
 
@@ -6749,6 +6788,40 @@ function renderProfileStats(stats) {
         <div class="profile-stat-card clickable-stat" onclick="showMedalBreakdown()">
             <div class="stat-value">${stats.totalMedals}</div>
             <div class="stat-label">Total Medals</div>
+        </div>
+        ${stats.totalBallTime > 0 ? `
+        <div class="profile-stat-card">
+            <div class="stat-value">${stats.ballTimeDisplay}</div>
+            <div class="stat-label">Ball Time</div>
+        </div>
+        ` : ''}
+        ${stats.flagCaptures > 0 ? `
+        <div class="profile-stat-card">
+            <div class="stat-value">${stats.flagCaptures}</div>
+            <div class="stat-label">Flag Captures</div>
+        </div>
+        ` : ''}
+        ${stats.flagReturns > 0 ? `
+        <div class="profile-stat-card">
+            <div class="stat-value">${stats.flagReturns}</div>
+            <div class="stat-label">Flag Returns</div>
+        </div>
+        ` : ''}
+        ${stats.flagSteals > 0 ? `
+        <div class="profile-stat-card">
+            <div class="stat-value">${stats.flagSteals}</div>
+            <div class="stat-label">Flag Steals</div>
+        </div>
+        ` : ''}
+        ${stats.bombArms > 0 ? `
+        <div class="profile-stat-card">
+            <div class="stat-value">${stats.bombArms}</div>
+            <div class="stat-label">Bomb Arms</div>
+        </div>
+        ` : ''}
+        <div class="profile-stat-card">
+            <div class="stat-value">${stats.avgShotsFired.toLocaleString()}</div>
+            <div class="stat-label">Avg Shots/Game</div>
         </div>
     `;
 }
