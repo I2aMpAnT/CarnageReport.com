@@ -688,6 +688,136 @@ def find_match_for_game(game_timestamp, all_matches, game_players):
 
     return None
 
+
+def add_game_to_match_history(game, matched_match, playlist_name):
+    """
+    Add a game result to the match history JSON file.
+
+    Args:
+        game: Parsed game data with details, players, winner info
+        matched_match: The match entry this game belongs to
+        playlist_name: Name of the playlist (e.g., 'MLG 4v4')
+
+    Returns:
+        True if successfully added, False otherwise
+    """
+    if playlist_name not in MATCH_HISTORY_FILES:
+        return False
+
+    filename = MATCH_HISTORY_FILES[playlist_name]
+
+    try:
+        # Load current file
+        with open(filename, 'r') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return False
+    except Exception as e:
+        print(f"  Warning: Error loading {filename}: {e}")
+        return False
+
+    # Find the match in active_matches
+    match_number = matched_match.get('match_number')
+    if not match_number:
+        return False
+
+    # Build game result entry
+    game_details = game.get('details', {})
+    map_name = game_details.get('Map Name', 'Unknown')
+    gametype = get_base_gametype(game_details.get('Game Type', ''))
+    variant_name = game_details.get('Variant Name', '')
+
+    # Determine winner and score
+    winners, _ = determine_winners_losers(game)
+
+    # Figure out which team won (TEAM1 or TEAM2)
+    winner_str = 'TIE'
+    team1_players = matched_match.get('team1', {}).get('player_names', [])
+    team2_players = matched_match.get('team2', {}).get('player_names', [])
+
+    if winners:
+        # Check if winner is in team1 or team2
+        winner_lower = [w.lower() for w in winners]
+        team1_lower = [p.lower() for p in team1_players]
+        team2_lower = [p.lower() for p in team2_players]
+
+        if any(w in team1_lower for w in winner_lower):
+            winner_str = 'TEAM1'
+        elif any(w in team2_lower for w in winner_lower):
+            winner_str = 'TEAM2'
+
+    # Calculate scores
+    team1_color = matched_match.get('team1', {}).get('color')
+    team2_color = matched_match.get('team2', {}).get('color')
+
+    # For team games, sum scores by team color
+    team1_score = 0
+    team2_score = 0
+
+    for player in game.get('players', []):
+        player_team = player.get('team', '')
+        score = player.get('score_numeric', 0)
+
+        if team1_color and player_team == team1_color:
+            team1_score += score
+        elif team2_color and player_team == team2_color:
+            team2_score += score
+        elif not team1_color:  # 1v1 - match by player name
+            if player.get('name', '').lower() in [p.lower() for p in team1_players]:
+                team1_score = score
+            elif player.get('name', '').lower() in [p.lower() for p in team2_players]:
+                team2_score = score
+
+    score_str = f"{team1_score}-{team2_score}"
+
+    # Build game entry
+    game_entry = {
+        "game_number": len(matched_match.get('games', [])) + 1,
+        "winner": winner_str,
+        "map": map_name,
+        "gametype": gametype or variant_name,
+        "score": score_str
+    }
+
+    # Find and update the match in active_matches
+    updated = False
+    for match in data.get('active_matches', []):
+        if match.get('match_number') == match_number:
+            if 'games' not in match:
+                match['games'] = []
+
+            # Check if game already added (by map + gametype + score to avoid duplicates)
+            existing = any(
+                g.get('map') == map_name and
+                g.get('gametype') == game_entry['gametype'] and
+                g.get('score') == score_str
+                for g in match['games']
+            )
+
+            if not existing:
+                match['games'].append(game_entry)
+
+                # Update games_won counts
+                if winner_str == 'TEAM1':
+                    match['team1']['games_won'] = match['team1'].get('games_won', 0) + 1
+                elif winner_str == 'TEAM2':
+                    match['team2']['games_won'] = match['team2'].get('games_won', 0) + 1
+
+                updated = True
+            break
+
+    if updated:
+        try:
+            with open(filename, 'w') as f:
+                json.dump(data, f, indent=2)
+            return True
+        except Exception as e:
+            print(f"  Warning: Error writing {filename}: {e}")
+            return False
+
+    return False
+
+
 def determine_playlist(file_path, all_matches=None, manual_playlists=None):
     """
     Determine the appropriate playlist for a game based on:
@@ -1362,6 +1492,8 @@ def main():
     games_by_playlist = {}
     untagged_games = []
 
+    games_added_to_matches = 0
+
     for filename, source_dir in all_game_files:
         file_path = os.path.join(source_dir, filename)
         playlist = determine_playlist(file_path, all_matches, manual_playlists)
@@ -1386,10 +1518,23 @@ def main():
             if playlist not in games_by_playlist:
                 games_by_playlist[playlist] = []
             games_by_playlist[playlist].append(game)
+
+            # Write game result to bot's match history JSON
+            if all_matches:
+                game_players = [p.get('name', '') for p in game.get('players', [])]
+                game_start_time = game.get('details', {}).get('Start Time', '')
+                matched_match = find_match_for_game(game_start_time, all_matches, game_players)
+                if matched_match:
+                    if add_game_to_match_history(game, matched_match, playlist):
+                        games_added_to_matches += 1
+
             print(f"  [{playlist}] {gametype} on {map_name} - RANKED")
         else:
             untagged_games.append(game)
             print(f"  [UNRANKED] {gametype} on {map_name} - stats only")
+
+    if games_added_to_matches > 0:
+        print(f"\n  Added {games_added_to_matches} game(s) to bot match history")
 
     # Summary
     print(f"\nGames categorized by playlist:")
