@@ -33,6 +33,14 @@ MANUAL_PLAYLISTS_FILE = 'manual_playlists.json'
 PROCESSED_STATE_FILE = 'processed_state.json'
 SERIES_FILE = 'series.json'
 
+# Match history files from Discord bot (per-playlist)
+MATCH_HISTORY_FILES = {
+    'Head to Head': 'head_to_head_matches.json',
+    'Double Team': 'double_team_matches.json',
+    'Team Hardcore': 'team_hardcore_matches.json',
+    'MLG 4v4': 'MLG4v4.json',
+}
+
 # Base URL for downloadable files on the VPS
 STATS_BASE_URL = 'http://104.207.143.249/stats'
 
@@ -347,30 +355,57 @@ def load_rankhistory():
 
 def load_active_matches():
     """
-    Load active_matches.json which contains info about currently active matches from the Discord bot.
+    Load active and completed matches from per-playlist match history files.
 
-    Expected format:
+    New format (per-playlist files like head_to_head_matches.json):
     {
-        "active_match": {
-            "playlist": "MLG 4v4",  // or "Double Team", "Head to Head", "Team Hardcore"
-            "start_time": "2025-11-28T20:00:00",
-            "red_team": ["player1", "player2", ...],  // in-game names
-            "blue_team": ["player1", "player2", ...],
-            "discord_ids": {
-                "red": [user_id1, user_id2, ...],
-                "blue": [user_id1, user_id2, ...]
-            }
-        }
+        "total_matches": 5,
+        "active_matches": [...],  // In-progress matches
+        "matches": [...]          // Completed matches
     }
 
-    Returns None if no active match or file doesn't exist.
+    Each match entry:
+    {
+        "match_number": 1,
+        "playlist": "head_to_head",
+        "playlist_name": "Head to Head",
+        "start_time": "2025-12-08T08:33:00.123456",
+        "end_time": null,  // or timestamp when completed
+        "result": "STARTED",  // or "TEAM1_WIN", "TEAM2_WIN", "TIE"
+        "team1": {
+            "player_ids": [123456789],
+            "player_names": ["I2aMpAnT"],
+            "color": null,  // null for 1v1, "Red" or "Blue" for teams
+            "games_won": 0
+        },
+        "team2": {...},
+        "games": []
+    }
+
+    Returns list of all matches (active + completed) with playlist info.
     """
-    try:
-        with open(ACTIVE_MATCHES_FILE, 'r') as f:
-            data = json.load(f)
-            return data.get('active_match')
-    except:
-        return None
+    all_matches = []
+
+    for playlist_name, filename in MATCH_HISTORY_FILES.items():
+        try:
+            with open(filename, 'r') as f:
+                data = json.load(f)
+
+                # Add active matches
+                for match in data.get('active_matches', []):
+                    match['_playlist'] = playlist_name
+                    all_matches.append(match)
+
+                # Add completed matches
+                for match in data.get('matches', []):
+                    match['_playlist'] = playlist_name
+                    all_matches.append(match)
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(f"  Warning: Error loading {filename}: {e}")
+
+    return all_matches if all_matches else None
 
 def load_manual_playlists():
     """
@@ -563,35 +598,102 @@ def get_game_players(file_path):
     except:
         return []
 
-def players_match_active_match(game_players, active_match):
+def players_match_active_match(game_players, match):
     """
-    Check if game players match the active match players.
-    Returns True if most players from the game are in the active match.
+    Check if game players match a match entry's players.
+    Handles both old format (red_team/blue_team) and new format (team1/team2).
+    Returns True if most players from the game are in the match.
     """
-    if not active_match:
+    if not match:
         return False
 
-    active_players = set()
-    if active_match.get('red_team'):
-        active_players.update([p.lower() for p in active_match['red_team']])
-    if active_match.get('blue_team'):
-        active_players.update([p.lower() for p in active_match['blue_team']])
+    match_players = set()
 
-    if not active_players:
+    # New format: team1/team2 with player_names
+    if match.get('team1'):
+        match_players.update([p.lower() for p in match['team1'].get('player_names', [])])
+    if match.get('team2'):
+        match_players.update([p.lower() for p in match['team2'].get('player_names', [])])
+
+    # Old format fallback: red_team/blue_team
+    if not match_players:
+        if match.get('red_team'):
+            match_players.update([p.lower() for p in match['red_team']])
+        if match.get('blue_team'):
+            match_players.update([p.lower() for p in match['blue_team']])
+
+    if not match_players:
         return False
 
     game_players_lower = [p.lower() for p in game_players]
-    matches = sum(1 for p in game_players_lower if p in active_players)
+    matches = sum(1 for p in game_players_lower if p in match_players)
 
-    # At least 75% of game players should be in active match
+    # At least 75% of game players should be in match
     return matches >= len(game_players) * 0.75
 
-def determine_playlist(file_path, active_match=None, manual_playlists=None):
+
+def find_match_for_game(game_timestamp, all_matches, game_players):
+    """
+    Find a match entry that corresponds to a game based on timestamp window and players.
+
+    Args:
+        game_timestamp: Game start time as datetime or string
+        all_matches: List of match entries from load_active_matches()
+        game_players: List of player names from the game
+
+    Returns:
+        Matching match entry or None
+    """
+    if not all_matches:
+        return None
+
+    # Parse game timestamp
+    if isinstance(game_timestamp, str):
+        try:
+            game_dt = datetime.fromisoformat(game_timestamp.replace('Z', '+00:00'))
+        except:
+            return None
+    else:
+        game_dt = game_timestamp
+
+    for match in all_matches:
+        # Parse match timestamps
+        start_time = match.get('start_time')
+        end_time = match.get('end_time')
+
+        if not start_time:
+            continue
+
+        try:
+            start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+        except:
+            continue
+
+        # Check if game is within match time window
+        if game_dt < start_dt:
+            continue
+
+        if end_time:
+            try:
+                end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                if game_dt > end_dt:
+                    continue
+            except:
+                pass
+        # If no end_time (active match), game just needs to be after start
+
+        # Check if players match
+        if players_match_active_match(game_players, match):
+            return match
+
+    return None
+
+def determine_playlist(file_path, all_matches=None, manual_playlists=None):
     """
     Determine the appropriate playlist for a game based on:
     1. Manual override from manual_playlists.json (highest priority)
     2. Game duration (must be >= 2 minutes to filter restarts)
-    3. Active match from Discord bot (if any)
+    3. Match from Discord bot (matched by timestamp window and players)
 
     Returns: playlist name string or None if game doesn't qualify for any playlist
     """
@@ -609,42 +711,48 @@ def determine_playlist(file_path, active_match=None, manual_playlists=None):
     is_team = is_team_game(file_path)
     game_players = get_game_players(file_path)
 
-    # Get map and base gametype from game details
+    # Get map, base gametype, and start time from game details
     try:
         game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
         if len(game_details_df) > 0:
             row = game_details_df.iloc[0]
             map_name = str(row.get('Map Name', '')).strip()
             base_gametype = str(row.get('Game Type', '')).strip()  # Use base gametype, not variant
+            game_start_time = row.get('Start Time', '')
         else:
             map_name = ''
             base_gametype = ''
+            game_start_time = ''
     except:
         map_name = ''
         base_gametype = ''
+        game_start_time = ''
 
-    # If there's an active match, check if this game matches it
-    if active_match:
-        active_playlist = active_match.get('playlist', '')
+    # Try to find a matching bot match by timestamp and players
+    if all_matches:
+        matched_entry = find_match_for_game(game_start_time, all_matches, game_players)
 
-        # Head to Head: 1v1 games
-        if active_playlist == PLAYLIST_HEAD_TO_HEAD:
-            if player_count == 2 and players_match_active_match(game_players, active_match):
-                return PLAYLIST_HEAD_TO_HEAD
+        if matched_entry:
+            playlist = matched_entry.get('_playlist') or matched_entry.get('playlist_name', '')
 
-        # Double Team: 2v2 team games
-        elif active_playlist == PLAYLIST_DOUBLE_TEAM:
-            if player_count == 4 and is_team and players_match_active_match(game_players, active_match):
-                return PLAYLIST_DOUBLE_TEAM
+            # Validate game type matches playlist requirements
+            # Head to Head: 1v1 games
+            if playlist == PLAYLIST_HEAD_TO_HEAD:
+                if player_count == 2:
+                    return PLAYLIST_HEAD_TO_HEAD
 
-        # MLG 4v4 or Team Hardcore: 4v4 team games with valid map + base gametype
-        elif active_playlist in [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE]:
-            if player_count == 8 and is_team:
-                if is_valid_mlg_combo(map_name, base_gametype):
-                    if players_match_active_match(game_players, active_match):
-                        return active_playlist
+            # Double Team: 2v2 team games
+            elif playlist == PLAYLIST_DOUBLE_TEAM:
+                if player_count == 4 and is_team:
+                    return PLAYLIST_DOUBLE_TEAM
 
-    # No active match or game doesn't match active match = UNRANKED
+            # MLG 4v4 or Team Hardcore: 4v4 team games with valid map + base gametype
+            elif playlist in [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE]:
+                if player_count == 8 and is_team:
+                    if is_valid_mlg_combo(map_name, base_gametype):
+                        return playlist
+
+    # No matching bot session = UNRANKED
     # Games MUST have a bot session to be tagged with a playlist
     return None
 
@@ -1154,16 +1262,14 @@ def main():
     mac_to_discord = build_mac_to_discord_lookup(players)
     print(f"Built {len(mac_to_discord)} MAC->Discord mappings")
 
-    # Load active matches from Discord bot (if any)
-    active_match = load_active_matches()
-    if active_match:
-        print(f"\nActive match detected: {active_match.get('playlist', 'Unknown')} playlist")
-        if active_match.get('red_team'):
-            print(f"  Red team: {', '.join(active_match['red_team'])}")
-        if active_match.get('blue_team'):
-            print(f"  Blue team: {', '.join(active_match['blue_team'])}")
+    # Load matches from Discord bot match history files
+    all_matches = load_active_matches()
+    if all_matches:
+        active_count = sum(1 for m in all_matches if m.get('result') == 'STARTED' or not m.get('end_time'))
+        completed_count = len(all_matches) - active_count
+        print(f"\nLoaded {len(all_matches)} matches from bot ({active_count} active, {completed_count} completed)")
     else:
-        print("\nNo active match detected")
+        print("\nNo bot matches loaded")
 
     # Load manual playlist overrides (if any)
     manual_playlists = load_manual_playlists()
@@ -1258,7 +1364,7 @@ def main():
 
     for filename, source_dir in all_game_files:
         file_path = os.path.join(source_dir, filename)
-        playlist = determine_playlist(file_path, active_match, manual_playlists)
+        playlist = determine_playlist(file_path, all_matches, manual_playlists)
 
         game = parse_excel_file(file_path)
         game['source_file'] = filename
