@@ -114,6 +114,11 @@
     "player_name": "Future Trunks",
     "discord_name": "future trunks"
   },
+  "796014858692607348": {
+    "emblem_url": "https://carnagereport.com/emblem.html?P=13&S=0&EP=7&ES=7&EF=10&EB=24&ET=0",
+    "player_name": "Xemu",
+    "discord_name": "Xemu"
+  },
   "1218796844088430692": {
     "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=2&EP=1&ES=0&EF=52&EB=4&ET=0",
     "player_name": "Legend",
@@ -125,23 +130,28 @@
     "discord_name": "Grave"
   },
   "694412691015598140": {
-    "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=11&EP=11&ES=0&EF=39&EB=11&ET=0",
-    "player_name": "s tier SIMON",
+    "emblem_url": "https://carnagereport.com/emblem.html?P=0&S=0&EP=2&ES=11&EF=31&EB=17&ET=0",
+    "player_name": "s",
     "discord_name": "simon hagiwara"
   },
-  "607283926399446186": {
+  "799336008113786438": {
     "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=1&EP=0&ES=2&EF=63&EB=0&ET=0",
     "player_name": "Tech",
     "discord_name": "Tech"
   },
-  "305033769319752441": {
+  "667066099550759107": {
     "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
     "player_name": "Nark",
     "discord_name": "Nark"
   },
   "165626999891689474": {
-    "emblem_url": "https://carnagereport.com/emblem.html?P=13&S=4&EP=2&ES=13&EF=11&EB=15&ET=0",
+    "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=4&EP=2&ES=1&EF=11&EB=15&ET=0",
     "player_name": "SHOW5TOPPER",
     "discord_name": "SHOW5TOPPER"
+  },
+  "464587303968085723": {
+    "emblem_url": "https://carnagereport.com/emblem.html?P=5&S=1&EP=11&ES=4&EF=21&EB=20&ET=0",
+    "player_name": "Defense",
+    "discord_name": "Defense"
   }
 }
