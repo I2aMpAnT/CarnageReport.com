@@ -663,12 +663,23 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
 
     # Parse game timestamp (assumed to be local time, no timezone info)
     if isinstance(game_timestamp, str):
+        game_dt = None
+        # Try ISO format first
         try:
             game_dt = datetime.fromisoformat(game_timestamp.replace('Z', '+00:00'))
-            # Remove timezone info for comparison (treat as naive local time)
             if game_dt.tzinfo is not None:
                 game_dt = game_dt.replace(tzinfo=None)
         except:
+            pass
+        # Try common formats: "12/9/2025 7:45" or "12/9/2025 7:45:00"
+        if game_dt is None:
+            for fmt in ['%m/%d/%Y %H:%M', '%m/%d/%Y %H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M']:
+                try:
+                    game_dt = datetime.strptime(game_timestamp, fmt)
+                    break
+                except:
+                    pass
+        if game_dt is None:
             if debug:
                 print(f"    DEBUG [{filename}]: Failed to parse game timestamp: {game_timestamp}")
             return None
