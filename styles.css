@@ -1705,11 +1705,13 @@ header {
 
 .lb-emblem-placeholder,
 .lb-emblem-empty {
-    width: 32px;
-    height: 32px;
+    width: 32px !important;
+    height: 32px !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: none !important;
+    border: none !important;
 }
 
 .lb-emblem-img {
