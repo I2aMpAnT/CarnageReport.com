@@ -18,6 +18,7 @@ from datetime import datetime
 STATS_PUBLIC_DIR = '/home/carnagereport/stats/public'
 STATS_PRIVATE_DIR = '/home/carnagereport/stats/private'
 STATS_THEATER_DIR = '/home/carnagereport/stats/theater'
+STATS_DIR = STATS_PUBLIC_DIR  # Default fallback for local development
 RANKSTATS_FILE = 'rankstats.json'  # Legacy - will be replaced by per-playlist stats
 RANKS_FILE = 'ranks.json'  # Simple discord_id -> rank mapping for bot
 PLAYLISTS_FILE = 'playlists.json'
@@ -708,8 +709,8 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
             # Subtract 5 hours for EST (UTC-5) - bot stores UTC, games are local EST
             from datetime import timedelta
             start_dt = start_dt - timedelta(hours=5)
-            # Add 10-minute buffer before start to account for timestamp differences
-            start_dt_with_buffer = start_dt - timedelta(minutes=10)
+            # Add 5-minute buffer before start to account for timestamp differences
+            start_dt_with_buffer = start_dt - timedelta(minutes=5)
         except:
             continue
 
@@ -729,8 +730,8 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
                     end_dt = end_dt.replace(tzinfo=None)
                 # Convert UTC to EST
                 end_dt = end_dt - timedelta(hours=5)
-                # Add 10-minute buffer after end to account for timestamp differences
-                end_dt_with_buffer = end_dt + timedelta(minutes=10)
+                # Add 5-minute buffer after end to account for timestamp differences
+                end_dt_with_buffer = end_dt + timedelta(minutes=5)
                 if debug:
                     print(f"    DEBUG [{filename}]: Match {idx}: bot_end_utc={end_time}, converted_est={end_dt}, with_buffer={end_dt_with_buffer}")
                 if game_dt > end_dt_with_buffer:
