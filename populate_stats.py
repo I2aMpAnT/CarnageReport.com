@@ -708,16 +708,18 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
             # Subtract 5 hours for EST (UTC-5) - bot stores UTC, games are local EST
             from datetime import timedelta
             start_dt = start_dt - timedelta(hours=5)
+            # Add 10-minute buffer before start to account for timestamp differences
+            start_dt_with_buffer = start_dt - timedelta(minutes=10)
         except:
             continue
 
         if debug:
-            print(f"    DEBUG [{filename}]: Match {idx} ({playlist}): bot_start_utc={start_time}, converted_est={start_dt}")
+            print(f"    DEBUG [{filename}]: Match {idx} ({playlist}): bot_start_utc={start_time}, converted_est={start_dt}, with_buffer={start_dt_with_buffer}")
 
-        # Check if game is within match time window
-        if game_dt < start_dt:
+        # Check if game is within match time window (with buffer)
+        if game_dt < start_dt_with_buffer:
             if debug:
-                print(f"    DEBUG [{filename}]: Match {idx}: SKIP - game_dt {game_dt} < start_dt {start_dt}")
+                print(f"    DEBUG [{filename}]: Match {idx}: SKIP - game_dt {game_dt} < start_dt_with_buffer {start_dt_with_buffer}")
             continue
 
         if end_time:
@@ -727,11 +729,13 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
                     end_dt = end_dt.replace(tzinfo=None)
                 # Convert UTC to EST
                 end_dt = end_dt - timedelta(hours=5)
+                # Add 10-minute buffer after end to account for timestamp differences
+                end_dt_with_buffer = end_dt + timedelta(minutes=10)
                 if debug:
-                    print(f"    DEBUG [{filename}]: Match {idx}: bot_end_utc={end_time}, converted_est={end_dt}")
-                if game_dt > end_dt:
+                    print(f"    DEBUG [{filename}]: Match {idx}: bot_end_utc={end_time}, converted_est={end_dt}, with_buffer={end_dt_with_buffer}")
+                if game_dt > end_dt_with_buffer:
                     if debug:
-                        print(f"    DEBUG [{filename}]: Match {idx}: SKIP - game_dt {game_dt} > end_dt {end_dt}")
+                        print(f"    DEBUG [{filename}]: Match {idx}: SKIP - game_dt {game_dt} > end_dt_with_buffer {end_dt_with_buffer}")
                     continue
             except:
                 pass
