@@ -14,9 +14,7 @@ import requests
 import subprocess
 from datetime import datetime
 
-# File paths
-STATS_DIR = 'stats'
-# VPS paths for downloadable files
+# File paths - VPS stats directories (the only source for game files)
 STATS_PUBLIC_DIR = '/home/carnagereport/stats/public'
 STATS_PRIVATE_DIR = '/home/carnagereport/stats/private'
 STATS_THEATER_DIR = '/home/carnagereport/stats/theater'
@@ -1044,26 +1042,20 @@ def get_download_urls(game_filename):
 
 def get_all_game_files():
     """
-    Get all game files from local stats dir and VPS public/private folders.
+    Get all game files from VPS stats directories.
     Returns a list of tuples: (filename, source_dir)
+
+    Stats files are ONLY read from /home/carnagereport/stats/public and /private.
     """
     game_files = []
 
-    # Local stats directory
-    if os.path.exists(STATS_DIR):
-        for f in os.listdir(STATS_DIR):
-            if f.endswith('.xlsx') and '_identity' not in f:
-                game_files.append((f, STATS_DIR))
-
-    # VPS public directory (if accessible)
+    # VPS public directory
     if os.path.exists(STATS_PUBLIC_DIR):
         for f in os.listdir(STATS_PUBLIC_DIR):
             if f.endswith('.xlsx') and '_identity' not in f:
-                # Only add if not already in the list
-                if not any(gf[0] == f for gf in game_files):
-                    game_files.append((f, STATS_PUBLIC_DIR))
+                game_files.append((f, STATS_PUBLIC_DIR))
 
-    # VPS private directory (if accessible)
+    # VPS private directory
     if os.path.exists(STATS_PRIVATE_DIR):
         for f in os.listdir(STATS_PRIVATE_DIR):
             if f.endswith('.xlsx') and '_identity' not in f:
@@ -1567,7 +1559,7 @@ def main():
 
     for game in all_games:
         game_file = game.get('source_file', '')
-        game_source_dir = game.get('source_dir', STATS_DIR)
+        game_source_dir = game.get('source_dir', STATS_PUBLIC_DIR)
         file_path = os.path.join(game_source_dir, game_file)
 
         # Find and use the identity file for this game's session
