@@ -630,7 +630,7 @@ def players_match_active_match(game_players, match, ingame_to_discord=None):
     return matches >= len(game_players) * 0.75
 
 
-def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_discord=None):
+def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_discord=None, debug=False, filename=''):
     """
     Find a match entry that corresponds to a game based on timestamp window and players.
 
@@ -639,6 +639,8 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
         all_matches: List of match entries from load_active_matches()
         game_players: List of player names from the game
         ingame_to_discord: Optional dict mapping in-game names to Discord names
+        debug: If True, print debug info
+        filename: For debug output
 
     Returns:
         Matching match entry or None
@@ -654,16 +656,22 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
             if game_dt.tzinfo is not None:
                 game_dt = game_dt.replace(tzinfo=None)
         except:
+            if debug:
+                print(f"    DEBUG [{filename}]: Failed to parse game timestamp: {game_timestamp}")
             return None
     else:
         game_dt = game_timestamp
         if hasattr(game_dt, 'tzinfo') and game_dt.tzinfo is not None:
             game_dt = game_dt.replace(tzinfo=None)
 
-    for match in all_matches:
+    if debug:
+        print(f"    DEBUG [{filename}]: Game datetime (local): {game_dt}")
+
+    for idx, match in enumerate(all_matches):
         # Parse match timestamps (bot stores UTC)
         start_time = match.get('start_time')
         end_time = match.get('end_time')
+        playlist = match.get('_playlist', 'unknown')
 
         if not start_time:
             continue
@@ -679,8 +687,13 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
         except:
             continue
 
+        if debug:
+            print(f"    DEBUG [{filename}]: Match {idx} ({playlist}): bot_start_utc={start_time}, converted_est={start_dt}")
+
         # Check if game is within match time window
         if game_dt < start_dt:
+            if debug:
+                print(f"    DEBUG [{filename}]: Match {idx}: SKIP - game_dt {game_dt} < start_dt {start_dt}")
             continue
 
         if end_time:
@@ -690,20 +703,38 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
                     end_dt = end_dt.replace(tzinfo=None)
                 # Convert UTC to EST
                 end_dt = end_dt - timedelta(hours=5)
+                if debug:
+                    print(f"    DEBUG [{filename}]: Match {idx}: bot_end_utc={end_time}, converted_est={end_dt}")
                 if game_dt > end_dt:
+                    if debug:
+                        print(f"    DEBUG [{filename}]: Match {idx}: SKIP - game_dt {game_dt} > end_dt {end_dt}")
                     continue
             except:
                 pass
         # If no end_time (active match), game just needs to be after start
 
+        if debug:
+            print(f"    DEBUG [{filename}]: Match {idx}: Time window OK, checking players...")
+            match_players = []
+            if match.get('team1'):
+                match_players.extend(match['team1'].get('player_names', []))
+            if match.get('team2'):
+                match_players.extend(match['team2'].get('player_names', []))
+            print(f"    DEBUG [{filename}]: Match {idx}: match_players={match_players}")
+            print(f"    DEBUG [{filename}]: Match {idx}: ingame_to_discord mapping={ingame_to_discord}")
+
         # Check if players match
         if players_match_active_match(game_players, match, ingame_to_discord):
+            if debug:
+                print(f"    DEBUG [{filename}]: Match {idx}: PLAYER MATCH SUCCESS!")
             return match
+        elif debug:
+            print(f"    DEBUG [{filename}]: Match {idx}: Players did NOT match")
 
     return None
 
 
-def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingame_to_discord=None):
+def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingame_to_discord=None, debug=False):
     """
     Determine the appropriate playlist for a game based on:
     1. Manual override from manual_playlists.json (highest priority)
@@ -712,14 +743,17 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
 
     Returns: playlist name string or None if game doesn't qualify for any playlist
     """
+    filename = os.path.basename(file_path)
+
     # Check manual override first (highest priority)
     if manual_playlists:
-        filename = os.path.basename(file_path)
         if filename in manual_playlists:
             return manual_playlists[filename]
 
     # Filter out short games (restarts)
     if not is_game_long_enough(file_path):
+        if debug:
+            print(f"    DEBUG [{filename}]: Game too short")
         return None
 
     player_count = get_game_player_count(file_path)
@@ -743,28 +777,47 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
         base_gametype = ''
         game_start_time = ''
 
+    if debug:
+        print(f"    DEBUG [{filename}]: players={player_count}, is_team={is_team}, start={game_start_time}")
+        print(f"    DEBUG [{filename}]: game_players={game_players}")
+        print(f"    DEBUG [{filename}]: all_matches count={len(all_matches) if all_matches else 0}")
+
     # Try to find a matching bot match by timestamp and players
     if all_matches:
-        matched_entry = find_match_for_game(game_start_time, all_matches, game_players, ingame_to_discord)
+        matched_entry = find_match_for_game(game_start_time, all_matches, game_players, ingame_to_discord, debug=debug, filename=filename)
 
         if matched_entry:
             playlist = matched_entry.get('_playlist') or matched_entry.get('playlist_name', '')
+            if debug:
+                print(f"    DEBUG [{filename}]: Matched playlist={playlist}")
 
             # Head to Head: 1v1 games
             if playlist == PLAYLIST_HEAD_TO_HEAD:
                 if player_count == 2:
                     return PLAYLIST_HEAD_TO_HEAD
+                elif debug:
+                    print(f"    DEBUG [{filename}]: H2H match but player_count={player_count} (need 2)")
 
             # Double Team: 2v2 team games
             elif playlist == PLAYLIST_DOUBLE_TEAM:
                 if player_count == 4 and is_team:
                     return PLAYLIST_DOUBLE_TEAM
+                elif debug:
+                    print(f"    DEBUG [{filename}]: DT match but player_count={player_count}, is_team={is_team}")
 
             # MLG 4v4 or Team Hardcore: 4v4 team games with valid map + base gametype
             elif playlist in [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE]:
                 if player_count == 8 and is_team:
                     if is_valid_mlg_combo(map_name, base_gametype):
                         return playlist
+                    elif debug:
+                        print(f"    DEBUG [{filename}]: {playlist} match but invalid map/gametype: {map_name}/{base_gametype}")
+                elif debug:
+                    print(f"    DEBUG [{filename}]: {playlist} match but player_count={player_count}, is_team={is_team}")
+        elif debug:
+            print(f"    DEBUG [{filename}]: No matching bot entry found")
+    elif debug:
+        print(f"    DEBUG [{filename}]: No bot matches loaded")
 
     # No matching bot session = UNRANKED
     # Games MUST have a bot session to be tagged with a playlist
@@ -1276,6 +1329,12 @@ def find_player_by_name(rankstats, name, profile_lookup=None):
     return None
 
 def main():
+    # Check for debug mode via environment variable
+    debug_mode = os.environ.get('POPSTATS_DEBUG', '').lower() in ('1', 'true', 'yes')
+    if debug_mode:
+        print("DEBUG MODE ENABLED")
+        print("=" * 50)
+
     print("Starting stats population...")
     print("=" * 50)
 
@@ -1421,7 +1480,7 @@ def main():
 
     for filename, source_dir in all_game_files:
         file_path = os.path.join(source_dir, filename)
-        playlist = determine_playlist(file_path, all_matches, manual_playlists, ingame_to_discord)
+        playlist = determine_playlist(file_path, all_matches, manual_playlists, ingame_to_discord, debug=debug_mode)
 
         game = parse_excel_file(file_path)
         game['source_file'] = filename
