@@ -96,6 +96,24 @@ def normalize_playlist_name(playlist):
         return None
     return PLAYLIST_ALIASES.get(playlist, playlist)
 
+def time_to_seconds(time_str):
+    """Convert time string like '1:53' or '0:56' to total seconds."""
+    if not time_str:
+        return 0
+    try:
+        if isinstance(time_str, (int, float)):
+            return int(time_str)
+        time_str = str(time_str).strip()
+        if ':' in time_str:
+            parts = time_str.split(':')
+            if len(parts) == 2:
+                return int(parts[0]) * 60 + int(parts[1])
+            elif len(parts) == 3:
+                return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+        return int(float(time_str))
+    except:
+        return 0
+
 def get_base_gametype(game_type_field):
     """
     Convert Game Type field to display name.
@@ -2170,10 +2188,11 @@ def main():
             red_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Red']
             blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
 
-            # Check if this is a CTF game (need to use flag captures for score)
+            # Check if this is a CTF or Oddball game (need special score handling)
             variant_name = game['details'].get('Variant Name', '').lower()
             game_type = game['details'].get('Game Type', '').lower()
             is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
+            is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
@@ -2181,6 +2200,10 @@ def main():
                 detailed = {s['player']: s for s in game.get('detailed_stats', [])}
                 red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
                 blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
+            elif is_oddball:
+                # For Oddball, convert time scores to seconds
+                red_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Red')
+                blue_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Blue')
             else:
                 # For other games, use score_numeric
                 red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
@@ -2324,16 +2347,20 @@ def main():
             blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
-            # Check if this is a CTF game
+            # Check if this is a CTF or Oddball game
             variant_name = game['details'].get('Variant Name', '').lower()
             game_type = game['details'].get('Game Type', '').lower()
             is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
+            is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
                 detailed = {s['player']: s for s in game.get('detailed_stats', [])}
                 red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
                 blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
+            elif is_oddball:
+                red_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Red')
+                blue_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Blue')
             else:
                 red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
                 blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
