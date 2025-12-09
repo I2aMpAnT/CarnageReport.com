@@ -628,15 +628,15 @@ def players_match_active_match(game_players, match, ingame_to_discord=None):
     return matches >= len(game_players) * 0.75
 
 
-def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_discord=None, debug=False, filename=''):
+def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_discord_id=None, debug=False, filename=''):
     """
-    Find a match entry that corresponds to a game based on timestamp window and players.
+    Find a match entry that corresponds to a game based on timestamp window AND player Discord IDs.
 
     Args:
         game_timestamp: Game start time as datetime or string
         all_matches: List of match entries from load_active_matches()
         game_players: List of player names from the game
-        ingame_to_discord: Optional dict mapping in-game names to Discord names
+        ingame_to_discord_id: Dict mapping in-game name (lowercase) to Discord ID (integer)
         debug: If True, print debug info
         filename: For debug output
 
@@ -664,6 +664,18 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
 
     if debug:
         print(f"    DEBUG [{filename}]: Game datetime (local): {game_dt}")
+        print(f"    DEBUG [{filename}]: Game players: {game_players}")
+
+    # Resolve game players to Discord IDs
+    game_discord_ids = set()
+    if ingame_to_discord_id and game_players:
+        for player_name in game_players:
+            player_lower = player_name.lower() if player_name else ''
+            discord_id = ingame_to_discord_id.get(player_lower)
+            if discord_id:
+                game_discord_ids.add(str(discord_id))  # Convert to string for comparison
+        if debug:
+            print(f"    DEBUG [{filename}]: Resolved {len(game_discord_ids)}/{len(game_players)} players to Discord IDs: {game_discord_ids}")
 
     for idx, match in enumerate(all_matches):
         # Parse match timestamps (bot stores UTC)
@@ -711,33 +723,43 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
                 pass
         # If no end_time (active match), game just needs to be after start
 
-        if debug:
-            print(f"    DEBUG [{filename}]: Match {idx}: Time window OK, checking players...")
-            match_players = []
-            if match.get('team1'):
-                match_players.extend(match['team1'].get('player_names', []))
-            if match.get('team2'):
-                match_players.extend(match['team2'].get('player_names', []))
-            print(f"    DEBUG [{filename}]: Match {idx}: match_players={match_players}")
-            print(f"    DEBUG [{filename}]: Match {idx}: ingame_to_discord mapping={ingame_to_discord}")
+        # Timestamp matches - now verify Discord IDs
+        # Get all player_ids from the match (both teams)
+        match_discord_ids = set()
+        team1 = match.get('team1', {})
+        team2 = match.get('team2', {})
+        for player_id in team1.get('player_ids', []):
+            match_discord_ids.add(str(player_id))
+        for player_id in team2.get('player_ids', []):
+            match_discord_ids.add(str(player_id))
 
-        # Check if players match
-        if players_match_active_match(game_players, match, ingame_to_discord):
+        if debug:
+            print(f"    DEBUG [{filename}]: Match {idx}: Match player_ids: {match_discord_ids}")
+
+        # Check if game players' Discord IDs match the match's player_ids
+        if game_discord_ids and match_discord_ids:
+            # At least one resolved game player must be in the match
+            matching_ids = game_discord_ids & match_discord_ids
+            if not matching_ids:
+                if debug:
+                    print(f"    DEBUG [{filename}]: Match {idx}: SKIP - No matching Discord IDs")
+                continue
             if debug:
-                print(f"    DEBUG [{filename}]: Match {idx}: PLAYER MATCH SUCCESS!")
-            return match
-        elif debug:
-            print(f"    DEBUG [{filename}]: Match {idx}: Players did NOT match")
+                print(f"    DEBUG [{filename}]: Match {idx}: Found {len(matching_ids)} matching Discord IDs: {matching_ids}")
+
+        if debug:
+            print(f"    DEBUG [{filename}]: Match {idx}: TIMESTAMP + PLAYER MATCH!")
+        return match
 
     return None
 
 
-def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingame_to_discord=None, debug=False):
+def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingame_to_discord_id=None, debug=False):
     """
     Determine the appropriate playlist for a game based on:
     1. Manual override from manual_playlists.json (highest priority)
     2. Game duration (must be >= 2 minutes to filter restarts)
-    3. Match from Discord bot (matched by timestamp window and players)
+    3. Match from Discord bot (matched by timestamp window AND player Discord IDs)
 
     Returns: playlist name string or None if game doesn't qualify for any playlist
     """
@@ -780,9 +802,9 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
         print(f"    DEBUG [{filename}]: game_players={game_players}")
         print(f"    DEBUG [{filename}]: all_matches count={len(all_matches) if all_matches else 0}")
 
-    # Try to find a matching bot match by timestamp and players
+    # Try to find a matching bot match by timestamp AND player Discord IDs
     if all_matches:
-        matched_entry = find_match_for_game(game_start_time, all_matches, game_players, ingame_to_discord, debug=debug, filename=filename)
+        matched_entry = find_match_for_game(game_start_time, all_matches, game_players, ingame_to_discord_id, debug=debug, filename=filename)
 
         if matched_entry:
             playlist = matched_entry.get('_playlist') or matched_entry.get('playlist_name', '')
@@ -862,6 +884,30 @@ def build_ingame_to_discord_mapping(all_identity_mappings, mac_to_discord, playe
                 ingame_to_discord[ingame_name_lower] = display_name
 
     return ingame_to_discord
+
+
+def build_ingame_to_discord_id_mapping(all_identity_mappings, mac_to_discord):
+    """
+    Build a mapping from in-game names to Discord user IDs (integers).
+
+    This is used to match players in game files to bot match player_ids.
+
+    Flow: in-game name -> MAC (from identity) -> Discord ID (integer)
+    """
+    ingame_to_discord_id = {}
+
+    # Combine all identity mappings
+    combined_identity = {}
+    for mapping in all_identity_mappings.values():
+        combined_identity.update(mapping)
+
+    # For each in-game name, try to find the Discord ID
+    for ingame_name_lower, mac in combined_identity.items():
+        discord_id = mac_to_discord.get(mac)
+        if discord_id:
+            ingame_to_discord_id[ingame_name_lower] = discord_id
+
+    return ingame_to_discord_id
 
 
 def parse_identity_file(identity_path):
@@ -1366,9 +1412,13 @@ def main():
             all_identity_mappings[identity_file] = name_to_mac
         print(f"  Loaded {len(identity_files)} identity file(s) with {sum(len(m) for m in all_identity_mappings.values())} player mappings")
 
-    # Build in-game name to Discord display name mapping
+    # Build in-game name to Discord display name mapping (for stats attribution)
     ingame_to_discord = build_ingame_to_discord_mapping(all_identity_mappings, mac_to_discord, players)
     print(f"Built {len(ingame_to_discord)} in-game->Discord name mappings")
+
+    # Build in-game name to Discord ID mapping (for bot match player matching)
+    ingame_to_discord_id = build_ingame_to_discord_id_mapping(all_identity_mappings, mac_to_discord)
+    print(f"Built {len(ingame_to_discord_id)} in-game->Discord ID mappings")
 
     # Load matches from Discord bot match history files
     all_matches = load_active_matches()
@@ -1472,7 +1522,7 @@ def main():
 
     for filename, source_dir in all_game_files:
         file_path = os.path.join(source_dir, filename)
-        playlist = determine_playlist(file_path, all_matches, manual_playlists, ingame_to_discord, debug=debug_mode)
+        playlist = determine_playlist(file_path, all_matches, manual_playlists, ingame_to_discord_id, debug=debug_mode)
 
         game = parse_excel_file(file_path)
         game['source_file'] = filename
