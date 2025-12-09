@@ -646,17 +646,22 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
     if not all_matches:
         return None
 
-    # Parse game timestamp
+    # Parse game timestamp (assumed to be local time, no timezone info)
     if isinstance(game_timestamp, str):
         try:
             game_dt = datetime.fromisoformat(game_timestamp.replace('Z', '+00:00'))
+            # Remove timezone info for comparison (treat as naive local time)
+            if game_dt.tzinfo is not None:
+                game_dt = game_dt.replace(tzinfo=None)
         except:
             return None
     else:
         game_dt = game_timestamp
+        if hasattr(game_dt, 'tzinfo') and game_dt.tzinfo is not None:
+            game_dt = game_dt.replace(tzinfo=None)
 
     for match in all_matches:
-        # Parse match timestamps
+        # Parse match timestamps (bot stores UTC)
         start_time = match.get('start_time')
         end_time = match.get('end_time')
 
@@ -664,7 +669,13 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
             continue
 
         try:
+            # Bot timestamps are UTC - convert to local time for comparison
             start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+            if start_dt.tzinfo is not None:
+                start_dt = start_dt.replace(tzinfo=None)
+            # Subtract 5 hours for EST (UTC-5) - bot stores UTC, games are local EST
+            from datetime import timedelta
+            start_dt = start_dt - timedelta(hours=5)
         except:
             continue
 
@@ -675,6 +686,10 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
         if end_time:
             try:
                 end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                if end_dt.tzinfo is not None:
+                    end_dt = end_dt.replace(tzinfo=None)
+                # Convert UTC to EST
+                end_dt = end_dt - timedelta(hours=5)
                 if game_dt > end_dt:
                     continue
             except:
