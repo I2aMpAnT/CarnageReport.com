@@ -823,6 +823,7 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
 
         if matched_entry:
             playlist = matched_entry.get('_playlist') or matched_entry.get('playlist_name', '')
+            playlist = normalize_playlist_name(playlist)  # Convert "Ranked MLG 4v4" -> "MLG 4v4" etc.
             if debug:
                 print(f"    DEBUG [{filename}]: Matched playlist={playlist}")
 
