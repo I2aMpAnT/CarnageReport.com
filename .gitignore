@@ -26,3 +26,9 @@ Thumbs.db
 
 # Sensitive data (contains MAC addresses)
 players.json
+
+# Local data files
+MMR.json
+head_to_head_matches.json
+head_to_head_stats.json
+populate_stats_fixed.py
