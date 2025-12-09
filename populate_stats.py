@@ -1540,6 +1540,13 @@ def main():
                 if key in rankstats[user_id]:
                     del rankstats[user_id][key]
         print(f"  Zeroed stats for {len(rankstats)} players")
+        # Clear customgames.json during full rebuild to avoid duplicates
+        try:
+            with open(CUSTOMGAMES_FILE, 'w') as f:
+                json.dump([], f)
+            print(f"  Cleared {CUSTOMGAMES_FILE} for fresh rebuild")
+        except Exception as e:
+            print(f"  Warning: Could not clear {CUSTOMGAMES_FILE}: {e}")
 
     # STEP 2: Find and parse ALL games, determining playlist for each
     # ALL matches are logged for stats, but only playlist-tagged matches count for rank
