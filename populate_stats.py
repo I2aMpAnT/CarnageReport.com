@@ -81,6 +81,20 @@ PLAYLIST_TEAM_HARDCORE = 'Team Hardcore'
 PLAYLIST_DOUBLE_TEAM = 'Double Team'
 PLAYLIST_HEAD_TO_HEAD = 'Head to Head'
 
+# Playlist aliases - map alternate names to canonical names
+PLAYLIST_ALIASES = {
+    'Ranked MLG 4v4': PLAYLIST_MLG_4V4,
+    'Ranked Team Hardcore': PLAYLIST_TEAM_HARDCORE,
+    'Ranked Double Team': PLAYLIST_DOUBLE_TEAM,
+    'Ranked Head to Head': PLAYLIST_HEAD_TO_HEAD,
+}
+
+def normalize_playlist_name(playlist):
+    """Convert playlist aliases to canonical names."""
+    if not playlist:
+        return None
+    return PLAYLIST_ALIASES.get(playlist, playlist)
+
 def get_base_gametype(game_type_field):
     """
     Convert Game Type field to display name.
@@ -768,7 +782,8 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
     # Check manual override first (highest priority)
     if manual_playlists:
         if filename in manual_playlists:
-            return manual_playlists[filename]
+            # Normalize playlist name (e.g., "Ranked MLG 4v4" -> "MLG 4v4")
+            return normalize_playlist_name(manual_playlists[filename])
 
     # Filter out short games (restarts)
     if not is_game_long_enough(file_path):
