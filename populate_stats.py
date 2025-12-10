@@ -2032,6 +2032,8 @@ def main():
         rankstats[user_id]['deaths'] = total_deaths
         rankstats[user_id]['assists'] = total_assists
         rankstats[user_id]['headshots'] = total_headshots
+        # Store all in-game names for this user (for frontend name resolution)
+        rankstats[user_id]['in_game_names'] = player_names
 
         # Calculate total wins/losses across all playlists and all aliases
         total_wins = 0
