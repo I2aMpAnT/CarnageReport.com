@@ -131,13 +131,10 @@ async function fetchTwitchVods(username) {
 
 // Find VOD that covers a specific time, returns { vod, timestampSeconds } or null
 function findVodForTime(vods, gameStartTime, gameDurationMinutes = 15) {
-    // Parse game time - format: "MM/DD/YYYY HH:MM" in EST
-    const match = gameStartTime.match(/(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)/);
-    if (!match) return null;
+    // Parse game time using parseGameDateTime which handles EST/EDT properly
+    const gameStartUTC = parseGameDateTime(gameStartTime);
+    if (!gameStartUTC) return null;
 
-    const [, month, day, year, hour, minute] = match.map(Number);
-    // Convert EST to UTC (add 5 hours)
-    const gameStartUTC = new Date(Date.UTC(year, month - 1, day, hour + 5, minute));
     const gameEndUTC = new Date(gameStartUTC.getTime() + gameDurationMinutes * 60 * 1000);
 
     for (const vod of vods) {
@@ -354,10 +351,12 @@ function findGamesForVod(vod) {
                 const offsetSeconds = Math.max(0, Math.floor((startDate - vodStart) / 1000));
                 const players = (game.players || []).map(p => p.name).filter(Boolean);
 
+                const rawType = game.details['Variant Name'] || game.details['Game Type'] || 'Unknown';
+                const baseGameType = getBaseGametype(rawType, game.playlist, game);
                 matchingGames.push({
                     index: index,
                     mapName: game.details['Map Name'] || 'Unknown',
-                    gameType: game.details['Variant Name'] || game.details['Game Type'] || 'Unknown',
+                    gameType: baseGameType,
                     startTime: game.details['Start Time'],
                     timestampSeconds: offsetSeconds,
                     timestampFormatted: formatVodTimestamp(offsetSeconds),
@@ -2369,7 +2368,7 @@ function renderScoreboard(game) {
     const gameType = (details['Game Type'] || '').toLowerCase();
     const hasTeams = players.some(p => isValidTeam(p.team));
 
-    // Sort players: Red team first, then Blue team
+    // Sort players: Red team first then Blue team for team games, by score for FFA
     const sortedPlayers = [...players];
     if (hasTeams) {
         sortedPlayers.sort((a, b) => {
@@ -2377,6 +2376,15 @@ function renderScoreboard(game) {
             const teamA = teamOrder[a.team] !== undefined ? teamOrder[a.team] : 2;
             const teamB = teamOrder[b.team] !== undefined ? teamOrder[b.team] : 2;
             return teamA - teamB;
+        });
+    } else {
+        // FFA - sort by score descending (highest score first)
+        const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
+        sortedPlayers.sort((a, b) => {
+            if (isOddball) {
+                return timeToSeconds(b.score) - timeToSeconds(a.score);
+            }
+            return (parseInt(b.score) || 0) - (parseInt(a.score) || 0);
         });
     }
 
@@ -4824,7 +4832,7 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
     };
 
     gamesData.forEach(game => {
-        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+        const isRankedGame = game.playlist && game.playlist.trim() !== '' && !game.isCustomGame;
 
         // Skip custom games for game count unless includeCustomGames is true
         if (!includeCustomGames && !isRankedGame) {
@@ -5133,7 +5141,7 @@ function filterProfileByWinLoss(filterType) {
     let filteredGames = [...currentProfileGames];
     
     // Helper function to check if game is ranked (not custom)
-    const isRankedGame = (game) => game.playlist && game.playlist.trim() !== '';
+    const isRankedGame = (game) => game.playlist && game.playlist.trim() !== '' && !game.isCustomGame;
 
     // Helper function to determine if player won
     const didPlayerWin = (game, player) => {
@@ -5336,7 +5344,7 @@ function showProfileWinrateBreakdown() {
 
     for (const game of currentProfileGames) {
         // Skip custom/unranked games
-        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+        const isRankedGame = game.playlist && game.playlist.trim() !== '' && !game.isCustomGame;
         if (!isRankedGame) continue;
 
         const mapName = game.details['Map Name'] || 'Unknown';
@@ -6615,7 +6623,7 @@ function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
         const player = game.players.find(p => p.name === playerName);
         if (!player) return;
 
-        const isRankedGame = game.playlist && game.playlist.trim() !== '';
+        const isRankedGame = game.playlist && game.playlist.trim() !== '' && !game.isCustomGame;
 
         // Skip custom games unless checkbox is checked
         if (!isRankedGame && !includeCustomGames) return;
