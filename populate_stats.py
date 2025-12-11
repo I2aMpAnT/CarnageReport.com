@@ -1702,6 +1702,13 @@ def main():
                 # discord_name should already be set correctly in rankstats from players.json
                 # Don't overwrite with in-game names - those are only for identification
                 # Only set alias if player has explicitly set one (not from in-game names)
+
+                # Check if this player was previously unlinked (had a temp_id)
+                # If so, remove the old temp_id entry since they're now properly linked
+                old_temp_id = str(abs(hash(player_name)) % 10**18)
+                if old_temp_id in rankstats and rankstats[old_temp_id].get('mac_linked') == False:
+                    print(f"    Merging previously unlinked player '{player_name}' to discord ID {user_id}")
+                    del rankstats[old_temp_id]
             else:
                 # Create new entry for unmatched player - flag as not MAC linked
                 temp_id = str(abs(hash(player_name)) % 10**18)
