@@ -1457,10 +1457,10 @@ function getDisplayNameForProfile(inGameName) {
     const discordId = profileNameToDiscordId[inGameName];
     if (discordId && rankstatsData[discordId]) {
         const data = rankstatsData[discordId];
-        return data.display_name || data.discord_name || 'Unknown';
+        return data.display_name || data.discord_name || 'No MAC Linked';
     }
-    // If no mapping found, return "Unknown" instead of in-game name
-    return 'Unknown';
+    // If no mapping found, player's MAC isn't linked to a discord ID
+    return 'No MAC Linked';
 }
 
 // Get the display name for a discord ID
