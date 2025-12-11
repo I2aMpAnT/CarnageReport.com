@@ -91,6 +91,65 @@ PLAYLIST_ALIASES = {
     'Ranked Head to Head': PLAYLIST_HEAD_TO_HEAD,
 }
 
+# All supported timestamp formats for parsing
+TIMESTAMP_FORMATS = [
+    '%m/%d/%Y %H:%M',       # 12/9/2025 7:45
+    '%m/%d/%Y %H:%M:%S',    # 12/9/2025 7:45:00
+    '%Y-%m-%d %H:%M:%S',    # 2025-12-09 07:45:00
+    '%Y-%m-%d %H:%M',       # 2025-12-09 07:45
+    '%Y-%m-%dT%H:%M:%S',    # 2025-12-09T07:45:00
+    '%Y-%m-%dT%H:%M',       # 2025-12-09T07:45
+    '%m-%d-%Y %H:%M',       # 12-09-2025 07:45
+    '%m-%d-%Y %H:%M:%S',    # 12-09-2025 07:45:00
+    '%d/%m/%Y %H:%M',       # 9/12/2025 7:45 (European)
+    '%d/%m/%Y %H:%M:%S',    # 9/12/2025 7:45:00 (European)
+    '%Y/%m/%d %H:%M',       # 2025/12/09 07:45
+    '%Y/%m/%d %H:%M:%S',    # 2025/12/09 07:45:00
+    '%m/%d/%y %H:%M',       # 12/9/25 7:45 (2-digit year)
+    '%m/%d/%y %H:%M:%S',    # 12/9/25 7:45:00 (2-digit year)
+    '%b %d %Y %H:%M',       # Dec 9 2025 7:45
+    '%b %d, %Y %H:%M',      # Dec 9, 2025 7:45
+    '%B %d %Y %H:%M',       # December 9 2025 7:45
+    '%B %d, %Y %H:%M',      # December 9, 2025 7:45
+]
+
+def parse_timestamp(timestamp_str):
+    """
+    Parse a timestamp string into a datetime object.
+    Handles many common formats including manually adjusted timestamps.
+
+    Returns datetime object or None if parsing fails.
+    """
+    if not timestamp_str:
+        return None
+
+    # If already a datetime, return it
+    if isinstance(timestamp_str, datetime):
+        if hasattr(timestamp_str, 'tzinfo') and timestamp_str.tzinfo is not None:
+            return timestamp_str.replace(tzinfo=None)
+        return timestamp_str
+
+    timestamp_str = str(timestamp_str).strip()
+    if not timestamp_str:
+        return None
+
+    # Try each format
+    for fmt in TIMESTAMP_FORMATS:
+        try:
+            return datetime.strptime(timestamp_str, fmt)
+        except (ValueError, TypeError):
+            continue
+
+    # Try pandas as fallback (handles many edge cases)
+    try:
+        dt = pd.to_datetime(timestamp_str)
+        if pd.notna(dt):
+            return dt.to_pydatetime().replace(tzinfo=None)
+    except:
+        pass
+
+    return None
+
 def normalize_playlist_name(playlist):
     """Convert playlist aliases to canonical names."""
     if not playlist:
@@ -223,8 +282,12 @@ def detect_series(games, get_display_name_func):
     if not games:
         return []
 
-    # Sort games by timestamp
-    sorted_games = sorted(games, key=lambda g: g['details'].get('Start Time', ''))
+    # Sort games by timestamp using robust parser
+    def get_game_time(g):
+        ts = g['details'].get('Start Time', '')
+        dt = parse_timestamp(ts)
+        return dt if dt else datetime.min
+    sorted_games = sorted(games, key=get_game_time)
 
     series_list = []
     current_series = None
@@ -713,31 +776,12 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
         return None
 
     # Parse game timestamp (assumed to be local time, no timezone info)
-    if isinstance(game_timestamp, str):
-        game_dt = None
-        # Try ISO format first
-        try:
-            game_dt = datetime.fromisoformat(game_timestamp.replace('Z', '+00:00'))
-            if game_dt.tzinfo is not None:
-                game_dt = game_dt.replace(tzinfo=None)
-        except:
-            pass
-        # Try common formats: "12/9/2025 7:45" or "12/9/2025 7:45:00"
-        if game_dt is None:
-            for fmt in ['%m/%d/%Y %H:%M', '%m/%d/%Y %H:%M:%S', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M']:
-                try:
-                    game_dt = datetime.strptime(game_timestamp, fmt)
-                    break
-                except:
-                    pass
-        if game_dt is None:
-            if debug:
-                print(f"    DEBUG [{filename}]: Failed to parse game timestamp: {game_timestamp}")
-            return None
-    else:
-        game_dt = game_timestamp
-        if hasattr(game_dt, 'tzinfo') and game_dt.tzinfo is not None:
-            game_dt = game_dt.replace(tzinfo=None)
+    # Use robust timestamp parser
+    game_dt = parse_timestamp(game_timestamp)
+    if game_dt is None:
+        if debug:
+            print(f"    DEBUG [{filename}]: Failed to parse game timestamp: {game_timestamp}")
+        return None
 
     if debug:
         print(f"    DEBUG [{filename}]: Game datetime (local): {game_dt}")
@@ -1938,14 +1982,11 @@ def main():
 
         # Get game end time for rankhistory timestamp
         game_end_time = game['details'].get('End Time', '')
-        # Convert "MM/DD/YYYY HH:MM" to ISO format "YYYY-MM-DDTHH:MM:00"
-        try:
-            if game_end_time and '/' in game_end_time:
-                dt = datetime.strptime(game_end_time, '%m/%d/%Y %H:%M')
-                game_timestamp = dt.strftime('%Y-%m-%dT%H:%M:00')
-            else:
-                game_timestamp = game_end_time
-        except:
+        # Convert to ISO format "YYYY-MM-DDTHH:MM:00" using robust parser
+        dt = parse_timestamp(game_end_time)
+        if dt:
+            game_timestamp = dt.strftime('%Y-%m-%dT%H:%M:00')
+        else:
             game_timestamp = game_end_time
 
         print(f"\n  Ranked Game {game_num} [{playlist}]: {game_name}")

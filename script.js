@@ -201,33 +201,74 @@ function getGameTimeRanges() {
     return ranges;
 }
 
-// Parse game date time string "MM/DD/YYYY HH:MM" as Eastern Time and return Date object
+// Parse game date time string in various formats as Eastern Time and return Date object
 // All game timestamps are stored in Eastern Time (America/New_York)
+// Supports: MM/DD/YYYY HH:MM, YYYY-MM-DD HH:MM, ISO formats, and more
 function parseGameDateTime(dateStr) {
     if (!dateStr) return null;
+
     try {
-        // Format: "11/28/2025 20:03"
-        const parts = dateStr.split(' ');
-        if (parts.length !== 2) return null;
-        const dateParts = parts[0].split('/');
-        const timeParts = parts[1].split(':');
-        if (dateParts.length !== 3 || timeParts.length !== 2) return null;
-        const month = parseInt(dateParts[0]);
-        const day = parseInt(dateParts[1]);
-        const year = parseInt(dateParts[2]);
-        const hours = parseInt(timeParts[0]);
-        const minutes = parseInt(timeParts[1]);
+        let year, month, day, hours = 0, minutes = 0;
 
-        // Create date string in ISO format with Eastern Time offset
-        // We need to determine if it's EST (-05:00) or EDT (-04:00)
+        // Try ISO format with T (2025-12-09T07:45:00)
+        const isoTMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+        if (isoTMatch) {
+            [, year, month, day, hours, minutes] = isoTMatch.map(v => parseInt(v) || 0);
+        }
+
+        // Try ISO format with space (2025-12-09 07:45:00)
+        if (!year) {
+            const isoSpaceMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+            if (isoSpaceMatch) {
+                [, year, month, day, hours, minutes] = isoSpaceMatch.map(v => parseInt(v) || 0);
+            }
+        }
+
+        // Try US format (12/9/2025 7:45 or 12/9/2025 7:45:00)
+        if (!year) {
+            const usMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+            if (usMatch) {
+                [, month, day, year, hours, minutes] = usMatch.map(v => parseInt(v) || 0);
+            }
+        }
+
+        // Try US format with 2-digit year (12/9/25 7:45)
+        if (!year) {
+            const us2Match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+            if (us2Match) {
+                [, month, day, year, hours, minutes] = us2Match.map(v => parseInt(v) || 0);
+                year = year < 50 ? 2000 + year : 1900 + year;
+            }
+        }
+
+        // Try dash format (12-09-2025 07:45)
+        if (!year) {
+            const dashMatch = dateStr.match(/^(\d{1,2})-(\d{1,2})-(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+            if (dashMatch) {
+                [, month, day, year, hours, minutes] = dashMatch.map(v => parseInt(v) || 0);
+            }
+        }
+
+        // Try YYYY/MM/DD format (2025/12/09 07:45)
+        if (!year) {
+            const ymdSlashMatch = dateStr.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+            if (ymdSlashMatch) {
+                [, year, month, day, hours, minutes] = ymdSlashMatch.map(v => parseInt(v) || 0);
+            }
+        }
+
+        // Fallback: try native Date parsing
+        if (!year) {
+            const fallbackDate = new Date(dateStr);
+            if (!isNaN(fallbackDate.getTime())) {
+                return fallbackDate;
+            }
+            return null;
+        }
+
+        // Calculate Eastern Time offset (EST/EDT)
         const tempDate = new Date(year, month - 1, day, hours, minutes);
-        const jan = new Date(year, 0, 1);
-        const jul = new Date(year, 6, 1);
-        const stdOffset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
-        const isDST = tempDate.getTimezoneOffset() < stdOffset;
 
-        // For Eastern Time: EST = -05:00, EDT = -04:00
-        // We need to check if the date falls in DST for Eastern timezone
         // DST in US: Second Sunday of March to First Sunday of November
         const marchSecondSunday = new Date(year, 2, 1);
         marchSecondSunday.setDate(14 - marchSecondSunday.getDay());
