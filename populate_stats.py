@@ -1462,8 +1462,19 @@ def find_player_by_name(rankstats, name, profile_lookup=None):
     return None
 
 def main():
-    # Check for debug mode via environment variable
-    debug_mode = os.environ.get('POPSTATS_DEBUG', '').lower() in ('1', 'true', 'yes')
+    import argparse
+    parser = argparse.ArgumentParser(description='Populate stats from game files')
+    parser.add_argument('--force', action='store_true', help='Force full rebuild, ignoring processed_state.json')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
+    args = parser.parse_args()
+
+    # Check for debug mode via argument or environment variable
+    debug_mode = args.debug or os.environ.get('POPSTATS_DEBUG', '').lower() in ('1', 'true', 'yes')
+    force_rebuild = args.force
+
+    if force_rebuild:
+        print("FORCE REBUILD MODE - ignoring processed_state.json")
+        print("=" * 50)
     if debug_mode:
         print("DEBUG MODE ENABLED")
         print("=" * 50)
@@ -1532,13 +1543,23 @@ def main():
     # Check for changes since last run - use get_all_game_files() which checks all directories
     all_game_files = get_all_game_files()
     stats_files = sorted([f[0] for f in all_game_files])  # Extract just filenames
-    processed_state = load_processed_state()
-    needs_full_rebuild, new_files, changed_playlists = check_for_changes(stats_files, manual_playlists, processed_state)
 
-    if not new_files and not changed_playlists:
-        print("\nNo changes detected - nothing to process!")
-        print("  (Add new game files or update manual_playlists.json to trigger processing)")
-        return
+    # If force rebuild, clear processed state to treat all files as new
+    if force_rebuild:
+        print("\nForce rebuild requested - clearing processed state...")
+        processed_state = {"games": {}, "manual_playlists_hash": ""}
+        new_files = stats_files  # All files are "new"
+        changed_playlists = {}
+        needs_full_rebuild = True
+    else:
+        processed_state = load_processed_state()
+        needs_full_rebuild, new_files, changed_playlists = check_for_changes(stats_files, manual_playlists, processed_state)
+
+        if not new_files and not changed_playlists:
+            print("\nNo changes detected - nothing to process!")
+            print("  (Add new game files or update manual_playlists.json to trigger processing)")
+            print("  (Use --force to force a full rebuild)")
+            return
 
     print(f"\nChanges detected:")
     if new_files:
