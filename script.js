@@ -1452,14 +1452,15 @@ function buildProfileNameMappings() {
 }
 
 // Get the display name for an in-game profile name
-// Priority: display_name > discord_name > in-game name
+// Priority: display_name > discord_name (NEVER return in-game name)
 function getDisplayNameForProfile(inGameName) {
     const discordId = profileNameToDiscordId[inGameName];
     if (discordId && rankstatsData[discordId]) {
         const data = rankstatsData[discordId];
-        return data.display_name || data.discord_name || inGameName;
+        return data.display_name || data.discord_name || 'Unknown';
     }
-    return inGameName;
+    // If no mapping found, return "Unknown" instead of in-game name
+    return 'Unknown';
 }
 
 // Get the display name for a discord ID
