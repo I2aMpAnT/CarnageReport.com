@@ -982,18 +982,37 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
     # Games MUST have a bot session to be tagged with a playlist
     return None
 
+def normalize_mac(mac):
+    """
+    Normalize MAC address to lowercase without any separators.
+    Handles: AA:BB:CC:DD:EE:FF, AA-BB-CC-DD-EE-FF, aabbccddeeff, etc.
+    """
+    if not mac:
+        return ''
+    return mac.replace(':', '').replace('-', '').replace(' ', '').lower()
+
 def build_mac_to_discord_lookup(players):
     """
     Build a lookup from MAC address to Discord user_id from players.json.
-    MAC addresses are normalized to lowercase without colons.
+    MAC addresses are normalized to lowercase without any separators.
     """
     mac_to_user = {}
     for user_id, data in players.items():
+        # Try multiple possible field names for MAC addresses
         mac_addresses = data.get('mac_addresses', [])
+        if not mac_addresses:
+            mac_addresses = data.get('mac_address', [])
+            if isinstance(mac_addresses, str):
+                mac_addresses = [mac_addresses]
+        if not mac_addresses:
+            mac_addr = data.get('mac', '')
+            if mac_addr:
+                mac_addresses = [mac_addr]
+
         for mac in mac_addresses:
-            # Normalize MAC: remove colons and lowercase
-            normalized_mac = mac.replace(':', '').lower()
-            mac_to_user[normalized_mac] = user_id
+            normalized_mac = normalize_mac(mac)
+            if normalized_mac:
+                mac_to_user[normalized_mac] = user_id
     return mac_to_user
 
 
@@ -1059,8 +1078,9 @@ def parse_identity_file(identity_path):
         name_to_mac = {}
         for _, row in df.iterrows():
             player_name = str(row.get('Player Name', '')).strip()
-            # Machine Identifier is the MAC address (without colons)
-            mac = str(row.get('Machine Identifier', '')).strip().lower()
+            # Machine Identifier is the MAC address - normalize it
+            raw_mac = str(row.get('Machine Identifier', '')).strip()
+            mac = normalize_mac(raw_mac)
             if player_name and mac:
                 name_to_mac[player_name.lower()] = mac
         return name_to_mac
