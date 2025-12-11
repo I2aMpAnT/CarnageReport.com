@@ -1493,23 +1493,25 @@ function buildProfileNameMappings() {
 }
 
 // Get the display name for an in-game profile name
-// Priority: display_name > discord_name (NEVER return in-game name)
+// ONLY use discord_name - NEVER use display_name (may contain in-game names)
 function getDisplayNameForProfile(inGameName) {
     const discordId = profileNameToDiscordId[inGameName];
     if (discordId && rankstatsData[discordId]) {
         const data = rankstatsData[discordId];
-        return data.display_name || data.discord_name || 'No MAC Linked';
+        // ONLY use discord_name, never display_name (it may be polluted with in-game names)
+        return data.discord_name || 'No MAC Linked';
     }
     // If no mapping found, player's MAC isn't linked to a discord ID
     return 'No MAC Linked';
 }
 
 // Get the display name for a discord ID
-// Priority: display_name > discord_name
+// ONLY use discord_name - NEVER use display_name (may contain in-game names)
 function getDisplayNameForDiscordId(discordId) {
     if (rankstatsData[discordId]) {
         const data = rankstatsData[discordId];
-        return data.display_name || data.discord_name || 'Unknown';
+        // ONLY use discord_name, never display_name
+        return data.discord_name || 'Unknown';
     }
     return 'Unknown';
 }

@@ -1852,9 +1852,10 @@ def main():
                     'total_games': 0,
                     'total_series': 0,
                     'mmr': 750,
-                    'discord_name': player_name,
+                    'discord_name': '',  # Empty - NEVER use in-game name as discord_name
                     'rank': 1,
-                    'mac_linked': False  # Flag to hide from leaderboard until MAC is linked
+                    'mac_linked': False,  # Flag to hide from leaderboard until MAC is linked
+                    'in_game_name': player_name  # Store in-game name separately for reference
                 }
                 print(f"    Warning: Could not resolve '{player_name}' to Discord ID (in {game_file})")
 
