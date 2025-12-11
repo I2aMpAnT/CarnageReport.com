@@ -3380,13 +3380,22 @@ function renderLeaderboard(selectedPlaylist = null) {
     });
 
     // Filter players based on playlist selection
+    // Also filter out players without MAC linked (mac_linked: false in rankstatsData)
     let filteredPlayers;
     if (selectedPlaylist !== 'all') {
-        // Only show players who have played in this playlist
-        filteredPlayers = players.filter(p => p.hasPlaylistData);
+        // Only show players who have played in this playlist AND have MAC linked
+        filteredPlayers = players.filter(p => {
+            const globalData = rankstatsData[p.discordId] || {};
+            const isMacLinked = globalData.mac_linked !== false;  // true if mac_linked is true or undefined
+            return p.hasPlaylistData && isMacLinked;
+        });
     } else {
-        // Show all players with games
-        filteredPlayers = players.filter(p => p.games > 0);
+        // Show all players with games AND MAC linked
+        filteredPlayers = players.filter(p => {
+            const globalData = rankstatsData[p.discordId] || {};
+            const isMacLinked = globalData.mac_linked !== false;
+            return p.games > 0 && isMacLinked;
+        });
     }
 
     // Sort by rank descending (50 at top, 1 at bottom), then by wins, then by K/D
@@ -3606,6 +3615,9 @@ function setupPvpSearchBox(inputElement, resultsElement, playerNum) {
 
         // Also search by discord names and in_game_names in rankstatsData
         Object.entries(rankstatsData).forEach(([discordId, data]) => {
+            // Skip players without MAC linked
+            if (data.mac_linked === false) return;
+
             const discordName = data.discord_name || '';
             const inGameNamesArr = data.in_game_names || [];
             // Display name priority: display_name > discord_name
@@ -3747,6 +3759,9 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
 
         // Also search by discord names and in_game_names in rankstatsData
         Object.entries(rankstatsData).forEach(([discordId, data]) => {
+            // Skip players without MAC linked
+            if (data.mac_linked === false) return;
+
             const discordName = data.discord_name || '';
             const inGameNamesArr = data.in_game_names || [];
             // Display name priority: display_name > discord_name

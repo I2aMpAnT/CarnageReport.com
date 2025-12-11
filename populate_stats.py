@@ -1703,7 +1703,7 @@ def main():
                 # Don't overwrite with in-game names - those are only for identification
                 # Only set alias if player has explicitly set one (not from in-game names)
             else:
-                # Create new entry for unmatched player
+                # Create new entry for unmatched player - flag as not MAC linked
                 temp_id = str(abs(hash(player_name)) % 10**18)
                 player_to_id[player_name] = temp_id
                 rankstats[temp_id] = {
@@ -1716,7 +1716,8 @@ def main():
                     'total_series': 0,
                     'mmr': 750,
                     'discord_name': player_name,
-                    'rank': 1
+                    'rank': 1,
+                    'mac_linked': False  # Flag to hide from leaderboard until MAC is linked
                 }
                 print(f"    Warning: Could not resolve '{player_name}' to Discord ID (in {game_file})")
 
@@ -2034,6 +2035,9 @@ def main():
         rankstats[user_id]['headshots'] = total_headshots
         # Store all in-game names for this user (for frontend name resolution)
         rankstats[user_id]['in_game_names'] = player_names
+        # Set mac_linked flag - true if not already set to false (from unlinked player creation)
+        if 'mac_linked' not in rankstats[user_id]:
+            rankstats[user_id]['mac_linked'] = True
 
         # Calculate total wins/losses across all playlists and all aliases
         total_wins = 0
