@@ -1832,8 +1832,8 @@ async function loadGamesData() {
 
         // Sort all games chronologically (oldest first, newest last)
         gamesData.sort((a, b) => {
-            const timeA = new Date(a.details['Start Time'] || a.details['End Time'] || 0);
-            const timeB = new Date(b.details['Start Time'] || b.details['End Time'] || 0);
+            const timeA = parseGameDateTime(a.details['Start Time']) || parseGameDateTime(a.details['End Time']) || new Date(0);
+            const timeB = parseGameDateTime(b.details['Start Time']) || parseGameDateTime(b.details['End Time']) || new Date(0);
             return timeA - timeB;
         });
         console.log('[DEBUG] Games sorted chronologically');
@@ -6927,10 +6927,10 @@ function sortPlayerGames() {
     
     switch(sortBy) {
         case 'date-desc':
-            games.sort((a, b) => new Date(b.details['Start Time'] || 0) - new Date(a.details['Start Time'] || 0));
+            games.sort((a, b) => (parseGameDateTime(b.details['Start Time']) || new Date(0)) - (parseGameDateTime(a.details['Start Time']) || new Date(0)));
             break;
         case 'date-asc':
-            games.sort((a, b) => new Date(a.details['Start Time'] || 0) - new Date(b.details['Start Time'] || 0));
+            games.sort((a, b) => (parseGameDateTime(a.details['Start Time']) || new Date(0)) - (parseGameDateTime(b.details['Start Time']) || new Date(0)));
             break;
         case 'map':
             games.sort((a, b) => (a.details['Map Name'] || '').localeCompare(b.details['Map Name'] || ''));
@@ -7259,10 +7259,10 @@ function sortGames() {
     
     switch(sortBy) {
         case 'date-desc':
-            games.sort((a, b) => new Date(b.details['Start Time'] || 0) - new Date(a.details['Start Time'] || 0));
+            games.sort((a, b) => (parseGameDateTime(b.details['Start Time']) || new Date(0)) - (parseGameDateTime(a.details['Start Time']) || new Date(0)));
             break;
         case 'date-asc':
-            games.sort((a, b) => new Date(a.details['Start Time'] || 0) - new Date(b.details['Start Time'] || 0));
+            games.sort((a, b) => (parseGameDateTime(a.details['Start Time']) || new Date(0)) - (parseGameDateTime(b.details['Start Time']) || new Date(0)));
             break;
         case 'map':
             games.sort((a, b) => (a.details['Map Name'] || '').localeCompare(b.details['Map Name'] || ''));
