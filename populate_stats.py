@@ -2333,10 +2333,13 @@ def main():
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
             # Build player_stats array (basic player info with stats)
+            # Keep original in-game name and add discord_id for frontend name resolution
             player_stats = []
             for p in game['players']:
+                player_discord_id = player_to_id.get(p['name'])
                 player_stats.append({
-                    'name': get_display_name(p['name']),
+                    'name': p['name'],  # Keep original in-game name for lookups
+                    'discord_id': player_discord_id,  # Add discord_id for name resolution
                     'team': p.get('team', ''),
                     'kills': p.get('kills', 0),
                     'deaths': p.get('deaths', 0),
@@ -2353,10 +2356,11 @@ def main():
                 })
 
             # Build detailed_stats array (Game Statistics sheet data with emblem URLs)
+            # Keep original in-game names - frontend handles display name conversion
             detailed_stats = []
             for stat in game.get('detailed_stats', []):
                 detailed_stats.append({
-                    'player': get_display_name(stat.get('player', '')),
+                    'player': stat.get('player', ''),  # Keep original in-game name
                     'emblem_url': stat.get('emblem_url', ''),
                     'kills': stat.get('kills', 0),
                     'assists': stat.get('assists', 0),
@@ -2372,31 +2376,32 @@ def main():
                 })
 
             # Build medals array (Medal Stats sheet data)
+            # Keep original in-game names - frontend handles display name conversion
             medals = []
             for medal in game.get('medals', []):
-                medal_entry = {'player': get_display_name(medal.get('player', ''))}
+                medal_entry = {'player': medal.get('player', '')}  # Keep original in-game name
                 for k, v in medal.items():
                     if k != 'player':
                         medal_entry[k] = v
                 medals.append(medal_entry)
 
             # Build weapons array (Weapon Statistics sheet data)
+            # Keep original in-game names - frontend handles display name conversion
             weapons = []
             for weapon in game.get('weapons', []):
-                weapon_entry = {'Player': get_display_name(weapon.get('Player', ''))}
+                weapon_entry = {'Player': weapon.get('Player', '')}  # Keep original in-game name
                 for k, v in weapon.items():
                     if k != 'Player':
                         weapon_entry[k] = v
                 weapons.append(weapon_entry)
 
-            # Build versus data with display names (Versus sheet - kill matrix)
+            # Build versus data (Versus sheet - kill matrix)
+            # Keep original in-game names - frontend handles display name conversion
             versus_data = {}
             for player_name, opponents in game.get('versus', {}).items():
-                display_name = get_display_name(player_name)
-                versus_data[display_name] = {}
+                versus_data[player_name] = {}  # Keep original in-game name
                 for opponent, kills in opponents.items():
-                    opponent_display = get_display_name(opponent.strip())
-                    versus_data[display_name][opponent_display] = kills
+                    versus_data[player_name][opponent.strip()] = kills  # Keep original
 
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
@@ -2486,10 +2491,13 @@ def main():
                 blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
 
             # Build player_stats array (basic player info with stats)
+            # Keep original in-game name and add discord_id for frontend name resolution
             player_stats = []
             for p in game['players']:
+                player_discord_id = player_to_id.get(p['name'])
                 player_stats.append({
-                    'name': get_display_name(p['name']),
+                    'name': p['name'],  # Keep original in-game name for lookups
+                    'discord_id': player_discord_id,  # Add discord_id for name resolution
                     'team': p.get('team', ''),
                     'kills': p.get('kills', 0),
                     'deaths': p.get('deaths', 0),
@@ -2506,10 +2514,11 @@ def main():
                 })
 
             # Build detailed_stats array (Game Statistics sheet data)
+            # Keep original in-game names - frontend handles display name conversion
             detailed_stats = []
             for stat in game.get('detailed_stats', []):
                 detailed_stats.append({
-                    'player': get_display_name(stat.get('player', '')),
+                    'player': stat.get('player', ''),  # Keep original in-game name
                     'emblem_url': stat.get('emblem_url', ''),
                     'kills': stat.get('kills', 0),
                     'assists': stat.get('assists', 0),
@@ -2525,31 +2534,32 @@ def main():
                 })
 
             # Build medals array (Medal Stats sheet data)
+            # Keep original in-game names - frontend handles display name conversion
             medals = []
             for medal in game.get('medals', []):
-                medal_entry = {'player': get_display_name(medal.get('player', ''))}
+                medal_entry = {'player': medal.get('player', '')}  # Keep original in-game name
                 for k, v in medal.items():
                     if k != 'player':
                         medal_entry[k] = v
                 medals.append(medal_entry)
 
             # Build weapons array (Weapon Statistics sheet data)
+            # Keep original in-game names - frontend handles display name conversion
             weapons = []
             for weapon in game.get('weapons', []):
-                weapon_entry = {'Player': get_display_name(weapon.get('Player', ''))}
+                weapon_entry = {'Player': weapon.get('Player', '')}  # Keep original in-game name
                 for k, v in weapon.items():
                     if k != 'Player':
                         weapon_entry[k] = v
                 weapons.append(weapon_entry)
 
             # Build versus data (Versus sheet - kill matrix)
+            # Keep original in-game names - frontend handles display name conversion
             versus_data = {}
             for player_name, opponents in game.get('versus', {}).items():
-                display_name = get_display_name(player_name)
-                versus_data[display_name] = {}
+                versus_data[player_name] = {}  # Keep original in-game name
                 for opponent, kills in opponents.items():
-                    opponent_display = get_display_name(opponent.strip())
-                    versus_data[display_name][opponent_display] = kills
+                    versus_data[player_name][opponent.strip()] = kills  # Keep original
 
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
