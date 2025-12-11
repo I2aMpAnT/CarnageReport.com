@@ -884,10 +884,35 @@ function formatDateTime(startTime) {
         return formatDateTimeLocal(date);
     }
 
-    // Fallback for ISO format
+    // Fallback for ISO format with T (e.g., 2025-12-10T00:39:00)
     const isoMatch = startTime.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
     if (isoMatch) {
         const date = new Date(startTime);
+        if (!isNaN(date)) {
+            return formatDateTimeLocal(date);
+        }
+    }
+
+    // Fallback for ISO format with space (e.g., 2025-12-10 00:39:00)
+    const isoSpaceMatch = startTime.match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
+    if (isoSpaceMatch) {
+        const [, year, month, day, hour, minute] = isoSpaceMatch;
+        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute));
+        if (!isNaN(date)) {
+            return formatDateTimeLocal(date);
+        }
+    }
+
+    // Fallback for US format with PM/AM (e.g., 12/9/2025 18:16 PM)
+    const usMatch = startTime.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
+    if (usMatch) {
+        let [, month, day, year, hour, minute, second, ampm] = usMatch;
+        hour = parseInt(hour);
+        if (ampm) {
+            if (ampm.toUpperCase() === 'PM' && hour < 12) hour += 12;
+            if (ampm.toUpperCase() === 'AM' && hour === 12) hour = 0;
+        }
+        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), hour, parseInt(minute));
         if (!isNaN(date)) {
             return formatDateTimeLocal(date);
         }
