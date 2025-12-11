@@ -1634,6 +1634,7 @@ function convertMatchToPlayers(match, playlist) {
     if (match.player_stats && match.player_stats.length > 0) {
         return match.player_stats.map(p => ({
             name: p.name,
+            discord_id: p.discord_id,  // Include discord_id for name resolution
             team: p.team,
             kills: p.kills || 0,
             deaths: p.deaths || 0,
