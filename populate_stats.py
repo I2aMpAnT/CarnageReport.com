@@ -34,6 +34,7 @@ SERIES_FILE = 'series.json'
 
 # Bot match history files (on VPS at /home/carnagereport/bot/)
 BOT_DIR = '/home/carnagereport/bot'
+ACTIVE_MATCH_FILE = f'{BOT_DIR}/activematch.json'  # New single file for all active matches
 MATCH_HISTORY_FILES = {
     'Head to Head': f'{BOT_DIR}/head_to_head_matches.json',
     'Double Team': f'{BOT_DIR}/double_team_matches.json',
@@ -387,34 +388,66 @@ def load_rankhistory():
 
 def load_active_matches():
     """
-    Load active and completed matches from per-playlist match history files.
+    Load active and completed matches from bot files.
 
-    Uses MATCH_HISTORY_FILES dict which maps playlist names to absolute file paths
-    in the bot directory (/home/carnagereport/bot/).
+    Loads from:
+    1. activematch.json - New single file for all active matches (has playlist in series_label)
+    2. Per-playlist history files (MLG4v4.json, etc.) - Completed matches
 
     Returns list of all matches (active + completed) with playlist info, or None.
     """
     all_matches = []
+    active_count = 0
+    completed_count = 0
 
+    # Load from new activematch.json (single file for all active matches)
+    try:
+        with open(ACTIVE_MATCH_FILE, 'r') as f:
+            data = json.load(f)
+            for match in data.get('active_matches', []):
+                # Determine playlist from series_label or playlist field
+                series_label = match.get('series_label', '')
+                playlist = match.get('playlist', '')
+                if 'MLG' in series_label or 'MLG' in playlist:
+                    match['_playlist'] = 'MLG 4v4'
+                elif 'Hardcore' in series_label or 'Hardcore' in playlist:
+                    match['_playlist'] = 'Team Hardcore'
+                elif 'Double' in series_label or 'Double' in playlist:
+                    match['_playlist'] = 'Double Team'
+                elif 'Head' in series_label or 'H2H' in series_label or 'Head' in playlist:
+                    match['_playlist'] = 'Head to Head'
+                else:
+                    match['_playlist'] = 'MLG 4v4'  # Default
+                all_matches.append(match)
+                active_count += 1
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print(f"  Warning: Error loading {ACTIVE_MATCH_FILE}: {e}")
+
+    # Load from per-playlist history files (completed matches)
     for playlist_name, filename in MATCH_HISTORY_FILES.items():
         try:
             with open(filename, 'r') as f:
                 data = json.load(f)
 
-                # Add active matches
+                # Add active matches (legacy format)
                 for match in data.get('active_matches', []):
                     match['_playlist'] = playlist_name
                     all_matches.append(match)
+                    active_count += 1
 
                 # Add completed matches
                 for match in data.get('matches', []):
                     match['_playlist'] = playlist_name
                     all_matches.append(match)
+                    completed_count += 1
         except FileNotFoundError:
             pass
         except Exception as e:
             print(f"  Warning: Error loading {filename}: {e}")
 
+    print(f"  Loaded {len(all_matches)} matches from bot ({active_count} active, {completed_count} completed)")
     return all_matches if all_matches else None
 
 def load_manual_playlists():
@@ -723,9 +756,21 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
 
     for idx, match in enumerate(all_matches):
         # Parse match timestamps (bot stores UTC)
-        start_time = match.get('start_time')
-        end_time = match.get('end_time')
+        # Handle both old format (string) and new format (object with iso/display/timezone)
+        start_time_raw = match.get('start_time')
+        end_time_raw = match.get('end_time')
         playlist = match.get('_playlist', 'unknown')
+
+        # Extract ISO string from new format or use directly if old format
+        if isinstance(start_time_raw, dict):
+            start_time = start_time_raw.get('iso', '')
+        else:
+            start_time = start_time_raw
+
+        if isinstance(end_time_raw, dict):
+            end_time = end_time_raw.get('iso', '')
+        else:
+            end_time = end_time_raw
 
         if not start_time:
             continue
