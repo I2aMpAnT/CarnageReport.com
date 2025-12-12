@@ -8,41 +8,73 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 // ===== Configuration =====
 const CONFIG = {
-    // Map GLB files location
-    mapsPath: 'maps/',
-
-    // Telemetry files location
+    mapsPath: 'maps3D/',
     telemetryPath: 'stats/',
-
-    // Player marker settings
     playerMarkerSize: 0.5,
     playerMarkerHeight: 1.8,
-
-    // Camera settings
     defaultCameraHeight: 50,
     followCameraDistance: 8,
     followCameraHeight: 4,
-
-    // Playback settings
     defaultSpeed: 1,
-    skipSeconds: 10,
+    skipSeconds: 5,
 
-    // Team colors
+    // Movement settings
+    moveSpeed: 30,
+    sprintMultiplier: 2.5,
+    lookSensitivity: 0.002,
+
+    // Gamepad settings
+    gamepadDeadzone: 0.15,
+    gamepadLookSensitivity: 0.05,
+    gamepadMoveSpeed: 40,
+
     teamColors: {
         '_game_team_blue': 0x0066ff,
         '_game_team_red': 0xff3333,
         'blue': 0x0066ff,
         'red': 0xff3333,
-        'none': 0x00ff88,  // FFA - green
-        'default': 0xffaa00  // Orange for unknown
+        'none': 0x00ff88,
+        'default': 0xffaa00
     },
-
-    // Color palette for FFA (if no team)
     ffaColors: [
         0x00ff88, 0xff6600, 0xaa00ff, 0xffff00,
         0x00ffff, 0xff00aa, 0x88ff00, 0xff8800
     ]
 };
+
+// Map name to GLB filename mapping
+const MAP_NAME_TO_GLB = {
+    'midship': 'midship',
+    'lockout': 'lockout',
+    'sanctuary': 'sanctuary',
+    'warlock': 'warlock',
+    'beaver creek': 'beavercreek',
+    'ascension': 'ascension',
+    'coagulation': 'coagulation',
+    'zanzibar': 'zanzibar',
+    'ivory tower': 'ivory_tower',
+    'burial mounds': 'burial_mounds',
+    'colossus': 'colossus',
+    'headlong': 'headlong',
+    'waterworks': 'waterworks',
+    'foundation': 'foundation',
+    'backwash': 'backwash',
+    'containment': 'containment',
+    'desolation': 'desolation',
+    'district': 'district',
+    'elongation': 'elongation',
+    'gemini': 'gemini',
+    'relic': 'relic',
+    'terminal': 'terminal',
+    'tombstone': 'tombstone',
+    'turf': 'turf',
+    'uplift': 'uplift'
+};
+
+function mapNameToGlbFilename(mapName) {
+    const normalized = mapName.toLowerCase().trim();
+    return MAP_NAME_TO_GLB[normalized] || normalized.replace(/\s+/g, '_');
+}
 
 // ===== State =====
 let scene, camera, renderer, controls;
@@ -51,52 +83,53 @@ let playerMarkers = {};
 let telemetryData = [];
 let players = [];
 let currentTimeMs = 0;
+let startTimeMs = 0;
 let totalDurationMs = 0;
 let isPlaying = false;
 let playbackSpeed = 1;
 let lastFrameTime = 0;
 let animationFrameId = null;
 let followPlayer = null;
-let viewMode = 'free'; // 'free', 'top', 'follow'
+let viewMode = 'free';
+
+// Input state
+const keys = {};
+let mouseDown = false;
+let pointerLocked = false;
+
+// Gamepad state
+let gamepadIndex = null;
+let gamepadConnected = false;
 
 // URL parameters
 let mapName = '';
 let telemetryFile = '';
 let gameInfo = {};
 
+// Timeline dragging
+let isDraggingTimeline = false;
+let wasPlayingBeforeDrag = false;
+
 // ===== Initialization =====
 async function init() {
-    // Parse URL parameters
     parseUrlParams();
-
-    // Setup Three.js scene
     setupScene();
-
-    // Setup event listeners
     setupEventListeners();
-
-    // Load map and telemetry
+    setupGamepad();
     await loadMapAndTelemetry();
-
-    // Start render loop
     animate();
 }
 
 function parseUrlParams() {
     const params = new URLSearchParams(window.location.search);
-
     mapName = params.get('map') || 'Midship';
     telemetryFile = params.get('telemetry') || '';
-
-    // Game info for display
     gameInfo = {
         map: mapName,
         gameType: params.get('gametype') || '',
         date: params.get('date') || '',
         variant: params.get('variant') || ''
     };
-
-    // Update UI with game info
     document.getElementById('mapName').textContent = mapName;
     document.getElementById('gameType').textContent = gameInfo.variant || gameInfo.gameType;
     document.getElementById('gameDate').textContent = gameInfo.date;
@@ -106,27 +139,15 @@ function setupScene() {
     const container = document.getElementById('canvas-container');
     const canvas = document.getElementById('glb-canvas');
 
-    // Scene
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a0a12);
     scene.fog = new THREE.Fog(0x0a0a12, 50, 200);
 
-    // Camera
-    camera = new THREE.PerspectiveCamera(
-        60,
-        container.clientWidth / container.clientHeight,
-        0.1,
-        1000
-    );
+    camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
     camera.position.set(0, CONFIG.defaultCameraHeight, 0);
     camera.lookAt(0, 0, 0);
 
-    // Renderer
-    renderer = new THREE.WebGLRenderer({
-        canvas: canvas,
-        antialias: true,
-        alpha: true
-    });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -135,37 +156,31 @@ function setupScene() {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
 
-    // Controls
+    // OrbitControls for orbit mode
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.screenSpacePanning = true;
     controls.minDistance = 5;
     controls.maxDistance = 200;
-    controls.maxPolarAngle = Math.PI / 2;
+    controls.enabled = false; // Start with WASD mode
 
-    // Lighting
     setupLighting();
 
-    // Grid helper for when no GLB is loaded
     const gridHelper = new THREE.GridHelper(100, 100, 0x00c8ff, 0x1a1a2e);
     gridHelper.name = 'gridHelper';
     scene.add(gridHelper);
 
-    // Handle resize
     window.addEventListener('resize', onWindowResize);
 }
 
 function setupLighting() {
-    // Ambient light
     const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
     scene.add(ambientLight);
 
-    // Hemisphere light for natural outdoor feel
     const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362e24, 0.6);
     scene.add(hemiLight);
 
-    // Main directional light (sun)
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
     dirLight.position.set(50, 100, 50);
     dirLight.castShadow = true;
@@ -179,29 +194,36 @@ function setupLighting() {
     dirLight.shadow.camera.bottom = -100;
     scene.add(dirLight);
 
-    // Fill light
     const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
     fillLight.position.set(-50, 50, -50);
     scene.add(fillLight);
 }
 
 function setupEventListeners() {
-    // Playback controls
+    // Playback buttons
     document.getElementById('playPauseBtn').addEventListener('click', togglePlayPause);
     document.getElementById('skipBackBtn').addEventListener('click', () => skip(-CONFIG.skipSeconds));
     document.getElementById('skipForwardBtn').addEventListener('click', () => skip(CONFIG.skipSeconds));
     document.getElementById('playbackSpeed').addEventListener('change', (e) => {
         playbackSpeed = parseFloat(e.target.value);
+        updateSpeedDisplay();
     });
 
-    // Timeline
+    // Timeline - enhanced media player style
     const timeline = document.getElementById('timeline');
+    const timelineContainer = document.querySelector('.timeline-wrapper');
+
+    timeline.addEventListener('mousedown', onTimelineMouseDown);
     timeline.addEventListener('input', onTimelineInput);
     timeline.addEventListener('change', onTimelineChange);
+
+    // Click anywhere on timeline track to seek
+    timelineContainer.addEventListener('click', onTimelineClick);
 
     // View controls
     document.getElementById('topViewBtn').addEventListener('click', () => setViewMode('top'));
     document.getElementById('freeViewBtn').addEventListener('click', () => setViewMode('free'));
+    document.getElementById('orbitViewBtn')?.addEventListener('click', () => setViewMode('orbit'));
     document.getElementById('followBtn').addEventListener('click', () => {
         const select = document.getElementById('followPlayerSelect');
         select.style.display = select.style.display === 'none' ? 'block' : 'none';
@@ -213,8 +235,350 @@ function setupEventListeners() {
         }
     });
 
-    // Keyboard shortcuts
+    // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+
+    // Mouse controls for free look
+    const canvas = document.getElementById('glb-canvas');
+    canvas.addEventListener('mousedown', onMouseDown);
+    canvas.addEventListener('mouseup', onMouseUp);
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('click', onCanvasClick);
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Pointer lock
+    document.addEventListener('pointerlockchange', onPointerLockChange);
+}
+
+// ===== Gamepad Support =====
+function setupGamepad() {
+    window.addEventListener('gamepadconnected', (e) => {
+        console.log('Gamepad connected:', e.gamepad.id);
+        gamepadIndex = e.gamepad.index;
+        gamepadConnected = true;
+        showGamepadNotification('Controller connected');
+    });
+
+    window.addEventListener('gamepaddisconnected', (e) => {
+        console.log('Gamepad disconnected');
+        if (e.gamepad.index === gamepadIndex) {
+            gamepadIndex = null;
+            gamepadConnected = false;
+        }
+    });
+}
+
+function pollGamepad() {
+    if (!gamepadConnected || gamepadIndex === null) return null;
+
+    const gamepads = navigator.getGamepads();
+    return gamepads[gamepadIndex];
+}
+
+function applyDeadzone(value) {
+    if (Math.abs(value) < CONFIG.gamepadDeadzone) return 0;
+    const sign = value > 0 ? 1 : -1;
+    return sign * (Math.abs(value) - CONFIG.gamepadDeadzone) / (1 - CONFIG.gamepadDeadzone);
+}
+
+function handleGamepadInput(deltaTime) {
+    const gamepad = pollGamepad();
+    if (!gamepad) return;
+
+    // Standard gamepad mapping:
+    // Left stick: axes[0] (X), axes[1] (Y) - Movement
+    // Right stick: axes[2] (X), axes[3] (Y) - Look
+    // Buttons: A(0), B(1), X(2), Y(3), LB(4), RB(5), LT(6), RT(7),
+    //          Back(8), Start(9), LS(10), RS(11), DPad Up(12), Down(13), Left(14), Right(15)
+
+    const leftX = applyDeadzone(gamepad.axes[0] || 0);
+    const leftY = applyDeadzone(gamepad.axes[1] || 0);
+    const rightX = applyDeadzone(gamepad.axes[2] || 0);
+    const rightY = applyDeadzone(gamepad.axes[3] || 0);
+
+    // Movement (left stick) - only in free mode
+    if (viewMode === 'free' && (leftX !== 0 || leftY !== 0)) {
+        const speed = CONFIG.gamepadMoveSpeed * deltaTime;
+        const direction = new THREE.Vector3();
+
+        // Get camera forward/right vectors (ignore Y for ground movement)
+        const forward = new THREE.Vector3();
+        camera.getWorldDirection(forward);
+        forward.y = 0;
+        forward.normalize();
+
+        const right = new THREE.Vector3();
+        right.crossVectors(forward, camera.up).normalize();
+
+        direction.addScaledVector(right, leftX);
+        direction.addScaledVector(forward, -leftY);
+
+        camera.position.addScaledVector(direction, speed);
+    }
+
+    // Look (right stick) - only in free mode
+    if (viewMode === 'free' && (rightX !== 0 || rightY !== 0)) {
+        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        euler.setFromQuaternion(camera.quaternion);
+
+        euler.y -= rightX * CONFIG.gamepadLookSensitivity;
+        euler.x -= rightY * CONFIG.gamepadLookSensitivity;
+        euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+
+        camera.quaternion.setFromEuler(euler);
+    }
+
+    // Timeline control (bumpers LB/RB)
+    if (gamepad.buttons[4]?.pressed) { // LB - skip back
+        skip(-CONFIG.skipSeconds * deltaTime * 2);
+    }
+    if (gamepad.buttons[5]?.pressed) { // RB - skip forward
+        skip(CONFIG.skipSeconds * deltaTime * 2);
+    }
+
+    // Play/Pause (A button) - only on press, not hold
+    if (gamepad.buttons[0]?.pressed && !gamepad.buttons[0]._lastState) {
+        togglePlayPause();
+    }
+    gamepad.buttons[0]._lastState = gamepad.buttons[0]?.pressed;
+
+    // Speed control (DPad Up/Down)
+    if (gamepad.buttons[12]?.pressed && !gamepad.buttons[12]._lastState) {
+        changeSpeed(1); // Increase speed
+    }
+    if (gamepad.buttons[13]?.pressed && !gamepad.buttons[13]._lastState) {
+        changeSpeed(-1); // Decrease speed
+    }
+    gamepad.buttons[12]._lastState = gamepad.buttons[12]?.pressed;
+    gamepad.buttons[13]._lastState = gamepad.buttons[13]?.pressed;
+
+    // View mode (Y button cycles views)
+    if (gamepad.buttons[3]?.pressed && !gamepad.buttons[3]._lastState) {
+        cycleViewMode();
+    }
+    gamepad.buttons[3]._lastState = gamepad.buttons[3]?.pressed;
+
+    // Triggers for fine timeline scrubbing
+    const lt = gamepad.buttons[6]?.value || 0;
+    const rt = gamepad.buttons[7]?.value || 0;
+    if (lt > 0.1 || rt > 0.1) {
+        const scrubAmount = (rt - lt) * 100 * deltaTime;
+        currentTimeMs = Math.max(startTimeMs, Math.min(startTimeMs + totalDurationMs, currentTimeMs + scrubAmount));
+        updateTimeDisplay();
+        updatePlayerPositions();
+    }
+}
+
+function changeSpeed(direction) {
+    const speeds = [0.25, 0.5, 1, 2, 4, 8];
+    const currentIndex = speeds.indexOf(playbackSpeed);
+    const newIndex = Math.max(0, Math.min(speeds.length - 1, currentIndex + direction));
+    playbackSpeed = speeds[newIndex];
+    document.getElementById('playbackSpeed').value = playbackSpeed;
+    updateSpeedDisplay();
+}
+
+function cycleViewMode() {
+    const modes = ['free', 'top', 'orbit', 'follow'];
+    const currentIndex = modes.indexOf(viewMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setViewMode(modes[nextIndex]);
+}
+
+function showGamepadNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'gamepad-notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+function updateSpeedDisplay() {
+    const btn = document.getElementById('playbackSpeed');
+    if (btn) btn.value = playbackSpeed;
+}
+
+// ===== Keyboard Controls =====
+function onKeyDown(e) {
+    keys[e.code] = true;
+
+    // Don't handle shortcuts if typing in an input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+    switch (e.code) {
+        case 'Space':
+            e.preventDefault();
+            togglePlayPause();
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            skip(-CONFIG.skipSeconds);
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            skip(CONFIG.skipSeconds);
+            break;
+        case 'ArrowUp':
+            e.preventDefault();
+            changeSpeed(1);
+            break;
+        case 'ArrowDown':
+            e.preventDefault();
+            changeSpeed(-1);
+            break;
+        case 'Digit1':
+            setViewMode('top');
+            break;
+        case 'Digit2':
+            setViewMode('free');
+            break;
+        case 'Digit3':
+            setViewMode('orbit');
+            break;
+        case 'Digit4':
+            setViewMode('follow');
+            break;
+        case 'KeyF':
+            toggleFullscreen();
+            break;
+        case 'KeyM':
+            // Toggle mute (future audio support)
+            break;
+        case 'Home':
+            currentTimeMs = startTimeMs;
+            updateTimeDisplay();
+            updatePlayerPositions();
+            break;
+        case 'End':
+            currentTimeMs = startTimeMs + totalDurationMs;
+            updateTimeDisplay();
+            updatePlayerPositions();
+            break;
+        case 'Escape':
+            if (pointerLocked) {
+                document.exitPointerLock();
+            }
+            break;
+    }
+}
+
+function onKeyUp(e) {
+    keys[e.code] = false;
+}
+
+// ===== Mouse Controls =====
+function onMouseDown(e) {
+    if (e.button === 2 || e.button === 0) { // Right or left click
+        mouseDown = true;
+    }
+}
+
+function onMouseUp(e) {
+    mouseDown = false;
+}
+
+function onMouseMove(e) {
+    if (viewMode !== 'free') return;
+
+    // Only look when pointer is locked or right mouse is held
+    if (!pointerLocked && !mouseDown) return;
+
+    const movementX = e.movementX || 0;
+    const movementY = e.movementY || 0;
+
+    const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+    euler.setFromQuaternion(camera.quaternion);
+
+    euler.y -= movementX * CONFIG.lookSensitivity;
+    euler.x -= movementY * CONFIG.lookSensitivity;
+
+    // Clamp vertical look
+    euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+
+    camera.quaternion.setFromEuler(euler);
+}
+
+function onCanvasClick(e) {
+    // Double-click to toggle pointer lock in free mode
+    if (viewMode === 'free' && e.detail === 2) {
+        const canvas = document.getElementById('glb-canvas');
+        canvas.requestPointerLock();
+    }
+}
+
+function onPointerLockChange() {
+    pointerLocked = document.pointerLockElement === document.getElementById('glb-canvas');
+}
+
+// ===== WASD Movement =====
+function handleKeyboardMovement(deltaTime) {
+    if (viewMode !== 'free') return;
+
+    const speed = CONFIG.moveSpeed * deltaTime * (keys['ShiftLeft'] || keys['ShiftRight'] ? CONFIG.sprintMultiplier : 1);
+
+    const direction = new THREE.Vector3();
+    const forward = new THREE.Vector3();
+    camera.getWorldDirection(forward);
+
+    const right = new THREE.Vector3();
+    right.crossVectors(forward, camera.up).normalize();
+
+    // WASD movement
+    if (keys['KeyW'] || keys['ArrowUp']) direction.add(forward);
+    if (keys['KeyS'] || keys['ArrowDown']) direction.sub(forward);
+    if (keys['KeyA']) direction.sub(right);
+    if (keys['KeyD']) direction.add(right);
+
+    // Vertical movement
+    if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
+    if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
+
+    if (direction.length() > 0) {
+        direction.normalize();
+        camera.position.addScaledVector(direction, speed);
+    }
+}
+
+// ===== Timeline Controls =====
+function onTimelineMouseDown(e) {
+    isDraggingTimeline = true;
+    wasPlayingBeforeDrag = isPlaying;
+    if (isPlaying) {
+        togglePlayPause();
+    }
+}
+
+function onTimelineInput(e) {
+    const value = parseInt(e.target.value);
+    currentTimeMs = startTimeMs + value;
+    updateTimeDisplay();
+    updatePlayerPositions();
+}
+
+function onTimelineChange(e) {
+    isDraggingTimeline = false;
+    const value = parseInt(e.target.value);
+    currentTimeMs = startTimeMs + value;
+    updateTimeDisplay();
+    updatePlayerPositions();
+
+    // Resume playing if it was playing before
+    if (wasPlayingBeforeDrag && !isPlaying) {
+        togglePlayPause();
+    }
+}
+
+function onTimelineClick(e) {
+    const timeline = document.getElementById('timeline');
+    const rect = e.currentTarget.getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    const newTime = percent * totalDurationMs;
+
+    currentTimeMs = startTimeMs + Math.max(0, Math.min(totalDurationMs, newTime));
+    timeline.value = currentTimeMs - startTimeMs;
+    updateTimeDisplay();
+    updatePlayerPositions();
 }
 
 function onWindowResize() {
@@ -232,7 +596,6 @@ async function loadMapAndTelemetry() {
     const errorOverlay = document.getElementById('error-overlay');
 
     try {
-        // Load telemetry first (required)
         if (telemetryFile) {
             loadingText.textContent = 'Loading telemetry data...';
             loadingProgress.textContent = '0%';
@@ -242,9 +605,10 @@ async function loadMapAndTelemetry() {
             console.warn('No telemetry file specified');
         }
 
-        // Try to load GLB map
         loadingText.textContent = 'Loading 3D map...';
-        const glbPath = `${CONFIG.mapsPath}${mapName}.glb`;
+        // Convert map name to GLB filename format (lowercase, no spaces, underscores for some)
+        const glbFilename = mapNameToGlbFilename(mapName);
+        const glbPath = `${CONFIG.mapsPath}${glbFilename}.glb`;
 
         try {
             await loadGLB(glbPath, (progress) => {
@@ -255,14 +619,12 @@ async function loadMapAndTelemetry() {
             showFallbackMessage();
         }
 
-        // Initialize player markers
-        createPlayerMarkers();
-
-        // Hide loading, show content
+        await createPlayerMarkers();
         loadingOverlay.style.display = 'none';
-
-        // Position camera based on telemetry bounds
         positionCameraToFit();
+
+        // Set initial view mode
+        setViewMode('free');
 
     } catch (error) {
         console.error('Error loading:', error);
@@ -275,8 +637,6 @@ async function loadMapAndTelemetry() {
 async function loadGLB(path, onProgress) {
     return new Promise((resolve, reject) => {
         const loader = new GLTFLoader();
-
-        // Setup Draco decoder for compressed GLBs
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
         loader.setDRACOLoader(dracoLoader);
@@ -285,8 +645,6 @@ async function loadGLB(path, onProgress) {
             path,
             (gltf) => {
                 mapModel = gltf.scene;
-
-                // Enable shadows on all meshes
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
@@ -294,59 +652,39 @@ async function loadGLB(path, onProgress) {
                     }
                 });
 
-                // Remove grid helper when GLB is loaded
                 const gridHelper = scene.getObjectByName('gridHelper');
-                if (gridHelper) {
-                    scene.remove(gridHelper);
-                }
+                if (gridHelper) scene.remove(gridHelper);
 
                 scene.add(mapModel);
                 resolve(gltf);
             },
             (progress) => {
-                if (progress.lengthComputable) {
-                    onProgress(progress.loaded / progress.total);
-                }
+                if (progress.lengthComputable) onProgress(progress.loaded / progress.total);
             },
-            (error) => {
-                reject(error);
-            }
+            reject
         );
     });
 }
 
 async function loadTelemetry(filename) {
     const response = await fetch(`${CONFIG.telemetryPath}${filename}`);
-    if (!response.ok) {
-        throw new Error(`Failed to load telemetry: ${response.statusText}`);
-    }
-
-    const csvText = await response.text();
-    parseTelemetryCSV(csvText);
+    if (!response.ok) throw new Error(`Failed to load telemetry: ${response.statusText}`);
+    parseTelemetryCSV(await response.text());
 }
 
 function parseTelemetryCSV(csvText) {
     const lines = csvText.trim().split('\n');
-    if (lines.length < 2) {
-        throw new Error('Telemetry file is empty or invalid');
-    }
+    if (lines.length < 2) throw new Error('Telemetry file is empty or invalid');
 
-    // Parse header
-    const header = lines[0].replace(/^\uFEFF/, '').split(','); // Remove BOM if present
+    const header = lines[0].replace(/^\uFEFF/, '').split(',');
     const columnIndex = {};
-    header.forEach((col, i) => {
-        columnIndex[col.trim()] = i;
-    });
+    header.forEach((col, i) => { columnIndex[col.trim()] = i; });
 
-    // Required columns
     const requiredCols = ['PlayerName', 'GameTimeMs', 'X', 'Y', 'Z'];
     for (const col of requiredCols) {
-        if (columnIndex[col] === undefined) {
-            throw new Error(`Missing required column: ${col}`);
-        }
+        if (columnIndex[col] === undefined) throw new Error(`Missing required column: ${col}`);
     }
 
-    // Parse data rows
     telemetryData = [];
     const playerSet = new Set();
     let minTime = Infinity, maxTime = 0;
@@ -366,7 +704,14 @@ function parseTelemetryCSV(csvText) {
             facingPitch: parseFloat(values[columnIndex['FacingPitch']]) || 0,
             isCrouching: values[columnIndex['IsCrouching']] === 'True',
             isAirborne: values[columnIndex['IsAirborne']] === 'True',
-            currentWeapon: values[columnIndex['CurrentWeapon']] || 'Unknown'
+            currentWeapon: values[columnIndex['CurrentWeapon']] || 'Unknown',
+            // Emblem data
+            emblemForeground: parseInt(values[columnIndex['EmblemForeground']]) || 0,
+            emblemBackground: parseInt(values[columnIndex['EmblemBackground']]) || 0,
+            primaryColor: parseInt(values[columnIndex['PrimaryColor']]) || 0,
+            secondaryColor: parseInt(values[columnIndex['SecondaryColor']]) || 0,
+            tertiaryColor: parseInt(values[columnIndex['TertiaryColor']]) || 0,
+            quaternaryColor: parseInt(values[columnIndex['QuaternaryColor']]) || 0
         };
 
         telemetryData.push(row);
@@ -375,51 +720,56 @@ function parseTelemetryCSV(csvText) {
         maxTime = Math.max(maxTime, row.gameTimeMs);
     }
 
-    // Sort by time
     telemetryData.sort((a, b) => a.gameTimeMs - b.gameTimeMs);
 
-    // Extract unique players with their team info
     players = [];
     const playerTeams = {};
     telemetryData.forEach(row => {
-        if (!playerTeams[row.playerName]) {
-            playerTeams[row.playerName] = row.team;
+        if (!playerTeams[row.playerName]) playerTeams[row.playerName] = row.team;
+    });
+
+    // Extract player emblems from first occurrence
+    const playerEmblemData = {};
+    telemetryData.forEach(row => {
+        if (!playerEmblemData[row.playerName]) {
+            playerEmblemData[row.playerName] = {
+                emblemForeground: row.emblemForeground,
+                emblemBackground: row.emblemBackground,
+                primaryColor: row.primaryColor,
+                secondaryColor: row.secondaryColor,
+                tertiaryColor: row.tertiaryColor,
+                quaternaryColor: row.quaternaryColor
+            };
         }
     });
 
     let ffaColorIndex = 0;
-    playerSet.forEach((name, index) => {
+    playerSet.forEach((name) => {
         const team = playerTeams[name] || 'none';
         let color;
-
         if (team === 'none' || team === '') {
-            color = CONFIG.ffaColors[ffaColorIndex % CONFIG.ffaColors.length];
-            ffaColorIndex++;
+            color = CONFIG.ffaColors[ffaColorIndex++ % CONFIG.ffaColors.length];
         } else {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
-
-        players.push({
-            name: name,
-            team: team,
-            color: color
-        });
+        const emblem = playerEmblemData[name] || {};
+        // Generate emblem URL
+        const emblemUrl = `https://www.halo2pc.com/test-pages/CartoStat/Emblem/emblem.php?P=${emblem.primaryColor || 0}&S=${emblem.secondaryColor || 0}&EP=${emblem.tertiaryColor || 0}&ES=${emblem.quaternaryColor || 0}&EF=${emblem.emblemForeground || 0}&EB=${emblem.emblemBackground || 0}&ET=0`;
+        players.push({ name, team, color, emblem, emblemUrl });
     });
 
-    // Set total duration
+    startTimeMs = minTime;
     totalDurationMs = maxTime - minTime;
     currentTimeMs = minTime;
 
-    // Update timeline
     document.getElementById('totalTime').textContent = formatTime(totalDurationMs);
     document.getElementById('timeline').max = totalDurationMs;
+    document.getElementById('timeline').value = 0;
 
-    // Update player legend and follow select
     updatePlayerLegend();
     updateFollowSelect();
 
     console.log(`Loaded ${telemetryData.length} telemetry points for ${players.length} players`);
-    console.log(`Duration: ${formatTime(totalDurationMs)}`);
 }
 
 function parseCSVLine(line) {
@@ -429,10 +779,8 @@ function parseCSVLine(line) {
 
     for (let i = 0; i < line.length; i++) {
         const char = line[i];
-
-        if (char === '"') {
-            inQuotes = !inQuotes;
-        } else if (char === ',' && !inQuotes) {
+        if (char === '"') inQuotes = !inQuotes;
+        else if (char === ',' && !inQuotes) {
             result.push(current.trim());
             current = '';
         } else {
@@ -440,7 +788,6 @@ function parseCSVLine(line) {
         }
     }
     result.push(current.trim());
-
     return result;
 }
 
@@ -459,18 +806,22 @@ function showFallbackMessage() {
 }
 
 // ===== Player Markers =====
-function createPlayerMarkers() {
-    // Clear existing markers
-    Object.values(playerMarkers).forEach(marker => {
-        scene.remove(marker.group);
-    });
+async function createPlayerMarkers() {
+    Object.values(playerMarkers).forEach(marker => scene.remove(marker.group));
     playerMarkers = {};
+
+    // Load all emblems first
+    const emblemImages = {};
+    await Promise.all(players.map(async player => {
+        if (player.emblemUrl) {
+            emblemImages[player.name] = await loadEmblemImage(player.emblemUrl);
+        }
+    }));
 
     players.forEach(player => {
         const group = new THREE.Group();
         group.name = `player_${player.name}`;
 
-        // Create player body (capsule-like shape)
         const bodyGeometry = new THREE.CylinderGeometry(
             CONFIG.playerMarkerSize * 0.4,
             CONFIG.playerMarkerSize * 0.5,
@@ -489,7 +840,6 @@ function createPlayerMarkers() {
         body.castShadow = true;
         group.add(body);
 
-        // Create head (sphere)
         const headGeometry = new THREE.SphereGeometry(CONFIG.playerMarkerSize * 0.35, 16, 16);
         const headMaterial = new THREE.MeshStandardMaterial({
             color: player.color,
@@ -503,7 +853,6 @@ function createPlayerMarkers() {
         head.castShadow = true;
         group.add(head);
 
-        // Direction indicator (arrow/cone)
         const arrowGeometry = new THREE.ConeGeometry(0.15, 0.4, 8);
         const arrowMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
@@ -515,34 +864,26 @@ function createPlayerMarkers() {
         arrow.position.set(0, CONFIG.playerMarkerHeight * 0.5, CONFIG.playerMarkerSize * 0.6);
         group.add(arrow);
 
-        // Name label (using sprite)
-        const labelCanvas = createLabelCanvas(player.name, player.color);
-        const labelTexture = new THREE.CanvasTexture(labelCanvas);
+        // Use waypoint canvas with emblem if available
+        const emblemImage = emblemImages[player.name];
+        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage);
+        const labelTexture = new THREE.CanvasTexture(waypointCanvas);
         const labelMaterial = new THREE.SpriteMaterial({
             map: labelTexture,
             transparent: true,
             depthTest: false
         });
         const label = new THREE.Sprite(labelMaterial);
-        label.scale.set(3, 0.75, 1);
-        label.position.y = CONFIG.playerMarkerHeight + 0.5;
+        label.scale.set(2.5, 3.125, 1); // Aspect ratio 128:160
+        label.position.y = CONFIG.playerMarkerHeight + 2;
         group.add(label);
 
-        // Glow effect (point light)
         const glow = new THREE.PointLight(player.color, 0.5, 3);
         glow.position.y = CONFIG.playerMarkerHeight * 0.5;
         group.add(glow);
 
         scene.add(group);
-
-        playerMarkers[player.name] = {
-            group: group,
-            body: body,
-            head: head,
-            arrow: arrow,
-            label: label,
-            player: player
-        };
+        playerMarkers[player.name] = { group, body, head, arrow, label, player, emblemImage };
     });
 }
 
@@ -552,18 +893,15 @@ function createLabelCanvas(text, color) {
     canvas.height = 64;
     const ctx = canvas.getContext('2d');
 
-    // Background
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx.roundRect(0, 0, canvas.width, canvas.height, 8);
     ctx.fill();
 
-    // Border
     ctx.strokeStyle = `#${color.toString(16).padStart(6, '0')}`;
     ctx.lineWidth = 2;
     ctx.roundRect(0, 0, canvas.width, canvas.height, 8);
     ctx.stroke();
 
-    // Text
     ctx.font = 'bold 28px Overpass, sans-serif';
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
@@ -573,12 +911,86 @@ function createLabelCanvas(text, color) {
     return canvas;
 }
 
-function updatePlayerPositions() {
-    // Find telemetry data points closest to current time for each player
-    const playerPositions = {};
+// Create a Halo-style waypoint canvas with emblem and arrow
+function createWaypointCanvas(text, color, emblemImage = null) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 160;
+    const ctx = canvas.getContext('2d');
 
-    // Binary search for starting index
+    const colorHex = `#${color.toString(16).padStart(6, '0')}`;
+    const waypointBlue = '#00aaff';
+
+    // Draw waypoint arrow pointing down
+    const arrowY = 130;
+    const arrowSize = 20;
+    ctx.fillStyle = waypointBlue;
+    ctx.beginPath();
+    ctx.moveTo(64, arrowY + arrowSize);  // Bottom point
+    ctx.lineTo(64 - arrowSize / 2, arrowY);  // Top left
+    ctx.lineTo(64 + arrowSize / 2, arrowY);  // Top right
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw emblem box background
+    const boxX = 14;
+    const boxY = 10;
+    const boxSize = 100;
+
+    // Outer glow
+    ctx.shadowColor = waypointBlue;
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = 'rgba(0, 40, 80, 0.9)';
+    ctx.fillRect(boxX, boxY, boxSize, boxSize);
+    ctx.shadowBlur = 0;
+
+    // Border
+    ctx.strokeStyle = waypointBlue;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(boxX, boxY, boxSize, boxSize);
+
+    // Inner border
+    ctx.strokeStyle = 'rgba(0, 170, 255, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
+
+    // Draw emblem if available
+    if (emblemImage && emblemImage.complete) {
+        ctx.drawImage(emblemImage, boxX + 10, boxY + 10, boxSize - 20, boxSize - 20);
+    } else {
+        // Draw player initial as fallback
+        ctx.font = 'bold 50px Orbitron, sans-serif';
+        ctx.fillStyle = colorHex;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text.charAt(0).toUpperCase(), 64, 60);
+    }
+
+    // Draw player name below box
+    ctx.font = 'bold 14px Overpass, sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(text.substring(0, 12), 64, boxY + boxSize + 4);
+
+    return canvas;
+}
+
+// Load emblem image async
+function loadEmblemImage(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = url;
+    });
+}
+
+function updatePlayerPositions() {
+    const playerPositions = {};
     let startIdx = 0;
+
     for (let i = 0; i < telemetryData.length; i++) {
         if (telemetryData[i].gameTimeMs >= currentTimeMs) {
             startIdx = Math.max(0, i - players.length * 2);
@@ -586,7 +998,6 @@ function updatePlayerPositions() {
         }
     }
 
-    // Find closest position for each player
     for (let i = startIdx; i < telemetryData.length; i++) {
         const row = telemetryData[i];
         if (row.gameTimeMs > currentTimeMs + 200) break;
@@ -597,9 +1008,8 @@ function updatePlayerPositions() {
         }
     }
 
-    // Update marker positions
     const liveStatsBody = document.getElementById('live-stats-body');
-    liveStatsBody.innerHTML = '';
+    if (liveStatsBody) liveStatsBody.innerHTML = '';
 
     for (const player of players) {
         const marker = playerMarkers[player.name];
@@ -607,16 +1017,9 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Update position - Halo coordinates: X=forward, Y=left, Z=up
-            // Three.js: X=right, Y=up, Z=forward
             marker.group.position.set(pos.x, pos.z, -pos.y);
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
 
-            // Update rotation (facing direction)
-            if (!isNaN(pos.facingYaw)) {
-                marker.group.rotation.y = -pos.facingYaw;
-            }
-
-            // Update crouch state (lower the marker)
             if (pos.isCrouching) {
                 marker.body.scale.y = 0.7;
                 marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
@@ -625,31 +1028,30 @@ function updatePlayerPositions() {
                 marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
             }
 
-            // Update visibility
             marker.group.visible = true;
 
-            // Update live stats table
-            const state = pos.isCrouching ? 'Crouching' : (pos.isAirborne ? 'Airborne' : 'Standing');
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span></td>
-                <td>${pos.currentWeapon}</td>
-                <td>${state}</td>
-            `;
-            liveStatsBody.appendChild(row);
+            if (liveStatsBody) {
+                const state = pos.isCrouching ? 'Crouching' : (pos.isAirborne ? 'Airborne' : 'Standing');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span></td>
+                    <td>${pos.currentWeapon}</td>
+                    <td>${state}</td>
+                `;
+                liveStatsBody.appendChild(row);
+            }
         } else {
             marker.group.visible = false;
         }
     }
 
-    // Update camera if following
+    // Follow camera
     if (viewMode === 'follow' && followPlayer) {
         const marker = playerMarkers[followPlayer];
         if (marker && marker.group.visible) {
             const targetPos = marker.group.position.clone();
             targetPos.y += CONFIG.followCameraHeight;
 
-            // Get direction behind player
             const offset = new THREE.Vector3(0, 0, CONFIG.followCameraDistance);
             offset.applyQuaternion(marker.group.quaternion);
 
@@ -665,47 +1067,39 @@ function togglePlayPause() {
 
     const playIcon = document.getElementById('playIcon');
     const pauseIcon = document.getElementById('pauseIcon');
+    const playPauseBtn = document.getElementById('playPauseBtn');
 
     if (isPlaying) {
         playIcon.style.display = 'none';
         pauseIcon.style.display = 'block';
+        playPauseBtn.classList.add('playing');
         lastFrameTime = performance.now();
     } else {
         playIcon.style.display = 'block';
         pauseIcon.style.display = 'none';
+        playPauseBtn.classList.remove('playing');
     }
 }
 
 function skip(seconds) {
     const skipMs = seconds * 1000;
-    currentTimeMs = Math.max(0, Math.min(totalDurationMs, currentTimeMs + skipMs));
-    updateTimeDisplay();
-    updatePlayerPositions();
-}
-
-function onTimelineInput(e) {
-    // Pause during scrub
-    if (isPlaying) {
-        togglePlayPause();
-    }
-    currentTimeMs = parseInt(e.target.value);
-    updateTimeDisplay();
-    updatePlayerPositions();
-}
-
-function onTimelineChange(e) {
-    currentTimeMs = parseInt(e.target.value);
+    currentTimeMs = Math.max(startTimeMs, Math.min(startTimeMs + totalDurationMs, currentTimeMs + skipMs));
     updateTimeDisplay();
     updatePlayerPositions();
 }
 
 function updateTimeDisplay() {
-    document.getElementById('currentTime').textContent = formatTime(currentTimeMs);
-    document.getElementById('timeline').value = currentTimeMs;
+    const elapsed = currentTimeMs - startTimeMs;
+    document.getElementById('currentTime').textContent = formatTime(elapsed);
+    document.getElementById('timeline').value = elapsed;
+
+    // Update progress bar visual
+    const progress = (elapsed / totalDurationMs) * 100;
+    document.getElementById('timeline').style.setProperty('--progress', `${progress}%`);
 }
 
 function formatTime(ms) {
-    const totalSeconds = Math.floor(ms / 1000);
+    const totalSeconds = Math.floor(Math.max(0, ms) / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
@@ -715,25 +1109,27 @@ function formatTime(ms) {
 function setViewMode(mode) {
     viewMode = mode;
 
-    // Update button states
     document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById(`${mode}ViewBtn`)?.classList.add('active');
 
     const followSelect = document.getElementById('followPlayerSelect');
     followSelect.style.display = mode === 'follow' ? 'block' : 'none';
 
+    // Update controls hint
+    updateControlsHint();
+
     if (mode === 'top') {
-        // Top-down view
         controls.enabled = false;
         camera.position.set(0, CONFIG.defaultCameraHeight, 0);
         camera.lookAt(0, 0, 0);
         camera.up.set(0, 0, -1);
     } else if (mode === 'free') {
-        // Free camera
+        controls.enabled = false;
+        camera.up.set(0, 1, 0);
+    } else if (mode === 'orbit') {
         controls.enabled = true;
         camera.up.set(0, 1, 0);
     } else if (mode === 'follow') {
-        // Follow mode
         controls.enabled = true;
         camera.up.set(0, 1, 0);
     }
@@ -742,7 +1138,6 @@ function setViewMode(mode) {
 function positionCameraToFit() {
     if (telemetryData.length === 0) return;
 
-    // Calculate bounds of all telemetry points
     let minX = Infinity, maxX = -Infinity;
     let minY = Infinity, maxY = -Infinity;
     let minZ = Infinity, maxZ = -Infinity;
@@ -759,13 +1154,8 @@ function positionCameraToFit() {
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
     const centerZ = (minZ + maxZ) / 2;
+    const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
 
-    const rangeX = maxX - minX;
-    const rangeY = maxY - minY;
-    const rangeZ = maxZ - minZ;
-    const maxRange = Math.max(rangeX, rangeY, rangeZ);
-
-    // Position camera above center, looking down
     camera.position.set(centerX, maxZ + maxRange * 0.8, -centerY);
     controls.target.set(centerX, centerZ, -centerY);
     controls.update();
@@ -774,6 +1164,7 @@ function positionCameraToFit() {
 // ===== UI Updates =====
 function updatePlayerLegend() {
     const container = document.getElementById('player-list');
+    if (!container) return;
     container.innerHTML = '';
 
     players.forEach(player => {
@@ -814,6 +1205,7 @@ function updatePlayerLegend() {
 
 function updateFollowSelect() {
     const select = document.getElementById('followPlayerSelect');
+    if (!select) return;
     select.innerHTML = '<option value="">Select Player...</option>';
 
     players.forEach(player => {
@@ -824,38 +1216,31 @@ function updateFollowSelect() {
     });
 }
 
-function toggleStatsPanel() {
-    const panel = document.getElementById('stats-panel');
-    panel.classList.toggle('collapsed');
-}
+function updateControlsHint() {
+    const hint = document.getElementById('controls-hint');
+    if (!hint) return;
 
-// ===== Keyboard Controls =====
-function onKeyDown(e) {
-    switch (e.key.toLowerCase()) {
-        case ' ':
-            e.preventDefault();
-            togglePlayPause();
-            break;
-        case 'arrowleft':
-            skip(-CONFIG.skipSeconds);
-            break;
-        case 'arrowright':
-            skip(CONFIG.skipSeconds);
-            break;
-        case '1':
-            setViewMode('top');
-            break;
-        case '2':
-            setViewMode('free');
-            break;
-        case '3':
-            setViewMode('follow');
-            break;
-        case 'f':
-            toggleFullscreen();
-            break;
+    if (viewMode === 'free') {
+        hint.innerHTML = `
+            <div><kbd>WASD</kbd> Move</div>
+            <div><kbd>Q</kbd><kbd>E</kbd> Up/Down</div>
+            <div><kbd>Shift</kbd> Sprint</div>
+            <div><kbd>Mouse</kbd> Look</div>
+            <div><kbd>Space</kbd> Play/Pause</div>
+        `;
+    } else {
+        hint.innerHTML = `
+            <div><kbd>Space</kbd> Play/Pause</div>
+            <div><kbd>←</kbd><kbd>→</kbd> Skip 5s</div>
+            <div><kbd>↑</kbd><kbd>↓</kbd> Speed</div>
+        `;
     }
 }
+
+window.toggleStatsPanel = function() {
+    const panel = document.getElementById('stats-panel');
+    if (panel) panel.classList.toggle('collapsed');
+};
 
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
@@ -865,32 +1250,69 @@ function toggleFullscreen() {
     }
 }
 
+// Browser fullscreen (fills browser window, hides header/controls)
+let isBrowserFullscreen = false;
+
+function toggleBrowserFullscreen() {
+    isBrowserFullscreen = !isBrowserFullscreen;
+    const container = document.querySelector('.viewer-container');
+    const header = document.querySelector('.viewer-header');
+    const controls = document.querySelector('.playback-controls');
+    const expandIcon = document.getElementById('expandIcon');
+    const compressIcon = document.getElementById('compressIcon');
+
+    if (isBrowserFullscreen) {
+        container.classList.add('browser-fullscreen');
+        header.style.display = 'none';
+        controls.classList.add('fullscreen-mode');
+        expandIcon.style.display = 'none';
+        compressIcon.style.display = 'block';
+    } else {
+        container.classList.remove('browser-fullscreen');
+        header.style.display = 'flex';
+        controls.classList.remove('fullscreen-mode');
+        expandIcon.style.display = 'block';
+        compressIcon.style.display = 'none';
+    }
+
+    // Trigger resize to update canvas
+    onWindowResize();
+}
+
+// Add fullscreen button listener
+document.getElementById('fullscreenBtn')?.addEventListener('click', toggleBrowserFullscreen);
+
 // ===== Animation Loop =====
 function animate() {
     animationFrameId = requestAnimationFrame(animate);
 
     const currentTime = performance.now();
-    const deltaTime = currentTime - lastFrameTime;
+    const deltaTime = (currentTime - lastFrameTime) / 1000; // Convert to seconds
     lastFrameTime = currentTime;
+
+    // Handle keyboard movement
+    handleKeyboardMovement(deltaTime);
+
+    // Handle gamepad input
+    handleGamepadInput(deltaTime);
 
     // Update playback
     if (isPlaying) {
-        currentTimeMs += deltaTime * playbackSpeed;
+        currentTimeMs += deltaTime * 1000 * playbackSpeed;
 
-        if (currentTimeMs >= totalDurationMs) {
-            currentTimeMs = 0; // Loop
+        if (currentTimeMs >= startTimeMs + totalDurationMs) {
+            currentTimeMs = startTimeMs; // Loop
         }
 
         updateTimeDisplay();
         updatePlayerPositions();
     }
 
-    // Update controls
+    // Update orbit controls
     if (controls.enabled) {
         controls.update();
     }
 
-    // Render
     renderer.render(scene, camera);
 }
 
