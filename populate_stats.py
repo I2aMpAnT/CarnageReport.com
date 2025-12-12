@@ -1967,7 +1967,7 @@ def main():
                     'timestamp': game_timestamp,
                     'source_file': game.get('source_file'),
                     'map': game['details'].get('Map Name', 'Unknown'),
-                    'gametype': game['details'].get('Variant Name', 'Unknown'),
+                    'gametype': get_base_gametype(game['details'].get('Game Type', '')),
                     'playlist': playlist,
                     'xp_change': xp_change,
                     'xp_total': new_xp,
@@ -2294,7 +2294,7 @@ def main():
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
-                'gametype': get_base_gametype(game['details'].get('Variant Name', game['details'].get('Game Type', ''))),
+                'gametype': get_base_gametype(game['details'].get('Game Type', '')),
                 'variant_name': game['details'].get('Variant Name', ''),
                 'duration': game['details'].get('Duration', '0:00'),
                 'red_score': red_score,
