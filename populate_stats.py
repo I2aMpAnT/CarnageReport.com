@@ -873,8 +873,8 @@ def build_mac_to_discord_lookup(players):
     for user_id, data in players.items():
         mac_addresses = data.get('mac_addresses', [])
         for mac in mac_addresses:
-            # Normalize MAC: remove colons and lowercase
-            normalized_mac = mac.replace(':', '').lower()
+            # Normalize MAC: remove colons/dashes and lowercase
+            normalized_mac = mac.replace(':', '').replace('-', '').lower()
             mac_to_user[normalized_mac] = user_id
     return mac_to_user
 
