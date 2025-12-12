@@ -444,7 +444,7 @@ async function loadTwitchHub() {
             linkedTwitchUsers.push({
                 discordId,
                 twitchName: data.twitch_name,
-                displayName: data.discord_name || data.twitch_name
+                displayName: data.display_name || data.discord_name || data.twitch_name
             });
         }
     }
@@ -1486,25 +1486,24 @@ function buildProfileNameMappings() {
 }
 
 // Get the display name for an in-game profile name
-// ONLY use discord_name - NEVER use display_name (may contain in-game names)
+// Use display_name (server nickname) first, then discord_name
 function getDisplayNameForProfile(inGameName) {
     const discordId = profileNameToDiscordId[inGameName];
     if (discordId && rankstatsData[discordId]) {
         const data = rankstatsData[discordId];
-        // ONLY use discord_name, never display_name (it may be polluted with in-game names)
-        return data.discord_name || 'No MAC Linked';
+        // Use display_name (server nickname) first, then discord_name
+        return data.display_name || data.discord_name || 'No MAC Linked';
     }
     // If no mapping found, player's MAC isn't linked to a discord ID
     return 'No MAC Linked';
 }
 
 // Get the display name for a discord ID
-// ONLY use discord_name - NEVER use display_name (may contain in-game names)
+// Use display_name (server nickname) first, then discord_name
 function getDisplayNameForDiscordId(discordId) {
     if (rankstatsData[discordId]) {
         const data = rankstatsData[discordId];
-        // ONLY use discord_name, never display_name
-        return data.discord_name || 'Unknown';
+        return data.display_name || data.discord_name || 'Unknown';
     }
     return 'Unknown';
 }
@@ -3398,8 +3397,8 @@ function renderLeaderboard(selectedPlaylist = null) {
 
         return {
             discordId: discordId,
-            // ONLY use discord_name - NEVER use in-game names
-            displayName: data.discord_name || globalData.discord_name || 'No MAC Linked',
+            // Use display_name (server nickname) first, then discord_name - NEVER use in-game names
+            displayName: data.display_name || globalData.display_name || data.discord_name || globalData.discord_name || 'No MAC Linked',
             profileNames: profileNames,
             rank: rank,
             wins: wins,
@@ -3656,6 +3655,7 @@ function setupPvpSearchBox(inputElement, resultsElement, playerNum) {
             if (data.mac_linked === false) return;
 
             const discordName = data.discord_name || '';
+            const displayName = data.display_name || discordName || 'No MAC Linked';
             const inGameNamesArr = data.in_game_names || [];
 
             // Search matches discord_name or any in_game_names entry
@@ -3666,8 +3666,8 @@ function setupPvpSearchBox(inputElement, resultsElement, playerNum) {
                 if (profileNames.length > 0) {
                     profileNames.forEach(profileName => {
                         if (!playerMatches.has(profileName)) {
-                            // ONLY use discord_name - NEVER display in-game names
-                            playerMatches.set(profileName, { profileName: profileName, discordName: discordName || 'No MAC Linked' });
+                            // Use display_name (server nickname) - NEVER display in-game names
+                            playerMatches.set(profileName, { profileName: profileName, discordName: displayName });
                         }
                     });
                 }
@@ -3799,6 +3799,7 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
             if (data.mac_linked === false) return;
 
             const discordName = data.discord_name || '';
+            const displayName = data.display_name || discordName || 'No MAC Linked';
             const inGameNamesArr = data.in_game_names || [];
 
             // Search matches discord_name or any in_game_names entry
@@ -3807,19 +3808,18 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
             if (matchesDiscord || matchesInGame) {
                 // Find associated profile names
                 const profileNames = discordIdToProfileNames[discordId] || [];
-                const displayForSearch = discordName || 'No MAC Linked';
                 if (profileNames.length > 0) {
                     // Player has games - use their profile name for lookups
                     profileNames.forEach(profileName => {
                         if (!playerMatches.has(profileName)) {
-                            // ONLY use discord_name - NEVER display in-game names
-                            playerMatches.set(profileName, { profileName: profileName, discordName: displayForSearch });
+                            // Use display_name (server nickname) - NEVER display in-game names
+                            playerMatches.set(profileName, { profileName: profileName, discordName: displayName });
                         }
                     });
                 } else {
-                    // Player has no games - use discord_name
-                    if (!playerMatches.has(displayForSearch)) {
-                        playerMatches.set(displayForSearch, { profileName: displayForSearch, discordName: displayForSearch, noGames: true });
+                    // Player has no games - use display_name
+                    if (!playerMatches.has(displayName)) {
+                        playerMatches.set(displayName, { profileName: displayName, discordName: displayName, noGames: true });
                     }
                 }
             }

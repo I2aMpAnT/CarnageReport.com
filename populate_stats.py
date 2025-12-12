@@ -42,7 +42,7 @@ MATCH_HISTORY_FILES = {
 }
 
 # Base URL for downloadable files on the VPS
-STATS_BASE_URL = 'http://104.207.143.249/stats'
+STATS_BASE_URL = 'https://carnagereport.com/stats'
 
 # Discord webhook for triggering bot rank refresh
 DISCORD_REFRESH_WEBHOOK = 'https://discord.com/api/webhooks/1445741545318780958/Vp-tbL32JhMu36j7qxG704GbWcgrJE9-JIdhUrpMMfAx3fpsGv82Sxi5F3r0lepor4fq'
