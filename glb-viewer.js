@@ -147,6 +147,10 @@ let gameInfo = {};
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
+// Map center for camera positioning
+let mapCenter = { x: 0, y: 0, z: 0 };
+let mapSize = 50;
+
 // ===== Initialization =====
 async function init() {
     parseUrlParams();
@@ -164,11 +168,10 @@ function parseUrlParams() {
     gameInfo = {
         map: mapName,
         gameType: params.get('gametype') || '',
-        date: params.get('date') || '',
-        variant: params.get('variant') || ''
+        date: params.get('date') || ''
     };
     document.getElementById('mapName').textContent = mapName;
-    document.getElementById('gameType').textContent = gameInfo.variant || gameInfo.gameType;
+    document.getElementById('gameType').textContent = gameInfo.gameType;
     document.getElementById('gameDate').textContent = gameInfo.date;
 }
 
@@ -682,8 +685,8 @@ async function loadMapAndTelemetry() {
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
 
-        // Set initial view mode
-        setViewMode('free');
+        // Set initial view mode to top-down over player area
+        setViewMode('top');
 
     } catch (error) {
         console.error('Error loading:', error);
@@ -1181,15 +1184,17 @@ function setViewMode(mode) {
 
     if (mode === 'top') {
         controls.enabled = false;
-        camera.position.set(0, CONFIG.defaultCameraHeight, 0);
-        camera.lookAt(0, 0, 0);
-        camera.up.set(0, 0, -1);
+        const cameraHeight = mapSize * 1.2;
+        camera.position.set(mapCenter.x, mapCenter.y + cameraHeight, mapCenter.z);
+        camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
+        camera.up.set(0, 0, -1); // Orient so "forward" in game is "up" on screen
     } else if (mode === 'free') {
         controls.enabled = false;
         camera.up.set(0, 1, 0);
     } else if (mode === 'orbit') {
         controls.enabled = true;
         camera.up.set(0, 1, 0);
+        controls.target.set(mapCenter.x, mapCenter.y, mapCenter.z);
     } else if (mode === 'follow') {
         controls.enabled = true;
         camera.up.set(0, 1, 0);
@@ -1212,13 +1217,24 @@ function positionCameraToFit() {
         maxZ = Math.max(maxZ, row.z);
     });
 
+    // Calculate center of player activity (in Halo coords: X=forward, Y=left, Z=up)
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
     const centerZ = (minZ + maxZ) / 2;
     const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
 
-    camera.position.set(centerX, maxZ + maxRange * 0.8, -centerY);
-    controls.target.set(centerX, centerZ, -centerY);
+    // Store map center for view switching (convert to Three.js coords)
+    // Halo: X=forward, Y=left, Z=up -> Three.js: X=right, Y=up, Z=forward
+    mapCenter = { x: centerX, y: centerZ, z: -centerY };
+    mapSize = Math.max(maxRange, 30); // Minimum size of 30 units
+
+    // Set up top-down view centered on player activity
+    const cameraHeight = mapSize * 1.2; // Height based on play area size
+    camera.position.set(mapCenter.x, mapCenter.y + cameraHeight, mapCenter.z);
+    camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
+    camera.up.set(0, 0, -1); // Orient so "forward" in game is "up" on screen
+
+    controls.target.set(mapCenter.x, mapCenter.y, mapCenter.z);
     controls.update();
 }
 
