@@ -81,6 +81,14 @@
       ],
       "games": [
         {
+          "timestamp": "12/12/2025 12:01 AM",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "MidBomb",
+          "winner": "Red",
+          "source_file": "20251212_001058.xlsx"
+        },
+        {
           "timestamp": "12/12/2025 12:11 AM",
           "map": "Warlock",
           "gametype": "Team Slayer",
@@ -121,12 +129,12 @@
           "source_file": "20251212_010821.xlsx"
         }
       ],
-      "red_wins": 4,
+      "red_wins": 5,
       "blue_wins": 1,
-      "start_time": "12/12/2025 12:11 AM",
+      "start_time": "12/12/2025 12:01 AM",
       "end_time": "12/12/2025 12:54 AM",
       "winner": "Red",
-      "series_type": "Bo5"
+      "series_type": "Bo7"
     },
     {
       "series_id": "series_3",
@@ -1482,7 +1490,7 @@
       "series_wins": 6,
       "series_losses": 7
     },
-    "588071163128274222": {
+    "816456729383339163": {
       "series_wins": 4,
       "series_losses": 4
     },
@@ -1503,5 +1511,5 @@
       "series_losses": 1
     }
   },
-  "generated_at": "2025-12-12T03:57:14.461615"
+  "generated_at": "2025-12-12T04:15:23.984617"
 }

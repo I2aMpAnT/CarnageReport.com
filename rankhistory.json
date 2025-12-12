@@ -488,14 +488,26 @@
         "result": "win"
       },
       {
+        "timestamp": "12/12/2025 12:10 AM",
+        "source_file": "20251212_001058.xlsx",
+        "map": "Midship",
+        "gametype": "MidBomb",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1620,
+        "rank_before": 14,
+        "rank_after": 15,
+        "result": "win"
+      },
+      {
         "timestamp": "12/12/2025 12:17 AM",
         "source_file": "20251212_001718.xlsx",
         "map": "Warlock",
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1620,
-        "rank_before": 14,
+        "xp_total": 1720,
+        "rank_before": 15,
         "rank_after": 15,
         "result": "win"
       },
@@ -506,9 +518,9 @@
         "gametype": "MLG Sanc CTF",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1720,
+        "xp_total": 1820,
         "rank_before": 15,
-        "rank_after": 15,
+        "rank_after": 16,
         "result": "win"
       },
       {
@@ -517,9 +529,9 @@
         "map": "Lockout",
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
-        "xp_change": -57,
-        "xp_total": 1663,
-        "rank_before": 15,
+        "xp_change": -60,
+        "xp_total": 1760,
+        "rank_before": 16,
         "rank_after": 15,
         "result": "loss"
       },
@@ -530,9 +542,9 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1763,
+        "xp_total": 1860,
         "rank_before": 15,
-        "rank_after": 15,
+        "rank_after": 16,
         "result": "win"
       },
       {
@@ -542,8 +554,8 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1863,
-        "rank_before": 15,
+        "xp_total": 1960,
+        "rank_before": 16,
         "rank_after": 16,
         "result": "win"
       },
@@ -554,7 +566,7 @@
         "gametype": "MLG MidWar CTF",
         "playlist": "MLG 4v4",
         "xp_change": -60,
-        "xp_total": 1803,
+        "xp_total": 1900,
         "rank_before": 16,
         "rank_after": 16,
         "result": "loss"
@@ -566,9 +578,9 @@
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1903,
+        "xp_total": 2000,
         "rank_before": 16,
-        "rank_after": 16,
+        "rank_after": 17,
         "result": "win"
       },
       {
@@ -577,9 +589,9 @@
         "map": "Lockout",
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
-        "xp_change": -60,
-        "xp_total": 1843,
-        "rank_before": 16,
+        "xp_change": -62,
+        "xp_total": 1938,
+        "rank_before": 17,
         "rank_after": 16,
         "result": "loss"
       }
@@ -2901,15 +2913,27 @@
         "result": "loss"
       },
       {
+        "timestamp": "12/12/2025 12:10 AM",
+        "source_file": "20251212_001058.xlsx",
+        "map": "Midship",
+        "gametype": "MidBomb",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1946,
+        "rank_before": 16,
+        "rank_after": 16,
+        "result": "win"
+      },
+      {
         "timestamp": "12/12/2025 12:17 AM",
         "source_file": "20251212_001718.xlsx",
         "map": "Warlock",
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1946,
+        "xp_total": 2046,
         "rank_before": 16,
-        "rank_after": 16,
+        "rank_after": 17,
         "result": "win"
       },
       {
@@ -2919,8 +2943,8 @@
         "gametype": "MLG Sanc CTF",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 2046,
-        "rank_before": 16,
+        "xp_total": 2146,
+        "rank_before": 17,
         "rank_after": 17,
         "result": "win"
       },
@@ -2931,26 +2955,14 @@
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": -62,
-        "xp_total": 1984,
+        "xp_total": 2084,
         "rank_before": 17,
-        "rank_after": 16,
+        "rank_after": 17,
         "result": "loss"
       },
       {
         "timestamp": "12/12/2025 12:50 AM",
         "source_file": "20251212_005031.xlsx",
-        "map": "Midship",
-        "gametype": "MLG bawl",
-        "playlist": "MLG 4v4",
-        "xp_change": 100,
-        "xp_total": 2084,
-        "rank_before": 16,
-        "rank_after": 17,
-        "result": "win"
-      },
-      {
-        "timestamp": "12/12/2025 1:08 AM",
-        "source_file": "20251212_010821.xlsx",
         "map": "Midship",
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
@@ -2961,14 +2973,26 @@
         "result": "win"
       },
       {
+        "timestamp": "12/12/2025 1:08 AM",
+        "source_file": "20251212_010821.xlsx",
+        "map": "Midship",
+        "gametype": "MLG bawl",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2284,
+        "rank_before": 17,
+        "rank_after": 18,
+        "result": "win"
+      },
+      {
         "timestamp": "12/12/2025 1:27 AM",
         "source_file": "20251212_012709.xlsx",
         "map": "Warlock",
         "gametype": "MLG MidWar CTF",
         "playlist": "MLG 4v4",
-        "xp_change": -62,
-        "xp_total": 2122,
-        "rank_before": 17,
+        "xp_change": -65,
+        "xp_total": 2219,
+        "rank_before": 18,
         "rank_after": 17,
         "result": "loss"
       },
@@ -2979,9 +3003,9 @@
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 2222,
+        "xp_total": 2319,
         "rank_before": 17,
-        "rank_after": 17,
+        "rank_after": 18,
         "result": "win"
       },
       {
@@ -2990,10 +3014,10 @@
         "map": "Lockout",
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
-        "xp_change": -62,
-        "xp_total": 2160,
-        "rank_before": 17,
-        "rank_after": 17,
+        "xp_change": -65,
+        "xp_total": 2254,
+        "rank_before": 18,
+        "rank_after": 18,
         "result": "loss"
       }
     ]
@@ -4294,13 +4318,25 @@
         "result": "loss"
       },
       {
+        "timestamp": "12/12/2025 12:10 AM",
+        "source_file": "20251212_001058.xlsx",
+        "map": "Midship",
+        "gametype": "MidBomb",
+        "playlist": "MLG 4v4",
+        "xp_change": -20,
+        "xp_total": 629,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "loss"
+      },
+      {
         "timestamp": "12/12/2025 12:17 AM",
         "source_file": "20251212_001718.xlsx",
         "map": "Warlock",
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": -20,
-        "xp_total": 629,
+        "xp_total": 609,
         "rank_before": 7,
         "rank_after": 7,
         "result": "loss"
@@ -4312,7 +4348,7 @@
         "gametype": "MLG Sanc CTF",
         "playlist": "MLG 4v4",
         "xp_change": -20,
-        "xp_total": 609,
+        "xp_total": 589,
         "rank_before": 7,
         "rank_after": 7,
         "result": "loss"
@@ -4324,7 +4360,7 @@
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 709,
+        "xp_total": 689,
         "rank_before": 7,
         "rank_after": 8,
         "result": "win"
@@ -4336,7 +4372,7 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": -27,
-        "xp_total": 682,
+        "xp_total": 662,
         "rank_before": 8,
         "rank_after": 7,
         "result": "loss"
@@ -4348,7 +4384,7 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": -20,
-        "xp_total": 662,
+        "xp_total": 642,
         "rank_before": 7,
         "rank_after": 7,
         "result": "loss"
@@ -4360,7 +4396,7 @@
         "gametype": "MLG MidWar CTF",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 762,
+        "xp_total": 742,
         "rank_before": 7,
         "rank_after": 8,
         "result": "win"
@@ -4372,7 +4408,7 @@
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": -27,
-        "xp_total": 735,
+        "xp_total": 715,
         "rank_before": 8,
         "rank_after": 8,
         "result": "loss"
@@ -4384,7 +4420,7 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 835,
+        "xp_total": 815,
         "rank_before": 8,
         "rank_after": 9,
         "result": "win"
@@ -4964,14 +5000,26 @@
         "result": "tie"
       },
       {
+        "timestamp": "12/12/2025 12:10 AM",
+        "source_file": "20251212_001058.xlsx",
+        "map": "Midship",
+        "gametype": "MidBomb",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1409,
+        "rank_before": 13,
+        "rank_after": 14,
+        "result": "win"
+      },
+      {
         "timestamp": "12/12/2025 12:17 AM",
         "source_file": "20251212_001718.xlsx",
         "map": "Warlock",
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1409,
-        "rank_before": 13,
+        "xp_total": 1509,
+        "rank_before": 14,
         "rank_after": 14,
         "result": "win"
       },
@@ -4982,9 +5030,9 @@
         "gametype": "MLG Sanc CTF",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1509,
+        "xp_total": 1609,
         "rank_before": 14,
-        "rank_after": 14,
+        "rank_after": 15,
         "result": "win"
       },
       {
@@ -4993,9 +5041,9 @@
         "map": "Lockout",
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
-        "xp_change": -55,
-        "xp_total": 1454,
-        "rank_before": 14,
+        "xp_change": -57,
+        "xp_total": 1552,
+        "rank_before": 15,
         "rank_after": 14,
         "result": "loss"
       },
@@ -5006,9 +5054,9 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1554,
+        "xp_total": 1652,
         "rank_before": 14,
-        "rank_after": 14,
+        "rank_after": 15,
         "result": "win"
       },
       {
@@ -5018,8 +5066,8 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1654,
-        "rank_before": 14,
+        "xp_total": 1752,
+        "rank_before": 15,
         "rank_after": 15,
         "result": "win"
       },
@@ -5030,9 +5078,9 @@
         "gametype": "MLG MidWar CTF",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1754,
+        "xp_total": 1852,
         "rank_before": 15,
-        "rank_after": 15,
+        "rank_after": 16,
         "result": "win"
       },
       {
@@ -5041,10 +5089,10 @@
         "map": "Beaver Creek",
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
-        "xp_change": -57,
-        "xp_total": 1697,
-        "rank_before": 15,
-        "rank_after": 15,
+        "xp_change": -60,
+        "xp_total": 1792,
+        "rank_before": 16,
+        "rank_after": 16,
         "result": "loss"
       },
       {
@@ -5054,8 +5102,8 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1797,
-        "rank_before": 15,
+        "xp_total": 1892,
+        "rank_before": 16,
         "rank_after": 16,
         "result": "win"
       }
@@ -6398,15 +6446,27 @@
         "result": "win"
       },
       {
+        "timestamp": "12/12/2025 12:10 AM",
+        "source_file": "20251212_001058.xlsx",
+        "map": "Midship",
+        "gametype": "MidBomb",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 961,
+        "rank_before": 9,
+        "rank_after": 10,
+        "result": "win"
+      },
+      {
         "timestamp": "12/12/2025 12:17 AM",
         "source_file": "20251212_001718.xlsx",
         "map": "Warlock",
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 961,
-        "rank_before": 9,
-        "rank_after": 10,
+        "xp_total": 1061,
+        "rank_before": 10,
+        "rank_after": 11,
         "result": "win"
       },
       {
@@ -6416,9 +6476,9 @@
         "gametype": "MLG Sanc CTF",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1061,
-        "rank_before": 10,
-        "rank_after": 11,
+        "xp_total": 1161,
+        "rank_before": 11,
+        "rank_after": 12,
         "result": "win"
       },
       {
@@ -6427,10 +6487,10 @@
         "map": "Lockout",
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
-        "xp_change": -45,
-        "xp_total": 1016,
-        "rank_before": 11,
-        "rank_after": 11,
+        "xp_change": -50,
+        "xp_total": 1111,
+        "rank_before": 12,
+        "rank_after": 12,
         "result": "loss"
       },
       {
@@ -6440,9 +6500,9 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1116,
-        "rank_before": 11,
-        "rank_after": 12,
+        "xp_total": 1211,
+        "rank_before": 12,
+        "rank_after": 13,
         "result": "win"
       },
       {
@@ -6452,8 +6512,8 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1216,
-        "rank_before": 12,
+        "xp_total": 1311,
+        "rank_before": 13,
         "rank_after": 13,
         "result": "win"
       },
@@ -6464,9 +6524,9 @@
         "gametype": "MLG MidWar CTF",
         "playlist": "MLG 4v4",
         "xp_change": -52,
-        "xp_total": 1164,
+        "xp_total": 1259,
         "rank_before": 13,
-        "rank_after": 12,
+        "rank_after": 13,
         "result": "loss"
       },
       {
@@ -6476,8 +6536,8 @@
         "gametype": "MLG TS No Dualz",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 1264,
-        "rank_before": 12,
+        "xp_total": 1359,
+        "rank_before": 13,
         "rank_after": 13,
         "result": "win"
       },
@@ -6488,7 +6548,7 @@
         "gametype": "MLG bawl",
         "playlist": "MLG 4v4",
         "xp_change": -52,
-        "xp_total": 1212,
+        "xp_total": 1307,
         "rank_before": 13,
         "rank_after": 13,
         "result": "loss"
@@ -7588,7 +7648,7 @@
       }
     ]
   },
-  "200071154920783837": {
+  "806986787106594130": {
     "discord_name": "Grave",
     "history": [
       {
@@ -7789,6 +7849,18 @@
         "result": "loss"
       },
       {
+        "timestamp": "12/12/2025 12:10 AM",
+        "source_file": "20251212_001058.xlsx",
+        "map": "Midship",
+        "gametype": "MidBomb",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
         "timestamp": "12/12/2025 12:17 AM",
         "source_file": "20251212_001718.xlsx",
         "map": "Warlock",
@@ -7886,7 +7958,7 @@
       }
     ]
   },
-  "588071163128274222": {
+  "816456729383339163": {
     "discord_name": "SHOW5TOPPER",
     "history": [
       {
@@ -8595,9 +8667,21 @@
       }
     ]
   },
-  "359216128959971329": {
-    "discord_name": "Focused",
+  "237407163822112769": {
+    "discord_name": "GuN ShoT",
     "history": [
+      {
+        "timestamp": "12/12/2025 12:10 AM",
+        "source_file": "20251212_001058.xlsx",
+        "map": "Midship",
+        "gametype": "MidBomb",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
       {
         "timestamp": "12/12/2025 12:17 AM",
         "source_file": "20251212_001718.xlsx",
@@ -8696,9 +8780,21 @@
       }
     ]
   },
-  "237407163822112769": {
-    "discord_name": "GuN ShoT",
+  "359216128959971329": {
+    "discord_name": "Focused",
     "history": [
+      {
+        "timestamp": "12/12/2025 12:10 AM",
+        "source_file": "20251212_001058.xlsx",
+        "map": "Midship",
+        "gametype": "MidBomb",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
       {
         "timestamp": "12/12/2025 12:17 AM",
         "source_file": "20251212_001718.xlsx",
