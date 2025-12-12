@@ -1,5 +1,5 @@
 {
-  "740118083285620104": {
+  "860905415634826546": {
     "discord_name": "Grave",
     "twitch_name": "",
     "twitch_url": "",
@@ -27,7 +27,7 @@
       }
     }
   },
-  "157073589692214237": {
+  "582096203143319184": {
     "discord_name": "SHOW5TOPPER",
     "twitch_name": "",
     "twitch_url": "",
@@ -55,87 +55,87 @@
       }
     }
   },
-  "274372368686776321": {
-    "discord_name": "sneakybeav3r",
+  "1136095104663306240": {
+    "discord_name": "Hyrax",
     "twitch_name": "",
     "twitch_url": "",
-    "rank": 14,
-    "highest_rank": 14,
-    "xp": 1526,
+    "rank": 16,
+    "highest_rank": 16,
+    "xp": 1797,
     "mmr": 750,
-    "wins": 18,
-    "losses": 11,
-    "total_games": 33,
-    "kills": 758,
-    "deaths": 537,
-    "assists": 376,
-    "headshots": 529,
-    "series_wins": 6,
-    "series_losses": 2,
+    "wins": 22,
+    "losses": 12,
+    "total_games": 38,
+    "kills": 576,
+    "deaths": 651,
+    "assists": 395,
+    "headshots": 386,
+    "series_wins": 5,
+    "series_losses": 1,
     "playlists": {
       "MLG 4v4": {
-        "rank": 14,
-        "highest_rank": 14,
-        "xp": 1526,
-        "wins": 18,
-        "losses": 11,
-        "games": 33
+        "rank": 16,
+        "highest_rank": 16,
+        "xp": 1797,
+        "wins": 22,
+        "losses": 12,
+        "games": 38
       }
     }
   },
-  "237407163822112769": {
-    "discord_name": "GuNShoT",
+  "314217230390919174": {
+    "discord_name": "popq2",
     "twitch_name": "",
     "twitch_url": "",
-    "rank": 4,
-    "highest_rank": 4,
-    "xp": 291,
+    "rank": 7,
+    "highest_rank": 6,
+    "xp": 660,
     "mmr": 750,
-    "wins": 3,
-    "losses": 5,
-    "total_games": 8,
-    "kills": 146,
-    "deaths": 101,
-    "assists": 111,
-    "headshots": 101,
+    "wins": 7,
+    "losses": 10,
+    "total_games": 18,
+    "kills": 258,
+    "deaths": 252,
+    "assists": 196,
+    "headshots": 148,
+    "series_wins": 1,
+    "series_losses": 2,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 7,
+        "highest_rank": 6,
+        "xp": 660,
+        "wins": 7,
+        "losses": 10,
+        "games": 18
+      }
+    }
+  },
+  "309502376052523018": {
+    "discord_name": "Bigstack",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 5,
+    "highest_rank": 5,
+    "xp": 400,
+    "mmr": 750,
+    "wins": 4,
+    "losses": 1,
+    "total_games": 5,
+    "kills": 68,
+    "deaths": 86,
+    "assists": 68,
+    "headshots": 44,
     "series_wins": 1,
     "series_losses": 1,
     "playlists": {
       "MLG 4v4": {
-        "rank": 4,
-        "highest_rank": 4,
-        "xp": 291,
-        "wins": 3,
-        "losses": 5,
-        "games": 8
-      }
-    }
-  },
-  "132652800378142720": {
-    "discord_name": "Hammie",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 12,
-    "highest_rank": 8,
-    "xp": 1165,
-    "mmr": 750,
-    "wins": 12,
-    "losses": 5,
-    "total_games": 18,
-    "kills": 340,
-    "deaths": 364,
-    "assists": 220,
-    "headshots": 236,
-    "series_wins": 4,
-    "series_losses": 1,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 12,
-        "highest_rank": 8,
-        "xp": 1165,
-        "wins": 12,
-        "losses": 5,
-        "games": 18
+        "rank": 5,
+        "highest_rank": 5,
+        "xp": 400,
+        "wins": 4,
+        "losses": 1,
+        "games": 5
       }
     }
   },
@@ -195,283 +195,31 @@
       }
     }
   },
-  "293507586131492864": {
-    "discord_name": "KidMode",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 16,
-    "highest_rank": 16,
-    "xp": 1843,
-    "mmr": 750,
-    "wins": 25,
-    "losses": 18,
-    "total_games": 43,
-    "kills": 794,
-    "deaths": 800,
-    "assists": 503,
-    "headshots": 562,
-    "series_wins": 8,
-    "series_losses": 7,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 16,
-        "highest_rank": 16,
-        "xp": 1843,
-        "wins": 25,
-        "losses": 18,
-        "games": 43
-      }
-    }
-  },
-  "175415359703089152": {
-    "discord_name": "Obi Juan",
+  "177913649728323584": {
+    "discord_name": "Kryptonite",
     "twitch_name": "",
     "twitch_url": "",
     "rank": 2,
-    "highest_rank": 2,
-    "xp": 96,
+    "highest_rank": 3,
+    "xp": 188,
     "mmr": 750,
-    "wins": 1,
-    "losses": 4,
+    "wins": 2,
+    "losses": 3,
     "total_games": 5,
-    "kills": 80,
-    "deaths": 88,
-    "assists": 57,
-    "headshots": 42,
+    "kills": 155,
+    "deaths": 92,
+    "assists": 61,
+    "headshots": 100,
     "series_wins": 0,
-    "series_losses": 2,
+    "series_losses": 1,
     "playlists": {
       "MLG 4v4": {
         "rank": 2,
-        "highest_rank": 2,
-        "xp": 96,
-        "wins": 1,
-        "losses": 4,
-        "games": 5
-      }
-    }
-  },
-  "1136095104663306240": {
-    "discord_name": "Hyrax",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 16,
-    "highest_rank": 16,
-    "xp": 1797,
-    "mmr": 750,
-    "wins": 22,
-    "losses": 12,
-    "total_games": 38,
-    "kills": 576,
-    "deaths": 651,
-    "assists": 395,
-    "headshots": 386,
-    "series_wins": 5,
-    "series_losses": 1,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 16,
-        "highest_rank": 16,
-        "xp": 1797,
-        "wins": 22,
-        "losses": 12,
-        "games": 38
-      }
-    }
-  },
-  "283293015135748097": {
-    "discord_name": "Dirk",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 1,
-    "highest_rank": 1,
-    "xp": 0,
-    "mmr": 750,
-    "wins": 0,
-    "losses": 3,
-    "total_games": 3,
-    "kills": 45,
-    "deaths": 66,
-    "assists": 40,
-    "headshots": 28,
-    "series_wins": 0,
-    "series_losses": 1,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 1,
-        "highest_rank": 1,
-        "xp": 0,
-        "wins": 0,
+        "highest_rank": 3,
+        "xp": 188,
+        "wins": 2,
         "losses": 3,
-        "games": 3
-      }
-    }
-  },
-  "314217230390919174": {
-    "discord_name": "popq2",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 7,
-    "highest_rank": 6,
-    "xp": 660,
-    "mmr": 750,
-    "wins": 7,
-    "losses": 10,
-    "total_games": 18,
-    "kills": 258,
-    "deaths": 252,
-    "assists": 196,
-    "headshots": 148,
-    "series_wins": 1,
-    "series_losses": 2,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 7,
-        "highest_rank": 6,
-        "xp": 660,
-        "wins": 7,
-        "losses": 10,
-        "games": 18
-      }
-    }
-  },
-  "1218796844088430692": {
-    "discord_name": "ll Legend ll",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 1,
-    "highest_rank": 1,
-    "xp": 0,
-    "mmr": 750,
-    "wins": 0,
-    "losses": 9,
-    "total_games": 9,
-    "kills": 95,
-    "deaths": 178,
-    "assists": 79,
-    "headshots": 64,
-    "series_wins": 0,
-    "series_losses": 5,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 1,
-        "highest_rank": 1,
-        "xp": 0,
-        "wins": 0,
-        "losses": 9,
-        "games": 9
-      }
-    }
-  },
-  "426757496557010948": {
-    "discord_name": "Rocky",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 12,
-    "highest_rank": 13,
-    "xp": 1112,
-    "mmr": 750,
-    "wins": 16,
-    "losses": 22,
-    "total_games": 38,
-    "kills": 860,
-    "deaths": 736,
-    "assists": 448,
-    "headshots": 567,
-    "series_wins": 6,
-    "series_losses": 7,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 12,
-        "highest_rank": 13,
-        "xp": 1112,
-        "wins": 16,
-        "losses": 22,
-        "games": 38
-      }
-    }
-  },
-  "168151188741685248": {
-    "discord_name": "AfroMaN",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 9,
-    "highest_rank": 9,
-    "xp": 835,
-    "mmr": 750,
-    "wins": 11,
-    "losses": 19,
-    "total_games": 31,
-    "kills": 639,
-    "deaths": 512,
-    "assists": 348,
-    "headshots": 415,
-    "series_wins": 4,
-    "series_losses": 6,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 9,
-        "highest_rank": 9,
-        "xp": 835,
-        "wins": 11,
-        "losses": 19,
-        "games": 31
-      }
-    }
-  },
-  "652998057087991838": {
-    "discord_name": "TwoDashAngo",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 4,
-    "highest_rank": 4,
-    "xp": 296,
-    "mmr": 750,
-    "wins": 3,
-    "losses": 2,
-    "total_games": 5,
-    "kills": 74,
-    "deaths": 102,
-    "assists": 57,
-    "headshots": 50,
-    "series_wins": 1,
-    "series_losses": 0,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 4,
-        "highest_rank": 4,
-        "xp": 296,
-        "wins": 3,
-        "losses": 2,
         "games": 5
-      }
-    }
-  },
-  "334212655613214721": {
-    "discord_name": "fluhd",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 17,
-    "highest_rank": 17,
-    "xp": 2160,
-    "mmr": 750,
-    "wins": 33,
-    "losses": 25,
-    "total_games": 62,
-    "kills": 1403,
-    "deaths": 1106,
-    "assists": 716,
-    "headshots": 899,
-    "series_wins": 9,
-    "series_losses": 8,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 17,
-        "highest_rank": 17,
-        "xp": 2160,
-        "wins": 33,
-        "losses": 25,
-        "games": 62
       }
     }
   },
@@ -503,6 +251,34 @@
       }
     }
   },
+  "293507586131492864": {
+    "discord_name": "KidMode",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 16,
+    "highest_rank": 16,
+    "xp": 1843,
+    "mmr": 750,
+    "wins": 25,
+    "losses": 18,
+    "total_games": 43,
+    "kills": 794,
+    "deaths": 800,
+    "assists": 503,
+    "headshots": 562,
+    "series_wins": 8,
+    "series_losses": 7,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 16,
+        "highest_rank": 16,
+        "xp": 1843,
+        "wins": 25,
+        "losses": 18,
+        "games": 43
+      }
+    }
+  },
   "694412691015598140": {
     "discord_name": "simon hagiwara",
     "twitch_name": "",
@@ -531,120 +307,36 @@
       }
     }
   },
-  "210187331066396672": {
-    "discord_name": "Rinser",
+  "652998057087991838": {
+    "discord_name": "TwoDashAngo",
     "twitch_name": "",
     "twitch_url": "",
-    "rank": 13,
-    "highest_rank": 11,
-    "xp": 1205,
+    "rank": 4,
+    "highest_rank": 4,
+    "xp": 296,
     "mmr": 750,
-    "wins": 17,
-    "losses": 16,
-    "total_games": 33,
-    "kills": 582,
-    "deaths": 638,
-    "assists": 348,
-    "headshots": 390,
-    "series_wins": 6,
-    "series_losses": 6,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 13,
-        "highest_rank": 11,
-        "xp": 1205,
-        "wins": 17,
-        "losses": 16,
-        "games": 33
-      }
-    }
-  },
-  "859153194839965718": {
-    "discord_name": "Curts GLORY",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 2,
-    "highest_rank": 2,
-    "xp": 98,
-    "mmr": 750,
-    "wins": 1,
-    "losses": 3,
+    "wins": 3,
+    "losses": 2,
     "total_games": 5,
-    "kills": 71,
-    "deaths": 62,
-    "assists": 45,
-    "headshots": 49,
-    "series_wins": 0,
-    "series_losses": 1,
+    "kills": 74,
+    "deaths": 102,
+    "assists": 57,
+    "headshots": 50,
+    "series_wins": 1,
+    "series_losses": 0,
     "playlists": {
       "MLG 4v4": {
-        "rank": 2,
-        "highest_rank": 2,
-        "xp": 98,
-        "wins": 1,
-        "losses": 3,
+        "rank": 4,
+        "highest_rank": 4,
+        "xp": 296,
+        "wins": 3,
+        "losses": 2,
         "games": 5
       }
     }
   },
-  "884896715432411178": {
-    "discord_name": "I2aMpAnT",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 9,
-    "highest_rank": 10,
-    "xp": 860,
-    "mmr": 750,
-    "wins": 12,
-    "losses": 17,
-    "total_games": 29,
-    "kills": 490,
-    "deaths": 592,
-    "assists": 322,
-    "headshots": 304,
-    "series_wins": 6,
-    "series_losses": 7,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 9,
-        "highest_rank": 10,
-        "xp": 860,
-        "wins": 12,
-        "losses": 17,
-        "games": 29
-      }
-    }
-  },
-  "136324687926919168": {
-    "discord_name": "roasted",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 17,
-    "highest_rank": 17,
-    "xp": 2006,
-    "mmr": 750,
-    "wins": 24,
-    "losses": 14,
-    "total_games": 38,
-    "kills": 551,
-    "deaths": 832,
-    "assists": 464,
-    "headshots": 356,
-    "series_wins": 7,
-    "series_losses": 6,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 17,
-        "highest_rank": 17,
-        "xp": 2006,
-        "wins": 24,
-        "losses": 14,
-        "games": 38
-      }
-    }
-  },
-  "359216128959971329": {
-    "discord_name": "Hypnox",
+  "237407163822112769": {
+    "discord_name": "GuNShoT",
     "twitch_name": "",
     "twitch_url": "",
     "rank": 4,
@@ -654,10 +346,10 @@
     "wins": 3,
     "losses": 5,
     "total_games": 8,
-    "kills": 170,
-    "deaths": 145,
-    "assists": 91,
-    "headshots": 116,
+    "kills": 146,
+    "deaths": 101,
+    "assists": 111,
+    "headshots": 101,
     "series_wins": 1,
     "series_losses": 1,
     "playlists": {
@@ -668,146 +360,6 @@
         "wins": 3,
         "losses": 5,
         "games": 8
-      }
-    }
-  },
-  "164725201907613696": {
-    "discord_name": "James | The Frenetic",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 11,
-    "highest_rank": 11,
-    "xp": 1005,
-    "mmr": 750,
-    "wins": 11,
-    "losses": 14,
-    "total_games": 25,
-    "kills": 584,
-    "deaths": 547,
-    "assists": 343,
-    "headshots": 393,
-    "series_wins": 4,
-    "series_losses": 6,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 11,
-        "highest_rank": 11,
-        "xp": 1005,
-        "wins": 11,
-        "losses": 14,
-        "games": 25
-      }
-    }
-  },
-  "161726300304834560": {
-    "discord_name": "Jay2",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 6,
-    "highest_rank": 6,
-    "xp": 551,
-    "mmr": 750,
-    "wins": 6,
-    "losses": 7,
-    "total_games": 17,
-    "kills": 226,
-    "deaths": 317,
-    "assists": 181,
-    "headshots": 174,
-    "series_wins": 1,
-    "series_losses": 1,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 6,
-        "highest_rank": 6,
-        "xp": 551,
-        "wins": 6,
-        "losses": 7,
-        "games": 17
-      }
-    }
-  },
-  "390747330631958528": {
-    "discord_name": "cOn",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 13,
-    "highest_rank": 13,
-    "xp": 1212,
-    "mmr": 750,
-    "wins": 15,
-    "losses": 11,
-    "total_games": 26,
-    "kills": 571,
-    "deaths": 495,
-    "assists": 391,
-    "headshots": 364,
-    "series_wins": 3,
-    "series_losses": 3,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 13,
-        "highest_rank": 13,
-        "xp": 1212,
-        "wins": 15,
-        "losses": 11,
-        "games": 26
-      }
-    }
-  },
-  "797210177786347530": {
-    "discord_name": "future trunks",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 4,
-    "highest_rank": 4,
-    "xp": 289,
-    "mmr": 750,
-    "wins": 3,
-    "losses": 6,
-    "total_games": 12,
-    "kills": 215,
-    "deaths": 184,
-    "assists": 149,
-    "headshots": 126,
-    "series_wins": 0,
-    "series_losses": 1,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 4,
-        "highest_rank": 4,
-        "xp": 289,
-        "wins": 3,
-        "losses": 6,
-        "games": 12
-      }
-    }
-  },
-  "111190770756657152": {
-    "discord_name": "EpiiiC",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 14,
-    "highest_rank": 14,
-    "xp": 1458,
-    "mmr": 750,
-    "wins": 18,
-    "losses": 15,
-    "total_games": 33,
-    "kills": 744,
-    "deaths": 628,
-    "assists": 468,
-    "headshots": 513,
-    "series_wins": 6,
-    "series_losses": 2,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 14,
-        "highest_rank": 14,
-        "xp": 1458,
-        "wins": 18,
-        "losses": 15,
-        "games": 33
       }
     }
   },
@@ -839,58 +391,142 @@
       }
     }
   },
-  "284010072504270849": {
-    "discord_name": "DU7S",
+  "859153194839965718": {
+    "discord_name": "Curts GLORY",
     "twitch_name": "",
     "twitch_url": "",
     "rank": 2,
-    "highest_rank": 3,
-    "xp": 184,
+    "highest_rank": 2,
+    "xp": 98,
     "mmr": 750,
-    "wins": 2,
-    "losses": 7,
-    "total_games": 10,
-    "kills": 115,
-    "deaths": 184,
-    "assists": 104,
-    "headshots": 73,
-    "series_wins": 1,
-    "series_losses": 2,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 2,
-        "highest_rank": 3,
-        "xp": 184,
-        "wins": 2,
-        "losses": 7,
-        "games": 10
-      }
-    }
-  },
-  "177913649728323584": {
-    "discord_name": "Kryptonite",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 2,
-    "highest_rank": 3,
-    "xp": 188,
-    "mmr": 750,
-    "wins": 2,
+    "wins": 1,
     "losses": 3,
     "total_games": 5,
-    "kills": 155,
-    "deaths": 92,
-    "assists": 61,
-    "headshots": 100,
+    "kills": 71,
+    "deaths": 62,
+    "assists": 45,
+    "headshots": 49,
     "series_wins": 0,
     "series_losses": 1,
     "playlists": {
       "MLG 4v4": {
         "rank": 2,
-        "highest_rank": 3,
-        "xp": 188,
-        "wins": 2,
+        "highest_rank": 2,
+        "xp": 98,
+        "wins": 1,
         "losses": 3,
+        "games": 5
+      }
+    }
+  },
+  "164725201907613696": {
+    "discord_name": "James | The Frenetic",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 11,
+    "highest_rank": 11,
+    "xp": 1005,
+    "mmr": 750,
+    "wins": 11,
+    "losses": 14,
+    "total_games": 25,
+    "kills": 584,
+    "deaths": 547,
+    "assists": 343,
+    "headshots": 393,
+    "series_wins": 4,
+    "series_losses": 6,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 11,
+        "highest_rank": 11,
+        "xp": 1005,
+        "wins": 11,
+        "losses": 14,
+        "games": 25
+      }
+    }
+  },
+  "168151188741685248": {
+    "discord_name": "AfroMaN",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 9,
+    "highest_rank": 9,
+    "xp": 835,
+    "mmr": 750,
+    "wins": 11,
+    "losses": 19,
+    "total_games": 31,
+    "kills": 639,
+    "deaths": 512,
+    "assists": 348,
+    "headshots": 415,
+    "series_wins": 4,
+    "series_losses": 6,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 9,
+        "highest_rank": 9,
+        "xp": 835,
+        "wins": 11,
+        "losses": 19,
+        "games": 31
+      }
+    }
+  },
+  "390747330631958528": {
+    "discord_name": "cOn",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 13,
+    "highest_rank": 13,
+    "xp": 1212,
+    "mmr": 750,
+    "wins": 15,
+    "losses": 11,
+    "total_games": 26,
+    "kills": 571,
+    "deaths": 495,
+    "assists": 391,
+    "headshots": 364,
+    "series_wins": 3,
+    "series_losses": 3,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 13,
+        "highest_rank": 13,
+        "xp": 1212,
+        "wins": 15,
+        "losses": 11,
+        "games": 26
+      }
+    }
+  },
+  "175415359703089152": {
+    "discord_name": "Obi Juan",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 2,
+    "highest_rank": 2,
+    "xp": 96,
+    "mmr": 750,
+    "wins": 1,
+    "losses": 4,
+    "total_games": 5,
+    "kills": 80,
+    "deaths": 88,
+    "assists": 57,
+    "headshots": 42,
+    "series_wins": 0,
+    "series_losses": 2,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 2,
+        "highest_rank": 2,
+        "xp": 96,
+        "wins": 1,
+        "losses": 4,
         "games": 5
       }
     }
@@ -923,31 +559,395 @@
       }
     }
   },
-  "309502376052523018": {
-    "discord_name": "Bigstack",
+  "132652800378142720": {
+    "discord_name": "Hammie",
     "twitch_name": "",
     "twitch_url": "",
-    "rank": 5,
-    "highest_rank": 5,
-    "xp": 400,
+    "rank": 12,
+    "highest_rank": 8,
+    "xp": 1165,
     "mmr": 750,
-    "wins": 4,
-    "losses": 1,
-    "total_games": 5,
-    "kills": 68,
-    "deaths": 86,
-    "assists": 68,
-    "headshots": 44,
+    "wins": 12,
+    "losses": 5,
+    "total_games": 18,
+    "kills": 340,
+    "deaths": 364,
+    "assists": 220,
+    "headshots": 236,
+    "series_wins": 4,
+    "series_losses": 1,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 12,
+        "highest_rank": 8,
+        "xp": 1165,
+        "wins": 12,
+        "losses": 5,
+        "games": 18
+      }
+    }
+  },
+  "284010072504270849": {
+    "discord_name": "DU7S",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 2,
+    "highest_rank": 3,
+    "xp": 184,
+    "mmr": 750,
+    "wins": 2,
+    "losses": 7,
+    "total_games": 10,
+    "kills": 115,
+    "deaths": 184,
+    "assists": 104,
+    "headshots": 73,
+    "series_wins": 1,
+    "series_losses": 2,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 2,
+        "highest_rank": 3,
+        "xp": 184,
+        "wins": 2,
+        "losses": 7,
+        "games": 10
+      }
+    }
+  },
+  "210187331066396672": {
+    "discord_name": "Rinser",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 13,
+    "highest_rank": 11,
+    "xp": 1205,
+    "mmr": 750,
+    "wins": 17,
+    "losses": 16,
+    "total_games": 33,
+    "kills": 582,
+    "deaths": 638,
+    "assists": 348,
+    "headshots": 390,
+    "series_wins": 6,
+    "series_losses": 6,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 13,
+        "highest_rank": 11,
+        "xp": 1205,
+        "wins": 17,
+        "losses": 16,
+        "games": 33
+      }
+    }
+  },
+  "797210177786347530": {
+    "discord_name": "future trunks",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 4,
+    "highest_rank": 4,
+    "xp": 289,
+    "mmr": 750,
+    "wins": 3,
+    "losses": 6,
+    "total_games": 12,
+    "kills": 215,
+    "deaths": 184,
+    "assists": 149,
+    "headshots": 126,
+    "series_wins": 0,
+    "series_losses": 1,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 4,
+        "highest_rank": 4,
+        "xp": 289,
+        "wins": 3,
+        "losses": 6,
+        "games": 12
+      }
+    }
+  },
+  "884896715432411178": {
+    "discord_name": "I2aMpAnT",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 9,
+    "highest_rank": 10,
+    "xp": 860,
+    "mmr": 750,
+    "wins": 12,
+    "losses": 17,
+    "total_games": 29,
+    "kills": 490,
+    "deaths": 592,
+    "assists": 322,
+    "headshots": 304,
+    "series_wins": 6,
+    "series_losses": 7,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 9,
+        "highest_rank": 10,
+        "xp": 860,
+        "wins": 12,
+        "losses": 17,
+        "games": 29
+      }
+    }
+  },
+  "111190770756657152": {
+    "discord_name": "EpiiiC",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 14,
+    "highest_rank": 14,
+    "xp": 1458,
+    "mmr": 750,
+    "wins": 18,
+    "losses": 15,
+    "total_games": 33,
+    "kills": 744,
+    "deaths": 628,
+    "assists": 468,
+    "headshots": 513,
+    "series_wins": 6,
+    "series_losses": 2,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 14,
+        "highest_rank": 14,
+        "xp": 1458,
+        "wins": 18,
+        "losses": 15,
+        "games": 33
+      }
+    }
+  },
+  "283293015135748097": {
+    "discord_name": "Dirk",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 1,
+    "highest_rank": 1,
+    "xp": 0,
+    "mmr": 750,
+    "wins": 0,
+    "losses": 3,
+    "total_games": 3,
+    "kills": 45,
+    "deaths": 66,
+    "assists": 40,
+    "headshots": 28,
+    "series_wins": 0,
+    "series_losses": 1,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 1,
+        "highest_rank": 1,
+        "xp": 0,
+        "wins": 0,
+        "losses": 3,
+        "games": 3
+      }
+    }
+  },
+  "274372368686776321": {
+    "discord_name": "sneakybeav3r",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 14,
+    "highest_rank": 14,
+    "xp": 1526,
+    "mmr": 750,
+    "wins": 18,
+    "losses": 11,
+    "total_games": 33,
+    "kills": 758,
+    "deaths": 537,
+    "assists": 376,
+    "headshots": 529,
+    "series_wins": 6,
+    "series_losses": 2,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 14,
+        "highest_rank": 14,
+        "xp": 1526,
+        "wins": 18,
+        "losses": 11,
+        "games": 33
+      }
+    }
+  },
+  "136324687926919168": {
+    "discord_name": "roasted",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 17,
+    "highest_rank": 17,
+    "xp": 2006,
+    "mmr": 750,
+    "wins": 24,
+    "losses": 14,
+    "total_games": 38,
+    "kills": 551,
+    "deaths": 832,
+    "assists": 464,
+    "headshots": 356,
+    "series_wins": 7,
+    "series_losses": 6,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 17,
+        "highest_rank": 17,
+        "xp": 2006,
+        "wins": 24,
+        "losses": 14,
+        "games": 38
+      }
+    }
+  },
+  "426757496557010948": {
+    "discord_name": "Rocky",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 12,
+    "highest_rank": 13,
+    "xp": 1112,
+    "mmr": 750,
+    "wins": 16,
+    "losses": 22,
+    "total_games": 38,
+    "kills": 860,
+    "deaths": 736,
+    "assists": 448,
+    "headshots": 567,
+    "series_wins": 6,
+    "series_losses": 7,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 12,
+        "highest_rank": 13,
+        "xp": 1112,
+        "wins": 16,
+        "losses": 22,
+        "games": 38
+      }
+    }
+  },
+  "359216128959971329": {
+    "discord_name": "Hypnox",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 4,
+    "highest_rank": 4,
+    "xp": 291,
+    "mmr": 750,
+    "wins": 3,
+    "losses": 5,
+    "total_games": 8,
+    "kills": 170,
+    "deaths": 145,
+    "assists": 91,
+    "headshots": 116,
     "series_wins": 1,
     "series_losses": 1,
     "playlists": {
       "MLG 4v4": {
-        "rank": 5,
-        "highest_rank": 5,
-        "xp": 400,
-        "wins": 4,
-        "losses": 1,
-        "games": 5
+        "rank": 4,
+        "highest_rank": 4,
+        "xp": 291,
+        "wins": 3,
+        "losses": 5,
+        "games": 8
+      }
+    }
+  },
+  "161726300304834560": {
+    "discord_name": "Jay2",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 6,
+    "highest_rank": 6,
+    "xp": 551,
+    "mmr": 750,
+    "wins": 6,
+    "losses": 7,
+    "total_games": 17,
+    "kills": 226,
+    "deaths": 317,
+    "assists": 181,
+    "headshots": 174,
+    "series_wins": 1,
+    "series_losses": 1,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 6,
+        "highest_rank": 6,
+        "xp": 551,
+        "wins": 6,
+        "losses": 7,
+        "games": 17
+      }
+    }
+  },
+  "334212655613214721": {
+    "discord_name": "fluhd",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 17,
+    "highest_rank": 17,
+    "xp": 2160,
+    "mmr": 750,
+    "wins": 33,
+    "losses": 25,
+    "total_games": 62,
+    "kills": 1403,
+    "deaths": 1106,
+    "assists": 716,
+    "headshots": 899,
+    "series_wins": 9,
+    "series_losses": 8,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 17,
+        "highest_rank": 17,
+        "xp": 2160,
+        "wins": 33,
+        "losses": 25,
+        "games": 62
+      }
+    }
+  },
+  "1218796844088430692": {
+    "discord_name": "ll Legend ll",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 1,
+    "highest_rank": 1,
+    "xp": 0,
+    "mmr": 750,
+    "wins": 0,
+    "losses": 9,
+    "total_games": 9,
+    "kills": 95,
+    "deaths": 178,
+    "assists": 79,
+    "headshots": 64,
+    "series_wins": 0,
+    "series_losses": 5,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 1,
+        "highest_rank": 1,
+        "xp": 0,
+        "wins": 0,
+        "losses": 9,
+        "games": 9
       }
     }
   }
