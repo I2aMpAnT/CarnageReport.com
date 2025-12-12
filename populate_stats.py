@@ -1167,29 +1167,11 @@ def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord)
 
     ONLY valid path: In-game name -> MAC (identity file) -> Discord ID (players.json)
 
-    The MAC address is the source of truth. No shortcuts or name matching.
+    The MAC address is the source of truth. No shortcuts.
     """
     name_lower = player_name.strip().lower()
-    name_raw = player_name.strip()  # Keep original case for PUA characters
-
-    # Method 0: Check hardcoded Unicode name mappings first (before any normalization)
-    # Check raw name first (for PUA/symbol characters that don't have case)
-    if name_raw in UNICODE_NAME_MAPPINGS:
-        return UNICODE_NAME_MAPPINGS[name_raw]
-    if name_lower in UNICODE_NAME_MAPPINGS:
-        return UNICODE_NAME_MAPPINGS[name_lower]
-
-    # Strip Unicode invisible characters and normalize for additional checks
-    name_stripped = ''.join(c for c in name_lower if c.isalnum() or c.isspace()).strip()
-    name_no_spaces = name_stripped.replace(' ', '')
-
-    if name_stripped in UNICODE_NAME_MAPPINGS:
-        return UNICODE_NAME_MAPPINGS[name_stripped]
-    if name_no_spaces in UNICODE_NAME_MAPPINGS:
-        return UNICODE_NAME_MAPPINGS[name_no_spaces]
 
     # ONLY valid resolution: In-game name -> MAC (identity file) -> Discord ID (players.json)
-    # No shortcuts. No alias matching. No name matching. MAC is the source of truth.
     if name_lower in identity_name_to_mac:
         mac = identity_name_to_mac[name_lower]
         if mac in mac_to_discord:
