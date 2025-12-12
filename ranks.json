@@ -2245,59 +2245,31 @@
       }
     }
   },
-  "175060415833833472": {
-    "discord_name": "Josiah",
+  "309502376052523018": {
+    "discord_name": "Bigstack",
     "twitch_name": "",
     "twitch_url": "",
-    "rank": 10,
-    "highest_rank": 10,
-    "xp": 956,
+    "rank": 5,
+    "highest_rank": 5,
+    "xp": 400,
     "mmr": 750,
-    "wins": 10,
-    "losses": 4,
-    "total_games": 14,
-    "kills": 310,
-    "deaths": 237,
-    "assists": 184,
-    "headshots": 215,
-    "series_wins": 3,
+    "wins": 4,
+    "losses": 1,
+    "total_games": 5,
+    "kills": 68,
+    "deaths": 86,
+    "assists": 68,
+    "headshots": 44,
+    "series_wins": 1,
     "series_losses": 1,
     "playlists": {
       "MLG 4v4": {
-        "rank": 10,
-        "highest_rank": 10,
-        "xp": 956,
-        "wins": 10,
-        "losses": 4,
-        "games": 14
-      }
-    }
-  },
-  "260603669924413441": {
-    "discord_name": "Tech",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 4,
-    "highest_rank": 3,
-    "xp": 375,
-    "mmr": 750,
-    "wins": 4,
-    "losses": 14,
-    "total_games": 18,
-    "kills": 247,
-    "deaths": 390,
-    "assists": 236,
-    "headshots": 146,
-    "series_wins": 1,
-    "series_losses": 5,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 4,
-        "highest_rank": 3,
-        "xp": 375,
+        "rank": 5,
+        "highest_rank": 5,
+        "xp": 400,
         "wins": 4,
-        "losses": 14,
-        "games": 18
+        "losses": 1,
+        "games": 5
       }
     }
   },
@@ -2329,31 +2301,59 @@
       }
     }
   },
-  "309502376052523018": {
-    "discord_name": "Bigstack",
+  "260603669924413441": {
+    "discord_name": "Tech",
     "twitch_name": "",
     "twitch_url": "",
-    "rank": 5,
-    "highest_rank": 5,
-    "xp": 400,
+    "rank": 4,
+    "highest_rank": 3,
+    "xp": 375,
     "mmr": 750,
     "wins": 4,
-    "losses": 1,
-    "total_games": 5,
-    "kills": 68,
-    "deaths": 86,
-    "assists": 68,
-    "headshots": 44,
+    "losses": 14,
+    "total_games": 18,
+    "kills": 247,
+    "deaths": 390,
+    "assists": 236,
+    "headshots": 146,
     "series_wins": 1,
+    "series_losses": 5,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 4,
+        "highest_rank": 3,
+        "xp": 375,
+        "wins": 4,
+        "losses": 14,
+        "games": 18
+      }
+    }
+  },
+  "175060415833833472": {
+    "discord_name": "Josiah",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 10,
+    "highest_rank": 10,
+    "xp": 956,
+    "mmr": 750,
+    "wins": 10,
+    "losses": 4,
+    "total_games": 14,
+    "kills": 310,
+    "deaths": 237,
+    "assists": 184,
+    "headshots": 215,
+    "series_wins": 3,
     "series_losses": 1,
     "playlists": {
       "MLG 4v4": {
-        "rank": 5,
-        "highest_rank": 5,
-        "xp": 400,
-        "wins": 4,
-        "losses": 1,
-        "games": 5
+        "rank": 10,
+        "highest_rank": 10,
+        "xp": 956,
+        "wins": 10,
+        "losses": 4,
+        "games": 14
       }
     }
   }
