@@ -3927,7 +3927,8 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
                     if (game.weapons) {
                         game.weapons.forEach(playerWeapons => {
                             Object.keys(playerWeapons).forEach(key => {
-                                if (key.toLowerCase().includes(weapon.toLowerCase()) && key.toLowerCase().includes('kills')) {
+                                // Only match exact "{weapon} kills", not headshots/other stats
+                                if (key.toLowerCase() === `${weapon.toLowerCase()} kills`) {
                                     totalKills += parseInt(playerWeapons[key]) || 0;
                                 }
                             });
