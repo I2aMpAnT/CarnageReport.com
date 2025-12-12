@@ -2358,7 +2358,7 @@ function renderGameContent(game) {
     html += '<div class="game-actions">';
     html += `<button class="replay-3d-btn" onclick="event.stopPropagation(); open3DReplay(${gameIndex});" title="View in Theater Mode">`;
     html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>';
-    html += '<span>Theater</span>';
+    html += '<span>Halo 2 Theater Mode</span>';
     html += '</button>';
 
     html += '<div class="game-download-dropdown">';
