@@ -42,6 +42,43 @@ const CONFIG = {
     ]
 };
 
+// Weapon icons mapping
+const WEAPON_ICONS = {
+    'battle rifle': 'assets/weapons/BattleRifle.png',
+    'br': 'assets/weapons/BattleRifle.png',
+    'magnum': 'assets/weapons/Magnum.png',
+    'pistol': 'assets/weapons/Magnum.png',
+    'shotgun': 'assets/weapons/Shotgun.png',
+    'smg': 'assets/weapons/SmG.png',
+    'sniper rifle': 'assets/weapons/SniperRifle.png',
+    'rocket launcher': 'assets/weapons/RocketLauncher.png',
+    'rockets': 'assets/weapons/RocketLauncher.png',
+    'plasma pistol': 'assets/weapons/PlasmaPistol.png',
+    'plasma rifle': 'assets/weapons/PlasmaRifle.png',
+    'brute plasma rifle': 'assets/weapons/BrutePlasmaRifle.png',
+    'carbine': 'assets/weapons/Carbine.png',
+    'needler': 'assets/weapons/Needler.png',
+    'beam rifle': 'assets/weapons/BeamRifle.png',
+    'brute shot': 'assets/weapons/BruteShot.png',
+    'energy sword': 'assets/weapons/EnergySword.png',
+    'sword': 'assets/weapons/EnergySword.png',
+    'fuel rod': 'assets/weapons/FuelRod.png',
+    'flag': 'assets/weapons/Flag.png',
+    'oddball': 'assets/weapons/OddBall.png',
+    'ball': 'assets/weapons/OddBall.png',
+    'bomb': 'assets/weapons/AssaultBomb.png',
+    'frag grenade': 'assets/weapons/FragGrenadeHUD.png',
+    'plasma grenade': 'assets/weapons/PlasmaGrenadeHUD.png',
+    'sentinel beam': 'assets/weapons/SentinelBeam.png',
+    'melee': 'assets/weapons/MeleeKill.png'
+};
+
+function getWeaponIcon(weaponName) {
+    if (!weaponName) return null;
+    const key = weaponName.toLowerCase().trim();
+    return WEAPON_ICONS[key] || null;
+}
+
 // Map name to GLB filename mapping
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
@@ -297,36 +334,58 @@ function handleGamepadInput(deltaTime) {
     const rightX = applyDeadzone(gamepad.axes[2] || 0);
     const rightY = applyDeadzone(gamepad.axes[3] || 0);
 
-    // Movement (left stick) - only in free mode
-    if (viewMode === 'free' && (leftX !== 0 || leftY !== 0)) {
+    // Movement (left stick) - works in free and top modes
+    if ((leftX !== 0 || leftY !== 0)) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
-        const direction = new THREE.Vector3();
 
-        // Get camera forward/right vectors (ignore Y for ground movement)
-        const forward = new THREE.Vector3();
-        camera.getWorldDirection(forward);
-        forward.y = 0;
-        forward.normalize();
+        if (viewMode === 'free') {
+            const direction = new THREE.Vector3();
+            const forward = new THREE.Vector3();
+            camera.getWorldDirection(forward);
+            forward.y = 0;
+            forward.normalize();
 
-        const right = new THREE.Vector3();
-        right.crossVectors(forward, camera.up).normalize();
+            const right = new THREE.Vector3();
+            right.crossVectors(forward, camera.up).normalize();
 
-        direction.addScaledVector(right, leftX);
-        direction.addScaledVector(forward, -leftY);
+            direction.addScaledVector(right, leftX);
+            direction.addScaledVector(forward, -leftY);
 
-        camera.position.addScaledVector(direction, speed);
+            camera.position.addScaledVector(direction, speed);
+        } else if (viewMode === 'top') {
+            // Pan camera in X/Z plane for top-down view
+            camera.position.x += leftX * speed;
+            camera.position.z += leftY * speed;
+            controls.target.x += leftX * speed;
+            controls.target.z += leftY * speed;
+        } else if (viewMode === 'orbit') {
+            // Move orbit target
+            controls.target.x += leftX * speed * 0.5;
+            controls.target.z += leftY * speed * 0.5;
+        }
     }
 
-    // Look (right stick) - only in free mode
-    if (viewMode === 'free' && (rightX !== 0 || rightY !== 0)) {
-        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
-        euler.setFromQuaternion(camera.quaternion);
+    // Look (right stick) - free: look around, orbit: rotate around, top: zoom
+    if (rightX !== 0 || rightY !== 0) {
+        if (viewMode === 'free') {
+            const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+            euler.setFromQuaternion(camera.quaternion);
 
-        euler.y -= rightX * CONFIG.gamepadLookSensitivity;
-        euler.x -= rightY * CONFIG.gamepadLookSensitivity;
-        euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+            euler.y -= rightX * CONFIG.gamepadLookSensitivity;
+            euler.x -= rightY * CONFIG.gamepadLookSensitivity;
+            euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
 
-        camera.quaternion.setFromEuler(euler);
+            camera.quaternion.setFromEuler(euler);
+        } else if (viewMode === 'orbit') {
+            // Rotate orbit camera
+            const rotateSpeed = 0.03;
+            controls.rotateLeft(rightX * rotateSpeed);
+            controls.rotateUp(rightY * rotateSpeed);
+        } else if (viewMode === 'top') {
+            // Zoom with right stick Y in top-down view
+            const zoomSpeed = 2;
+            camera.position.y = Math.max(20, Math.min(300, camera.position.y + rightY * zoomSpeed));
+        }
     }
 
     // Timeline control (bumpers LB/RB)
@@ -753,8 +812,8 @@ function parseTelemetryCSV(csvText) {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
         const emblem = playerEmblemData[name] || {};
-        // Generate emblem URL
-        const emblemUrl = `https://www.halo2pc.com/test-pages/CartoStat/Emblem/emblem.php?P=${emblem.primaryColor || 0}&S=${emblem.secondaryColor || 0}&EP=${emblem.tertiaryColor || 0}&ES=${emblem.quaternaryColor || 0}&EF=${emblem.emblemForeground || 0}&EB=${emblem.emblemBackground || 0}&ET=0`;
+        // Generate emblem URL using emblem service (proxied through nginx for HTTPS)
+        const emblemUrl = `/emblems/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
         players.push({ name, team, color, emblem, emblemUrl });
     });
 
@@ -1031,12 +1090,14 @@ function updatePlayerPositions() {
             marker.group.visible = true;
 
             if (liveStatsBody) {
-                const state = pos.isCrouching ? 'Crouching' : (pos.isAirborne ? 'Airborne' : 'Standing');
+                const weaponIcon = getWeaponIcon(pos.currentWeapon);
+                const weaponDisplay = weaponIcon
+                    ? `<img src="${weaponIcon}" alt="${pos.currentWeapon}" class="weapon-icon" style="height: 20px; width: auto; filter: brightness(0) invert(1);">`
+                    : pos.currentWeapon || '';
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span></td>
-                    <td>${pos.currentWeapon}</td>
-                    <td>${state}</td>
+                    <td>${weaponDisplay}</td>
                 `;
                 liveStatsBody.appendChild(row);
             }
