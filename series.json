@@ -1,5 +1,1387 @@
 {
-  "series": [],
-  "player_series_stats": {},
-  "generated_at": "2025-12-09T13:21:00.358813"
+  "series": [
+    {
+      "series_id": "series_1",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "EpiiiC",
+        "Prince KidMode",
+        "TwoDashAngo",
+        "tetracide."
+      ],
+      "blue_team": [
+        "Keylord",
+        "Rocky",
+        "fluhd",
+        "roasted"
+      ],
+      "games": [
+        {
+          "timestamp": "11/28/2025 20:03",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF MidWar",
+          "winner": "Red",
+          "source_file": "20251128_201839.xlsx"
+        },
+        {
+          "timestamp": "11/28/2025 20:19",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Blue",
+          "source_file": "20251128_202256.xlsx"
+        },
+        {
+          "timestamp": "11/28/2025 20:29",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "MLG Ball 2007",
+          "winner": "Blue",
+          "source_file": "20251128_204504.xlsx"
+        },
+        {
+          "timestamp": "11/28/2025 20:45",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Red",
+          "source_file": "20251128_205019.xlsx"
+        },
+        {
+          "timestamp": "11/28/2025 20:50",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF Sanc",
+          "winner": "Red",
+          "source_file": "20251128_210553.xlsx"
+        }
+      ],
+      "red_wins": 3,
+      "blue_wins": 2,
+      "start_time": "11/28/2025 20:03",
+      "end_time": "11/28/2025 20:50",
+      "winner": "Red",
+      "series_type": "Bo5"
+    },
+    {
+      "series_id": "series_2",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "M15F1T",
+        "Rinser",
+        "Rocky",
+        "fluhd"
+      ],
+      "blue_team": [
+        "AfroMaN",
+        "Dirk",
+        "Keylord",
+        "roasted"
+      ],
+      "games": [
+        {
+          "timestamp": "12/2/2025 20:23",
+          "map": "Warlock",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG MidWar CTF",
+          "winner": "Red",
+          "source_file": "20251202_203858.xlsx"
+        },
+        {
+          "timestamp": "12/2/2025 20:40",
+          "map": "Midship",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Red",
+          "source_file": "20251202_204558.xlsx"
+        },
+        {
+          "timestamp": "12/2/2025 20:46",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG Sanc CTF",
+          "winner": "Red",
+          "source_file": "20251202_210205.xlsx"
+        }
+      ],
+      "red_wins": 3,
+      "blue_wins": 0,
+      "start_time": "12/2/2025 20:23",
+      "end_time": "12/2/2025 20:46",
+      "winner": "Red",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_3",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "AfroMaN",
+        "EpiiiC",
+        "James | The Frenetic",
+        "Keylord",
+        "STATSDEDI"
+      ],
+      "blue_team": [
+        "Prince KidMode",
+        "Rinser",
+        "cOn"
+      ],
+      "games": [
+        {
+          "timestamp": "12/5/2025 10:19 PM",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF MidWar",
+          "winner": "Red",
+          "source_file": "20251205_222909.xlsx"
+        }
+      ],
+      "red_wins": 1,
+      "blue_wins": 0,
+      "start_time": "12/5/2025 10:19 PM",
+      "end_time": "12/5/2025 10:19 PM",
+      "winner": "Red",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_4",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "AfroMaN",
+        "EpiiiC",
+        "James | The Frenetic",
+        "Keylord"
+      ],
+      "blue_team": [
+        "Prince KidMode",
+        "Rinser",
+        "cOn",
+        "fluhd"
+      ],
+      "games": [
+        {
+          "timestamp": "12/5/2025 10:29 PM",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Blue",
+          "source_file": "20251205_223635.xlsx"
+        },
+        {
+          "timestamp": "12/5/2025 10:37 PM",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "MLG Ball 2007",
+          "winner": "Blue",
+          "source_file": "20251205_225101.xlsx"
+        },
+        {
+          "timestamp": "12/5/2025 10:51 PM",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Blue",
+          "source_file": "20251205_225641.xlsx"
+        },
+        {
+          "timestamp": "12/5/2025 10:58 PM",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF Sanc",
+          "winner": "Blue",
+          "source_file": "20251205_231359.xlsx"
+        }
+      ],
+      "red_wins": 0,
+      "blue_wins": 4,
+      "start_time": "12/5/2025 10:29 PM",
+      "end_time": "12/5/2025 10:58 PM",
+      "winner": "Blue",
+      "series_type": "Bo5"
+    },
+    {
+      "series_id": "series_5",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "AfroMaN",
+        "Hyrax",
+        "Jay2",
+        "sneakybeav3r"
+      ],
+      "blue_team": [
+        "Curts GLORY",
+        "DU7S",
+        "fluhd",
+        "popq2"
+      ],
+      "games": [
+        {
+          "timestamp": "12/5/2025 1:45 AM",
+          "map": "Warlock",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG MidWar CTF",
+          "winner": "Red",
+          "source_file": "20251205_015328.xlsx"
+        },
+        {
+          "timestamp": "12/5/2025 1:54 AM",
+          "map": "Sanctuary",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS Default",
+          "winner": "Red",
+          "source_file": "20251205_020151.xlsx"
+        },
+        {
+          "timestamp": "12/5/2025 2:02 AM",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "MidBomb",
+          "winner": "Blue",
+          "source_file": "20251205_021632.xlsx"
+        },
+        {
+          "timestamp": "12/5/2025 2:17 AM",
+          "map": "Lockout",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Red",
+          "source_file": "20251205_023212.xlsx"
+        },
+        {
+          "timestamp": "12/5/2025 2:33 AM",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG Sanc CTF",
+          "winner": null,
+          "source_file": "20251205_023445.xlsx"
+        }
+      ],
+      "red_wins": 3,
+      "blue_wins": 1,
+      "start_time": "12/5/2025 1:45 AM",
+      "end_time": "12/5/2025 2:33 AM",
+      "winner": "Red",
+      "series_type": "Bo5"
+    },
+    {
+      "series_id": "series_6",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "James | The Frenetic",
+        "Keylord",
+        "cOn",
+        "popq2"
+      ],
+      "blue_team": [
+        "AfroMaN",
+        "EpiiiC",
+        "Hyrax",
+        "Prince KidMode"
+      ],
+      "games": [
+        {
+          "timestamp": "12/6/2025 12:01 AM",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "MLG Bomb 07",
+          "winner": "Red",
+          "source_file": "20251206_001617.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 12:16 AM",
+          "map": "Sanctuary",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS Sanc 2007",
+          "winner": "Red",
+          "source_file": "20251206_002326.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 12:24 AM",
+          "map": "Midship",
+          "gametype": "Oddball",
+          "variant_name": "MLG Ball 2007",
+          "winner": "Blue",
+          "source_file": "20251206_003907.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 12:41 AM",
+          "map": "Lockout",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Blue",
+          "source_file": "20251206_005346.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 1:01 AM",
+          "map": "Warlock",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF MidWar",
+          "winner": "Blue",
+          "source_file": "20251206_012212.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 1:24 AM",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Blue",
+          "source_file": "20251206_013159.xlsx"
+        }
+      ],
+      "red_wins": 2,
+      "blue_wins": 4,
+      "start_time": "12/6/2025 12:01 AM",
+      "end_time": "12/6/2025 1:24 AM",
+      "winner": "Blue",
+      "series_type": "Bo7"
+    },
+    {
+      "series_id": "series_7",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Hammie",
+        "cOn",
+        "popq2",
+        "sneakybeav3r"
+      ],
+      "blue_team": [
+        "EpiiiC",
+        "Hyrax",
+        "Keylord",
+        "fluhd"
+      ],
+      "games": [
+        {
+          "timestamp": "12/6/2025 2:29 AM",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG MidWar CTF",
+          "winner": "Red",
+          "source_file": "20251206_024552.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 2:47 AM",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Red",
+          "source_file": "20251206_025423.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 2:55 AM",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "MLG bawl",
+          "winner": "Blue",
+          "source_file": "20251206_031014.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 3:11 AM",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Blue",
+          "source_file": "20251206_031629.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 3:18 AM",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG Sanc CTF",
+          "winner": "Blue",
+          "source_file": "20251206_033331.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 3:34 AM",
+          "map": "Lockout",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Red",
+          "source_file": "20251206_034108.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 3:43 AM",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "MidBomb",
+          "winner": "Red",
+          "source_file": "20251206_035803.xlsx"
+        }
+      ],
+      "red_wins": 4,
+      "blue_wins": 3,
+      "start_time": "12/6/2025 2:29 AM",
+      "end_time": "12/6/2025 3:43 AM",
+      "winner": "Red",
+      "series_type": "Bo7"
+    },
+    {
+      "series_id": "series_8",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Jay2",
+        "Keylord",
+        "future trunks",
+        "sneakybeav3r"
+      ],
+      "blue_team": [
+        "Hammie",
+        "Hyrax",
+        "M15F1T",
+        "fluhd"
+      ],
+      "games": [
+        {
+          "timestamp": "12/6/2025 4:27 AM",
+          "map": "Warlock",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG MidWar CTF",
+          "winner": null,
+          "source_file": "20251206_042800.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 4:28 AM",
+          "map": "Warlock",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG MidWar CTF",
+          "winner": "Blue",
+          "source_file": "20251206_044406.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 4:46 AM",
+          "map": "Sanctuary",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS Default",
+          "winner": "Blue",
+          "source_file": "20251206_045415.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 4:55 AM",
+          "map": "Midship",
+          "gametype": "Oddball",
+          "variant_name": "MLG bawl",
+          "winner": "Blue",
+          "source_file": "20251206_050850.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 5:10 AM",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Red",
+          "source_file": "20251206_051617.xlsx"
+        },
+        {
+          "timestamp": "12/6/2025 5:17 AM",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG Sanc CTF",
+          "winner": "Blue",
+          "source_file": "20251206_053531.xlsx"
+        }
+      ],
+      "red_wins": 1,
+      "blue_wins": 4,
+      "start_time": "12/6/2025 4:27 AM",
+      "end_time": "12/6/2025 5:17 AM",
+      "winner": "Blue",
+      "series_type": "Bo7"
+    },
+    {
+      "series_id": "series_9",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "KraN",
+        "Rinser",
+        "Rocky",
+        "simon hagiwara"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Prince KidMode",
+        "SHOW5TOPPER",
+        "roasted"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 19:08",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "2007 CTF MidWar",
+          "winner": "Blue",
+          "source_file": "20251207_192353.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 19:36",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "2007 Ball",
+          "winner": "Red",
+          "source_file": "20251207_194148.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 19:42",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "2007 Ball",
+          "winner": "Red",
+          "source_file": "20251207_195749.xlsx"
+        }
+      ],
+      "red_wins": 2,
+      "blue_wins": 1,
+      "start_time": "12/7/2025 19:08",
+      "end_time": "12/7/2025 19:42",
+      "winner": "Red",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_10",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Hammie",
+        "James | The Frenetic",
+        "KraN",
+        "roasted"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Rocky",
+        "SHOW5TOPPER",
+        "ksin0"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 1:06 PM",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "Flag",
+          "winner": "Blue",
+          "source_file": "20251207_132608.xlsx"
+        }
+      ],
+      "red_wins": 0,
+      "blue_wins": 1,
+      "start_time": "12/7/2025 1:06 PM",
+      "end_time": "12/7/2025 1:06 PM",
+      "winner": "Blue",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_11",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "AfroMaN",
+        "James | The Frenetic",
+        "Prince KidMode",
+        "ll Legend ll"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Keylord",
+        "fluhd",
+        "sneakybeav3r"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 1:17",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG MidWar CTF",
+          "winner": "Blue",
+          "source_file": "20251207_013248.xlsx"
+        }
+      ],
+      "red_wins": 0,
+      "blue_wins": 1,
+      "start_time": "12/7/2025 1:17",
+      "end_time": "12/7/2025 1:17",
+      "winner": "Blue",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_12",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Hammie",
+        "James | The Frenetic",
+        "KraN",
+        "roasted"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Rocky",
+        "SHOW5TOPPER",
+        "ksin0"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 1:27 PM",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "TS",
+          "winner": "Red",
+          "source_file": "20251207_133236.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 1:33 PM",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "Ball",
+          "winner": "Red",
+          "source_file": "20251207_134801.xlsx"
+        }
+      ],
+      "red_wins": 2,
+      "blue_wins": 0,
+      "start_time": "12/7/2025 1:27 PM",
+      "end_time": "12/7/2025 1:33 PM",
+      "winner": "Red",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_13",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "AfroMaN",
+        "James | The Frenetic",
+        "Prince KidMode",
+        "ll Legend ll"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Keylord",
+        "fluhd",
+        "sneakybeav3r"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 1:34",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Blue",
+          "source_file": "20251207_014119.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 1:42",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "MLG bawl",
+          "winner": "Blue",
+          "source_file": "20251207_015415.xlsx"
+        }
+      ],
+      "red_wins": 0,
+      "blue_wins": 2,
+      "start_time": "12/7/2025 1:34",
+      "end_time": "12/7/2025 1:42",
+      "winner": "Blue",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_14",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Hammie",
+        "James | The Frenetic",
+        "KraN",
+        "roasted"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Rocky",
+        "SHOW5TOPPER",
+        "ksin0"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 1:48 PM",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "TS",
+          "winner": "Red",
+          "source_file": "20251207_135502.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 1:55 PM",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "Flag for n00bs",
+          "winner": "Red",
+          "source_file": "20251207_141047.xlsx"
+        }
+      ],
+      "red_wins": 2,
+      "blue_wins": 0,
+      "start_time": "12/7/2025 1:48 PM",
+      "end_time": "12/7/2025 1:55 PM",
+      "winner": "Red",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_15",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "KraN",
+        "Rinser",
+        "Rocky",
+        "simon hagiwara"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Prince KidMode",
+        "SHOW5TOPPER",
+        "roasted"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 20:00",
+          "map": "Midship",
+          "gametype": "Team Slayer",
+          "variant_name": "2007 TS",
+          "winner": "Blue",
+          "source_file": "20251207_200740.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 20:08",
+          "map": "Warlock",
+          "gametype": "capture_the_flag",
+          "variant_name": "2007 CTF MidWar",
+          "winner": "Blue",
+          "source_file": "20251207_202401.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 20:26",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "2007 TS",
+          "winner": "Blue",
+          "source_file": "20251207_203243.xlsx"
+        }
+      ],
+      "red_wins": 0,
+      "blue_wins": 3,
+      "start_time": "12/7/2025 20:00",
+      "end_time": "12/7/2025 20:26",
+      "winner": "Blue",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_16",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "EpiiiC",
+        "Prince KidMode",
+        "Rocky",
+        "SHOW5TOPPER"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Obi Juan",
+        "Rinser",
+        "fluhd"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 20:49",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "2007 CTF MidWar",
+          "winner": "Red",
+          "source_file": "20251207_210103.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 21:01",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "2007 TS",
+          "winner": "Red",
+          "source_file": "20251207_210728.xlsx"
+        }
+      ],
+      "red_wins": 2,
+      "blue_wins": 0,
+      "start_time": "12/7/2025 20:49",
+      "end_time": "12/7/2025 21:01",
+      "winner": "Red",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_17",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "EpiiiC",
+        "Prince KidMode",
+        "Rocky",
+        "SHOW5TOPPER"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Obi Juan",
+        "Rinser",
+        "fluhd"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 21:10",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "2007 Ball",
+          "winner": "Blue",
+          "source_file": "20251207_212532.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 21:26",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Red",
+          "source_file": "20251207_213052.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 21:31",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG Sanc CTF",
+          "winner": "Red",
+          "source_file": "20251207_214648.xlsx"
+        }
+      ],
+      "red_wins": 2,
+      "blue_wins": 1,
+      "start_time": "12/7/2025 21:10",
+      "end_time": "12/7/2025 21:31",
+      "winner": "Red",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_18",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "AfroMaN",
+        "James | The Frenetic",
+        "Prince KidMode",
+        "ll Legend ll"
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Keylord",
+        "fluhd",
+        "sneakybeav3r"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 2:01",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Blue",
+          "source_file": "20251207_020617.xlsx"
+        }
+      ],
+      "red_wins": 0,
+      "blue_wins": 1,
+      "start_time": "12/7/2025 2:01",
+      "end_time": "12/7/2025 2:01",
+      "winner": "Blue",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_19",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "James | The Frenetic",
+        "KraN",
+        "roasted",
+        "tetracide."
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Rocky",
+        "SHOW5TOPPER",
+        "ksin0"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 2:33 PM",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "Bomb",
+          "winner": "Red",
+          "source_file": "20251207_145001.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 2:51 PM",
+          "map": "Sanctuary",
+          "gametype": "Team Slayer",
+          "variant_name": "TS for n00bs",
+          "winner": "Red",
+          "source_file": "20251207_145730.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 2:58 PM",
+          "map": "Midship",
+          "gametype": "Oddball",
+          "variant_name": "Ball",
+          "winner": "Red",
+          "source_file": "20251207_151311.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 3:14 PM",
+          "map": "Lockout",
+          "gametype": "Team Slayer",
+          "variant_name": "TS",
+          "winner": "Blue",
+          "source_file": "20251207_151949.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 3:20 PM",
+          "map": "Warlock",
+          "gametype": "capture_the_flag",
+          "variant_name": "Flag",
+          "winner": "Red",
+          "source_file": "20251207_153539.xlsx"
+        }
+      ],
+      "red_wins": 4,
+      "blue_wins": 1,
+      "start_time": "12/7/2025 2:33 PM",
+      "end_time": "12/7/2025 3:20 PM",
+      "winner": "Red",
+      "series_type": "Bo5"
+    },
+    {
+      "series_id": "series_20",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Hyrax",
+        "Jay2",
+        "Keylord",
+        "fluhd"
+      ],
+      "blue_team": [
+        "Grave",
+        "future trunks",
+        "simon hagiwara",
+        "sneakybeav3r"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 3:25",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "MLG Bomb 07",
+          "winner": null,
+          "source_file": "20251207_034246.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 3:43",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "MLG Bomb 07",
+          "winner": "Red",
+          "source_file": "20251207_035321.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 3:57",
+          "map": "Sanctuary",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS Sanc 2007",
+          "winner": "Blue",
+          "source_file": "20251207_040505.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 4:06",
+          "map": "Warlock",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF MidWar",
+          "winner": "Blue",
+          "source_file": "20251207_042051.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 4:22",
+          "map": "Lockout",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Red",
+          "source_file": "20251207_042931.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 4:29",
+          "map": "Midship",
+          "gametype": "Oddball",
+          "variant_name": "MLG Ball 2007",
+          "winner": null,
+          "source_file": "20251207_043658.xlsx"
+        }
+      ],
+      "red_wins": 2,
+      "blue_wins": 2,
+      "start_time": "12/7/2025 3:25",
+      "end_time": "12/7/2025 4:29",
+      "winner": "Tie",
+      "series_type": "Bo7"
+    },
+    {
+      "series_id": "series_21",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Rinser",
+        "fluhd",
+        "simon hagiwara",
+        "tetracide."
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Prince KidMode",
+        "Rocky",
+        "roasted"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 5:45 PM",
+          "map": "Midship",
+          "gametype": "Bomb",
+          "variant_name": "MidBomb",
+          "winner": "Blue",
+          "source_file": "20251207_180237.xlsx"
+        }
+      ],
+      "red_wins": 0,
+      "blue_wins": 1,
+      "start_time": "12/7/2025 5:45 PM",
+      "end_time": "12/7/2025 5:45 PM",
+      "winner": "Blue",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_22",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Rinser",
+        "fluhd",
+        "roasted",
+        "tetracide."
+      ],
+      "blue_team": [
+        "I2aMpAnT",
+        "Prince KidMode",
+        "Rocky",
+        "simon hagiwara"
+      ],
+      "games": [
+        {
+          "timestamp": "12/7/2025 6:05 PM",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Red",
+          "source_file": "20251207_181044.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 6:12 PM",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG Sanc CTF",
+          "winner": "Red",
+          "source_file": "20251207_182803.xlsx"
+        },
+        {
+          "timestamp": "12/7/2025 6:29 PM",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS No Dualz",
+          "winner": "Red",
+          "source_file": "20251207_183514.xlsx"
+        }
+      ],
+      "red_wins": 3,
+      "blue_wins": 0,
+      "start_time": "12/7/2025 6:05 PM",
+      "end_time": "12/7/2025 6:29 PM",
+      "winner": "Red",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_23",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "EpiiiC",
+        "Keylord",
+        "KraN",
+        "Rinser"
+      ],
+      "blue_team": [
+        "Kryptonite",
+        "Rocky",
+        "roasted",
+        "simon hagiwara"
+      ],
+      "games": [
+        {
+          "timestamp": "12/9/2025 18:23 PM",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF MidWar",
+          "winner": "Blue",
+          "source_file": "20251209_183637.xlsx"
+        },
+        {
+          "timestamp": "12/9/2025 18:37 PM",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Red",
+          "source_file": "20251209_184331.xlsx"
+        },
+        {
+          "timestamp": "12/9/2025 18:44 PM",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "MLG Ball 2007",
+          "winner": "Blue",
+          "source_file": "20251209_185811.xlsx"
+        },
+        {
+          "timestamp": "12/9/2025 18:59 PM",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 2007",
+          "winner": "Red",
+          "source_file": "20251209_190454.xlsx"
+        },
+        {
+          "timestamp": "2025-12-09 19:05:00",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF Sanc",
+          "winner": "Red",
+          "source_file": "20251209_192855.xlsx"
+        }
+      ],
+      "red_wins": 3,
+      "blue_wins": 2,
+      "start_time": "12/9/2025 18:23 PM",
+      "end_time": "2025-12-09 19:05:00",
+      "winner": "Red",
+      "series_type": "Bo5"
+    },
+    {
+      "series_id": "series_24",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "bigstack",
+        "ll Legend ll",
+        "roasted",
+        "sneakybeav3r"
+      ],
+      "blue_team": [
+        "DU7S",
+        "Keylord",
+        "Rinser",
+        "fluhd"
+      ],
+      "games": [
+        {
+          "timestamp": "2025-12-10 00:00:00",
+          "map": "Midship",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF Midwar",
+          "winner": "Blue",
+          "source_file": "20251210_000851.xlsx"
+        }
+      ],
+      "red_wins": 0,
+      "blue_wins": 1,
+      "start_time": "2025-12-10 00:00:00",
+      "end_time": "2025-12-10 00:00:00",
+      "winner": "Blue",
+      "series_type": "Bo3"
+    },
+    {
+      "series_id": "series_25",
+      "playlist": "MLG 4v4",
+      "red_team": [
+        "Keylord",
+        "bigstack",
+        "roasted",
+        "sneakybeav3r"
+      ],
+      "blue_team": [
+        "DU7S",
+        "Rinser",
+        "fluhd",
+        "ll Legend ll"
+      ],
+      "games": [
+        {
+          "timestamp": "2025-12-10 00:10:00",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 07",
+          "winner": "Red",
+          "source_file": "20251210_001740.xlsx"
+        },
+        {
+          "timestamp": "2025-12-10 00:18:00",
+          "map": "Lockout",
+          "gametype": "Oddball",
+          "variant_name": "MLG Ball 07",
+          "winner": "Red",
+          "source_file": "20251210_003212.xlsx"
+        },
+        {
+          "timestamp": "2025-12-10 00:33:00",
+          "map": "Warlock",
+          "gametype": "Team Slayer",
+          "variant_name": "MLG TS 07",
+          "winner": "Red",
+          "source_file": "20251210_003815.xlsx"
+        },
+        {
+          "timestamp": "2025-12-10 00:39:00",
+          "map": "Sanctuary",
+          "gametype": "capture_the_flag",
+          "variant_name": "MLG CTF Sanc",
+          "winner": "Red",
+          "source_file": "20251210_010434.xlsx"
+        }
+      ],
+      "red_wins": 4,
+      "blue_wins": 0,
+      "start_time": "2025-12-10 00:10:00",
+      "end_time": "2025-12-10 00:39:00",
+      "winner": "Red",
+      "series_type": "Bo5"
+    }
+  ],
+  "player_series_stats": {
+    "111190770756657152": {
+      "series_wins": 6,
+      "series_losses": 2
+    },
+    "293507586131492864": {
+      "series_wins": 7,
+      "series_losses": 6
+    },
+    "652998057087991838": {
+      "series_wins": 1,
+      "series_losses": 0
+    },
+    "175060415833833472": {
+      "series_wins": 3,
+      "series_losses": 1
+    },
+    "269681242335739905": {
+      "series_wins": 7,
+      "series_losses": 6
+    },
+    "426757496557010948": {
+      "series_wins": 6,
+      "series_losses": 7
+    },
+    "334212655613214721": {
+      "series_wins": 8,
+      "series_losses": 7
+    },
+    "136324687926919168": {
+      "series_wins": 7,
+      "series_losses": 6
+    },
+    "1040724126836457624": {
+      "series_wins": 2,
+      "series_losses": 0
+    },
+    "210187331066396672": {
+      "series_wins": 6,
+      "series_losses": 6
+    },
+    "168151188741685248": {
+      "series_wins": 3,
+      "series_losses": 5
+    },
+    "283293015135748097": {
+      "series_wins": 0,
+      "series_losses": 1
+    },
+    "164725201907613696": {
+      "series_wins": 4,
+      "series_losses": 6
+    },
+    "390747330631958528": {
+      "series_wins": 2,
+      "series_losses": 2
+    },
+    "1136095104663306240": {
+      "series_wins": 3,
+      "series_losses": 1
+    },
+    "161726300304834560": {
+      "series_wins": 1,
+      "series_losses": 1
+    },
+    "274372368686776321": {
+      "series_wins": 6,
+      "series_losses": 2
+    },
+    "859153194839965718": {
+      "series_wins": 0,
+      "series_losses": 1
+    },
+    "284010072504270849": {
+      "series_wins": 1,
+      "series_losses": 2
+    },
+    "314217230390919174": {
+      "series_wins": 1,
+      "series_losses": 2
+    },
+    "132652800378142720": {
+      "series_wins": 4,
+      "series_losses": 1
+    },
+    "797210177786347530": {
+      "series_wins": 0,
+      "series_losses": 1
+    },
+    "385632391089356810": {
+      "series_wins": 5,
+      "series_losses": 2
+    },
+    "694412691015598140": {
+      "series_wins": 1,
+      "series_losses": 4
+    },
+    "884896715432411178": {
+      "series_wins": 6,
+      "series_losses": 7
+    },
+    "165626999891689474": {
+      "series_wins": 4,
+      "series_losses": 4
+    },
+    "260603669924413441": {
+      "series_wins": 1,
+      "series_losses": 3
+    },
+    "1218796844088430692": {
+      "series_wins": 0,
+      "series_losses": 5
+    },
+    "175415359703089152": {
+      "series_wins": 0,
+      "series_losses": 2
+    },
+    "177913649728323584": {
+      "series_wins": 0,
+      "series_losses": 1
+    },
+    "309502376052523018": {
+      "series_wins": 1,
+      "series_losses": 1
+    }
+  },
+  "generated_at": "2025-12-12T00:57:51.287058"
 }
