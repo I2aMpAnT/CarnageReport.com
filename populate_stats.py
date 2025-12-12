@@ -1200,11 +1200,8 @@ def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord,
     if name_lower in profile_lookup:
         return profile_lookup[name_lower]
 
-    # Method 3: Discord name match in rankstats
-    for user_id, data in rankstats.items():
-        discord_name = data.get('discord_name', '').lower()
-        if discord_name == name_lower:
-            return user_id
+    # Method 3 REMOVED: Matching in-game names to discord_names was causing
+    # wrong player attribution when someone's in-game name matched another user's discord name
 
     return None
 
