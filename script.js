@@ -313,21 +313,14 @@ function formatDateTimeLocal(date) {
     return `${month} ${day}${getOrdinal(day)} ${year}, ${displayHours}:${String(minutes).padStart(2, '0')} ${ampm}`;
 }
 
-// Get in-game names for a Discord ID (from in_game_names array, display_name, or discord_name)
+// Get in-game names for a Discord ID (ONLY from in_game_names array - these are matched via MAC)
 function getInGameNamesForDiscordId(discordId) {
     const data = rankstatsData[discordId];
     if (!data) return [];
-    const names = [];
     if (data.in_game_names && Array.isArray(data.in_game_names)) {
-        names.push(...data.in_game_names);
+        return data.in_game_names.map(n => n.toLowerCase());
     }
-    if (data.display_name) {
-        names.push(data.display_name);
-    }
-    if (data.discord_name) {
-        names.push(data.discord_name);
-    }
-    return names.map(n => n.toLowerCase());
+    return [];
 }
 
 // Check if a VOD overlaps with any game where the streamer was a participant
@@ -451,7 +444,7 @@ async function loadTwitchHub() {
             linkedTwitchUsers.push({
                 discordId,
                 twitchName: data.twitch_name,
-                displayName: data.display_name || data.discord_name || data.twitch_name
+                displayName: data.discord_name || data.twitch_name
             });
         }
     }
@@ -2056,20 +2049,20 @@ function handleUrlNavigation() {
 // Listen for hash changes
 window.addEventListener('hashchange', handleUrlNavigation);
 
-// Find player by URL path (case-insensitive match against display names only)
+// Find player by URL path (case-insensitive match against discord_name only)
 function findPlayerByUrlPath(urlPath) {
     const searchLower = decodeURIComponent(urlPath).toLowerCase();
 
-    // Search by discord display name only (exact match)
+    // Search by discord_name only (exact match) - NEVER use in-game names
     for (const [discordId, data] of Object.entries(rankstatsData)) {
-        const displayName = data.display_name || data.discord_name || '';
-        if (displayName.toLowerCase() === searchLower) {
+        const discordName = data.discord_name || '';
+        if (discordName.toLowerCase() === searchLower) {
             // Return the in-game name for this player (needed for openPlayerProfile)
             const profileNames = discordIdToProfileNames[discordId];
             if (profileNames && profileNames.length > 0) {
                 return profileNames[0];
             }
-            return displayName;
+            return discordName;
         }
     }
 
@@ -3405,8 +3398,8 @@ function renderLeaderboard(selectedPlaylist = null) {
 
         return {
             discordId: discordId,
-            // Use display_name if available, then discord_name
-            displayName: data.display_name || data.discord_name || globalData.display_name || globalData.discord_name || 'Unknown',
+            // ONLY use discord_name - NEVER use in-game names
+            displayName: data.discord_name || globalData.discord_name || 'No MAC Linked',
             profileNames: profileNames,
             rank: rank,
             wins: wins,
@@ -3664,8 +3657,6 @@ function setupPvpSearchBox(inputElement, resultsElement, playerNum) {
 
             const discordName = data.discord_name || '';
             const inGameNamesArr = data.in_game_names || [];
-            // Display name priority: display_name > discord_name
-            const displayName = data.display_name || discordName;
 
             // Search matches discord_name or any in_game_names entry
             const matchesDiscord = discordName.toLowerCase().includes(query);
@@ -3675,7 +3666,8 @@ function setupPvpSearchBox(inputElement, resultsElement, playerNum) {
                 if (profileNames.length > 0) {
                     profileNames.forEach(profileName => {
                         if (!playerMatches.has(profileName)) {
-                            playerMatches.set(profileName, { profileName: profileName, discordName: displayName });
+                            // ONLY use discord_name - NEVER display in-game names
+                            playerMatches.set(profileName, { profileName: profileName, discordName: discordName || 'No MAC Linked' });
                         }
                     });
                 }
@@ -3808,8 +3800,6 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
 
             const discordName = data.discord_name || '';
             const inGameNamesArr = data.in_game_names || [];
-            // Display name priority: display_name > discord_name
-            const displayName = data.display_name || discordName;
 
             // Search matches discord_name or any in_game_names entry
             const matchesDiscord = discordName.toLowerCase().includes(query);
@@ -3817,17 +3807,19 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
             if (matchesDiscord || matchesInGame) {
                 // Find associated profile names
                 const profileNames = discordIdToProfileNames[discordId] || [];
+                const displayForSearch = discordName || 'No MAC Linked';
                 if (profileNames.length > 0) {
                     // Player has games - use their profile name for lookups
                     profileNames.forEach(profileName => {
                         if (!playerMatches.has(profileName)) {
-                            playerMatches.set(profileName, { profileName: profileName, discordName: displayName });
+                            // ONLY use discord_name - NEVER display in-game names
+                            playerMatches.set(profileName, { profileName: profileName, discordName: displayForSearch });
                         }
                     });
                 } else {
-                    // Player has no games - use display name as both
-                    if (!playerMatches.has(displayName)) {
-                        playerMatches.set(displayName, { profileName: displayName, discordName: displayName, noGames: true });
+                    // Player has no games - use discord_name
+                    if (!playerMatches.has(displayForSearch)) {
+                        playerMatches.set(displayForSearch, { profileName: displayForSearch, discordName: displayForSearch, noGames: true });
                     }
                 }
             }
@@ -3863,17 +3855,22 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
                 });
             });
             
-            // Search for game types
+            // Search for game types (use BASE gametype, not variant names)
             const gameTypes = new Set();
             gamesData.forEach(game => {
-                const variantName = game.details['Variant Name'];
-                if (variantName && variantName.toLowerCase().includes(query)) {
-                    gameTypes.add(variantName);
+                const rawType = game.details['Variant Name'] || game.details['Game Type'] || '';
+                const baseType = getBaseGametype(rawType, game.playlist, game);
+                if (baseType && baseType.toLowerCase().includes(query)) {
+                    gameTypes.add(baseType);
                 }
             });
 
             gameTypes.forEach(type => {
-                const typeGames = gamesData.filter(g => g.details['Variant Name'] === type).length;
+                // Count games by base gametype
+                const typeGames = gamesData.filter(g => {
+                    const rawType = g.details['Variant Name'] || g.details['Game Type'] || '';
+                    return getBaseGametype(rawType, g.playlist, g) === type;
+                }).length;
                 results.push({
                     type: 'gametype',
                     name: type,
