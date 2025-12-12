@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Game Replay - CarnageReport.com</title>
+    <link rel="icon" type="image/x-icon" href="H2CRFinal.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="glb-viewer.css">
+</head>
+<body>
+    <div class="viewer-container">
+        <!-- Header -->
+        <header class="viewer-header">
+            <a href="index.html" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+                Back to Stats
+            </a>
+            <div class="viewer-title">
+                <img src="H2CRFinal.png" alt="Logo" class="viewer-logo">
+                <span id="mapName">3D Game Replay</span>
+            </div>
+            <div class="game-info">
+                <span id="gameType"></span>
+                <span id="gameDate"></span>
+            </div>
+            <button class="fullscreen-btn" id="fullscreenBtn" title="Toggle Fullscreen">
+                <svg id="expandIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                <svg id="compressIcon" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+            </button>
+        </header>
+
+        <!-- 3D Canvas Container -->
+        <div id="canvas-container">
+            <canvas id="glb-canvas"></canvas>
+
+            <!-- Loading overlay -->
+            <div id="loading-overlay" class="loading-overlay">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Loading 3D Map...</div>
+                <div class="loading-progress" id="loading-progress">0%</div>
+            </div>
+
+            <!-- Error overlay -->
+            <div id="error-overlay" class="error-overlay" style="display: none;">
+                <div class="error-icon">!</div>
+                <div class="error-text" id="error-text">Failed to load map</div>
+                <button class="error-retry" onclick="retryLoad()">Retry</button>
+            </div>
+        </div>
+
+        <!-- Player Legend -->
+        <div id="player-legend" class="player-legend">
+            <div class="legend-title">Players</div>
+            <div id="player-list" class="player-list"></div>
+        </div>
+
+        <!-- Playback Controls -->
+        <div class="playback-controls">
+            <div class="timeline-container">
+                <div class="time-display">
+                    <span id="currentTime">00:00</span>
+                    <span class="time-separator">/</span>
+                    <span id="totalTime">00:00</span>
+                </div>
+                <div class="timeline-wrapper">
+                    <input type="range" id="timeline" class="timeline-slider" min="0" max="100" value="0">
+                    <div class="timeline-progress" id="timeline-progress"></div>
+                </div>
+            </div>
+
+            <div class="control-buttons">
+                <button class="control-btn" id="skipBackBtn" title="Skip Back 10s">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+                </button>
+                <button class="control-btn play-btn" id="playPauseBtn" title="Play/Pause">
+                    <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="control-btn" id="skipForwardBtn" title="Skip Forward 10s">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+                </button>
+                <div class="speed-control">
+                    <label>Speed:</label>
+                    <select id="playbackSpeed">
+                        <option value="0.25">0.25x</option>
+                        <option value="0.5">0.5x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="2">2x</option>
+                        <option value="4">4x</option>
+                        <option value="8">8x</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="view-controls">
+                <button class="view-btn active" id="freeViewBtn" title="Free Camera (WASD + Mouse)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    Free
+                </button>
+                <button class="view-btn" id="topViewBtn" title="Top-Down View">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/></svg>
+                    Top
+                </button>
+                <button class="view-btn" id="orbitViewBtn" title="Orbit Camera (Mouse Drag)">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    Orbit
+                </button>
+                <button class="view-btn" id="followBtn" title="Follow Player">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    Follow
+                </button>
+                <select id="followPlayerSelect" class="follow-select" style="display: none;">
+                    <option value="">Select Player...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Stats Panel (collapsible) -->
+        <div id="stats-panel" class="stats-panel collapsed">
+            <button class="stats-toggle" onclick="toggleStatsPanel()">
+                <span>Live Stats</span>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+            <div class="stats-content" id="stats-content">
+                <table class="live-stats-table">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Weapon</th>
+                            <th>State</th>
+                        </tr>
+                    </thead>
+                    <tbody id="live-stats-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Controls Hint -->
+        <div id="controls-hint" class="controls-hint">
+            <div><kbd>WASD</kbd> Move</div>
+            <div><kbd>Q</kbd><kbd>E</kbd> Up/Down</div>
+            <div><kbd>Shift</kbd> Sprint</div>
+            <div><kbd>Mouse</kbd> Look</div>
+            <div><kbd>Space</kbd> Play/Pause</div>
+        </div>
+    </div>
+
+    <!-- Three.js and GLB Viewer Script -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="glb-viewer.js"></script>
+</body>
+</html>

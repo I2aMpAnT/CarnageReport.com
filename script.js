@@ -2350,6 +2350,17 @@ function renderGameContent(game) {
     const hasTelemetry = game.theater_url && game.theater_url.trim() !== '';
     const statsFilename = game.public_url ? game.public_url.split('/').pop() : '';
     const telemetryFilename = game.theater_url ? game.theater_url.split('/').pop() : '';
+
+    // Get game index for 3D replay
+    const gameIndex = gamesData.indexOf(game);
+
+    // 3D Replay button (shown when telemetry is available)
+    html += '<div class="game-actions">';
+    html += `<button class="replay-3d-btn" onclick="event.stopPropagation(); open3DReplay(${gameIndex});" title="View 3D Replay">`;
+    html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>';
+    html += '<span>3D Replay</span>';
+    html += '</button>';
+
     html += '<div class="game-download-dropdown">';
     html += '<button class="download-icon-btn" onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle(\'show\');" title="Download game files">';
     html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
@@ -2365,6 +2376,7 @@ function renderGameContent(game) {
     } else {
         html += '<span class="download-menu-item disabled" onclick="event.stopPropagation(); alert(\'Sorry, it seems this file was lost\');">Telemetry</span>';
     }
+    html += '</div>';
     html += '</div>';
     html += '</div>';
 
@@ -7367,10 +7379,161 @@ document.addEventListener('click', function(e) {
             openPlayerProfile(playerName);
         }
     }
-    
+
     // Handle modal close
     const modal = document.getElementById('playerModal');
     if (modal && e.target === modal) {
         closePlayerModal();
     }
 });
+
+// ==================== 3D REPLAY VIEWER ====================
+
+// Cache for available telemetry files
+let availableTelemetryFiles = null;
+
+// Fetch available telemetry files from stats folder
+async function fetchAvailableTelemetryFiles() {
+    if (availableTelemetryFiles !== null) {
+        return availableTelemetryFiles;
+    }
+
+    try {
+        // Try to fetch telemetry index file
+        const response = await fetch('stats/telemetry_index.json');
+        if (response.ok) {
+            availableTelemetryFiles = await response.json();
+            return availableTelemetryFiles;
+        }
+    } catch (e) {
+        console.log('No telemetry index found, using direct file check');
+    }
+
+    // Fallback: return empty array (will check files directly when needed)
+    availableTelemetryFiles = [];
+    return availableTelemetryFiles;
+}
+
+// Parse game start time to Date object
+function parseGameStartTime(startTimeStr) {
+    if (!startTimeStr) return null;
+
+    // Format: "MM/DD/YYYY HH:MM" or "M/D/YYYY H:MM"
+    const parts = startTimeStr.match(/(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)/);
+    if (!parts) return null;
+
+    const [, month, day, year, hour, minute] = parts;
+    return new Date(year, month - 1, day, hour, minute);
+}
+
+// Convert game start time to telemetry filename format
+function gameTimeToTelemetryFilename(startTimeStr) {
+    const date = parseGameStartTime(startTimeStr);
+    if (!date) return null;
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+
+    // Telemetry files are named: YYYYMMDD_HHMMSS_theater.csv
+    // We'll match based on date and approximate time (within 5 minutes)
+    return `${year}${month}${day}_${hour}${minute}`;
+}
+
+// Find matching telemetry file for a game
+function findTelemetryFileForGame(game) {
+    // First check if game has a direct theater_url
+    if (game.theater_url && game.theater_url.trim() !== '') {
+        // Extract filename from URL
+        const filename = game.theater_url.split('/').pop();
+        return filename;
+    }
+
+    // Try to match by timestamp
+    const startTime = game.details?.['Start Time'];
+    if (!startTime) return null;
+
+    const prefix = gameTimeToTelemetryFilename(startTime);
+    if (!prefix) return null;
+
+    // If we have an index, search it
+    if (availableTelemetryFiles && availableTelemetryFiles.length > 0) {
+        // Find files that start with the date portion and are within 10 minutes
+        const datePrefix = prefix.substring(0, 8); // YYYYMMDD
+        const timeValue = parseInt(prefix.substring(9)); // HHMM as number
+
+        for (const file of availableTelemetryFiles) {
+            if (file.startsWith(datePrefix)) {
+                const fileTime = parseInt(file.substring(9, 13));
+                // Allow 10 minute window (time could be slightly different)
+                if (Math.abs(fileTime - timeValue) <= 10) {
+                    return file;
+                }
+            }
+        }
+    }
+
+    // Return the expected filename (viewer will handle if not found)
+    return `${prefix}00_theater.csv`;
+}
+
+// Open 3D replay viewer for a game
+function open3DReplay(gameIndex) {
+    const game = gamesData[gameIndex];
+    if (!game) {
+        console.error('Game not found:', gameIndex);
+        return;
+    }
+
+    const mapName = game.details?.['Map Name'] || 'Unknown';
+    const gameType = game.details?.['Game Type'] || '';
+    const variantName = game.details?.['Variant Name'] || '';
+    const startTime = game.details?.['Start Time'] || '';
+
+    // Find telemetry file
+    const telemetryFile = findTelemetryFileForGame(game);
+
+    // Build viewer URL with parameters
+    const params = new URLSearchParams({
+        map: mapName,
+        gametype: gameType,
+        variant: variantName,
+        date: startTime
+    });
+
+    if (telemetryFile) {
+        params.set('telemetry', telemetryFile);
+    }
+
+    // Open viewer in new tab
+    window.open(`glb-viewer.html?${params.toString()}`, '_blank');
+}
+
+// Check if a game has telemetry available
+function hasTelemetryAvailable(game) {
+    // Check direct URL first
+    if (game.theater_url && game.theater_url.trim() !== '') {
+        return true;
+    }
+
+    // Check if we can match by timestamp
+    const startTime = game.details?.['Start Time'];
+    if (!startTime) return false;
+
+    const prefix = gameTimeToTelemetryFilename(startTime);
+    if (!prefix) return false;
+
+    // If we have an index, check it
+    if (availableTelemetryFiles && availableTelemetryFiles.length > 0) {
+        const datePrefix = prefix.substring(0, 8);
+        return availableTelemetryFiles.some(f => f.startsWith(datePrefix));
+    }
+
+    // Otherwise assume it might be available (viewer will handle errors)
+    return true;
+}
+
+// Initialize telemetry index on page load
+fetchAvailableTelemetryFiles();
