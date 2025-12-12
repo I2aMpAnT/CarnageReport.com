@@ -2534,7 +2534,10 @@ function renderScoreboard(game) {
 
         const displayName = getDisplayNameForProfile(player.name);
         html += `<div class="sb-player clickable-player" data-player="${player.name}">`;
-        html += getPreGameRankIcon(player, 'small', game);
+        // Don't show rank icon for Custom Games - only ranked playlists
+        if (game.playlist && game.playlist !== 'Custom Games') {
+            html += getPreGameRankIcon(player, 'small', game);
+        }
         html += `<span class="player-name-text">${displayName}</span>`;
         html += `</div>`;
 
