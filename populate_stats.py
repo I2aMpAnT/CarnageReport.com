@@ -34,7 +34,6 @@ SERIES_FILE = 'series.json'
 
 # Bot match history files (on VPS at /home/carnagereport/bot/)
 BOT_DIR = '/home/carnagereport/bot'
-ACTIVE_MATCH_FILE = f'{BOT_DIR}/activematch.json'  # New single file for all active matches
 MATCH_HISTORY_FILES = {
     'Head to Head': f'{BOT_DIR}/head_to_head_matches.json',
     'Double Team': f'{BOT_DIR}/double_team_matches.json',
@@ -91,88 +90,11 @@ PLAYLIST_ALIASES = {
     'Ranked Head to Head': PLAYLIST_HEAD_TO_HEAD,
 }
 
-# All supported timestamp formats for parsing
-TIMESTAMP_FORMATS = [
-    '%m/%d/%Y %H:%M',       # 12/9/2025 7:45
-    '%m/%d/%Y %H:%M:%S',    # 12/9/2025 7:45:00
-    '%Y-%m-%d %H:%M:%S',    # 2025-12-09 07:45:00
-    '%Y-%m-%d %H:%M',       # 2025-12-09 07:45
-    '%Y-%m-%dT%H:%M:%S',    # 2025-12-09T07:45:00
-    '%Y-%m-%dT%H:%M',       # 2025-12-09T07:45
-    '%m-%d-%Y %H:%M',       # 12-09-2025 07:45
-    '%m-%d-%Y %H:%M:%S',    # 12-09-2025 07:45:00
-    '%d/%m/%Y %H:%M',       # 9/12/2025 7:45 (European)
-    '%d/%m/%Y %H:%M:%S',    # 9/12/2025 7:45:00 (European)
-    '%Y/%m/%d %H:%M',       # 2025/12/09 07:45
-    '%Y/%m/%d %H:%M:%S',    # 2025/12/09 07:45:00
-    '%m/%d/%y %H:%M',       # 12/9/25 7:45 (2-digit year)
-    '%m/%d/%y %H:%M:%S',    # 12/9/25 7:45:00 (2-digit year)
-    '%b %d %Y %H:%M',       # Dec 9 2025 7:45
-    '%b %d, %Y %H:%M',      # Dec 9, 2025 7:45
-    '%B %d %Y %H:%M',       # December 9 2025 7:45
-    '%B %d, %Y %H:%M',      # December 9, 2025 7:45
-]
-
-def parse_timestamp(timestamp_str):
-    """
-    Parse a timestamp string into a datetime object.
-    Handles many common formats including manually adjusted timestamps.
-
-    Returns datetime object or None if parsing fails.
-    """
-    if not timestamp_str:
-        return None
-
-    # If already a datetime, return it
-    if isinstance(timestamp_str, datetime):
-        if hasattr(timestamp_str, 'tzinfo') and timestamp_str.tzinfo is not None:
-            return timestamp_str.replace(tzinfo=None)
-        return timestamp_str
-
-    timestamp_str = str(timestamp_str).strip()
-    if not timestamp_str:
-        return None
-
-    # Try each format
-    for fmt in TIMESTAMP_FORMATS:
-        try:
-            return datetime.strptime(timestamp_str, fmt)
-        except (ValueError, TypeError):
-            continue
-
-    # Try pandas as fallback (handles many edge cases)
-    try:
-        dt = pd.to_datetime(timestamp_str)
-        if pd.notna(dt):
-            return dt.to_pydatetime().replace(tzinfo=None)
-    except:
-        pass
-
-    return None
-
 def normalize_playlist_name(playlist):
     """Convert playlist aliases to canonical names."""
     if not playlist:
         return None
     return PLAYLIST_ALIASES.get(playlist, playlist)
-
-def time_to_seconds(time_str):
-    """Convert time string like '1:53' or '0:56' to total seconds."""
-    if not time_str:
-        return 0
-    try:
-        if isinstance(time_str, (int, float)):
-            return int(time_str)
-        time_str = str(time_str).strip()
-        if ':' in time_str:
-            parts = time_str.split(':')
-            if len(parts) == 2:
-                return int(parts[0]) * 60 + int(parts[1])
-            elif len(parts) == 3:
-                return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-        return int(float(time_str))
-    except:
-        return 0
 
 def get_base_gametype(game_type_field):
     """
@@ -282,12 +204,8 @@ def detect_series(games, get_display_name_func):
     if not games:
         return []
 
-    # Sort games by timestamp using robust parser
-    def get_game_time(g):
-        ts = g['details'].get('Start Time', '')
-        dt = parse_timestamp(ts)
-        return dt if dt else datetime.min
-    sorted_games = sorted(games, key=get_game_time)
+    # Sort games by timestamp
+    sorted_games = sorted(games, key=lambda g: g['details'].get('Start Time', ''))
 
     series_list = []
     current_series = None
@@ -451,66 +369,34 @@ def load_rankhistory():
 
 def load_active_matches():
     """
-    Load active and completed matches from bot files.
+    Load active and completed matches from per-playlist match history files.
 
-    Loads from:
-    1. activematch.json - New single file for all active matches (has playlist in series_label)
-    2. Per-playlist history files (MLG4v4.json, etc.) - Completed matches
+    Uses MATCH_HISTORY_FILES dict which maps playlist names to absolute file paths
+    in the bot directory (/home/carnagereport/bot/).
 
     Returns list of all matches (active + completed) with playlist info, or None.
     """
     all_matches = []
-    active_count = 0
-    completed_count = 0
 
-    # Load from new activematch.json (single file for all active matches)
-    try:
-        with open(ACTIVE_MATCH_FILE, 'r') as f:
-            data = json.load(f)
-            for match in data.get('active_matches', []):
-                # Determine playlist from series_label or playlist field
-                series_label = match.get('series_label', '')
-                playlist = match.get('playlist', '')
-                if 'MLG' in series_label or 'MLG' in playlist:
-                    match['_playlist'] = 'MLG 4v4'
-                elif 'Hardcore' in series_label or 'Hardcore' in playlist:
-                    match['_playlist'] = 'Team Hardcore'
-                elif 'Double' in series_label or 'Double' in playlist:
-                    match['_playlist'] = 'Double Team'
-                elif 'Head' in series_label or 'H2H' in series_label or 'Head' in playlist:
-                    match['_playlist'] = 'Head to Head'
-                else:
-                    match['_playlist'] = 'MLG 4v4'  # Default
-                all_matches.append(match)
-                active_count += 1
-    except FileNotFoundError:
-        pass
-    except Exception as e:
-        print(f"  Warning: Error loading {ACTIVE_MATCH_FILE}: {e}")
-
-    # Load from per-playlist history files (completed matches)
     for playlist_name, filename in MATCH_HISTORY_FILES.items():
         try:
             with open(filename, 'r') as f:
                 data = json.load(f)
 
-                # Add active matches (legacy format)
+                # Add active matches
                 for match in data.get('active_matches', []):
                     match['_playlist'] = playlist_name
                     all_matches.append(match)
-                    active_count += 1
 
                 # Add completed matches
                 for match in data.get('matches', []):
                     match['_playlist'] = playlist_name
                     all_matches.append(match)
-                    completed_count += 1
         except FileNotFoundError:
             pass
         except Exception as e:
             print(f"  Warning: Error loading {filename}: {e}")
 
-    print(f"  Loaded {len(all_matches)} matches from bot ({active_count} active, {completed_count} completed)")
     return all_matches if all_matches else None
 
 def load_manual_playlists():
@@ -776,12 +662,20 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
         return None
 
     # Parse game timestamp (assumed to be local time, no timezone info)
-    # Use robust timestamp parser
-    game_dt = parse_timestamp(game_timestamp)
-    if game_dt is None:
-        if debug:
-            print(f"    DEBUG [{filename}]: Failed to parse game timestamp: {game_timestamp}")
-        return None
+    if isinstance(game_timestamp, str):
+        try:
+            game_dt = datetime.fromisoformat(game_timestamp.replace('Z', '+00:00'))
+            # Remove timezone info for comparison (treat as naive local time)
+            if game_dt.tzinfo is not None:
+                game_dt = game_dt.replace(tzinfo=None)
+        except:
+            if debug:
+                print(f"    DEBUG [{filename}]: Failed to parse game timestamp: {game_timestamp}")
+            return None
+    else:
+        game_dt = game_timestamp
+        if hasattr(game_dt, 'tzinfo') and game_dt.tzinfo is not None:
+            game_dt = game_dt.replace(tzinfo=None)
 
     if debug:
         print(f"    DEBUG [{filename}]: Game datetime (local): {game_dt}")
@@ -800,21 +694,9 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
 
     for idx, match in enumerate(all_matches):
         # Parse match timestamps (bot stores UTC)
-        # Handle both old format (string) and new format (object with iso/display/timezone)
-        start_time_raw = match.get('start_time')
-        end_time_raw = match.get('end_time')
+        start_time = match.get('start_time')
+        end_time = match.get('end_time')
         playlist = match.get('_playlist', 'unknown')
-
-        # Extract ISO string from new format or use directly if old format
-        if isinstance(start_time_raw, dict):
-            start_time = start_time_raw.get('iso', '')
-        else:
-            start_time = start_time_raw
-
-        if isinstance(end_time_raw, dict):
-            end_time = end_time_raw.get('iso', '')
-        else:
-            end_time = end_time_raw
 
         if not start_time:
             continue
@@ -982,37 +864,18 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
     # Games MUST have a bot session to be tagged with a playlist
     return None
 
-def normalize_mac(mac):
-    """
-    Normalize MAC address to lowercase without any separators.
-    Handles: AA:BB:CC:DD:EE:FF, AA-BB-CC-DD-EE-FF, aabbccddeeff, etc.
-    """
-    if not mac:
-        return ''
-    return mac.replace(':', '').replace('-', '').replace(' ', '').lower()
-
 def build_mac_to_discord_lookup(players):
     """
     Build a lookup from MAC address to Discord user_id from players.json.
-    MAC addresses are normalized to lowercase without any separators.
+    MAC addresses are normalized to lowercase without colons.
     """
     mac_to_user = {}
     for user_id, data in players.items():
-        # Try multiple possible field names for MAC addresses
         mac_addresses = data.get('mac_addresses', [])
-        if not mac_addresses:
-            mac_addresses = data.get('mac_address', [])
-            if isinstance(mac_addresses, str):
-                mac_addresses = [mac_addresses]
-        if not mac_addresses:
-            mac_addr = data.get('mac', '')
-            if mac_addr:
-                mac_addresses = [mac_addr]
-
         for mac in mac_addresses:
-            normalized_mac = normalize_mac(mac)
-            if normalized_mac:
-                mac_to_user[normalized_mac] = user_id
+            # Normalize MAC: remove colons and lowercase
+            normalized_mac = mac.replace(':', '').lower()
+            mac_to_user[normalized_mac] = user_id
     return mac_to_user
 
 
@@ -1078,9 +941,9 @@ def parse_identity_file(identity_path):
         name_to_mac = {}
         for _, row in df.iterrows():
             player_name = str(row.get('Player Name', '')).strip()
-            # Machine Identifier is the MAC address - normalize it
-            raw_mac = str(row.get('Machine Identifier', '')).strip()
-            mac = normalize_mac(raw_mac)
+            # Machine Identifier is the MAC address - normalize by removing colons/dashes and lowercasing
+            mac_raw = str(row.get('Machine Identifier', '')).strip()
+            mac = mac_raw.replace(':', '').replace('-', '').lower()
             if player_name and mac:
                 name_to_mac[player_name.lower()] = mac
         return name_to_mac
@@ -1161,21 +1024,50 @@ def build_profile_lookup(players):
     return profile_to_user
 
 
-def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord):
+def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord, profile_lookup, rankstats):
     """
-    Resolve a player's in-game name to their Discord ID.
+    Resolve a player's in-game name to their Discord ID using multiple methods.
 
-    ONLY valid path: In-game name -> MAC (identity file) -> Discord ID (players.json)
-
-    The MAC address is the source of truth. No shortcuts.
+    Priority:
+    0. Hardcoded Unicode name mappings (for special characters)
+    1. Identity file MAC -> Discord ID (most reliable)
+    2. Profile lookup from players.json aliases
+    3. Discord name match in rankstats
     """
     name_lower = player_name.strip().lower()
+    name_raw = player_name.strip()  # Keep original case for PUA characters
 
-    # ONLY valid resolution: In-game name -> MAC (identity file) -> Discord ID (players.json)
+    # Method 0: Check hardcoded Unicode name mappings first (before any normalization)
+    # Check raw name first (for PUA/symbol characters that don't have case)
+    if name_raw in UNICODE_NAME_MAPPINGS:
+        return UNICODE_NAME_MAPPINGS[name_raw]
+    if name_lower in UNICODE_NAME_MAPPINGS:
+        return UNICODE_NAME_MAPPINGS[name_lower]
+
+    # Strip Unicode invisible characters and normalize for additional checks
+    name_stripped = ''.join(c for c in name_lower if c.isalnum() or c.isspace()).strip()
+    name_no_spaces = name_stripped.replace(' ', '')
+
+    if name_stripped in UNICODE_NAME_MAPPINGS:
+        return UNICODE_NAME_MAPPINGS[name_stripped]
+    if name_no_spaces in UNICODE_NAME_MAPPINGS:
+        return UNICODE_NAME_MAPPINGS[name_no_spaces]
+
+    # Method 1: Use identity file MAC address
     if name_lower in identity_name_to_mac:
         mac = identity_name_to_mac[name_lower]
         if mac in mac_to_discord:
             return mac_to_discord[mac]
+
+    # Method 2: Profile lookup (aliases, display_name, stats_profile)
+    if name_lower in profile_lookup:
+        return profile_lookup[name_lower]
+
+    # Method 3: Discord name match in rankstats
+    for user_id, data in rankstats.items():
+        discord_name = data.get('discord_name', '').lower()
+        if discord_name == name_lower:
+            return user_id
 
     return None
 
@@ -1497,19 +1389,8 @@ def find_player_by_name(rankstats, name, profile_lookup=None):
     return None
 
 def main():
-    import argparse
-    parser = argparse.ArgumentParser(description='Populate stats from game files')
-    parser.add_argument('--force', action='store_true', help='Force full rebuild, ignoring processed_state.json')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
-    args = parser.parse_args()
-
-    # Check for debug mode via argument or environment variable
-    debug_mode = args.debug or os.environ.get('POPSTATS_DEBUG', '').lower() in ('1', 'true', 'yes')
-    force_rebuild = args.force
-
-    if force_rebuild:
-        print("FORCE REBUILD MODE - ignoring processed_state.json")
-        print("=" * 50)
+    # Check for debug mode via environment variable
+    debug_mode = os.environ.get('POPSTATS_DEBUG', '').lower() in ('1', 'true', 'yes')
     if debug_mode:
         print("DEBUG MODE ENABLED")
         print("=" * 50)
@@ -1578,23 +1459,13 @@ def main():
     # Check for changes since last run - use get_all_game_files() which checks all directories
     all_game_files = get_all_game_files()
     stats_files = sorted([f[0] for f in all_game_files])  # Extract just filenames
+    processed_state = load_processed_state()
+    needs_full_rebuild, new_files, changed_playlists = check_for_changes(stats_files, manual_playlists, processed_state)
 
-    # If force rebuild, clear processed state to treat all files as new
-    if force_rebuild:
-        print("\nForce rebuild requested - clearing processed state...")
-        processed_state = {"games": {}, "manual_playlists_hash": ""}
-        new_files = stats_files  # All files are "new"
-        changed_playlists = {}
-        needs_full_rebuild = True
-    else:
-        processed_state = load_processed_state()
-        needs_full_rebuild, new_files, changed_playlists = check_for_changes(stats_files, manual_playlists, processed_state)
-
-        if not new_files and not changed_playlists:
-            print("\nNo changes detected - nothing to process!")
-            print("  (Add new game files or update manual_playlists.json to trigger processing)")
-            print("  (Use --force to force a full rebuild)")
-            return
+    if not new_files and not changed_playlists:
+        print("\nNo changes detected - nothing to process!")
+        print("  (Add new game files or update manual_playlists.json to trigger processing)")
+        return
 
     print(f"\nChanges detected:")
     if new_files:
@@ -1659,13 +1530,6 @@ def main():
                 if key in rankstats[user_id]:
                     del rankstats[user_id][key]
         print(f"  Zeroed stats for {len(rankstats)} players")
-        # Clear customgames.json during full rebuild to avoid duplicates
-        try:
-            with open(CUSTOMGAMES_FILE, 'w') as f:
-                json.dump([], f)
-            print(f"  Cleared {CUSTOMGAMES_FILE} for fresh rebuild")
-        except Exception as e:
-            print(f"  Warning: Could not clear {CUSTOMGAMES_FILE}: {e}")
 
     # STEP 2: Find and parse ALL games, determining playlist for each
     # ALL matches are logged for stats, but only playlist-tagged matches count for rank
@@ -1795,7 +1659,7 @@ def main():
 
             # Resolve player using identity MAC -> Discord ID
             user_id = resolve_player_to_discord(
-                player_name, identity_name_to_mac, mac_to_discord
+                player_name, identity_name_to_mac, mac_to_discord, profile_lookup, rankstats
             )
 
             if user_id:
@@ -1803,15 +1667,8 @@ def main():
                 # discord_name should already be set correctly in rankstats from players.json
                 # Don't overwrite with in-game names - those are only for identification
                 # Only set alias if player has explicitly set one (not from in-game names)
-
-                # Check if this player was previously unlinked (had a temp_id)
-                # If so, remove the old temp_id entry since they're now properly linked
-                old_temp_id = str(abs(hash(player_name)) % 10**18)
-                if old_temp_id in rankstats and rankstats[old_temp_id].get('mac_linked') == False:
-                    print(f"    Merging previously unlinked player '{player_name}' to discord ID {user_id}")
-                    del rankstats[old_temp_id]
             else:
-                # Create new entry for unmatched player - flag as not MAC linked
+                # Create new entry for unmatched player
                 temp_id = str(abs(hash(player_name)) % 10**18)
                 player_to_id[player_name] = temp_id
                 rankstats[temp_id] = {
@@ -1823,10 +1680,8 @@ def main():
                     'total_games': 0,
                     'total_series': 0,
                     'mmr': 750,
-                    'discord_name': '',  # Empty - NEVER use in-game name as discord_name
-                    'rank': 1,
-                    'mac_linked': False,  # Flag to hide from leaderboard until MAC is linked
-                    'in_game_name': player_name  # Store in-game name separately for reference
+                    'discord_name': player_name,
+                    'rank': 1
                 }
                 print(f"    Warning: Could not resolve '{player_name}' to Discord ID (in {game_file})")
 
@@ -1974,11 +1829,14 @@ def main():
 
         # Get game end time for rankhistory timestamp
         game_end_time = game['details'].get('End Time', '')
-        # Convert to ISO format "YYYY-MM-DDTHH:MM:00" using robust parser
-        dt = parse_timestamp(game_end_time)
-        if dt:
-            game_timestamp = dt.strftime('%Y-%m-%dT%H:%M:00')
-        else:
+        # Convert "MM/DD/YYYY HH:MM" to ISO format "YYYY-MM-DDTHH:MM:00"
+        try:
+            if game_end_time and '/' in game_end_time:
+                dt = datetime.strptime(game_end_time, '%m/%d/%Y %H:%M')
+                game_timestamp = dt.strftime('%Y-%m-%dT%H:%M:00')
+            else:
+                game_timestamp = game_end_time
+        except:
             game_timestamp = game_end_time
 
         print(f"\n  Ranked Game {game_num} [{playlist}]: {game_name}")
@@ -2051,7 +1909,7 @@ def main():
             # Add entry to rankhistory for this player
             if user_id:
                 if user_id not in rankhistory:
-                    discord_name = rankstats.get(user_id, {}).get('discord_name', '')
+                    discord_name = rankstats.get(user_id, {}).get('discord_name', player_name)
                     rankhistory[user_id] = {
                         'discord_name': discord_name,
                         'history': []
@@ -2087,8 +1945,8 @@ def main():
     for user_id, player_names in user_id_to_names.items():
         # Ensure user exists in rankstats
         if user_id not in rankstats:
-            # Get discord_name from players.json ONLY - never use in-game name
-            discord_name = players.get(user_id, {}).get('discord_name', '')
+            # Get discord_name from players.json or use first player name
+            discord_name = players.get(user_id, {}).get('discord_name', player_names[0])
             rankstats[user_id] = {
                 'discord_name': discord_name,
                 'total_games': 0,
@@ -2139,11 +1997,6 @@ def main():
         rankstats[user_id]['deaths'] = total_deaths
         rankstats[user_id]['assists'] = total_assists
         rankstats[user_id]['headshots'] = total_headshots
-        # Store all in-game names for this user (for frontend name resolution)
-        rankstats[user_id]['in_game_names'] = player_names
-        # Set mac_linked flag - true if not already set to false (from unlinked player creation)
-        if 'mac_linked' not in rankstats[user_id]:
-            rankstats[user_id]['mac_linked'] = True
 
         # Calculate total wins/losses across all playlists and all aliases
         total_wins = 0
@@ -2300,11 +2153,10 @@ def main():
             red_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Red']
             blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
 
-            # Check if this is a CTF or Oddball game (need special score handling)
+            # Check if this is a CTF game (need to use flag captures for score)
             variant_name = game['details'].get('Variant Name', '').lower()
             game_type = game['details'].get('Game Type', '').lower()
             is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
-            is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
@@ -2312,10 +2164,6 @@ def main():
                 detailed = {s['player']: s for s in game.get('detailed_stats', [])}
                 red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
                 blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
-            elif is_oddball:
-                # For Oddball, convert time scores to seconds
-                red_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Red')
-                blue_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Blue')
             else:
                 # For other games, use score_numeric
                 red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
@@ -2325,13 +2173,10 @@ def main():
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
             # Build player_stats array (basic player info with stats)
-            # Keep original in-game name and add discord_id for frontend name resolution
             player_stats = []
             for p in game['players']:
-                player_discord_id = player_to_id.get(p['name'])
                 player_stats.append({
-                    'name': p['name'],  # Keep original in-game name for lookups
-                    'discord_id': player_discord_id,  # Add discord_id for name resolution
+                    'name': get_display_name(p['name']),
                     'team': p.get('team', ''),
                     'kills': p.get('kills', 0),
                     'deaths': p.get('deaths', 0),
@@ -2348,11 +2193,10 @@ def main():
                 })
 
             # Build detailed_stats array (Game Statistics sheet data with emblem URLs)
-            # Keep original in-game names - frontend handles display name conversion
             detailed_stats = []
             for stat in game.get('detailed_stats', []):
                 detailed_stats.append({
-                    'player': stat.get('player', ''),  # Keep original in-game name
+                    'player': get_display_name(stat.get('player', '')),
                     'emblem_url': stat.get('emblem_url', ''),
                     'kills': stat.get('kills', 0),
                     'assists': stat.get('assists', 0),
@@ -2368,32 +2212,31 @@ def main():
                 })
 
             # Build medals array (Medal Stats sheet data)
-            # Keep original in-game names - frontend handles display name conversion
             medals = []
             for medal in game.get('medals', []):
-                medal_entry = {'player': medal.get('player', '')}  # Keep original in-game name
+                medal_entry = {'player': get_display_name(medal.get('player', ''))}
                 for k, v in medal.items():
                     if k != 'player':
                         medal_entry[k] = v
                 medals.append(medal_entry)
 
             # Build weapons array (Weapon Statistics sheet data)
-            # Keep original in-game names - frontend handles display name conversion
             weapons = []
             for weapon in game.get('weapons', []):
-                weapon_entry = {'Player': weapon.get('Player', '')}  # Keep original in-game name
+                weapon_entry = {'Player': get_display_name(weapon.get('Player', ''))}
                 for k, v in weapon.items():
                     if k != 'Player':
                         weapon_entry[k] = v
                 weapons.append(weapon_entry)
 
-            # Build versus data (Versus sheet - kill matrix)
-            # Keep original in-game names - frontend handles display name conversion
+            # Build versus data with display names (Versus sheet - kill matrix)
             versus_data = {}
             for player_name, opponents in game.get('versus', {}).items():
-                versus_data[player_name] = {}  # Keep original in-game name
+                display_name = get_display_name(player_name)
+                versus_data[display_name] = {}
                 for opponent, kills in opponents.items():
-                    versus_data[player_name][opponent.strip()] = kills  # Keep original
+                    opponent_display = get_display_name(opponent.strip())
+                    versus_data[display_name][opponent_display] = kills
 
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
@@ -2464,32 +2307,25 @@ def main():
             blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
-            # Check if this is a CTF or Oddball game
+            # Check if this is a CTF game
             variant_name = game['details'].get('Variant Name', '').lower()
             game_type = game['details'].get('Game Type', '').lower()
             is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
-            is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
                 detailed = {s['player']: s for s in game.get('detailed_stats', [])}
                 red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
                 blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
-            elif is_oddball:
-                red_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Red')
-                blue_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Blue')
             else:
                 red_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Red')
                 blue_score = sum(p.get('score_numeric', 0) for p in game['players'] if p.get('team') == 'Blue')
 
             # Build player_stats array (basic player info with stats)
-            # Keep original in-game name and add discord_id for frontend name resolution
             player_stats = []
             for p in game['players']:
-                player_discord_id = player_to_id.get(p['name'])
                 player_stats.append({
-                    'name': p['name'],  # Keep original in-game name for lookups
-                    'discord_id': player_discord_id,  # Add discord_id for name resolution
+                    'name': get_display_name(p['name']),
                     'team': p.get('team', ''),
                     'kills': p.get('kills', 0),
                     'deaths': p.get('deaths', 0),
@@ -2506,11 +2342,10 @@ def main():
                 })
 
             # Build detailed_stats array (Game Statistics sheet data)
-            # Keep original in-game names - frontend handles display name conversion
             detailed_stats = []
             for stat in game.get('detailed_stats', []):
                 detailed_stats.append({
-                    'player': stat.get('player', ''),  # Keep original in-game name
+                    'player': get_display_name(stat.get('player', '')),
                     'emblem_url': stat.get('emblem_url', ''),
                     'kills': stat.get('kills', 0),
                     'assists': stat.get('assists', 0),
@@ -2526,32 +2361,31 @@ def main():
                 })
 
             # Build medals array (Medal Stats sheet data)
-            # Keep original in-game names - frontend handles display name conversion
             medals = []
             for medal in game.get('medals', []):
-                medal_entry = {'player': medal.get('player', '')}  # Keep original in-game name
+                medal_entry = {'player': get_display_name(medal.get('player', ''))}
                 for k, v in medal.items():
                     if k != 'player':
                         medal_entry[k] = v
                 medals.append(medal_entry)
 
             # Build weapons array (Weapon Statistics sheet data)
-            # Keep original in-game names - frontend handles display name conversion
             weapons = []
             for weapon in game.get('weapons', []):
-                weapon_entry = {'Player': weapon.get('Player', '')}  # Keep original in-game name
+                weapon_entry = {'Player': get_display_name(weapon.get('Player', ''))}
                 for k, v in weapon.items():
                     if k != 'Player':
                         weapon_entry[k] = v
                 weapons.append(weapon_entry)
 
             # Build versus data (Versus sheet - kill matrix)
-            # Keep original in-game names - frontend handles display name conversion
             versus_data = {}
             for player_name, opponents in game.get('versus', {}).items():
-                versus_data[player_name] = {}  # Keep original in-game name
+                display_name = get_display_name(player_name)
+                versus_data[display_name] = {}
                 for opponent, kills in opponents.items():
-                    versus_data[player_name][opponent.strip()] = kills  # Keep original
+                    opponent_display = get_display_name(opponent.strip())
+                    versus_data[display_name][opponent_display] = kills
 
             match_entry = {
                 'timestamp': game['details'].get('Start Time', ''),
@@ -2592,7 +2426,7 @@ def main():
                     emblems[user_id] = {
                         'emblem_url': emblem_url,
                         'player_name': player_name,
-                        'discord_name': rankstats.get(user_id, {}).get('discord_name', '')
+                        'discord_name': rankstats.get(user_id, {}).get('discord_name', player_name)
                     }
 
     with open(EMBLEMS_FILE, 'w') as f:
