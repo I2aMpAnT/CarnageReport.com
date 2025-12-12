@@ -407,8 +407,22 @@
       "series_wins": 0,
       "series_losses": 0
     },
+    "309502376052523018": {
+      "discord_name": "Bigstack",
+      "xp": 400,
+      "rank": 5,
+      "wins": 4,
+      "losses": 1,
+      "highest_rank": 5,
+      "kills": 68,
+      "deaths": 86,
+      "assists": 68,
+      "headshots": 44,
+      "series_wins": 0,
+      "series_losses": 0
+    },
     "175060415833833472": {
-      "discord_name": "tetracide.",
+      "discord_name": "Josiah",
       "xp": 956,
       "rank": 10,
       "wins": 10,
@@ -422,7 +436,7 @@
       "series_losses": 0
     },
     "260603669924413441": {
-      "discord_name": "ksin0",
+      "discord_name": "Tech",
       "xp": 186,
       "rank": 2,
       "wins": 2,
@@ -432,20 +446,6 @@
       "deaths": 231,
       "assists": 140,
       "headshots": 94,
-      "series_wins": 0,
-      "series_losses": 0
-    },
-    "309502376052523018": {
-      "discord_name": "bigstack",
-      "xp": 400,
-      "rank": 5,
-      "wins": 4,
-      "losses": 1,
-      "highest_rank": 5,
-      "kills": 68,
-      "deaths": 86,
-      "assists": 68,
-      "headshots": 44,
       "series_wins": 0,
       "series_losses": 0
     }

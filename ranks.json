@@ -2236,64 +2236,8 @@
       }
     }
   },
-  "175060415833833472": {
-    "discord_name": "tetracide.",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 10,
-    "highest_rank": 10,
-    "xp": 956,
-    "mmr": 750,
-    "wins": 10,
-    "losses": 4,
-    "total_games": 14,
-    "kills": 310,
-    "deaths": 237,
-    "assists": 184,
-    "headshots": 215,
-    "series_wins": 3,
-    "series_losses": 1,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 10,
-        "highest_rank": 10,
-        "xp": 956,
-        "wins": 10,
-        "losses": 4,
-        "games": 14
-      }
-    }
-  },
-  "260603669924413441": {
-    "discord_name": "ksin0",
-    "twitch_name": "",
-    "twitch_url": "",
-    "rank": 2,
-    "highest_rank": 2,
-    "xp": 186,
-    "mmr": 750,
-    "wins": 2,
-    "losses": 8,
-    "total_games": 10,
-    "kills": 162,
-    "deaths": 231,
-    "assists": 140,
-    "headshots": 94,
-    "series_wins": 1,
-    "series_losses": 3,
-    "playlists": {
-      "MLG 4v4": {
-        "rank": 2,
-        "highest_rank": 2,
-        "xp": 186,
-        "wins": 2,
-        "losses": 8,
-        "games": 10
-      }
-    }
-  },
   "309502376052523018": {
-    "discord_name": "bigstack",
+    "discord_name": "Bigstack",
     "twitch_name": "",
     "twitch_url": "",
     "rank": 5,
@@ -2320,8 +2264,36 @@
       }
     }
   },
+  "175060415833833472": {
+    "discord_name": "Josiah",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 10,
+    "highest_rank": 10,
+    "xp": 956,
+    "mmr": 750,
+    "wins": 10,
+    "losses": 4,
+    "total_games": 14,
+    "kills": 310,
+    "deaths": 237,
+    "assists": 184,
+    "headshots": 215,
+    "series_wins": 3,
+    "series_losses": 1,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 10,
+        "highest_rank": 10,
+        "xp": 956,
+        "wins": 10,
+        "losses": 4,
+        "games": 14
+      }
+    }
+  },
   "237407163822112769": {
-    "discord_name": "gunsh0t",
+    "discord_name": "GuNShoT",
     "twitch_name": "",
     "twitch_url": "",
     "rank": 1,
@@ -2338,5 +2310,33 @@
     "series_wins": 0,
     "series_losses": 0,
     "playlists": {}
+  },
+  "260603669924413441": {
+    "discord_name": "Tech",
+    "twitch_name": "",
+    "twitch_url": "",
+    "rank": 2,
+    "highest_rank": 2,
+    "xp": 186,
+    "mmr": 750,
+    "wins": 2,
+    "losses": 8,
+    "total_games": 10,
+    "kills": 162,
+    "deaths": 231,
+    "assists": 140,
+    "headshots": 94,
+    "series_wins": 1,
+    "series_losses": 3,
+    "playlists": {
+      "MLG 4v4": {
+        "rank": 2,
+        "highest_rank": 2,
+        "xp": 186,
+        "wins": 2,
+        "losses": 8,
+        "games": 10
+      }
+    }
   }
 }
