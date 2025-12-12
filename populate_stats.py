@@ -1161,15 +1161,13 @@ def build_profile_lookup(players):
     return profile_to_user
 
 
-def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord, profile_lookup, rankstats):
+def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord):
     """
-    Resolve a player's in-game name to their Discord ID using multiple methods.
+    Resolve a player's in-game name to their Discord ID.
 
-    Priority:
-    0. Hardcoded Unicode name mappings (for special characters)
-    1. Identity file MAC -> Discord ID (most reliable)
-    2. Profile lookup from players.json aliases
-    3. Discord name match in rankstats
+    ONLY valid path: In-game name -> MAC (identity file) -> Discord ID (players.json)
+
+    The MAC address is the source of truth. No shortcuts or name matching.
     """
     name_lower = player_name.strip().lower()
     name_raw = player_name.strip()  # Keep original case for PUA characters
@@ -1190,18 +1188,12 @@ def resolve_player_to_discord(player_name, identity_name_to_mac, mac_to_discord,
     if name_no_spaces in UNICODE_NAME_MAPPINGS:
         return UNICODE_NAME_MAPPINGS[name_no_spaces]
 
-    # Method 1: Use identity file MAC address
+    # ONLY valid resolution: In-game name -> MAC (identity file) -> Discord ID (players.json)
+    # No shortcuts. No alias matching. No name matching. MAC is the source of truth.
     if name_lower in identity_name_to_mac:
         mac = identity_name_to_mac[name_lower]
         if mac in mac_to_discord:
             return mac_to_discord[mac]
-
-    # Method 2: Profile lookup (aliases, display_name, stats_profile)
-    if name_lower in profile_lookup:
-        return profile_lookup[name_lower]
-
-    # Method 3 REMOVED: Matching in-game names to discord_names was causing
-    # wrong player attribution when someone's in-game name matched another user's discord name
 
     return None
 
@@ -1821,7 +1813,7 @@ def main():
 
             # Resolve player using identity MAC -> Discord ID
             user_id = resolve_player_to_discord(
-                player_name, identity_name_to_mac, mac_to_discord, profile_lookup, rankstats
+                player_name, identity_name_to_mac, mac_to_discord
             )
 
             if user_id:
