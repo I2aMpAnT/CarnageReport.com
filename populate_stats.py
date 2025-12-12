@@ -355,8 +355,23 @@ def load_players():
     """Load players.json which contains MAC addresses and stats_profile mappings."""
     try:
         with open(PLAYERS_FILE, 'r') as f:
-            return json.load(f)
-    except:
+            data = json.load(f)
+            print(f"Successfully loaded players.json from {PLAYERS_FILE}")
+            print(f"  Found {len(data)} players")
+            # Count players with MAC addresses and twitch
+            mac_count = sum(1 for p in data.values() if p.get('mac_addresses'))
+            twitch_count = sum(1 for p in data.values() if p.get('twitch_name'))
+            print(f"  Players with MACs: {mac_count}")
+            print(f"  Players with Twitch: {twitch_count}")
+            return data
+    except FileNotFoundError:
+        print(f"ERROR: players.json not found at {PLAYERS_FILE}")
+        return {}
+    except json.JSONDecodeError as e:
+        print(f"ERROR: players.json is invalid JSON: {e}")
+        return {}
+    except Exception as e:
+        print(f"ERROR loading players.json: {e}")
         return {}
 
 def load_rankhistory():
