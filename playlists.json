@@ -1,4 +1,3 @@
-cat > playlists.json << 'EOF'
 {
   "playlists": [
     {
@@ -38,4 +37,3 @@ cat > playlists.json << 'EOF'
     "matches_file": "customgames.json"
   }
 }
-EOF
