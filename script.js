@@ -385,7 +385,7 @@ function findGamesForVod(vod) {
                 const offsetSeconds = Math.max(0, Math.floor((startDate - vodStart) / 1000));
                 const players = (game.players || []).map(p => p.name).filter(Boolean);
 
-                const rawType = game.details['Variant Name'] || game.details['Game Type'] || 'Unknown';
+                const rawType = game.details['Game Type'] || 'Unknown';
                 const baseGameType = getBaseGametype(rawType, game.playlist, game);
                 matchingGames.push({
                     index: index,
@@ -967,8 +967,8 @@ function getBaseGametype(variantName, playlist = '', game = null) {
     if (name.includes('flag') || name.includes('ctf')) {
         baseType = 'Capture the Flag';
     }
-    // Oddball variants
-    else if (name.includes('oddball') || name.includes('ball')) {
+    // Oddball variants (includes "bawl" typo variant)
+    else if (name.includes('oddball') || name.includes('ball') || name.includes('bawl')) {
         baseType = 'Oddball';
     }
     // King of the Hill variants
@@ -2534,7 +2534,10 @@ function renderScoreboard(game) {
 
         const displayName = getDisplayNameForProfile(player.name);
         html += `<div class="sb-player clickable-player" data-player="${player.name}">`;
-        html += getPreGameRankIcon(player, 'small', game);
+        // Don't show rank icon for Custom Games - only ranked playlists
+        if (game.playlist && game.playlist !== 'Custom Games') {
+            html += getPreGameRankIcon(player, 'small', game);
+        }
         html += `<span class="player-name-text">${displayName}</span>`;
         html += `</div>`;
 
@@ -3858,7 +3861,7 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
             // Search for game types (use BASE gametype, not variant names)
             const gameTypes = new Set();
             gamesData.forEach(game => {
-                const rawType = game.details['Variant Name'] || game.details['Game Type'] || '';
+                const rawType = game.details['Game Type'] || '';
                 const baseType = getBaseGametype(rawType, game.playlist, game);
                 if (baseType && baseType.toLowerCase().includes(query)) {
                     gameTypes.add(baseType);
@@ -3868,7 +3871,7 @@ function setupSearchBox(inputElement, resultsElement, boxNumber) {
             gameTypes.forEach(type => {
                 // Count games by base gametype
                 const typeGames = gamesData.filter(g => {
-                    const rawType = g.details['Variant Name'] || g.details['Game Type'] || '';
+                    const rawType = g.details['Game Type'] || '';
                     return getBaseGametype(rawType, g.playlist, g) === type;
                 }).length;
                 results.push({
@@ -3958,7 +3961,7 @@ function calculatePlayerSearchStats(playerName) {
 
             // Check if player won (using same logic as calculatePlayerOverallStats)
             const hasTeams = game.players.some(p => isValidTeam(p.team));
-            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+            const gameType = game.details['Game Type'] || '';
             const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
             if (hasTeams && isValidTeam(player.team)) {
@@ -4187,7 +4190,7 @@ function renderMapSearchResults(mapName) {
     let playerStats = {};
 
     mapGames.forEach(game => {
-        const gt = game.details['Variant Name'] || 'Unknown';
+        const gt = getBaseGametype(game.details['Game Type'], game.playlist, game);
         gametypeCounts[gt] = (gametypeCounts[gt] || 0) + 1;
 
         // Count all medals in this game (only Halo 2 medals)
@@ -4252,7 +4255,7 @@ function renderMapSearchResults(mapName) {
 function renderGametypeSearchResults(gametypeName) {
     // Filter by base gametype, not variant name
     const gametypeGames = gamesData.filter(game => {
-        const rawType = game.details['Variant Name'] || game.details['Game Type'] || '';
+        const rawType = game.details['Game Type'] || '';
         return getBaseGametype(rawType, game.playlist, game) === gametypeName;
     });
 
@@ -4344,7 +4347,7 @@ function renderMedalSearchResults(medalName) {
         if (game.medals) {
             let gameMedalCount = 0;
             const mapName = game.details['Map Name'] || 'Unknown';
-            const gametype = game.details['Variant Name'] || 'Unknown';
+            const gametype = getBaseGametype(game.details['Game Type'], game.playlist, game);
 
             game.medals.forEach(playerMedals => {
                 if (playerMedals[medalName]) {
@@ -4476,7 +4479,7 @@ function renderWeaponSearchResults(weaponName) {
         gamesData.forEach(game => {
             let gameMeleeKills = 0;
             const mapName = game.details['Map Name'] || 'Unknown';
-            const gametype = game.details['Variant Name'] || 'Unknown';
+            const gametype = getBaseGametype(game.details['Game Type'], game.playlist, game);
 
             // For each player in the game
             game.players?.forEach(player => {
@@ -4521,7 +4524,7 @@ function renderWeaponSearchResults(weaponName) {
         gamesData.forEach(game => {
             let gameWeaponKills = 0;
             const mapName = game.details['Map Name'] || 'Unknown';
-            const gametype = game.details['Variant Name'] || 'Unknown';
+            const gametype = getBaseGametype(game.details['Game Type'], game.playlist, game);
 
             if (game.weapons) {
                 game.weapons.forEach(playerWeapons => {
@@ -4955,7 +4958,7 @@ function calculatePlayerStats(playerName, includeCustomGames = false) {
                 stats.rankedGames++;
 
                 const hasTeams = game.players.some(p => isValidTeam(p.team));
-                const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+                const gameType = game.details['Game Type'] || '';
                 const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
                 if (hasTeams && isValidTeam(player.team)) {
@@ -5053,7 +5056,7 @@ function calculateHeadToHead(player1, player2) {
             } else if (onDifferentTeams) {
                 opposingGames++;
                 // Determine winner by team score
-                const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+                const gameType = game.details['Game Type'] || '';
                 const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
                 const teams = {};
                 game.players.forEach(p => {
@@ -5229,7 +5232,7 @@ function filterProfileByWinLoss(filterType) {
     // Helper function to determine if player won
     const didPlayerWin = (game, player) => {
         const hasTeams = game.players.some(p => isValidTeam(p.team));
-        const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+        const gameType = game.details['Game Type'] || '';
         const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
         if (hasTeams && isValidTeam(player.team)) {
@@ -5541,7 +5544,7 @@ function showProfileAssistsBreakdown() {
             const assists = parseInt(player.assists) || 0;
             totalAssists += assists;
 
-            const gametype = game.details['Variant Name'] || game.details['Game Type'] || 'Unknown';
+            const gametype = game.details['Game Type'] || 'Unknown';
             const mapName = game.details['Map Name'] || 'Unknown';
 
             assistsByGametype[gametype] = (assistsByGametype[gametype] || 0) + assists;
@@ -6719,7 +6722,7 @@ function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
         totalScore += parseInt(player.score) || 0;
 
         // Track Oddball time
-        const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+        const gameType = game.details['Game Type'] || '';
         const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
         if (isOddball && player.score) {
             totalBallTime += timeToSeconds(player.score);
@@ -6765,7 +6768,7 @@ function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
             rankedGames++;
 
             const hasTeams = game.players.some(p => isValidTeam(p.team));
-            const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+            const gameType = game.details['Game Type'] || '';
             const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
 
             if (hasTeams && isValidTeam(player.team)) {
@@ -6933,7 +6936,7 @@ function populateProfileFilters() {
 
     currentProfileGames.forEach(game => {
         const mapName = game.details['Map Name'];
-        const rawType = game.details['Variant Name'] || game.details['Game Type'] || '';
+        const rawType = game.details['Game Type'] || '';
         const baseGametype = getBaseGametype(rawType, game.playlist, game);
         if (mapName) {
             maps.set(mapName, (maps.get(mapName) || 0) + 1);
@@ -6978,7 +6981,7 @@ function sortPlayerGames() {
             games.sort((a, b) => (a.details['Map Name'] || '').localeCompare(b.details['Map Name'] || ''));
             break;
         case 'gametype':
-            games.sort((a, b) => (a.details['Variant Name'] || '').localeCompare(b.details['Variant Name'] || ''));
+            games.sort((a, b) => getBaseGametype(a.details['Game Type'], a.playlist, a).localeCompare(getBaseGametype(b.details['Game Type'], b.playlist, b)));
             break;
         case 'score':
             games.sort((a, b) => (b.playerData?.score || 0) - (a.playerData?.score || 0));
@@ -7000,7 +7003,7 @@ function filterPlayerGames(preFilteredGames = null) {
             games = games.filter(game => {
                 const player = game.playerData;
                 const hasTeams = game.players.some(p => isValidTeam(p.team));
-                const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+                const gameType = game.details['Game Type'] || '';
                 const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
                 
                 if (hasTeams && isValidTeam(player.team)) {
@@ -7025,7 +7028,7 @@ function filterPlayerGames(preFilteredGames = null) {
             games = games.filter(game => {
                 const player = game.playerData;
                 const hasTeams = game.players.some(p => isValidTeam(p.team));
-                const gameType = game.details['Variant Name'] || game.details['Game Type'] || '';
+                const gameType = game.details['Game Type'] || '';
                 const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
                 
                 if (hasTeams && isValidTeam(player.team)) {
@@ -7054,7 +7057,7 @@ function filterPlayerGames(preFilteredGames = null) {
     }
     if (profileCurrentGametypeFilter) {
         games = games.filter(g => {
-            const rawType = g.details['Variant Name'] || g.details['Game Type'] || '';
+            const rawType = g.details['Game Type'] || '';
             return getBaseGametype(rawType, g.playlist, g) === profileCurrentGametypeFilter;
         });
     }
@@ -7094,18 +7097,19 @@ let profileCurrentGametypeFilter = '';
 function populateMainFilters() {
     const maps = new Map();
     const gametypes = new Map();
-    
+
     gamesData.forEach(game => {
         const mapName = game.details['Map Name'];
-        const gameType = game.details['Variant Name'] || game.details['Game Type'];
+        // Use BASE gametype from 'Game Type' field, not variant name
+        const baseGameType = getBaseGametype(game.details['Game Type'], game.playlist, game);
         if (mapName) {
             maps.set(mapName, (maps.get(mapName) || 0) + 1);
         }
-        if (gameType) {
-            gametypes.set(gameType, (gametypes.get(gameType) || 0) + 1);
+        if (baseGameType && baseGameType !== 'Unknown') {
+            gametypes.set(baseGameType, (gametypes.get(baseGameType) || 0) + 1);
         }
     });
-    
+
     // Sort by name and store with counts
     availableMaps = [...maps.entries()].sort((a, b) => a[0].localeCompare(b[0]));
     availableGametypes = [...gametypes.entries()].sort((a, b) => a[0].localeCompare(b[0]));
@@ -7310,7 +7314,7 @@ function sortGames() {
             games.sort((a, b) => (a.details['Map Name'] || '').localeCompare(b.details['Map Name'] || ''));
             break;
         case 'gametype':
-            games.sort((a, b) => (a.details['Variant Name'] || '').localeCompare(b.details['Variant Name'] || ''));
+            games.sort((a, b) => getBaseGametype(a.details['Game Type'], a.playlist, a).localeCompare(getBaseGametype(b.details['Game Type'], b.playlist, b)));
             break;
     }
     
@@ -7325,8 +7329,9 @@ function filterGames(preFilteredGames = null) {
     }
     if (currentGametypeFilter) {
         games = games.filter(g => {
-            const rawType = g.details['Variant Name'] || g.details['Game Type'] || '';
-            return getBaseGametype(rawType, g.playlist, g) === currentGametypeFilter;
+            // Use 'Game Type' field for base gametype filtering
+            const baseType = getBaseGametype(g.details['Game Type'], g.playlist, g);
+            return baseType === currentGametypeFilter;
         });
     }
     
