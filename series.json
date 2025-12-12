@@ -6,7 +6,7 @@
       "red_team": [
         "EpiiiC",
         "Josiah",
-        "Prince KidMode",
+        "KidMode",
         "TwoDashAngo"
       ],
       "blue_team": [
@@ -69,7 +69,7 @@
       "playlist": "MLG 4v4",
       "red_team": [
         "Hyrax",
-        "Prince KidMode",
+        "KidMode",
         "cOn",
         "fluhd"
       ],
@@ -132,7 +132,7 @@
       "series_id": "series_3",
       "playlist": "MLG 4v4",
       "red_team": [
-        "Prince KidMode",
+        "KidMode",
         "Tech",
         "cOn",
         "fluhd"
@@ -235,7 +235,7 @@
         "STATSDEDI"
       ],
       "blue_team": [
-        "Prince KidMode",
+        "KidMode",
         "Rinser",
         "cOn"
       ],
@@ -266,7 +266,7 @@
         "Keylord"
       ],
       "blue_team": [
-        "Prince KidMode",
+        "KidMode",
         "Rinser",
         "cOn",
         "fluhd"
@@ -389,7 +389,7 @@
         "AfroMaN",
         "EpiiiC",
         "Hyrax",
-        "Prince KidMode"
+        "KidMode"
       ],
       "games": [
         {
@@ -604,14 +604,14 @@
       "series_id": "series_11",
       "playlist": "MLG 4v4",
       "red_team": [
-        "KraN",
+        "Nark",
         "Rinser",
         "Rocky",
         "simon hagiwara"
       ],
       "blue_team": [
         "I2aMpAnT",
-        "Prince KidMode",
+        "KidMode",
         "SHOW5TOPPER",
         "roasted"
       ],
@@ -654,7 +654,7 @@
       "red_team": [
         "Hammie",
         "James | The Frenetic",
-        "KraN",
+        "Nark",
         "roasted"
       ],
       "blue_team": [
@@ -686,7 +686,7 @@
       "red_team": [
         "AfroMaN",
         "James | The Frenetic",
-        "Prince KidMode",
+        "KidMode",
         "ll Legend ll"
       ],
       "blue_team": [
@@ -718,7 +718,7 @@
       "red_team": [
         "Hammie",
         "James | The Frenetic",
-        "KraN",
+        "Nark",
         "roasted"
       ],
       "blue_team": [
@@ -758,7 +758,7 @@
       "red_team": [
         "AfroMaN",
         "James | The Frenetic",
-        "Prince KidMode",
+        "KidMode",
         "ll Legend ll"
       ],
       "blue_team": [
@@ -798,7 +798,7 @@
       "red_team": [
         "Hammie",
         "James | The Frenetic",
-        "KraN",
+        "Nark",
         "roasted"
       ],
       "blue_team": [
@@ -836,14 +836,14 @@
       "series_id": "series_17",
       "playlist": "MLG 4v4",
       "red_team": [
-        "KraN",
+        "Nark",
         "Rinser",
         "Rocky",
         "simon hagiwara"
       ],
       "blue_team": [
         "I2aMpAnT",
-        "Prince KidMode",
+        "KidMode",
         "SHOW5TOPPER",
         "roasted"
       ],
@@ -885,7 +885,7 @@
       "playlist": "MLG 4v4",
       "red_team": [
         "EpiiiC",
-        "Prince KidMode",
+        "KidMode",
         "Rocky",
         "SHOW5TOPPER"
       ],
@@ -925,7 +925,7 @@
       "playlist": "MLG 4v4",
       "red_team": [
         "EpiiiC",
-        "Prince KidMode",
+        "KidMode",
         "Rocky",
         "SHOW5TOPPER"
       ],
@@ -974,7 +974,7 @@
       "red_team": [
         "AfroMaN",
         "James | The Frenetic",
-        "Prince KidMode",
+        "KidMode",
         "ll Legend ll"
       ],
       "blue_team": [
@@ -1006,7 +1006,7 @@
       "red_team": [
         "James | The Frenetic",
         "Josiah",
-        "KraN",
+        "Nark",
         "roasted"
       ],
       "blue_team": [
@@ -1147,7 +1147,7 @@
       ],
       "blue_team": [
         "I2aMpAnT",
-        "Prince KidMode",
+        "KidMode",
         "Rocky",
         "roasted"
       ],
@@ -1179,7 +1179,7 @@
       ],
       "blue_team": [
         "I2aMpAnT",
-        "Prince KidMode",
+        "KidMode",
         "Rocky",
         "simon hagiwara"
       ],
@@ -1222,7 +1222,7 @@
       "red_team": [
         "EpiiiC",
         "Keylord",
-        "KraN",
+        "Nark",
         "Rinser"
       ],
       "blue_team": [
@@ -1482,7 +1482,7 @@
       "series_wins": 6,
       "series_losses": 7
     },
-    "165626999891689474": {
+    "653712327801387059": {
       "series_wins": 4,
       "series_losses": 4
     },
@@ -1503,5 +1503,5 @@
       "series_losses": 1
     }
   },
-  "generated_at": "2025-12-12T03:32:04.856493"
+  "generated_at": "2025-12-12T03:38:17.887554"
 }

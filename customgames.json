@@ -334,7 +334,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Prince KidMode",
+          "name": "KidMode",
           "team": "none",
           "kills": 1,
           "deaths": 10,
@@ -475,7 +475,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Prince KidMode",
+          "player": "KidMode",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=0&EP=1&ES=0&EF=57&EB=5&ET=0",
           "kills": 0,
           "assists": 0,
@@ -687,7 +687,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Prince KidMode",
+          "player": "KidMode",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -1529,7 +1529,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Prince KidMode",
+          "Player": "KidMode",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -2242,7 +2242,7 @@
           "Keylord": 8,
           "cOn": 4,
           "popq2": 1,
-          "Prince KidMode": 6,
+          "KidMode": 6,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
@@ -2254,7 +2254,7 @@
           "Keylord": 3,
           "cOn": 10,
           "popq2": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
@@ -2266,7 +2266,7 @@
           "Keylord": 5,
           "cOn": 5,
           "popq2": 0,
-          "Prince KidMode": 2,
+          "KidMode": 2,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
@@ -2278,7 +2278,7 @@
           "Keylord": 0,
           "cOn": 1,
           "popq2": 1,
-          "Prince KidMode": 2,
+          "KidMode": 2,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
@@ -2290,7 +2290,7 @@
           "Keylord": 1,
           "cOn": 0,
           "popq2": 1,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
@@ -2302,19 +2302,19 @@
           "Keylord": 0,
           "cOn": 0,
           "popq2": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
         },
-        "Prince KidMode": {
+        "KidMode": {
           "James | The Frenetic": 0,
           "EpiiiC": 0,
           "AfroMaN": 1,
           "Keylord": 0,
           "cOn": 0,
           "popq2": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
@@ -2326,7 +2326,7 @@
           "Keylord": 0,
           "cOn": 0,
           "popq2": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
@@ -2338,7 +2338,7 @@
           "Keylord": 0,
           "cOn": 0,
           "popq2": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
@@ -2350,7 +2350,7 @@
           "Keylord": 0,
           "cOn": 0,
           "popq2": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "Hyrax": 0,
           "Rinser": 0,
           "fluhd": 0
@@ -7276,7 +7276,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "KraN",
+          "name": "Nark",
           "team": "none",
           "kills": 12,
           "deaths": 14,
@@ -7372,7 +7372,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "KraN",
+          "player": "Nark",
           "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
           "kills": 12,
           "assists": 4,
@@ -7488,7 +7488,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "KraN",
+          "player": "Nark",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -7880,7 +7880,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "KraN",
+          "Player": "Nark",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -8448,7 +8448,7 @@
         "Tech": {
           "Tech": 0,
           "roasted": 13,
-          "KraN": 4,
+          "Nark": 4,
           "James | The Frenetic": 1,
           "Hammie": 0,
           "SHOW5TOPPER": 1
@@ -8456,15 +8456,15 @@
         "roasted": {
           "Tech": 10,
           "roasted": 0,
-          "KraN": 6,
+          "Nark": 6,
           "James | The Frenetic": 0,
           "Hammie": 0,
           "SHOW5TOPPER": 0
         },
-        "KraN": {
+        "Nark": {
           "Tech": 6,
           "roasted": 5,
-          "KraN": 0,
+          "Nark": 0,
           "James | The Frenetic": 1,
           "Hammie": 0,
           "SHOW5TOPPER": 0
@@ -8472,7 +8472,7 @@
         "James | The Frenetic": {
           "Tech": 0,
           "roasted": 2,
-          "KraN": 2,
+          "Nark": 2,
           "James | The Frenetic": 0,
           "Hammie": 3,
           "SHOW5TOPPER": 0
@@ -8480,7 +8480,7 @@
         "Hammie": {
           "Tech": 1,
           "roasted": 0,
-          "KraN": 1,
+          "Nark": 1,
           "James | The Frenetic": 2,
           "Hammie": 0,
           "SHOW5TOPPER": 0
@@ -8488,7 +8488,7 @@
         "SHOW5TOPPER": {
           "Tech": 0,
           "roasted": 0,
-          "KraN": 1,
+          "Nark": 1,
           "James | The Frenetic": 0,
           "Hammie": 1,
           "SHOW5TOPPER": 0
@@ -8573,7 +8573,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "KraN",
+          "name": "Nark",
           "team": "none",
           "kills": 33,
           "deaths": 45,
@@ -8669,7 +8669,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "KraN",
+          "player": "Nark",
           "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
           "kills": 33,
           "assists": 30,
@@ -8815,7 +8815,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "KraN",
+          "player": "Nark",
           "double_kill": 2,
           "triple_kill": 1,
           "killtacular": 0,
@@ -9261,7 +9261,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "KraN",
+          "Player": "Nark",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -10113,7 +10113,7 @@
           "Hammie": 10,
           "Tech": 8,
           "Rocky": 10,
-          "KraN": 9,
+          "Nark": 9,
           "SHOW5TOPPER": 8,
           "roasted": 8,
           "I2aMpAnT": 6
@@ -10123,7 +10123,7 @@
           "Hammie": 0,
           "Tech": 13,
           "Rocky": 9,
-          "KraN": 9,
+          "Nark": 9,
           "SHOW5TOPPER": 4,
           "roasted": 12,
           "I2aMpAnT": 3
@@ -10133,7 +10133,7 @@
           "Hammie": 11,
           "Tech": 0,
           "Rocky": 6,
-          "KraN": 6,
+          "Nark": 6,
           "SHOW5TOPPER": 8,
           "roasted": 5,
           "I2aMpAnT": 10
@@ -10143,17 +10143,17 @@
           "Hammie": 5,
           "Tech": 7,
           "Rocky": 0,
-          "KraN": 7,
+          "Nark": 7,
           "SHOW5TOPPER": 1,
           "roasted": 6,
           "I2aMpAnT": 3
         },
-        "KraN": {
+        "Nark": {
           "James | The Frenetic": 6,
           "Hammie": 5,
           "Tech": 5,
           "Rocky": 4,
-          "KraN": 0,
+          "Nark": 0,
           "SHOW5TOPPER": 4,
           "roasted": 5,
           "I2aMpAnT": 4
@@ -10163,7 +10163,7 @@
           "Hammie": 3,
           "Tech": 4,
           "Rocky": 2,
-          "KraN": 7,
+          "Nark": 7,
           "SHOW5TOPPER": 0,
           "roasted": 5,
           "I2aMpAnT": 5
@@ -10173,7 +10173,7 @@
           "Hammie": 4,
           "Tech": 7,
           "Rocky": 3,
-          "KraN": 4,
+          "Nark": 4,
           "SHOW5TOPPER": 4,
           "roasted": 0,
           "I2aMpAnT": 2
@@ -10183,7 +10183,7 @@
           "Hammie": 2,
           "Tech": 3,
           "Rocky": 2,
-          "KraN": 3,
+          "Nark": 3,
           "SHOW5TOPPER": 7,
           "roasted": 2,
           "I2aMpAnT": 0
@@ -10252,7 +10252,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "KraN",
+          "name": "Nark",
           "team": "none",
           "kills": 17,
           "deaths": 24,
@@ -10364,7 +10364,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "KraN",
+          "player": "Nark",
           "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
           "kills": 17,
           "assists": 22,
@@ -10510,7 +10510,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "KraN",
+          "player": "Nark",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -10956,7 +10956,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "KraN",
+          "Player": "Nark",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -11807,7 +11807,7 @@
           "James | The Frenetic": 0,
           "Tech": 6,
           "Josiah": 7,
-          "KraN": 8,
+          "Nark": 8,
           "I2aMpAnT": 4,
           "roasted": 12,
           "Rocky": 0,
@@ -11817,7 +11817,7 @@
           "James | The Frenetic": 8,
           "Tech": 1,
           "Josiah": 6,
-          "KraN": 4,
+          "Nark": 4,
           "I2aMpAnT": 5,
           "roasted": 3,
           "Rocky": 0,
@@ -11827,17 +11827,17 @@
           "James | The Frenetic": 5,
           "Tech": 7,
           "Josiah": 0,
-          "KraN": 4,
+          "Nark": 4,
           "I2aMpAnT": 3,
           "roasted": 3,
           "Rocky": 1,
           "SHOW5TOPPER": 0
         },
-        "KraN": {
+        "Nark": {
           "James | The Frenetic": 3,
           "Tech": 6,
           "Josiah": 3,
-          "KraN": 0,
+          "Nark": 0,
           "I2aMpAnT": 2,
           "roasted": 3,
           "Rocky": 0,
@@ -11847,7 +11847,7 @@
           "James | The Frenetic": 3,
           "Tech": 3,
           "Josiah": 4,
-          "KraN": 3,
+          "Nark": 3,
           "I2aMpAnT": 0,
           "roasted": 2,
           "Rocky": 0,
@@ -11857,7 +11857,7 @@
           "James | The Frenetic": 4,
           "Tech": 4,
           "Josiah": 2,
-          "KraN": 5,
+          "Nark": 5,
           "I2aMpAnT": 1,
           "roasted": 0,
           "Rocky": 0,
@@ -11867,7 +11867,7 @@
           "James | The Frenetic": 0,
           "Tech": 0,
           "Josiah": 0,
-          "KraN": 0,
+          "Nark": 0,
           "I2aMpAnT": 0,
           "roasted": 0,
           "Rocky": 0,
@@ -11877,7 +11877,7 @@
           "James | The Frenetic": 0,
           "Tech": 0,
           "Josiah": 0,
-          "KraN": 0,
+          "Nark": 0,
           "I2aMpAnT": 0,
           "roasted": 0,
           "Rocky": 0,
@@ -11897,13 +11897,13 @@
       "winner": "Red",
       "red_team": [
         "Rocky",
-        "KraN",
+        "Nark",
         "Rinser",
         "simon hagiwara"
       ],
       "blue_team": [
         "SHOW5TOPPER",
-        "Prince KidMode",
+        "KidMode",
         "I2aMpAnT",
         "roasted"
       ],
@@ -11925,7 +11925,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "KraN",
+          "name": "Nark",
           "team": "Red",
           "kills": 13,
           "deaths": 10,
@@ -11989,7 +11989,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Prince KidMode",
+          "name": "KidMode",
           "team": "Blue",
           "kills": 11,
           "deaths": 3,
@@ -12039,7 +12039,7 @@
       ],
       "detailed_stats": [
         {
-          "player": "KraN",
+          "player": "Nark",
           "emblem_url": "https://carnagereport.com/emblem.html?P=11&S=0&EP=0&ES=11&EF=46&EB=11&ET=0",
           "kills": 13,
           "assists": 10,
@@ -12069,7 +12069,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Prince KidMode",
+          "player": "KidMode",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=0&EP=1&ES=0&EF=57&EB=5&ET=0",
           "kills": 11,
           "assists": 6,
@@ -12161,7 +12161,7 @@
       ],
       "medals": [
         {
-          "player": "KraN",
+          "player": "Nark",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -12215,7 +12215,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Prince KidMode",
+          "player": "KidMode",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -12379,7 +12379,7 @@
       ],
       "weapons": [
         {
-          "Player": "KraN",
+          "Player": "Nark",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -12661,7 +12661,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Prince KidMode",
+          "Player": "KidMode",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -13510,81 +13510,81 @@
       "versus": {
         "Rocky": {
           "Rocky": 0,
-          "KraN": 0,
+          "Nark": 0,
           "Rinser": 0,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 5,
-          "Prince KidMode": 1,
+          "KidMode": 1,
           "I2aMpAnT": 7,
           "roasted": 6
         },
-        "KraN": {
+        "Nark": {
           "Rocky": 0,
-          "KraN": 0,
+          "Nark": 0,
           "Rinser": 0,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 1,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "I2aMpAnT": 5,
           "roasted": 7
         },
         "Rinser": {
           "Rocky": 0,
-          "KraN": 0,
+          "Nark": 0,
           "Rinser": 0,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 4,
-          "Prince KidMode": 1,
+          "KidMode": 1,
           "I2aMpAnT": 4,
           "roasted": 2
         },
         "simon hagiwara": {
           "Rocky": 0,
-          "KraN": 0,
+          "Nark": 0,
           "Rinser": 0,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 1,
-          "Prince KidMode": 1,
+          "KidMode": 1,
           "I2aMpAnT": 4,
           "roasted": 1
         },
         "SHOW5TOPPER": {
           "Rocky": 4,
-          "KraN": 4,
+          "Nark": 4,
           "Rinser": 4,
           "simon hagiwara": 1,
           "SHOW5TOPPER": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "I2aMpAnT": 0,
           "roasted": 0
         },
-        "Prince KidMode": {
+        "KidMode": {
           "Rocky": 4,
-          "KraN": 1,
+          "Nark": 1,
           "Rinser": 3,
           "simon hagiwara": 3,
           "SHOW5TOPPER": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "I2aMpAnT": 0,
           "roasted": 0
         },
         "I2aMpAnT": {
           "Rocky": 2,
-          "KraN": 3,
+          "Nark": 3,
           "Rinser": 2,
           "simon hagiwara": 2,
           "SHOW5TOPPER": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "I2aMpAnT": 0,
           "roasted": 0
         },
         "roasted": {
           "Rocky": 3,
-          "KraN": 2,
+          "Nark": 2,
           "Rinser": 1,
           "simon hagiwara": 0,
           "SHOW5TOPPER": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "I2aMpAnT": 0,
           "roasted": 0
         }
@@ -13652,7 +13652,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "KraN",
+          "name": "Nark",
           "team": "none",
           "kills": 19,
           "deaths": 23,
@@ -13809,7 +13809,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "KraN",
+          "player": "Nark",
           "emblem_url": "https://carnagereport.com/emblem.html?P=2&S=1&EP=1&ES=0&EF=44&EB=14&ET=0",
           "kills": 19,
           "assists": 11,
@@ -13991,7 +13991,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "KraN",
+          "player": "Nark",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -14779,7 +14779,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "KraN",
+          "Player": "Nark",
           "magnum kills": 1,
           "magnum headshot kills": 1,
           "magnum deaths": 1,
@@ -15207,7 +15207,7 @@
           "EpiiiC": 0,
           "Kryptonite": 11,
           "Rinser": 8,
-          "KraN": 6,
+          "Nark": 6,
           "Rocky": 5,
           "Keylord": 6,
           "roasted": 2,
@@ -15217,7 +15217,7 @@
           "EpiiiC": 5,
           "Kryptonite": 0,
           "Rinser": 6,
-          "KraN": 9,
+          "Nark": 9,
           "Rocky": 3,
           "Keylord": 3,
           "roasted": 4,
@@ -15227,17 +15227,17 @@
           "EpiiiC": 9,
           "Kryptonite": 5,
           "Rinser": 0,
-          "KraN": 5,
+          "Nark": 5,
           "Rocky": 2,
           "Keylord": 3,
           "roasted": 0,
           "simon hagiwara": 0
         },
-        "KraN": {
+        "Nark": {
           "EpiiiC": 4,
           "Kryptonite": 1,
           "Rinser": 4,
-          "KraN": 0,
+          "Nark": 0,
           "Rocky": 3,
           "Keylord": 3,
           "roasted": 4,
@@ -15247,7 +15247,7 @@
           "EpiiiC": 3,
           "Kryptonite": 4,
           "Rinser": 3,
-          "KraN": 0,
+          "Nark": 0,
           "Rocky": 0,
           "Keylord": 6,
           "roasted": 0,
@@ -15257,7 +15257,7 @@
           "EpiiiC": 2,
           "Kryptonite": 4,
           "Rinser": 2,
-          "KraN": 3,
+          "Nark": 3,
           "Rocky": 3,
           "Keylord": 0,
           "roasted": 2,
@@ -15267,7 +15267,7 @@
           "EpiiiC": 4,
           "Kryptonite": 1,
           "Rinser": 0,
-          "KraN": 0,
+          "Nark": 0,
           "Rocky": 0,
           "Keylord": 1,
           "roasted": 0,
@@ -15277,7 +15277,7 @@
           "EpiiiC": 0,
           "Kryptonite": 0,
           "Rinser": 0,
-          "KraN": 0,
+          "Nark": 0,
           "Rocky": 0,
           "Keylord": 0,
           "roasted": 0,
@@ -15604,7 +15604,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Prince KidMode",
+          "name": "KidMode",
           "team": "none",
           "kills": 17,
           "deaths": 19,
@@ -15744,7 +15744,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Prince KidMode",
+          "player": "KidMode",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=0&EP=1&ES=0&EF=57&EB=5&ET=0",
           "kills": 17,
           "assists": 7,
@@ -15938,7 +15938,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Prince KidMode",
+          "player": "KidMode",
           "double_kill": 2,
           "triple_kill": 0,
           "killtacular": 0,
@@ -16840,7 +16840,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Prince KidMode",
+          "Player": "KidMode",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -17129,7 +17129,7 @@
           "Hyrax": 7,
           "AfroMaN": 17,
           "cOn": 13,
-          "Prince KidMode": 5,
+          "KidMode": 5,
           "fluhd": 4,
           "GuNShoT": 0
         },
@@ -17139,7 +17139,7 @@
           "Hyrax": 10,
           "AfroMaN": 1,
           "cOn": 6,
-          "Prince KidMode": 2,
+          "KidMode": 2,
           "fluhd": 4,
           "GuNShoT": 1
         },
@@ -17149,7 +17149,7 @@
           "Hyrax": 0,
           "AfroMaN": 4,
           "cOn": 8,
-          "Prince KidMode": 2,
+          "KidMode": 2,
           "fluhd": 4,
           "GuNShoT": 2
         },
@@ -17159,7 +17159,7 @@
           "Hyrax": 4,
           "AfroMaN": 0,
           "cOn": 6,
-          "Prince KidMode": 5,
+          "KidMode": 5,
           "fluhd": 1,
           "GuNShoT": 0
         },
@@ -17169,17 +17169,17 @@
           "Hyrax": 6,
           "AfroMaN": 7,
           "cOn": 0,
-          "Prince KidMode": 5,
+          "KidMode": 5,
           "fluhd": 1,
           "GuNShoT": 1
         },
-        "Prince KidMode": {
+        "KidMode": {
           "Hypnox": 4,
           "Tech": 2,
           "Hyrax": 5,
           "AfroMaN": 3,
           "cOn": 2,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "fluhd": 1,
           "GuNShoT": 0
         },
@@ -17189,7 +17189,7 @@
           "Hyrax": 0,
           "AfroMaN": 1,
           "cOn": 1,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "fluhd": 0,
           "GuNShoT": 3
         },
@@ -17199,7 +17199,7 @@
           "Hyrax": 1,
           "AfroMaN": 2,
           "cOn": 1,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "fluhd": 1,
           "GuNShoT": 0
         }
@@ -17219,7 +17219,7 @@
         "cOn",
         "fluhd",
         "Hyrax",
-        "Prince KidMode"
+        "KidMode"
       ],
       "blue_team": [
         "AfroMaN",
@@ -17277,7 +17277,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Prince KidMode",
+          "name": "KidMode",
           "team": "Red",
           "kills": 20,
           "deaths": 14,
@@ -17449,7 +17449,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Prince KidMode",
+          "player": "KidMode",
           "emblem_url": "https://carnagereport.com/emblem.html?P=1&S=0&EP=1&ES=0&EF=57&EB=5&ET=0",
           "kills": 20,
           "assists": 13,
@@ -17643,7 +17643,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Prince KidMode",
+          "player": "KidMode",
           "double_kill": 2,
           "triple_kill": 0,
           "killtacular": 0,
@@ -18545,7 +18545,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Prince KidMode",
+          "Player": "KidMode",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -18832,7 +18832,7 @@
           "cOn": 0,
           "fluhd": 0,
           "Hyrax": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "AfroMaN": 5,
           "Tech": 6,
           "GuNShoT": 3,
@@ -18842,7 +18842,7 @@
           "cOn": 0,
           "fluhd": 0,
           "Hyrax": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "AfroMaN": 6,
           "Tech": 4,
           "GuNShoT": 4,
@@ -18852,17 +18852,17 @@
           "cOn": 0,
           "fluhd": 0,
           "Hyrax": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "AfroMaN": 5,
           "Tech": 5,
           "GuNShoT": 3,
           "Hypnox": 4
         },
-        "Prince KidMode": {
+        "KidMode": {
           "cOn": 0,
           "fluhd": 0,
           "Hyrax": 0,
-          "Prince KidMode": 0,
+          "KidMode": 0,
           "AfroMaN": 4,
           "Tech": 6,
           "GuNShoT": 5,
@@ -18872,7 +18872,7 @@
           "cOn": 3,
           "fluhd": 6,
           "Hyrax": 3,
-          "Prince KidMode": 4,
+          "KidMode": 4,
           "AfroMaN": 0,
           "Tech": 0,
           "GuNShoT": 0,
@@ -18882,7 +18882,7 @@
           "cOn": 4,
           "fluhd": 0,
           "Hyrax": 3,
-          "Prince KidMode": 3,
+          "KidMode": 3,
           "AfroMaN": 0,
           "Tech": 0,
           "GuNShoT": 0,
@@ -18892,7 +18892,7 @@
           "cOn": 2,
           "fluhd": 5,
           "Hyrax": 2,
-          "Prince KidMode": 4,
+          "KidMode": 4,
           "AfroMaN": 0,
           "Tech": 0,
           "GuNShoT": 1,
@@ -18902,7 +18902,7 @@
           "cOn": 7,
           "fluhd": 4,
           "Hyrax": 8,
-          "Prince KidMode": 3,
+          "KidMode": 3,
           "AfroMaN": 0,
           "Tech": 0,
           "GuNShoT": 0,
