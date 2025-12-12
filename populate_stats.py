@@ -128,21 +128,21 @@ def time_to_seconds(time_str):
 
 def get_base_gametype(game_type_field):
     """
-    Convert Game Type field to display name.
+    Convert Game Type field to full display name.
     Input: 'CTF', 'Slayer', 'Oddball', 'Assault', 'KoTH', 'Territories', 'Juggernaut'
-    Output: 'CTF', 'Team Slayer', 'Oddball', 'Bomb', 'King of the Hill', etc.
+    Output: 'Capture the Flag', 'Team Slayer', 'Oddball', 'Assault', 'King of the Hill', etc.
     """
     if not game_type_field:
         return 'Unknown'
     gt = game_type_field.strip().lower()
     mapping = {
-        'ctf': 'CTF',
-        'capture the flag': 'CTF',
+        'ctf': 'Capture the Flag',
+        'capture the flag': 'Capture the Flag',
         'slayer': 'Team Slayer',
         'team slayer': 'Team Slayer',
         'oddball': 'Oddball',
-        'assault': 'Bomb',
-        'bomb': 'Bomb',
+        'assault': 'Assault',
+        'bomb': 'Assault',
         'koth': 'King of the Hill',
         'king of the hill': 'King of the Hill',
         'king': 'King of the Hill',
