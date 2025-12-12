@@ -7489,17 +7489,15 @@ function open3DReplay(gameIndex) {
 
     const mapName = game.details?.['Map Name'] || 'Unknown';
     const gameType = game.details?.['Game Type'] || '';
-    const variantName = game.details?.['Variant Name'] || '';
     const startTime = game.details?.['Start Time'] || '';
 
     // Find telemetry file
     const telemetryFile = findTelemetryFileForGame(game);
 
-    // Build viewer URL with parameters
+    // Build viewer URL with parameters (only base game type, no variant)
     const params = new URLSearchParams({
         map: mapName,
         gametype: gameType,
-        variant: variantName,
         date: startTime
     });
 

@@ -131,11 +131,10 @@ function parseUrlParams() {
     gameInfo = {
         map: mapName,
         gameType: params.get('gametype') || '',
-        date: params.get('date') || '',
-        variant: params.get('variant') || ''
+        date: params.get('date') || ''
     };
     document.getElementById('mapName').textContent = mapName;
-    document.getElementById('gameType').textContent = gameInfo.variant || gameInfo.gameType;
+    document.getElementById('gameType').textContent = gameInfo.gameType;
     document.getElementById('gameDate').textContent = gameInfo.date;
 }
 
