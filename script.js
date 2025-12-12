@@ -967,8 +967,8 @@ function getBaseGametype(variantName, playlist = '', game = null) {
     if (name.includes('flag') || name.includes('ctf')) {
         baseType = 'Capture the Flag';
     }
-    // Oddball variants
-    else if (name.includes('oddball') || name.includes('ball')) {
+    // Oddball variants (includes "bawl" typo variant)
+    else if (name.includes('oddball') || name.includes('ball') || name.includes('bawl')) {
         baseType = 'Oddball';
     }
     // King of the Hill variants
