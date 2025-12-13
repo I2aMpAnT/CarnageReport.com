@@ -644,9 +644,10 @@ function onKeyDown(e) {
 function toggleScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
     if (scoreboard) {
-        const isShowing = scoreboard.style.display === 'none';
-        scoreboard.style.display = isShowing ? 'block' : 'none';
-        if (isShowing) {
+        // Check if currently visible (empty string or 'block' means visible)
+        const isVisible = scoreboard.style.display !== 'none';
+        scoreboard.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) {
             populateScoreboard();
         }
     }
@@ -915,6 +916,9 @@ async function loadMapAndTelemetry() {
         await createPlayerMarkers();
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
+
+        // Populate scoreboard with initial data
+        populateScoreboard();
 
         // Set initial view mode
         setViewMode('free');
@@ -1271,8 +1275,8 @@ function createWaypointCanvas(text, color, emblemImage = null) {
     const boxY = 10;
     const boxSize = 100;
 
-    // Dark background (no glow)
-    ctx.fillStyle = 'rgba(0, 20, 40, 0.85)';
+    // Dark background (pure black, no blue tint)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
     ctx.fillRect(boxX, boxY, boxSize, boxSize);
 
     // Thin border (1px white)
