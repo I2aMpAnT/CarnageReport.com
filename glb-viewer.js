@@ -101,20 +101,6 @@ let pointerLocked = false;
 let gamepadIndex = null;
 let gamepadConnected = false;
 
-// Mobile/Touch state
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-                 ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-let touchState = {
-    joystickActive: false,
-    joystickStart: { x: 0, y: 0 },
-    joystickCurrent: { x: 0, y: 0 },
-    lookActive: false,
-    lookStart: { x: 0, y: 0 },
-    lastLook: { x: 0, y: 0 },
-    pinchDistance: 0,
-    touches: []
-};
-
 // URL parameters
 let mapName = '';
 let telemetryFile = '';
@@ -160,7 +146,7 @@ function setupScene() {
     camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
     // Set Z as up direction (Halo uses Z-up coordinate system)
     camera.up.set(0, 0, 1);
-    camera.position.set(0, -CONFIG.defaultCameraHeight, CONFIG.defaultCameraHeight);
+    camera.position.set(0, 0, 50); // Above the map looking down
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -172,19 +158,36 @@ function setupScene() {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
 
-    // OrbitControls for orbit mode
+    // OrbitControls for orbit mode - must set up after camera.up
     controls = new OrbitControls(camera, renderer.domElement);
+    controls.screenSpacePanning = true;
+    controls.target.set(0, 0, 0);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.screenSpacePanning = true;
     controls.minDistance = 5;
     controls.maxDistance = 200;
     controls.enabled = false; // Start with WASD mode
+    controls.update();
 
     setupLighting();
 
+    // Add axes helper: Red = X, Green = Y, Blue = Z
+    const axesHelper = new THREE.AxesHelper(50);
+    axesHelper.name = 'axesHelper';
+    scene.add(axesHelper);
+
+    // Add test marker at a known CSV position (red sphere)
+    // From CSV: X=-8.8194, Y=-4.4711, Z=-9.8421
+    const testGeom = new THREE.SphereGeometry(0.5);
+    const testMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const testMarker = new THREE.Mesh(testGeom, testMat);
+    testMarker.position.set(-8.8194, -4.4711, -9.8421);
+    testMarker.name = 'testMarker';
+    scene.add(testMarker);
+
+    // Grid on XY plane (Z-up)
     const gridHelper = new THREE.GridHelper(100, 100, 0x00c8ff, 0x1a1a2e);
-    gridHelper.rotation.x = Math.PI / 2; // Rotate to XY plane (Z-up)
+    gridHelper.rotation.x = Math.PI / 2; // Rotate to XY plane for Z-up
     gridHelper.name = 'gridHelper';
     scene.add(gridHelper);
 
@@ -266,11 +269,6 @@ function setupEventListeners() {
 
     // Pointer lock
     document.addEventListener('pointerlockchange', onPointerLockChange);
-
-    // Touch controls for mobile
-    if (isMobile) {
-        setupMobileControls();
-    }
 }
 
 // ===== Gamepad Support =====
@@ -319,15 +317,15 @@ function handleGamepadInput(deltaTime) {
     const rightX = applyDeadzone(gamepad.axes[2] || 0);
     const rightY = applyDeadzone(gamepad.axes[3] || 0);
 
-    // Movement (left stick) - only in free mode (Z-up)
+    // Movement (left stick) - only in free mode
     if (viewMode === 'free' && (leftX !== 0 || leftY !== 0)) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward/right vectors (ignore Z for ground movement since Z is up)
+        // Get camera forward/right vectors (ignore Y for ground movement)
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
-        forward.z = 0;
+        forward.y = 0;
         forward.normalize();
 
         const right = new THREE.Vector3();
@@ -339,14 +337,14 @@ function handleGamepadInput(deltaTime) {
         camera.position.addScaledVector(direction, speed);
     }
 
-    // Look (right stick) - only in free mode (Z-up)
+    // Look (right stick) - only in free mode
     if (viewMode === 'free' && (rightX !== 0 || rightY !== 0)) {
-        const euler = new THREE.Euler(0, 0, 0, 'ZYX'); // Z-up rotation order
+        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
         euler.setFromQuaternion(camera.quaternion);
 
-        euler.z -= rightX * CONFIG.gamepadLookSensitivity; // Yaw around Z
-        euler.y -= rightY * CONFIG.gamepadLookSensitivity; // Pitch
-        euler.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.y));
+        euler.y -= rightX * CONFIG.gamepadLookSensitivity;
+        euler.x -= rightY * CONFIG.gamepadLookSensitivity;
+        euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
 
         camera.quaternion.setFromEuler(euler);
     }
@@ -414,234 +412,6 @@ function showGamepadNotification(message) {
     notification.textContent = message;
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 3000);
-}
-
-// ===== Mobile/Touch Controls =====
-function setupMobileControls() {
-    document.body.classList.add('mobile-device');
-
-    // Create virtual joystick
-    createVirtualJoystick();
-
-    // Create look area overlay for right side of screen
-    createLookArea();
-
-    const canvas = document.getElementById('glb-canvas');
-
-    // Touch event listeners
-    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-    canvas.addEventListener('touchend', onTouchEnd, { passive: false });
-    canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
-
-    // Update controls hint for mobile
-    updateMobileControlsHint();
-}
-
-function createVirtualJoystick() {
-    const joystickContainer = document.createElement('div');
-    joystickContainer.id = 'virtual-joystick';
-    joystickContainer.className = 'virtual-joystick';
-    joystickContainer.innerHTML = `
-        <div class="joystick-base">
-            <div class="joystick-stick"></div>
-        </div>
-    `;
-    document.body.appendChild(joystickContainer);
-
-    const base = joystickContainer.querySelector('.joystick-base');
-
-    base.addEventListener('touchstart', onJoystickStart, { passive: false });
-    base.addEventListener('touchmove', onJoystickMove, { passive: false });
-    base.addEventListener('touchend', onJoystickEnd, { passive: false });
-    base.addEventListener('touchcancel', onJoystickEnd, { passive: false });
-}
-
-function createLookArea() {
-    const lookArea = document.createElement('div');
-    lookArea.id = 'look-area';
-    lookArea.className = 'look-area';
-    document.getElementById('canvas-container').appendChild(lookArea);
-
-    lookArea.addEventListener('touchstart', onLookStart, { passive: false });
-    lookArea.addEventListener('touchmove', onLookMove, { passive: false });
-    lookArea.addEventListener('touchend', onLookEnd, { passive: false });
-    lookArea.addEventListener('touchcancel', onLookEnd, { passive: false });
-}
-
-function onJoystickStart(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    const stick = document.querySelector('.joystick-stick');
-    const base = document.querySelector('.joystick-base');
-    const rect = base.getBoundingClientRect();
-
-    touchState.joystickActive = true;
-    touchState.joystickStart = {
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2
-    };
-    touchState.joystickCurrent = { x: touch.clientX, y: touch.clientY };
-
-    stick.classList.add('active');
-    updateJoystickVisual();
-}
-
-function onJoystickMove(e) {
-    if (!touchState.joystickActive) return;
-    e.preventDefault();
-
-    const touch = e.touches[0];
-    touchState.joystickCurrent = { x: touch.clientX, y: touch.clientY };
-    updateJoystickVisual();
-}
-
-function onJoystickEnd(e) {
-    touchState.joystickActive = false;
-    touchState.joystickCurrent = { ...touchState.joystickStart };
-
-    const stick = document.querySelector('.joystick-stick');
-    if (stick) {
-        stick.classList.remove('active');
-        stick.style.transform = 'translate(-50%, -50%)';
-    }
-}
-
-function updateJoystickVisual() {
-    const stick = document.querySelector('.joystick-stick');
-    if (!stick) return;
-
-    const maxRadius = 40;
-    let dx = touchState.joystickCurrent.x - touchState.joystickStart.x;
-    let dy = touchState.joystickCurrent.y - touchState.joystickStart.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist > maxRadius) {
-        dx = (dx / dist) * maxRadius;
-        dy = (dy / dist) * maxRadius;
-    }
-
-    stick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-}
-
-function getJoystickInput() {
-    if (!touchState.joystickActive) return { x: 0, y: 0 };
-
-    const maxRadius = 40;
-    let dx = touchState.joystickCurrent.x - touchState.joystickStart.x;
-    let dy = touchState.joystickCurrent.y - touchState.joystickStart.y;
-
-    return {
-        x: Math.max(-1, Math.min(1, dx / maxRadius)),
-        y: Math.max(-1, Math.min(1, dy / maxRadius))
-    };
-}
-
-function onLookStart(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    touchState.lookActive = true;
-    touchState.lookStart = { x: touch.clientX, y: touch.clientY };
-    touchState.lastLook = { x: touch.clientX, y: touch.clientY };
-}
-
-function onLookMove(e) {
-    if (!touchState.lookActive || viewMode !== 'free') return;
-    e.preventDefault();
-
-    const touch = e.touches[0];
-    const dx = touch.clientX - touchState.lastLook.x;
-    const dy = touch.clientY - touchState.lastLook.y;
-
-    touchState.lastLook = { x: touch.clientX, y: touch.clientY };
-
-    // Apply look rotation (Z-up)
-    const sensitivity = CONFIG.lookSensitivity * 2; // Slightly higher for touch
-    const euler = new THREE.Euler(0, 0, 0, 'ZYX');
-    euler.setFromQuaternion(camera.quaternion);
-
-    euler.z -= dx * sensitivity; // Yaw around Z
-    euler.y -= dy * sensitivity; // Pitch
-    euler.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.y));
-
-    camera.quaternion.setFromEuler(euler);
-}
-
-function onLookEnd(e) {
-    touchState.lookActive = false;
-}
-
-function onTouchStart(e) {
-    touchState.touches = Array.from(e.touches);
-
-    // Handle pinch zoom start
-    if (e.touches.length === 2) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        touchState.pinchDistance = Math.sqrt(dx * dx + dy * dy);
-    }
-}
-
-function onTouchMove(e) {
-    touchState.touches = Array.from(e.touches);
-
-    // Handle pinch zoom
-    if (e.touches.length === 2 && viewMode !== 'free') {
-        e.preventDefault();
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const newDistance = Math.sqrt(dx * dx + dy * dy);
-
-        if (touchState.pinchDistance > 0) {
-            const zoomDelta = (newDistance - touchState.pinchDistance) * 0.1;
-            camera.position.z = Math.max(5, Math.min(200, camera.position.z - zoomDelta));
-        }
-
-        touchState.pinchDistance = newDistance;
-    }
-}
-
-function onTouchEnd(e) {
-    touchState.touches = Array.from(e.touches);
-    if (e.touches.length < 2) {
-        touchState.pinchDistance = 0;
-    }
-}
-
-function handleTouchMovement(deltaTime) {
-    if (viewMode !== 'free') return;
-
-    const input = getJoystickInput();
-    if (input.x === 0 && input.y === 0) return;
-
-    const speed = CONFIG.moveSpeed * deltaTime;
-    const direction = new THREE.Vector3();
-
-    // Get camera forward/right vectors (Z-up)
-    const forward = new THREE.Vector3();
-    camera.getWorldDirection(forward);
-    forward.z = 0;
-    forward.normalize();
-
-    const right = new THREE.Vector3();
-    right.crossVectors(forward, camera.up).normalize();
-
-    direction.addScaledVector(right, input.x);
-    direction.addScaledVector(forward, -input.y);
-
-    camera.position.addScaledVector(direction, speed);
-}
-
-function updateMobileControlsHint() {
-    const hint = document.getElementById('controls-hint');
-    if (!hint) return;
-
-    hint.innerHTML = `
-        <div>🕹️ Left: Move</div>
-        <div>👆 Right: Look</div>
-        <div>🤏 Pinch: Zoom</div>
-    `;
-    hint.classList.add('mobile-hint');
 }
 
 function updateSpeedDisplay() {
@@ -737,15 +507,14 @@ function onMouseMove(e) {
     const movementX = e.movementX || 0;
     const movementY = e.movementY || 0;
 
-    // Z-up rotation: yaw around Z axis, pitch around local X
-    const euler = new THREE.Euler(0, 0, 0, 'ZYX');
+    const euler = new THREE.Euler(0, 0, 0, 'YXZ');
     euler.setFromQuaternion(camera.quaternion);
 
-    euler.z -= movementX * CONFIG.lookSensitivity; // Yaw around Z
-    euler.y -= movementY * CONFIG.lookSensitivity; // Pitch
+    euler.y -= movementX * CONFIG.lookSensitivity;
+    euler.x -= movementY * CONFIG.lookSensitivity;
 
     // Clamp vertical look
-    euler.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.y));
+    euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
 
     camera.quaternion.setFromEuler(euler);
 }
@@ -781,9 +550,9 @@ function handleKeyboardMovement(deltaTime) {
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement (Z is up)
-    if (keys['KeyQ'] || keys['PageDown']) direction.z -= 1;
-    if (keys['KeyE'] || keys['PageUp']) direction.z += 1;
+    // Vertical movement
+    if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
+    if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
 
     if (direction.length() > 0) {
         direction.normalize();
@@ -1087,8 +856,7 @@ async function createPlayerMarkers() {
             emissiveIntensity: 0.2
         });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.z = CONFIG.playerMarkerHeight * 0.35; // Z is up
-        body.rotation.x = Math.PI / 2; // Rotate cylinder to stand upright
+        body.position.y = CONFIG.playerMarkerHeight * 0.35;
         body.castShadow = true;
         group.add(body);
 
@@ -1101,7 +869,7 @@ async function createPlayerMarkers() {
             emissiveIntensity: 0.2
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.z = CONFIG.playerMarkerHeight * 0.8; // Z is up
+        head.position.y = CONFIG.playerMarkerHeight * 0.8;
         head.castShadow = true;
         group.add(head);
 
@@ -1112,8 +880,8 @@ async function createPlayerMarkers() {
             emissiveIntensity: 0.5
         });
         const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-        arrow.rotation.y = -Math.PI / 2; // Point forward in X direction
-        arrow.position.set(CONFIG.playerMarkerSize * 0.6, 0, CONFIG.playerMarkerHeight * 0.5); // Z is up
+        arrow.rotation.x = Math.PI / 2;
+        arrow.position.set(0, CONFIG.playerMarkerHeight * 0.5, CONFIG.playerMarkerSize * 0.6);
         group.add(arrow);
 
         // Use waypoint canvas with emblem if available
@@ -1127,11 +895,11 @@ async function createPlayerMarkers() {
         });
         const label = new THREE.Sprite(labelMaterial);
         label.scale.set(2.5, 3.125, 1); // Aspect ratio 128:160
-        label.position.z = CONFIG.playerMarkerHeight + 2; // Z is up
+        label.position.y = CONFIG.playerMarkerHeight + 2;
         group.add(label);
 
         const glow = new THREE.PointLight(player.color, 0.5, 3);
-        glow.position.z = CONFIG.playerMarkerHeight * 0.5; // Z is up
+        glow.position.y = CONFIG.playerMarkerHeight * 0.5;
         group.add(glow);
 
         scene.add(group);
@@ -1269,16 +1037,15 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Direct 1:1 mapping - Z-up coordinate system
-            marker.group.position.set(pos.x, pos.y, pos.z);
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.z = -pos.facingYaw;
+            marker.group.position.set(pos.x, pos.z, -pos.y);
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
 
             if (pos.isCrouching) {
-                marker.body.scale.z = 0.7; // Z-up: scale on Z axis
-                marker.head.position.z = CONFIG.playerMarkerHeight * 0.6;
+                marker.body.scale.y = 0.7;
+                marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
             } else {
-                marker.body.scale.z = 1;
-                marker.head.position.z = CONFIG.playerMarkerHeight * 0.8;
+                marker.body.scale.y = 1;
+                marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
             }
 
             marker.group.visible = true;
@@ -1298,15 +1065,15 @@ function updatePlayerPositions() {
         }
     }
 
-    // Follow camera (Z-up)
+    // Follow camera
     if (viewMode === 'follow' && followPlayer) {
         const marker = playerMarkers[followPlayer];
         if (marker && marker.group.visible) {
             const targetPos = marker.group.position.clone();
-            targetPos.z += CONFIG.followCameraHeight; // Z is up
+            targetPos.y += CONFIG.followCameraHeight;
 
-            const offset = new THREE.Vector3(-CONFIG.followCameraDistance, 0, CONFIG.followCameraHeight);
-            offset.applyAxisAngle(new THREE.Vector3(0, 0, 1), marker.group.rotation.z);
+            const offset = new THREE.Vector3(0, 0, CONFIG.followCameraDistance);
+            offset.applyQuaternion(marker.group.quaternion);
 
             camera.position.lerp(targetPos.clone().add(offset), 0.1);
             controls.target.lerp(marker.group.position, 0.1);
@@ -1371,36 +1138,20 @@ function setViewMode(mode) {
     // Update controls hint
     updateControlsHint();
 
-    // All modes use Z-up coordinate system
-    camera.up.set(0, 0, 1);
-
     if (mode === 'top') {
         controls.enabled = false;
-        // Position camera above looking down (Z is up, so high Z value)
-        const height = mapSize * 1.5;
-        camera.position.set(mapCenter.x, mapCenter.y, mapCenter.z + height);
-        camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
+        camera.position.set(0, CONFIG.defaultCameraHeight, 0);
+        camera.lookAt(0, 0, 0);
+        camera.up.set(0, 0, -1);
     } else if (mode === 'free') {
         controls.enabled = false;
-        // Start at first player position if available
-        if (telemetryData.length > 0) {
-            const firstPos = telemetryData[0];
-            const eyeHeight = 2;
-            camera.position.set(firstPos.x, firstPos.y, firstPos.z + eyeHeight);
-            // Look in player's facing direction
-            const yaw = firstPos.facingYaw || 0;
-            const lookDist = 10;
-            camera.lookAt(
-                firstPos.x + Math.cos(yaw) * lookDist,
-                firstPos.y + Math.sin(yaw) * lookDist,
-                firstPos.z + eyeHeight
-            );
-        }
+        camera.up.set(0, 1, 0);
     } else if (mode === 'orbit') {
         controls.enabled = true;
-        controls.target.set(mapCenter.x, mapCenter.y, mapCenter.z);
+        camera.up.set(0, 1, 0);
     } else if (mode === 'follow') {
         controls.enabled = true;
+        camera.up.set(0, 1, 0);
     }
 }
 
@@ -1420,23 +1171,14 @@ function positionCameraToFit() {
         maxZ = Math.max(maxZ, row.z);
     });
 
-    // Store map center and size for view switching (direct Z-up coords)
-    mapCenter = {
-        x: (minX + maxX) / 2,
-        y: (minY + maxY) / 2,
-        z: (minZ + maxZ) / 2
-    };
-    mapSize = Math.max(maxX - minX, maxY - minY, 30);
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const centerZ = (minZ + maxZ) / 2;
+    const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
 
-    // Position camera above the play area looking down
-    const height = mapSize * 1.2;
-    camera.position.set(mapCenter.x, mapCenter.y, mapCenter.z + height);
-    camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
-
-    controls.target.set(mapCenter.x, mapCenter.y, mapCenter.z);
+    camera.position.set(centerX, maxZ + maxRange * 0.8, -centerY);
+    controls.target.set(centerX, centerZ, -centerY);
     controls.update();
-
-    console.log(`Map center: (${mapCenter.x.toFixed(1)}, ${mapCenter.y.toFixed(1)}, ${mapCenter.z.toFixed(1)}), size: ${mapSize.toFixed(1)}`);
 }
 
 // ===== UI Updates =====
@@ -1574,11 +1316,6 @@ function animate() {
     // Handle gamepad input
     handleGamepadInput(deltaTime);
 
-    // Handle touch/mobile movement
-    if (isMobile) {
-        handleTouchMovement(deltaTime);
-    }
-
     // Update playback
     if (isPlaying) {
         currentTimeMs += deltaTime * 1000 * playbackSpeed;
@@ -1596,7 +1333,7 @@ function animate() {
         controls.update();
     }
 
-    // Update debug info
+    // Update debug info every frame
     updateDebugInfo();
 
     renderer.render(scene, camera);
@@ -1631,36 +1368,42 @@ function setupDebugControls() {
     if (rotZ) rotZ.addEventListener('input', updateMapRotation);
 
     // Reset button
-    const resetBtn = document.getElementById('reset-map-rot');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', () => {
-            if (rotX) rotX.value = 0;
-            if (rotY) rotY.value = 0;
-            if (rotZ) rotZ.value = 0;
-            updateMapRotation();
-        });
-    }
+    document.getElementById('reset-map-rot')?.addEventListener('click', () => {
+        if (rotX) rotX.value = 0;
+        if (rotY) rotY.value = 0;
+        if (rotZ) rotZ.value = 0;
+        updateMapRotation();
+    });
 
     // Quick rotation buttons
     document.getElementById('apply-rot-90x')?.addEventListener('click', () => {
-        if (rotX) rotX.value = (parseInt(rotX.value) + 90) % 360;
-        if (rotX.value > 180) rotX.value -= 360;
+        if (rotX) {
+            rotX.value = (parseInt(rotX.value) + 90) % 360;
+            if (parseInt(rotX.value) > 180) rotX.value = parseInt(rotX.value) - 360;
+        }
         updateMapRotation();
     });
     document.getElementById('apply-rot-90y')?.addEventListener('click', () => {
-        if (rotY) rotY.value = (parseInt(rotY.value) + 90) % 360;
-        if (rotY.value > 180) rotY.value -= 360;
+        if (rotY) {
+            rotY.value = (parseInt(rotY.value) + 90) % 360;
+            if (parseInt(rotY.value) > 180) rotY.value = parseInt(rotY.value) - 360;
+        }
         updateMapRotation();
     });
     document.getElementById('apply-rot-90z')?.addEventListener('click', () => {
-        if (rotZ) rotZ.value = (parseInt(rotZ.value) + 90) % 360;
-        if (rotZ.value > 180) rotZ.value -= 360;
+        if (rotZ) {
+            rotZ.value = (parseInt(rotZ.value) + 90) % 360;
+            if (parseInt(rotZ.value) > 180) rotZ.value = parseInt(rotZ.value) - 360;
+        }
         updateMapRotation();
     });
 }
 
 function updateMapRotation() {
-    if (!mapModel) return;
+    if (!mapModel) {
+        console.log('No map model loaded yet');
+        return;
+    }
 
     const rotX = document.getElementById('map-rot-x');
     const rotY = document.getElementById('map-rot-y');
@@ -1673,9 +1416,14 @@ function updateMapRotation() {
     mapModel.rotation.set(x, y, z);
 
     // Update display values
-    document.getElementById('map-rot-x-val').textContent = `${rotX?.value || 0}°`;
-    document.getElementById('map-rot-y-val').textContent = `${rotY?.value || 0}°`;
-    document.getElementById('map-rot-z-val').textContent = `${rotZ?.value || 0}°`;
+    const xVal = document.getElementById('map-rot-x-val');
+    const yVal = document.getElementById('map-rot-y-val');
+    const zVal = document.getElementById('map-rot-z-val');
+    if (xVal) xVal.textContent = `${rotX?.value || 0}°`;
+    if (yVal) yVal.textContent = `${rotY?.value || 0}°`;
+    if (zVal) zVal.textContent = `${rotZ?.value || 0}°`;
+
+    console.log(`Map rotation set to: X=${rotX?.value}° Y=${rotY?.value}° Z=${rotZ?.value}°`);
 }
 
 function updateDebugInfo() {
@@ -1701,7 +1449,7 @@ function updateDebugInfo() {
     // Map model rotation
     const mapRotEl = document.getElementById('debug-map-rot');
     if (mapRotEl && mapModel) {
-        mapRotEl.textContent = `X: ${(mapModel.rotation.x * 180 / Math.PI).toFixed(1)} Y: ${(mapModel.rotation.y * 180 / Math.PI).toFixed(1)} Z: ${(mapModel.rotation.z * 180 / Math.PI).toFixed(1)}`;
+        mapRotEl.textContent = `X: ${(mapModel.rotation.x * 180 / Math.PI).toFixed(1)}° Y: ${(mapModel.rotation.y * 180 / Math.PI).toFixed(1)}° Z: ${(mapModel.rotation.z * 180 / Math.PI).toFixed(1)}°`;
     } else if (mapRotEl) {
         mapRotEl.textContent = 'No map loaded';
     }
