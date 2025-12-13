@@ -254,15 +254,29 @@ def generate_game_index():
     def parse_ts(ts):
         if not ts:
             return datetime.min
-        try:
-            # Try MM/DD/YYYY HH:MM format
-            return datetime.strptime(ts, '%m/%d/%Y %H:%M')
-        except:
+        # Strip trailing AM/PM from 24-hour times (data bug: "18:23 PM")
+        ts_clean = ts
+        if ' PM' in ts or ' AM' in ts:
+            parts = ts.rsplit(' ', 1)
+            if len(parts) == 2 and ':' in parts[0]:
+                time_part = parts[0].split(' ')[-1]
+                hour = int(time_part.split(':')[0])
+                if hour > 12:  # 24-hour time with erroneous AM/PM
+                    ts_clean = parts[0]
+        # Try multiple formats
+        formats = [
+            '%m/%d/%Y %H:%M',      # 11/28/2025 20:03
+            '%m/%d/%Y %I:%M %p',   # 12/5/2025 1:45 AM
+            '%m/%d/%Y %I:%M%p',    # 12/5/2025 1:45AM
+            '%Y-%m-%d %H:%M:%S',   # 2025-12-09 19:05:00 (ISO)
+            '%Y-%m-%d %H:%M',      # 2025-12-09 19:05
+        ]
+        for fmt in formats:
             try:
-                # Try MM/DD/YYYY H:MM format (single digit hour)
-                return datetime.strptime(ts, '%m/%d/%Y %H:%M')
-            except:
-                return datetime.min
+                return datetime.strptime(ts_clean, fmt)
+            except ValueError:
+                continue
+        return datetime.min
 
     # Sort chronologically (oldest first = Game 1)
     all_games.sort(key=lambda g: parse_ts(g.get('timestamp')))
