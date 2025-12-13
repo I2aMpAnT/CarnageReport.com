@@ -43,6 +43,7 @@ const CONFIG = {
 };
 
 // Map name to GLB filename mapping
+// Halo 2 map display names to internal GLB filenames
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
@@ -52,7 +53,7 @@ const MAP_NAME_TO_GLB = {
     'ascension': 'ascension',
     'coagulation': 'coagulation',
     'zanzibar': 'zanzibar',
-    'ivory tower': 'ivory_tower',
+    'ivory tower': 'cyclotron',
     'burial mounds': 'burial_mounds',
     'colossus': 'colossus',
     'headlong': 'headlong',
