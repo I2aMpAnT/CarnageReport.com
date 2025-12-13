@@ -486,6 +486,9 @@ function onKeyDown(e) {
         case 'Backquote':
             toggleDebugVisibility();
             break;
+        case 'KeyP':
+            togglePOVPanel();
+            break;
     }
 }
 
@@ -1462,6 +1465,13 @@ function updateDebugInfo() {
     }
 
     debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | Map: ${mapRotX}° ${mapRotY}° ${mapRotZ}° | Player: (${playerX}, ${playerY}, ${playerZ})`;
+}
+
+function togglePOVPanel() {
+    const povPanel = document.getElementById('pov-selector');
+    if (povPanel) {
+        povPanel.style.display = povPanel.style.display === 'none' ? 'block' : 'none';
+    }
 }
 
 function toggleDebugVisibility() {
