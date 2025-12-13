@@ -28,6 +28,13 @@ const CONFIG = {
     gamepadLookSensitivity: 0.05,
     gamepadMoveSpeed: 40,
 
+    // Map alignment settings (can be adjusted per-map if needed)
+    mapScale: 1.0,            // Scale factor for map mesh
+    mapOffsetX: 0,            // Offset to apply to map position
+    mapOffsetY: 0,
+    mapOffsetZ: 0,
+    coordinateScale: 1.0,     // Scale factor for player coordinates
+
     teamColors: {
         '_game_team_blue': 0x0066ff,
         '_game_team_red': 0xff3333,
@@ -156,6 +163,9 @@ let showDeathHeatmap = true;
 let mapCenter = { x: 0, y: 0, z: 0 };
 let mapSize = 50;
 
+// Debug mode - can be toggled
+let debugMode = true;
+
 // Player display name mappings (from main site)
 let playerDisplayNames = {};
 
@@ -230,12 +240,31 @@ function setupScene() {
     controls.enabled = false; // Start with WASD mode
 
     setupLighting();
+    setupDebugHelpers();
 
     const gridHelper = new THREE.GridHelper(100, 100, 0x00c8ff, 0x1a1a2e);
     gridHelper.name = 'gridHelper';
     scene.add(gridHelper);
 
     window.addEventListener('resize', onWindowResize);
+}
+
+function setupDebugHelpers() {
+    if (!debugMode) return;
+
+    // Axes helper - Red=X, Green=Y (up), Blue=Z
+    const axesHelper = new THREE.AxesHelper(20);
+    axesHelper.name = 'axesHelper';
+    scene.add(axesHelper);
+
+    // Origin sphere marker
+    const originGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+    const originMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+    const originMarker = new THREE.Mesh(originGeometry, originMaterial);
+    originMarker.name = 'originMarker';
+    scene.add(originMarker);
+
+    console.log('Debug helpers added - Yellow sphere = origin, Axes: Red=X, Green=Y(up), Blue=Z');
 }
 
 function setupLighting() {
@@ -546,7 +575,24 @@ function onKeyDown(e) {
                 document.exitPointerLock();
             }
             break;
+        case 'KeyH':
+            // Toggle debug helpers
+            toggleDebugMode();
+            break;
     }
+}
+
+function toggleDebugMode() {
+    debugMode = !debugMode;
+    const axesHelper = scene.getObjectByName('axesHelper');
+    const originMarker = scene.getObjectByName('originMarker');
+    if (debugMode) {
+        if (!axesHelper) setupDebugHelpers();
+    } else {
+        if (axesHelper) scene.remove(axesHelper);
+        if (originMarker) scene.remove(originMarker);
+    }
+    console.log('Debug mode:', debugMode ? 'ON' : 'OFF');
 }
 
 function onKeyUp(e) {
@@ -737,12 +783,28 @@ async function loadGLB(path, onProgress) {
                 // GLB files from Halo/Blender may use Z-up
                 mapModel.rotation.x = -Math.PI / 2;
 
+                // Apply scale and offset from config
+                mapModel.scale.setScalar(CONFIG.mapScale);
+                mapModel.position.set(CONFIG.mapOffsetX, CONFIG.mapOffsetY, CONFIG.mapOffsetZ);
+
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
                     }
                 });
+
+                // Log map bounding box for debugging
+                const box = new THREE.Box3().setFromObject(mapModel);
+                const size = new THREE.Vector3();
+                const center = new THREE.Vector3();
+                box.getSize(size);
+                box.getCenter(center);
+                console.log(`Map bounding box after transform:`);
+                console.log(`  Size: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`);
+                console.log(`  Center: (${center.x.toFixed(2)}, ${center.y.toFixed(2)}, ${center.z.toFixed(2)})`);
+                console.log(`  Min: (${box.min.x.toFixed(2)}, ${box.min.y.toFixed(2)}, ${box.min.z.toFixed(2)})`);
+                console.log(`  Max: (${box.max.x.toFixed(2)}, ${box.max.y.toFixed(2)}, ${box.max.z.toFixed(2)})`);
 
                 const gridHelper = scene.getObjectByName('gridHelper');
                 if (gridHelper) scene.remove(gridHelper);
@@ -884,6 +946,27 @@ function parseTelemetryCSV(csvText) {
 
     updatePlayerLegend();
     updateFollowSelect();
+
+    // Log coordinate bounds for debugging
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    let minZ = Infinity, maxZ = -Infinity;
+    telemetryData.forEach(row => {
+        minX = Math.min(minX, row.x);
+        maxX = Math.max(maxX, row.x);
+        minY = Math.min(minY, row.y);
+        maxY = Math.max(maxY, row.y);
+        minZ = Math.min(minZ, row.z);
+        maxZ = Math.max(maxZ, row.z);
+    });
+    console.log(`Telemetry coordinate ranges (Halo coords):`);
+    console.log(`  X: ${minX.toFixed(2)} to ${maxX.toFixed(2)}`);
+    console.log(`  Y: ${minY.toFixed(2)} to ${maxY.toFixed(2)}`);
+    console.log(`  Z (height): ${minZ.toFixed(2)} to ${maxZ.toFixed(2)}`);
+    console.log(`After conversion to Three.js (X, Y=up, Z):`);
+    console.log(`  X: ${minX.toFixed(2)} to ${maxX.toFixed(2)}`);
+    console.log(`  Y (up): ${minZ.toFixed(2)} to ${maxZ.toFixed(2)}`);
+    console.log(`  Z: ${(-maxY).toFixed(2)} to ${(-minY).toFixed(2)}`);
 
     console.log(`Loaded ${telemetryData.length} telemetry points for ${players.length} players`);
 }
@@ -1109,10 +1192,12 @@ function createDeathHeatmap() {
 
     heatmapMesh = new THREE.Mesh(planeGeometry, planeMaterial);
 
-    // Position the plane (convert Halo coords to Three.js)
-    const centerX = (minX + maxX) / 2;
-    const centerY = (minY + maxY) / 2;
+    // Position the plane (convert Halo coords to Three.js with scale)
+    const scale = CONFIG.coordinateScale;
+    const centerX = ((minX + maxX) / 2) * scale;
+    const centerY = ((minY + maxY) / 2) * scale;
     heatmapMesh.position.set(centerX, 0.3, -centerY); // Slightly above ground
+    heatmapMesh.scale.set(scale, scale, 1); // Apply scale to heatmap
     heatmapMesh.rotation.x = -Math.PI / 2; // Lay flat
     heatmapMesh.rotation.z = Math.PI; // Correct orientation
 
@@ -1230,8 +1315,8 @@ function createWaypointCanvas(text, color, emblemImage = null) {
     ctx.lineWidth = 1;
     ctx.strokeRect(boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
 
-    // Draw emblem if available
-    if (emblemImage && emblemImage.complete) {
+    // Draw emblem if available and loaded successfully (naturalWidth > 0 means loaded)
+    if (emblemImage && emblemImage.complete && emblemImage.naturalWidth > 0) {
         ctx.drawImage(emblemImage, boxX + 10, boxY + 10, boxSize - 20, boxSize - 20);
     } else {
         // Draw player initial as fallback
@@ -1298,7 +1383,10 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            marker.group.position.set(pos.x, pos.z, -pos.y);
+            // Convert Halo coords to Three.js with scale factor
+            // Halo: X, Y (horizontal), Z (up) → Three.js: X, Y (up), Z
+            const scale = CONFIG.coordinateScale;
+            marker.group.position.set(pos.x * scale, pos.z * scale, -pos.y * scale);
             if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
 
             if (pos.isCrouching) {
@@ -1415,9 +1503,19 @@ function setViewMode(mode) {
         if (telemetryData.length > 0) {
             const firstPos = telemetryData[0];
             // Convert Halo coords to Three.js: X stays, Z becomes Y (height), -Y becomes Z
+            const scale = CONFIG.coordinateScale;
             const eyeHeight = 2;
-            camera.position.set(firstPos.x, firstPos.z + eyeHeight, -firstPos.y);
-            camera.lookAt(mapCenter.x, mapCenter.y + eyeHeight, mapCenter.z);
+            const camX = firstPos.x * scale;
+            const camY = firstPos.z * scale + eyeHeight;
+            const camZ = -firstPos.y * scale;
+            camera.position.set(camX, camY, camZ);
+            // Look forward in the direction the player is facing
+            const lookDistance = 10;
+            const yaw = firstPos.facingYaw || 0;
+            const lookX = camX + Math.sin(-yaw) * lookDistance;
+            const lookZ = camZ + Math.cos(-yaw) * lookDistance;
+            camera.lookAt(lookX, camY, lookZ);
+            console.log(`Free camera at player position: Halo(${firstPos.x.toFixed(2)}, ${firstPos.y.toFixed(2)}, ${firstPos.z.toFixed(2)}) → Three.js(${camX.toFixed(2)}, ${camY.toFixed(2)}, ${camZ.toFixed(2)})`);
         } else {
             camera.position.set(mapCenter.x, mapCenter.y + 2, mapCenter.z + 10);
             camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
@@ -1449,10 +1547,11 @@ function positionCameraToFit() {
     });
 
     // Calculate center of player activity (in Halo coords: X=forward, Y=left, Z=up)
-    const centerX = (minX + maxX) / 2;
-    const centerY = (minY + maxY) / 2;
-    const centerZ = (minZ + maxZ) / 2;
-    const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
+    const scale = CONFIG.coordinateScale;
+    const centerX = ((minX + maxX) / 2) * scale;
+    const centerY = ((minY + maxY) / 2) * scale;
+    const centerZ = ((minZ + maxZ) / 2) * scale;
+    const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ) * scale;
 
     // Store map center for view switching (convert to Three.js coords)
     // Halo: X=forward, Y=left, Z=up -> Three.js: X=right, Y=up, Z=forward
@@ -1647,6 +1746,51 @@ window.retryLoad = async function() {
 
 // ===== Death Heatmap Toggle =====
 window.toggleDeathHeatmap = toggleDeathHeatmap;
+
+// ===== Debug Functions (callable from console) =====
+window.setMapScale = function(scale) {
+    CONFIG.mapScale = scale;
+    if (mapModel) {
+        mapModel.scale.setScalar(scale);
+        console.log('Map scale set to:', scale);
+    }
+};
+
+window.setMapOffset = function(x, y, z) {
+    CONFIG.mapOffsetX = x;
+    CONFIG.mapOffsetY = y;
+    CONFIG.mapOffsetZ = z;
+    if (mapModel) {
+        mapModel.position.set(x, y, z);
+        console.log('Map offset set to:', x, y, z);
+    }
+};
+
+window.setCoordinateScale = function(scale) {
+    CONFIG.coordinateScale = scale;
+    updatePlayerPositions();
+    createDeathHeatmap();
+    console.log('Coordinate scale set to:', scale);
+};
+
+window.printDebugInfo = function() {
+    console.log('=== Debug Info ===');
+    console.log('Map scale:', CONFIG.mapScale);
+    console.log('Map offset:', CONFIG.mapOffsetX, CONFIG.mapOffsetY, CONFIG.mapOffsetZ);
+    console.log('Coordinate scale:', CONFIG.coordinateScale);
+    console.log('Map center:', mapCenter);
+    console.log('Map size:', mapSize);
+    if (mapModel) {
+        const box = new THREE.Box3().setFromObject(mapModel);
+        console.log('Map bounding box:', box.min, box.max);
+    }
+    if (telemetryData.length > 0) {
+        console.log('First player position (Halo):', telemetryData[0].x, telemetryData[0].y, telemetryData[0].z);
+    }
+    console.log('Camera position:', camera.position);
+};
+
+window.toggleDebugMode = toggleDebugMode;
 
 // ===== Initialize =====
 init();
