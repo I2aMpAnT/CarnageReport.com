@@ -675,8 +675,10 @@ async function loadGLB(path, onProgress) {
             (gltf) => {
                 mapModel = gltf.scene;
 
-                // Rotate map -90° on X to convert from Y-up (GLB export) to Z-up (Halo native)
+                // Rotate map to align with Halo coordinate system
+                // -90° X (Y-up to Z-up) and -180° Y (flip orientation)
                 mapModel.rotation.x = -Math.PI / 2;
+                mapModel.rotation.y = -Math.PI;
 
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
