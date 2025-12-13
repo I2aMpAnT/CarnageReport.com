@@ -7488,7 +7488,8 @@ function open3DReplay(gameIndex) {
     }
 
     const mapName = game.details?.['Map Name'] || 'Unknown';
-    const gameType = game.details?.['Game Type'] || '';
+    const rawGameType = game.details?.['Game Type'] || '';
+    const gameType = getBaseGametype(rawGameType, game.playlist, game);
     const startTime = game.details?.['Start Time'] || '';
 
     // Find telemetry file
@@ -7504,7 +7505,7 @@ function open3DReplay(gameIndex) {
         }
     });
 
-    // Build viewer URL with parameters (only base game type, no variant)
+    // Build viewer URL with parameters (base game type, not variant)
     const params = new URLSearchParams({
         map: mapName,
         gametype: gameType,

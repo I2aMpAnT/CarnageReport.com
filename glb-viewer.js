@@ -1400,6 +1400,11 @@ function setViewMode(mode) {
     } else if (mode === 'free') {
         controls.enabled = false;
         camera.up.set(0, 1, 0);
+        // Position camera at eye level looking at map center
+        const eyeHeight = 2;
+        const distance = mapSize * 0.5;
+        camera.position.set(mapCenter.x - distance, mapCenter.y + eyeHeight, mapCenter.z);
+        camera.lookAt(mapCenter.x, mapCenter.y + eyeHeight, mapCenter.z);
     } else if (mode === 'orbit') {
         controls.enabled = true;
         camera.up.set(0, 1, 0);
