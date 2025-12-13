@@ -436,7 +436,6 @@
     }
 
     // Parse URL parameters and set emblem values
-    // Parameters match halo2pc.com format:
     // P=primary color, S=secondary color, EP=emblem primary, ES=emblem secondary
     // EF=emblem foreground, EB=emblem background, ET=emblem toggle
     function applyUrlParameters() {

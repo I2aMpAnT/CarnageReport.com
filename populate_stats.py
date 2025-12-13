@@ -129,6 +129,22 @@ def parse_game_timestamp(ts):
             continue
     return datetime.min
 
+def convert_emblem_url(url):
+    """Convert old halo2pc emblem URLs to carnagereport.com format."""
+    if not url:
+        return ''
+    # Already converted
+    if 'carnagereport.com/emblems/' in url:
+        return url
+    # Convert halo2pc.com or emblem.html URLs
+    import re
+    # Match P=X&S=X&EP=X&ES=X&EF=X&EB=X&ET=X pattern
+    match = re.search(r'P=(\d+).*?S=(\d+).*?EP=(\d+).*?ES=(\d+).*?EF=(\d+).*?EB=(\d+).*?ET=(\d+)', url)
+    if match:
+        p, s, ep, es, ef, eb, et = match.groups()
+        return f'https://carnagereport.com/emblems/P{p}-S{s}-EP{ep}-ES{es}-EF{ef}-EB{eb}-ET{et}.png'
+    return url
+
 def time_to_seconds(time_str):
     """Convert time string like '1:53' or '0:56' or ':56' to total seconds.
 
@@ -1441,7 +1457,7 @@ def parse_excel_file(file_path):
         if player_name:
             stats = {
                 'player': player_name,
-                'emblem_url': str(row.get('Emblem URL', '')) if pd.notna(row.get('Emblem URL')) else '',
+                'emblem_url': convert_emblem_url(str(row.get('Emblem URL', ''))) if pd.notna(row.get('Emblem URL')) else '',
                 'kills': int(row.get('kills', 0)) if pd.notna(row.get('kills')) else 0,
                 'assists': int(row.get('assists', 0)) if pd.notna(row.get('assists')) else 0,
                 'deaths': int(row.get('deaths', 0)) if pd.notna(row.get('deaths')) else 0,
@@ -2385,7 +2401,7 @@ def main():
             for stat in game.get('detailed_stats', []):
                 detailed_stats.append({
                     'player': get_display_name(stat.get('player', '')),
-                    'emblem_url': stat.get('emblem_url', ''),
+                    'emblem_url': convert_emblem_url(stat.get('emblem_url', '')),
                     'kills': stat.get('kills', 0),
                     'assists': stat.get('assists', 0),
                     'deaths': stat.get('deaths', 0),
@@ -2538,7 +2554,7 @@ def main():
             for stat in game.get('detailed_stats', []):
                 detailed_stats.append({
                     'player': get_display_name(stat.get('player', '')),
-                    'emblem_url': stat.get('emblem_url', ''),
+                    'emblem_url': convert_emblem_url(stat.get('emblem_url', '')),
                     'kills': stat.get('kills', 0),
                     'assists': stat.get('assists', 0),
                     'deaths': stat.get('deaths', 0),

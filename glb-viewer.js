@@ -77,6 +77,7 @@ function mapNameToGlbFilename(mapName) {
 // ===== State =====
 let scene, camera, renderer, controls;
 let mapModel = null;
+let spartanModel = null;  // Loaded MasterChief.glb template
 let playerMarkers = {};
 let telemetryData = [];
 let players = [];
@@ -107,6 +108,9 @@ let gameInfo = {};
 // Timeline dragging
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
+
+// Telemetry rotation calibration (in degrees)
+let telemetryRotation = { x: 0, y: 0, z: 0 };
 
 // ===== Initialization =====
 async function init() {
@@ -281,6 +285,55 @@ function setupEventListeners() {
 
     // Pointer lock
     document.addEventListener('pointerlockchange', onPointerLockChange);
+
+    // Rotation calibration sliders
+    const rotationXSlider = document.getElementById('rotationX');
+    const rotationYSlider = document.getElementById('rotationY');
+    const rotationZSlider = document.getElementById('rotationZ');
+    const resetRotationBtn = document.getElementById('resetRotation');
+    const calibrationToggle = document.getElementById('calibrationToggle');
+    const calibrationContent = document.getElementById('calibrationContent');
+
+    if (rotationXSlider) {
+        rotationXSlider.addEventListener('input', (e) => {
+            telemetryRotation.x = parseFloat(e.target.value);
+            document.getElementById('rotXValue').textContent = `${telemetryRotation.x}°`;
+            updatePlayerPositions();
+        });
+    }
+    if (rotationYSlider) {
+        rotationYSlider.addEventListener('input', (e) => {
+            telemetryRotation.y = parseFloat(e.target.value);
+            document.getElementById('rotYValue').textContent = `${telemetryRotation.y}°`;
+            updatePlayerPositions();
+        });
+    }
+    if (rotationZSlider) {
+        rotationZSlider.addEventListener('input', (e) => {
+            telemetryRotation.z = parseFloat(e.target.value);
+            document.getElementById('rotZValue').textContent = `${telemetryRotation.z}°`;
+            updatePlayerPositions();
+        });
+    }
+    if (resetRotationBtn) {
+        resetRotationBtn.addEventListener('click', () => {
+            telemetryRotation = { x: 0, y: 0, z: 0 };
+            if (rotationXSlider) rotationXSlider.value = 0;
+            if (rotationYSlider) rotationYSlider.value = 0;
+            if (rotationZSlider) rotationZSlider.value = 0;
+            document.getElementById('rotXValue').textContent = '0°';
+            document.getElementById('rotYValue').textContent = '0°';
+            document.getElementById('rotZValue').textContent = '0°';
+            updatePlayerPositions();
+        });
+    }
+    if (calibrationToggle && calibrationContent) {
+        calibrationToggle.addEventListener('click', () => {
+            const isHidden = calibrationContent.style.display === 'none';
+            calibrationContent.style.display = isHidden ? 'block' : 'none';
+            calibrationToggle.textContent = isHidden ? '−' : '+';
+        });
+    }
 }
 
 // ===== Gamepad Support =====
@@ -639,10 +692,15 @@ async function loadMapAndTelemetry() {
             loadingText.textContent = 'Loading telemetry data...';
             loadingProgress.textContent = '0%';
             await loadTelemetry(telemetryFile);
-            loadingProgress.textContent = '50%';
+            loadingProgress.textContent = '30%';
         } else {
             console.warn('No telemetry file specified');
         }
+
+        // Load Spartan model for player markers
+        loadingText.textContent = 'Loading Spartan model...';
+        loadingProgress.textContent = '40%';
+        await loadSpartanModel();
 
         loadingText.textContent = 'Loading 3D map...';
         // Convert map name to GLB filename format (lowercase, no spaces, underscores for some)
@@ -701,6 +759,29 @@ async function loadGLB(path, onProgress) {
                 if (progress.lengthComputable) onProgress(progress.loaded / progress.total);
             },
             reject
+        );
+    });
+}
+
+async function loadSpartanModel() {
+    return new Promise((resolve, reject) => {
+        const loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        loader.setDRACOLoader(dracoLoader);
+
+        loader.load(
+            `${CONFIG.mapsPath}MasterChief.glb`,
+            (gltf) => {
+                spartanModel = gltf.scene;
+                console.log('Loaded Spartan model');
+                resolve(gltf);
+            },
+            undefined,
+            (error) => {
+                console.warn('Failed to load Spartan model, will use fallback geometry:', error);
+                resolve(null);
+            }
         );
     });
 }
@@ -792,8 +873,8 @@ function parseTelemetryCSV(csvText) {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
         const emblem = playerEmblemData[name] || {};
-        // Generate emblem URL
-        const emblemUrl = `https://www.halo2pc.com/test-pages/CartoStat/Emblem/emblem.php?P=${emblem.primaryColor || 0}&S=${emblem.secondaryColor || 0}&EP=${emblem.tertiaryColor || 0}&ES=${emblem.quaternaryColor || 0}&EF=${emblem.emblemForeground || 0}&EB=${emblem.emblemBackground || 0}&ET=0`;
+        // Generate emblem URL using carnagereport.com proxy
+        const emblemUrl = `https://carnagereport.com/emblems/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
         players.push({ name, team, color, emblem, emblemUrl });
     });
 
@@ -861,47 +942,65 @@ async function createPlayerMarkers() {
         const group = new THREE.Group();
         group.name = `player_${player.name}`;
 
-        const bodyGeometry = new THREE.CylinderGeometry(
-            CONFIG.playerMarkerSize * 0.4,
-            CONFIG.playerMarkerSize * 0.5,
-            CONFIG.playerMarkerHeight * 0.7,
-            16
-        );
-        const bodyMaterial = new THREE.MeshStandardMaterial({
-            color: player.color,
-            metalness: 0.3,
-            roughness: 0.7,
-            emissive: player.color,
-            emissiveIntensity: 0.2
-        });
-        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.y = CONFIG.playerMarkerHeight * 0.35;
-        body.castShadow = true;
-        group.add(body);
+        // Model container for the Spartan
+        const modelContainer = new THREE.Group();
+        let spartanClone = null;
 
-        const headGeometry = new THREE.SphereGeometry(CONFIG.playerMarkerSize * 0.35, 16, 16);
-        const headMaterial = new THREE.MeshStandardMaterial({
-            color: player.color,
-            metalness: 0.3,
-            roughness: 0.7,
-            emissive: player.color,
-            emissiveIntensity: 0.2
-        });
-        const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.y = CONFIG.playerMarkerHeight * 0.8;
-        head.castShadow = true;
-        group.add(head);
+        if (spartanModel) {
+            // Clone the loaded MasterChief model
+            spartanClone = spartanModel.clone();
 
-        const arrowGeometry = new THREE.ConeGeometry(0.15, 0.4, 8);
-        const arrowMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            emissive: 0xffffff,
-            emissiveIntensity: 0.5
-        });
-        const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-        arrow.rotation.x = Math.PI / 2;
-        arrow.position.set(0, CONFIG.playerMarkerHeight * 0.5, CONFIG.playerMarkerSize * 0.6);
-        group.add(arrow);
+            // Apply team color to the model materials
+            spartanClone.traverse((child) => {
+                if (child.isMesh) {
+                    // Clone the material to avoid affecting other players
+                    child.material = child.material.clone();
+                    child.material.color.setHex(player.color);
+                    child.material.emissive = new THREE.Color(player.color);
+                    child.material.emissiveIntensity = 0.15;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            // Scale and position the model appropriately
+            spartanClone.scale.set(0.8, 0.8, 0.8);  // Adjust scale as needed
+            modelContainer.add(spartanClone);
+        } else {
+            // Fallback geometry if model failed to load
+            const bodyGeometry = new THREE.CylinderGeometry(
+                CONFIG.playerMarkerSize * 0.4,
+                CONFIG.playerMarkerSize * 0.5,
+                CONFIG.playerMarkerHeight * 0.7,
+                16
+            );
+            const bodyMaterial = new THREE.MeshStandardMaterial({
+                color: player.color,
+                metalness: 0.5,
+                roughness: 0.4,
+                emissive: player.color,
+                emissiveIntensity: 0.15
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = CONFIG.playerMarkerHeight * 0.35;
+            body.castShadow = true;
+            modelContainer.add(body);
+
+            const headGeometry = new THREE.SphereGeometry(CONFIG.playerMarkerSize * 0.35, 16, 16);
+            const headMaterial = new THREE.MeshStandardMaterial({
+                color: player.color,
+                metalness: 0.5,
+                roughness: 0.4,
+                emissive: player.color,
+                emissiveIntensity: 0.15
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = CONFIG.playerMarkerHeight * 0.8;
+            head.castShadow = true;
+            modelContainer.add(head);
+        }
+
+        group.add(modelContainer);
 
         // Use waypoint canvas with emblem if available
         const emblemImage = emblemImages[player.name];
@@ -922,7 +1021,7 @@ async function createPlayerMarkers() {
         group.add(glow);
 
         scene.add(group);
-        playerMarkers[player.name] = { group, body, head, arrow, label, player, emblemImage };
+        playerMarkers[player.name] = { group, modelContainer, spartanClone, label, player, emblemImage };
     });
 }
 
@@ -1050,21 +1149,38 @@ function updatePlayerPositions() {
     const liveStatsBody = document.getElementById('live-stats-body');
     if (liveStatsBody) liveStatsBody.innerHTML = '';
 
+    // Convert calibration rotation from degrees to radians
+    const calibRotX = THREE.MathUtils.degToRad(telemetryRotation.x);
+    const calibRotY = THREE.MathUtils.degToRad(telemetryRotation.y);
+    const calibRotZ = THREE.MathUtils.degToRad(telemetryRotation.z);
+
     for (const player of players) {
         const marker = playerMarkers[player.name];
         if (!marker) continue;
 
         const pos = playerPositions[player.name];
         if (pos) {
+            // Set position
             marker.group.position.set(pos.x, pos.z, -pos.y);
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
 
-            if (pos.isCrouching) {
-                marker.body.scale.y = 0.7;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
-            } else {
-                marker.body.scale.y = 1;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
+            // Apply yaw (horizontal rotation) with calibration offset
+            if (!isNaN(pos.facingYaw)) {
+                marker.group.rotation.y = -pos.facingYaw + calibRotY;
+            }
+
+            // Apply pitch (vertical rotation) to the model container
+            if (marker.modelContainer && !isNaN(pos.facingPitch)) {
+                marker.modelContainer.rotation.x = pos.facingPitch + calibRotX;
+                marker.modelContainer.rotation.z = calibRotZ;
+            }
+
+            // Handle crouching by scaling the model
+            if (marker.modelContainer) {
+                if (pos.isCrouching) {
+                    marker.modelContainer.scale.y = 0.7;
+                } else {
+                    marker.modelContainer.scale.y = 1;
+                }
             }
 
             marker.group.visible = true;

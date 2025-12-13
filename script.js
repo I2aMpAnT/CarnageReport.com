@@ -6606,7 +6606,7 @@ function openPlayerProfile(playerName) {
     const emblemUrl = getPlayerEmblem(playerName);
     const emblemElement = document.getElementById('profileEmblem');
     if (emblemUrl) {
-        // Check if it's a halo2pc.com emblem URL - generate locally instead
+        // Check if emblem URL has params - generate locally instead
         const emblemParams = parseEmblemParams(emblemUrl);
         if (emblemParams && typeof generateEmblemDataUrl === 'function') {
             emblemElement.innerHTML = '<div class="profile-emblem-loading"></div>';
