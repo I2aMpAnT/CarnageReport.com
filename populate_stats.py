@@ -1374,10 +1374,10 @@ def determine_winners_losers(game):
     players = game['players']
 
     # Check if this is a CTF or Oddball game (need special score handling)
-    variant_name = game['details'].get('Variant Name', '').lower()
+    # Use ONLY Game Type field, ignore Variant Name
     game_type = game['details'].get('Game Type', '').lower()
-    is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
-    is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
+    is_ctf = 'ctf' in game_type or 'capture' in game_type
+    is_oddball = 'oddball' in game_type or 'ball' in game_type
 
     # Build detailed stats lookup for CTF
     detailed = {}
@@ -2202,10 +2202,10 @@ def main():
             blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
 
             # Check if this is a CTF or Oddball game (need special score handling)
-            variant_name = game['details'].get('Variant Name', '').lower()
+            # Use ONLY Game Type field, ignore Variant Name
             game_type = game['details'].get('Game Type', '').lower()
-            is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
-            is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
+            is_ctf = 'ctf' in game_type or 'capture' in game_type
+            is_oddball = 'oddball' in game_type or 'ball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
@@ -2361,10 +2361,10 @@ def main():
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
             # Check if this is a CTF or Oddball game (need special score handling)
-            variant_name = game['details'].get('Variant Name', '').lower()
+            # Use ONLY Game Type field, ignore Variant Name
             game_type = game['details'].get('Game Type', '').lower()
-            is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
-            is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
+            is_ctf = 'ctf' in game_type or 'capture' in game_type
+            is_oddball = 'oddball' in game_type or 'ball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
