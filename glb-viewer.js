@@ -144,7 +144,9 @@ function setupScene() {
     scene.fog = new THREE.Fog(0x0a0a12, 50, 200);
 
     camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, CONFIG.defaultCameraHeight, 0);
+    // Set Z as up direction (Halo uses Z-up coordinate system)
+    camera.up.set(0, 0, 1);
+    camera.position.set(0, 0, 50); // Above the map looking down
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -156,18 +158,36 @@ function setupScene() {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
 
-    // OrbitControls for orbit mode
+    // OrbitControls for orbit mode - must set up after camera.up
     controls = new OrbitControls(camera, renderer.domElement);
+    controls.screenSpacePanning = true;
+    controls.target.set(0, 0, 0);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.screenSpacePanning = true;
     controls.minDistance = 5;
     controls.maxDistance = 200;
     controls.enabled = false; // Start with WASD mode
+    controls.update();
 
     setupLighting();
 
+    // Add axes helper: Red = X, Green = Y, Blue = Z
+    const axesHelper = new THREE.AxesHelper(50);
+    axesHelper.name = 'axesHelper';
+    scene.add(axesHelper);
+
+    // Add test marker at a known CSV position (red sphere)
+    // From CSV: X=-8.8194, Y=-4.4711, Z=-9.8421
+    const testGeom = new THREE.SphereGeometry(0.5);
+    const testMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const testMarker = new THREE.Mesh(testGeom, testMat);
+    testMarker.position.set(-8.8194, -4.4711, -9.8421);
+    testMarker.name = 'testMarker';
+    scene.add(testMarker);
+
+    // Grid on XY plane (Z-up)
     const gridHelper = new THREE.GridHelper(100, 100, 0x00c8ff, 0x1a1a2e);
+    gridHelper.rotation.x = Math.PI / 2; // Rotate to XY plane for Z-up
     gridHelper.name = 'gridHelper';
     scene.add(gridHelper);
 
@@ -1313,6 +1333,9 @@ function animate() {
         controls.update();
     }
 
+    // Update debug info every frame
+    updateDebugInfo();
+
     renderer.render(scene, camera);
 }
 
@@ -1323,5 +1346,133 @@ window.retryLoad = async function() {
     await loadMapAndTelemetry();
 };
 
+// ===== Debug Functions =====
+function setupDebugControls() {
+    // Toggle collapse
+    const toggle = document.getElementById('debug-toggle');
+    const content = document.getElementById('debug-content');
+    if (toggle && content) {
+        toggle.addEventListener('click', () => {
+            content.classList.toggle('collapsed');
+            toggle.textContent = content.classList.contains('collapsed') ? '+' : '−';
+        });
+    }
+
+    // Map rotation sliders
+    const rotX = document.getElementById('map-rot-x');
+    const rotY = document.getElementById('map-rot-y');
+    const rotZ = document.getElementById('map-rot-z');
+
+    if (rotX) rotX.addEventListener('input', updateMapRotation);
+    if (rotY) rotY.addEventListener('input', updateMapRotation);
+    if (rotZ) rotZ.addEventListener('input', updateMapRotation);
+
+    // Reset button
+    document.getElementById('reset-map-rot')?.addEventListener('click', () => {
+        if (rotX) rotX.value = 0;
+        if (rotY) rotY.value = 0;
+        if (rotZ) rotZ.value = 0;
+        updateMapRotation();
+    });
+
+    // Quick rotation buttons
+    document.getElementById('apply-rot-90x')?.addEventListener('click', () => {
+        if (rotX) {
+            rotX.value = (parseInt(rotX.value) + 90) % 360;
+            if (parseInt(rotX.value) > 180) rotX.value = parseInt(rotX.value) - 360;
+        }
+        updateMapRotation();
+    });
+    document.getElementById('apply-rot-90y')?.addEventListener('click', () => {
+        if (rotY) {
+            rotY.value = (parseInt(rotY.value) + 90) % 360;
+            if (parseInt(rotY.value) > 180) rotY.value = parseInt(rotY.value) - 360;
+        }
+        updateMapRotation();
+    });
+    document.getElementById('apply-rot-90z')?.addEventListener('click', () => {
+        if (rotZ) {
+            rotZ.value = (parseInt(rotZ.value) + 90) % 360;
+            if (parseInt(rotZ.value) > 180) rotZ.value = parseInt(rotZ.value) - 360;
+        }
+        updateMapRotation();
+    });
+}
+
+function updateMapRotation() {
+    if (!mapModel) {
+        console.log('No map model loaded yet');
+        return;
+    }
+
+    const rotX = document.getElementById('map-rot-x');
+    const rotY = document.getElementById('map-rot-y');
+    const rotZ = document.getElementById('map-rot-z');
+
+    const x = (parseInt(rotX?.value) || 0) * Math.PI / 180;
+    const y = (parseInt(rotY?.value) || 0) * Math.PI / 180;
+    const z = (parseInt(rotZ?.value) || 0) * Math.PI / 180;
+
+    mapModel.rotation.set(x, y, z);
+
+    // Update display values
+    const xVal = document.getElementById('map-rot-x-val');
+    const yVal = document.getElementById('map-rot-y-val');
+    const zVal = document.getElementById('map-rot-z-val');
+    if (xVal) xVal.textContent = `${rotX?.value || 0}°`;
+    if (yVal) yVal.textContent = `${rotY?.value || 0}°`;
+    if (zVal) zVal.textContent = `${rotZ?.value || 0}°`;
+
+    console.log(`Map rotation set to: X=${rotX?.value}° Y=${rotY?.value}° Z=${rotZ?.value}°`);
+}
+
+function updateDebugInfo() {
+    // Camera position
+    const camPosEl = document.getElementById('debug-cam-pos');
+    if (camPosEl && camera) {
+        camPosEl.textContent = `X: ${camera.position.x.toFixed(2)} Y: ${camera.position.y.toFixed(2)} Z: ${camera.position.z.toFixed(2)}`;
+    }
+
+    // Camera rotation (in degrees)
+    const camRotEl = document.getElementById('debug-cam-rot');
+    if (camRotEl && camera) {
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'XYZ');
+        camRotEl.textContent = `X: ${(euler.x * 180 / Math.PI).toFixed(1)} Y: ${(euler.y * 180 / Math.PI).toFixed(1)} Z: ${(euler.z * 180 / Math.PI).toFixed(1)}`;
+    }
+
+    // Camera up vector
+    const camUpEl = document.getElementById('debug-cam-up');
+    if (camUpEl && camera) {
+        camUpEl.textContent = `X: ${camera.up.x.toFixed(2)} Y: ${camera.up.y.toFixed(2)} Z: ${camera.up.z.toFixed(2)}`;
+    }
+
+    // Map model rotation
+    const mapRotEl = document.getElementById('debug-map-rot');
+    if (mapRotEl && mapModel) {
+        mapRotEl.textContent = `X: ${(mapModel.rotation.x * 180 / Math.PI).toFixed(1)}° Y: ${(mapModel.rotation.y * 180 / Math.PI).toFixed(1)}° Z: ${(mapModel.rotation.z * 180 / Math.PI).toFixed(1)}°`;
+    } else if (mapRotEl) {
+        mapRotEl.textContent = 'No map loaded';
+    }
+
+    // Map bounds
+    const mapBoundsEl = document.getElementById('debug-map-bounds');
+    if (mapBoundsEl && mapModel) {
+        const box = new THREE.Box3().setFromObject(mapModel);
+        mapBoundsEl.innerHTML = `Min: (${box.min.x.toFixed(1)}, ${box.min.y.toFixed(1)}, ${box.min.z.toFixed(1)})<br>Max: (${box.max.x.toFixed(1)}, ${box.max.y.toFixed(1)}, ${box.max.z.toFixed(1)})`;
+    }
+
+    // First player position
+    const playerPosEl = document.getElementById('debug-player-pos');
+    if (playerPosEl && players.length > 0) {
+        const firstPlayer = players[0];
+        const marker = playerMarkers[firstPlayer.name];
+        if (marker && marker.group) {
+            const pos = marker.group.position;
+            playerPosEl.textContent = `X: ${pos.x.toFixed(2)} Y: ${pos.y.toFixed(2)} Z: ${pos.z.toFixed(2)}`;
+        }
+    }
+}
+
 // ===== Initialize =====
 init();
+setupDebugControls();
