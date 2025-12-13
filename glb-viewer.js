@@ -110,6 +110,14 @@ let gameInfo = {};
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
+// Scoreboard state
+let scoreboardVisible = false;
+let playerStats = {}; // Track kills/deaths per player
+
+// Killfeed state
+let killfeedVisible = true;
+let killEntries = [];
+
 // ===== Initialization =====
 async function init() {
     parseUrlParams();
@@ -344,14 +352,16 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[0]._lastState = gamepad.buttons[0]?.pressed;
 
-    // Speed control (DPad Up/Down)
+    // DPad Up - increase speed
     if (gamepad.buttons[12]?.pressed && !gamepad.buttons[12]._lastState) {
-        changeSpeed(1); // Increase speed
-    }
-    if (gamepad.buttons[13]?.pressed && !gamepad.buttons[13]._lastState) {
-        changeSpeed(-1); // Decrease speed
+        changeSpeed(1);
     }
     gamepad.buttons[12]._lastState = gamepad.buttons[12]?.pressed;
+
+    // DPad Down - toggle killfeed
+    if (gamepad.buttons[13]?.pressed && !gamepad.buttons[13]._lastState) {
+        toggleKillfeed();
+    }
     gamepad.buttons[13]._lastState = gamepad.buttons[13]?.pressed;
 
     // View mode (Y button cycles views)
@@ -359,6 +369,12 @@ function handleGamepadInput(deltaTime) {
         cycleViewMode();
     }
     gamepad.buttons[3]._lastState = gamepad.buttons[3]?.pressed;
+
+    // Back button (button 8) toggles scoreboard
+    if (gamepad.buttons[8]?.pressed && !gamepad.buttons[8]._lastState) {
+        toggleScoreboard();
+    }
+    gamepad.buttons[8]._lastState = gamepad.buttons[8]?.pressed;
 
     // Triggers for fine timeline scrubbing
     const lt = gamepad.buttons[6]?.value || 0;
@@ -442,6 +458,13 @@ function onKeyDown(e) {
             break;
         case 'KeyF':
             toggleFullscreen();
+            break;
+        case 'Tab':
+            e.preventDefault();
+            toggleScoreboard();
+            break;
+        case 'KeyK':
+            toggleKillfeed();
             break;
         case 'KeyM':
             // Toggle mute (future audio support)
@@ -871,7 +894,10 @@ async function createPlayerMarkers() {
 
         // Use waypoint canvas with emblem if available
         const emblemImage = emblemImages[player.name];
-        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage);
+        // Get team color for name display
+        const teamColor = player.team.includes('red') || player.team === '_game_team_red' ? 0xff3333 :
+                          player.team.includes('blue') || player.team === '_game_team_blue' ? 0x3399ff : player.color;
+        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage, teamColor);
         const labelTexture = new THREE.CanvasTexture(waypointCanvas);
         const labelMaterial = new THREE.SpriteMaterial({
             map: labelTexture,
@@ -879,8 +905,8 @@ async function createPlayerMarkers() {
             depthTest: false
         });
         const label = new THREE.Sprite(labelMaterial);
-        label.scale.set(2.5, 3.125, 1); // Aspect ratio 128:160
-        label.position.y = CONFIG.playerMarkerHeight + 2;
+        label.scale.set(2.5, 3.5, 1); // Aspect ratio 128:180
+        label.position.y = CONFIG.playerMarkerHeight + 2.5;
         group.add(label);
 
         const glow = new THREE.PointLight(player.color, 0.5, 3);
@@ -916,67 +942,65 @@ function createLabelCanvas(text, color) {
     return canvas;
 }
 
-// Create a Halo-style waypoint canvas with emblem and arrow
-function createWaypointCanvas(text, color, emblemImage = null) {
+// Create a Halo-style waypoint canvas with emblem box, name, and arrow
+function createWaypointCanvas(text, color, emblemImage = null, teamColor = null) {
     const canvas = document.createElement('canvas');
     canvas.width = 128;
-    canvas.height = 160;
+    canvas.height = 180;
     const ctx = canvas.getContext('2d');
 
     const colorHex = `#${color.toString(16).padStart(6, '0')}`;
-    const waypointBlue = '#00aaff';
+    const teamColorHex = teamColor ? `#${teamColor.toString(16).padStart(6, '0')}` : colorHex;
 
-    // Draw waypoint arrow pointing down
-    const arrowY = 130;
-    const arrowSize = 20;
-    ctx.fillStyle = waypointBlue;
-    ctx.beginPath();
-    ctx.moveTo(64, arrowY + arrowSize);  // Bottom point
-    ctx.lineTo(64 - arrowSize / 2, arrowY);  // Top left
-    ctx.lineTo(64 + arrowSize / 2, arrowY);  // Top right
-    ctx.closePath();
-    ctx.fill();
-
-    // Draw emblem box background
-    const boxX = 14;
+    // Emblem box dimensions
+    const boxSize = 64;
+    const boxX = (canvas.width - boxSize) / 2;
     const boxY = 10;
-    const boxSize = 100;
 
-    // Outer glow
-    ctx.shadowColor = waypointBlue;
-    ctx.shadowBlur = 15;
-    ctx.fillStyle = 'rgba(0, 40, 80, 0.9)';
+    // Draw emblem box background (white border like Halo 2)
+    ctx.fillStyle = 'rgba(40, 40, 50, 0.95)';
     ctx.fillRect(boxX, boxY, boxSize, boxSize);
-    ctx.shadowBlur = 0;
 
-    // Border
-    ctx.strokeStyle = waypointBlue;
-    ctx.lineWidth = 3;
+    // White border
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
     ctx.strokeRect(boxX, boxY, boxSize, boxSize);
-
-    // Inner border
-    ctx.strokeStyle = 'rgba(0, 170, 255, 0.5)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
 
     // Draw emblem if available
     if (emblemImage && emblemImage.complete) {
-        ctx.drawImage(emblemImage, boxX + 10, boxY + 10, boxSize - 20, boxSize - 20);
+        ctx.drawImage(emblemImage, boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
     } else {
         // Draw player initial as fallback
-        ctx.font = 'bold 50px Orbitron, sans-serif';
+        ctx.font = 'bold 32px Orbitron, sans-serif';
         ctx.fillStyle = colorHex;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(text.charAt(0).toUpperCase(), 64, 60);
+        ctx.fillText(text.charAt(0).toUpperCase(), canvas.width / 2, boxY + boxSize / 2);
     }
 
-    // Draw player name below box
+    // Draw player name below box (in team color)
+    const nameY = boxY + boxSize + 8;
     ctx.font = 'bold 14px Overpass, sans-serif';
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = teamColorHex;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    ctx.fillText(text.substring(0, 12), 64, boxY + boxSize + 4);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 3;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.fillText(text.substring(0, 12), canvas.width / 2, nameY);
+    ctx.shadowBlur = 0;
+
+    // Draw blue waypoint arrow below name
+    const arrowY = nameY + 20;
+    const arrowSize = 12;
+    ctx.fillStyle = '#00aaff';
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, arrowY + arrowSize);  // Bottom point
+    ctx.lineTo(canvas.width / 2 - arrowSize / 2, arrowY);  // Top left
+    ctx.lineTo(canvas.width / 2 + arrowSize / 2, arrowY);  // Top right
+    ctx.closePath();
+    ctx.fill();
 
     return canvas;
 }
@@ -1220,14 +1244,135 @@ function updateControlsHint() {
             <div><kbd>Q</kbd><kbd>E</kbd> Up/Down</div>
             <div><kbd>Shift</kbd> Sprint</div>
             <div><kbd>Mouse</kbd> Look</div>
-            <div><kbd>Space</kbd> Play/Pause</div>
+            <div><kbd>Tab</kbd> Scoreboard</div>
         `;
     } else {
         hint.innerHTML = `
             <div><kbd>Space</kbd> Play/Pause</div>
             <div><kbd>←</kbd><kbd>→</kbd> Skip 5s</div>
-            <div><kbd>↑</kbd><kbd>↓</kbd> Speed</div>
+            <div><kbd>Tab</kbd> Scoreboard</div>
         `;
+    }
+}
+
+// ===== Scoreboard =====
+function toggleScoreboard() {
+    scoreboardVisible = !scoreboardVisible;
+    const scoreboard = document.getElementById('scoreboard');
+    if (scoreboard) {
+        scoreboard.style.display = scoreboardVisible ? 'flex' : 'none';
+        if (scoreboardVisible) {
+            updateScoreboard();
+        }
+    }
+}
+
+function updateScoreboard() {
+    const redContainer = document.getElementById('red-team-players');
+    const blueContainer = document.getElementById('blue-team-players');
+    if (!redContainer || !blueContainer) return;
+
+    const redPlayers = [];
+    const bluePlayers = [];
+
+    players.forEach(player => {
+        const stats = playerStats[player.name] || { kills: 0, deaths: 0, score: 0 };
+        const marker = playerMarkers[player.name];
+        const isDead = marker && !marker.group.visible;
+
+        const playerData = {
+            name: player.name,
+            emblemUrl: player.emblemUrl,
+            kills: stats.kills,
+            deaths: stats.deaths,
+            score: stats.score,
+            weapon: stats.weapon || 'Unknown',
+            isDead: isDead
+        };
+
+        if (player.team.includes('red') || player.team === '_game_team_red') {
+            redPlayers.push(playerData);
+        } else if (player.team.includes('blue') || player.team === '_game_team_blue') {
+            bluePlayers.push(playerData);
+        }
+    });
+
+    // Sort by score (highest first)
+    redPlayers.sort((a, b) => b.score - a.score);
+    bluePlayers.sort((a, b) => b.score - a.score);
+
+    // Calculate team totals
+    const redScore = redPlayers.reduce((sum, p) => sum + p.score, 0);
+    const blueScore = bluePlayers.reduce((sum, p) => sum + p.score, 0);
+
+    document.getElementById('red-team-score').textContent = redScore;
+    document.getElementById('blue-team-score').textContent = blueScore;
+
+    // Render players
+    redContainer.innerHTML = redPlayers.map(p => renderScoreboardPlayer(p)).join('');
+    blueContainer.innerHTML = bluePlayers.map(p => renderScoreboardPlayer(p)).join('');
+}
+
+function renderScoreboardPlayer(player) {
+    const emblemHtml = player.isDead
+        ? '<div class="player-emblem dead-emblem"><span class="dead-x">X</span></div>'
+        : `<div class="player-emblem"><img src="${player.emblemUrl}" alt="" onerror="this.parentElement.innerHTML='?'"></div>`;
+
+    return `
+        <div class="scoreboard-player ${player.isDead ? 'dead' : ''}">
+            ${emblemHtml}
+            <span class="player-name">${player.name}</span>
+            <div class="player-stats">
+                <span>K${player.kills}</span>
+                <span>D${player.deaths}</span>
+            </div>
+        </div>
+    `;
+}
+
+// ===== Killfeed =====
+function toggleKillfeed() {
+    killfeedVisible = !killfeedVisible;
+    const killfeed = document.getElementById('killfeed');
+    if (killfeed) {
+        killfeed.classList.toggle('hidden', !killfeedVisible);
+    }
+}
+
+function addKillEntry(killerName, victimName, weapon) {
+    if (!killfeedVisible) return;
+
+    const killfeed = document.getElementById('killfeed');
+    if (!killfeed) return;
+
+    // Find players to get team colors
+    const killer = players.find(p => p.name === killerName);
+    const victim = players.find(p => p.name === victimName);
+
+    const killerIsBlue = killer && (killer.team.includes('blue') || killer.team === '_game_team_blue');
+    const victimIsBlue = victim && (victim.team.includes('blue') || victim.team === '_game_team_blue');
+
+    const entry = document.createElement('div');
+    entry.className = 'kill-entry';
+    entry.innerHTML = `
+        <span class="killer ${killerIsBlue ? 'blue' : ''}">${killerName}</span>
+        <span class="weapon-icon"><img src="weapons/${weapon.toLowerCase().replace(/\s+/g, '_')}.png" alt="${weapon}" onerror="this.parentElement.textContent='[${weapon}]'"></span>
+        <span class="victim ${victimIsBlue ? 'blue' : ''}">${victimName}</span>
+    `;
+
+    // Insert at top
+    killfeed.insertBefore(entry, killfeed.firstChild);
+
+    // Remove after animation completes
+    setTimeout(() => {
+        if (entry.parentElement) {
+            entry.remove();
+        }
+    }, 3000);
+
+    // Limit entries
+    while (killfeed.children.length > 6) {
+        killfeed.removeChild(killfeed.lastChild);
     }
 }
 

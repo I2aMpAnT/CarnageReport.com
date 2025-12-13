@@ -1567,3 +1567,215 @@ body {
     white-space: nowrap;
     pointer-events: none;
 }
+
+/* Scoreboard */
+.scoreboard {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 200;
+    font-family: 'Overpass', sans-serif;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 280px;
+}
+
+.scoreboard-team {
+    background: rgba(0, 0, 0, 0.85);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.red-team .team-header {
+    background: linear-gradient(90deg, rgba(180, 40, 40, 0.95) 0%, rgba(120, 30, 30, 0.9) 100%);
+    color: #fff;
+}
+
+.blue-team .team-header {
+    background: linear-gradient(90deg, rgba(40, 80, 180, 0.95) 0%, rgba(30, 60, 140, 0.9) 100%);
+    color: #fff;
+}
+
+.team-score {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.team-players {
+    display: flex;
+    flex-direction: column;
+}
+
+.scoreboard-player {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scoreboard-player:last-child {
+    border-bottom: none;
+}
+
+.red-team .scoreboard-player {
+    background: rgba(100, 30, 30, 0.7);
+}
+
+.blue-team .scoreboard-player {
+    background: rgba(30, 50, 100, 0.7);
+}
+
+.scoreboard-player.dead {
+    opacity: 0.5;
+}
+
+.player-emblem {
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.player-emblem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.player-emblem.dead-emblem {
+    background: rgba(80, 0, 0, 0.8);
+}
+
+.player-emblem .dead-x {
+    color: #ff3333;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.player-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-stats {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.player-stats span {
+    min-width: 32px;
+    text-align: right;
+}
+
+.player-weapon {
+    width: 32px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-weapon img {
+    max-width: 100%;
+    max-height: 100%;
+    filter: brightness(0) invert(1);
+}
+
+/* Killfeed */
+.killfeed {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    pointer-events: none;
+    max-width: 400px;
+}
+
+.killfeed.hidden {
+    display: none;
+}
+
+.kill-entry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.75);
+    border-radius: 3px;
+    font-family: 'Highway Gothic', 'Interstate', 'Overpass', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    animation: killfeed-fade 3s ease-out forwards;
+    white-space: nowrap;
+}
+
+@keyframes killfeed-fade {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    70% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+}
+
+.kill-entry .killer {
+    color: #ff3333;
+}
+
+.kill-entry .killer.blue {
+    color: #3399ff;
+}
+
+.kill-entry .victim {
+    color: #ff3333;
+}
+
+.kill-entry .victim.blue {
+    color: #3399ff;
+}
+
+.kill-entry .weapon-icon {
+    width: 40px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kill-entry .weapon-icon img {
+    max-width: 100%;
+    max-height: 100%;
+    filter: brightness(0) invert(1);
+}
