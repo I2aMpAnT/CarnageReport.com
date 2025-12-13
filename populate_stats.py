@@ -97,6 +97,38 @@ def normalize_playlist_name(playlist):
         return None
     return PLAYLIST_ALIASES.get(playlist, playlist)
 
+def parse_game_timestamp(ts):
+    """Parse game timestamp (start time) for chronological sorting.
+    Handles multiple formats found in game data."""
+    if not ts:
+        return datetime.min
+    # Strip trailing AM/PM from 24-hour times (data bug: "18:23 PM")
+    ts_clean = ts
+    if ' PM' in ts or ' AM' in ts:
+        parts = ts.rsplit(' ', 1)
+        if len(parts) == 2 and ':' in parts[0]:
+            time_part = parts[0].split(' ')[-1]
+            try:
+                hour = int(time_part.split(':')[0])
+                if hour > 12:  # 24-hour time with erroneous AM/PM
+                    ts_clean = parts[0]
+            except:
+                pass
+    # Try multiple formats
+    formats = [
+        '%m/%d/%Y %H:%M',      # 11/28/2025 20:03
+        '%m/%d/%Y %I:%M %p',   # 12/5/2025 1:45 AM
+        '%m/%d/%Y %I:%M%p',    # 12/5/2025 1:45AM
+        '%Y-%m-%d %H:%M:%S',   # 2025-12-09 19:05:00 (ISO)
+        '%Y-%m-%d %H:%M',      # 2025-12-09 19:05
+    ]
+    for fmt in formats:
+        try:
+            return datetime.strptime(ts_clean, fmt)
+        except ValueError:
+            continue
+    return datetime.min
+
 def time_to_seconds(time_str):
     """Convert time string like '1:53' or '0:56' or ':56' to total seconds.
 
@@ -250,39 +282,8 @@ def generate_game_index():
         except Exception as e:
             print(f"  Warning: Could not load {custom_file}: {e}")
 
-    # Parse timestamp field (start time) for sorting
-    def parse_ts(ts):
-        if not ts:
-            return datetime.min
-        # Strip trailing AM/PM from 24-hour times (data bug: "18:23 PM")
-        ts_clean = ts
-        if ' PM' in ts or ' AM' in ts:
-            parts = ts.rsplit(' ', 1)
-            if len(parts) == 2 and ':' in parts[0]:
-                time_part = parts[0].split(' ')[-1]
-                try:
-                    hour = int(time_part.split(':')[0])
-                    if hour > 12:  # 24-hour time with erroneous AM/PM
-                        ts_clean = parts[0]
-                except:
-                    pass
-        # Try multiple formats
-        formats = [
-            '%m/%d/%Y %H:%M',      # 11/28/2025 20:03
-            '%m/%d/%Y %I:%M %p',   # 12/5/2025 1:45 AM
-            '%m/%d/%Y %I:%M%p',    # 12/5/2025 1:45AM
-            '%Y-%m-%d %H:%M:%S',   # 2025-12-09 19:05:00 (ISO)
-            '%Y-%m-%d %H:%M',      # 2025-12-09 19:05
-        ]
-        for fmt in formats:
-            try:
-                return datetime.strptime(ts_clean, fmt)
-            except ValueError:
-                continue
-        return datetime.min
-
     # Sort chronologically by start time (oldest first = Game 1)
-    all_games.sort(key=lambda g: parse_ts(g.get('timestamp')))
+    all_games.sort(key=lambda g: parse_game_timestamp(g.get('timestamp')))
 
     # Build index - all games get numbered, check if theater file exists
     web_stats_dir = '/home/carnagereport/stats'
@@ -1750,9 +1751,9 @@ def main():
     ranked_games.extend(games_by_playlist.get(PLAYLIST_DOUBLE_TEAM, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_HEAD_TO_HEAD, []))
 
-    # Sort ranked games chronologically by timestamp (source_file is timestamp-based)
-    # This ensures ranks are calculated in the correct order
-    ranked_games.sort(key=lambda g: g.get('source_file', ''))
+    # Sort ranked games chronologically by START TIME (not end time from filename)
+    # This ensures ranks are calculated in the correct order based on when games began
+    ranked_games.sort(key=lambda g: parse_game_timestamp(g.get('details', {}).get('Start Time', '')))
 
     print(f"\nTotal ranked games (for XP/rank): {len(ranked_games)}")
     print(f"Total games (for stats): {len(all_games)}")
