@@ -387,13 +387,17 @@ function handleGamepadInput(deltaTime) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward direction, flatten to horizontal plane
+        // Get camera forward direction projected onto horizontal plane
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
-        forward.y = 0;
-        forward.normalize();
+        forward.y = 0;  // Project onto horizontal plane
+        if (forward.lengthSq() > 0.001) {
+            forward.normalize();
+        } else {
+            forward.set(0, 0, -1);
+        }
 
-        // Right vector perpendicular to forward on horizontal plane
+        // Right vector - always horizontal
         const right = new THREE.Vector3();
         right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
 
@@ -547,7 +551,79 @@ function onKeyDown(e) {
                 document.exitPointerLock();
             }
             break;
+        case 'Tab':
+            e.preventDefault();
+            toggleScoreboard();
+            break;
+        case 'KeyK':
+            toggleKillfeed();
+            break;
+        case 'KeyP':
+            togglePlayerNames();
+            break;
+        case 'KeyL':
+            toggleTrails();
+            break;
+        case 'KeyY':
+            cycleViewMode();
+            break;
+        case 'KeyT':
+            setViewMode('top');
+            break;
+        case 'BracketLeft':
+            cyclePreviousPlayer();
+            break;
+        case 'BracketRight':
+            cycleNextPlayer();
+            break;
     }
+}
+
+// Toggle functions for keyboard shortcuts
+function toggleScoreboard() {
+    const scoreboard = document.getElementById('scoreboard');
+    if (scoreboard) {
+        scoreboard.style.display = scoreboard.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+function toggleKillfeed() {
+    const killfeed = document.getElementById('killfeed');
+    if (killfeed) {
+        killfeed.style.display = killfeed.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+let showPlayerNames = true;
+function togglePlayerNames() {
+    showPlayerNames = !showPlayerNames;
+    Object.values(playerMarkers).forEach(marker => {
+        if (marker.label) {
+            marker.label.visible = showPlayerNames;
+        }
+    });
+}
+
+let showTrails = false;
+function toggleTrails() {
+    showTrails = !showTrails;
+    // Trail toggle - implementation depends on trail system
+}
+
+function cyclePreviousPlayer() {
+    if (players.length === 0) return;
+    const currentIndex = players.findIndex(p => p.name === followPlayer);
+    const newIndex = currentIndex <= 0 ? players.length - 1 : currentIndex - 1;
+    followPlayer = players[newIndex].name;
+    if (viewMode !== 'follow') setViewMode('follow');
+}
+
+function cycleNextPlayer() {
+    if (players.length === 0) return;
+    const currentIndex = players.findIndex(p => p.name === followPlayer);
+    const newIndex = (currentIndex + 1) % players.length;
+    followPlayer = players[newIndex].name;
+    if (viewMode !== 'follow') setViewMode('follow');
 }
 
 function onKeyUp(e) {
@@ -606,27 +682,32 @@ function handleKeyboardMovement(deltaTime) {
 
     const direction = new THREE.Vector3();
 
-    // Get camera forward direction, flatten to horizontal plane for ground movement
+    // Get camera's forward direction projected onto horizontal plane
     const forward = new THREE.Vector3();
     camera.getWorldDirection(forward);
-    forward.y = 0;  // Keep movement horizontal - W/S don't go up/down
-    forward.normalize();
+    forward.y = 0;  // Project onto horizontal plane
+    if (forward.lengthSq() > 0.001) {
+        forward.normalize();
+    } else {
+        // Camera pointing straight up/down - use default forward
+        forward.set(0, 0, -1);
+    }
 
-    // Right vector perpendicular to forward on horizontal plane
+    // Right vector - always horizontal, perpendicular to forward
     const right = new THREE.Vector3();
     right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
 
-    // WASD movement - always horizontal in the direction camera is facing
-    if (keys['KeyW'] || keys['ArrowUp']) direction.add(forward);
-    if (keys['KeyS'] || keys['ArrowDown']) direction.sub(forward);
+    // WASD movement - horizontal plane movement in camera facing direction
+    if (keys['KeyW']) direction.add(forward);
+    if (keys['KeyS']) direction.sub(forward);
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement (separate from WASD)
+    // Vertical movement (Q/E go up/down in world space)
     if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
     if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
 
-    if (direction.length() > 0) {
+    if (direction.lengthSq() > 0) {
         direction.normalize();
         camera.position.addScaledVector(direction, speed);
     }
@@ -1160,8 +1241,8 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Set position
-            marker.group.position.set(pos.x, pos.z, -pos.y);
+            // Position: Halo X->Three X, Halo Z->Three Y (height), Halo Y->Three Z
+            marker.group.position.set(pos.x, pos.z, pos.y);
 
             // Apply yaw (horizontal rotation) with calibration offset
             if (!isNaN(pos.facingYaw)) {
@@ -1311,8 +1392,9 @@ function positionCameraToFit() {
     const centerZ = (minZ + maxZ) / 2;
     const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
 
-    camera.position.set(centerX, maxZ + maxRange * 0.8, -centerY);
-    controls.target.set(centerX, centerZ, -centerY);
+    // Position camera above and looking at center (Halo Y -> Three Z, Halo Z -> Three Y)
+    camera.position.set(centerX, maxZ + maxRange * 0.8, centerY);
+    controls.target.set(centerX, centerZ, centerY);
     controls.update();
 }
 
