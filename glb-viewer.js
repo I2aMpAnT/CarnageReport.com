@@ -118,6 +118,19 @@ let playerStats = {}; // Track kills/deaths per player
 let killfeedVisible = true;
 let killEntries = [];
 
+// Controls panel state
+let controlsCollapsed = false;
+let showKeyboardControls = true; // true = keyboard, false = controller
+
+// Selected player index for cycling
+let selectedPlayerIndex = 0;
+
+// Player name visibility (default off)
+let showPlayerNames = false;
+
+// Track last known positions for dead player handling
+let lastKnownPositions = {};
+
 // ===== Initialization =====
 async function init() {
     parseUrlParams();
@@ -229,20 +242,19 @@ function setupEventListeners() {
     // Click anywhere on timeline track to seek
     timelineContainer.addEventListener('click', onTimelineClick);
 
-    // View controls
-    document.getElementById('topViewBtn').addEventListener('click', () => setViewMode('top'));
-    document.getElementById('freeViewBtn').addEventListener('click', () => setViewMode('free'));
-    document.getElementById('orbitViewBtn')?.addEventListener('click', () => setViewMode('orbit'));
-    document.getElementById('followBtn').addEventListener('click', () => {
-        const select = document.getElementById('followPlayerSelect');
-        select.style.display = select.style.display === 'none' ? 'block' : 'none';
-    });
+    // View controls - single cycling button
+    document.getElementById('viewModeBtn')?.addEventListener('click', () => cycleViewMode());
     document.getElementById('followPlayerSelect').addEventListener('change', (e) => {
         if (e.target.value) {
             followPlayer = e.target.value;
+            selectedPlayerIndex = players.findIndex(p => p.name === e.target.value);
             setViewMode('follow');
         }
     });
+
+    // Controls panel toggle
+    document.getElementById('controlsCollapseBtn')?.addEventListener('click', toggleControlsPanel);
+    document.getElementById('inputToggleBtn')?.addEventListener('click', toggleInputType);
 
     // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
@@ -306,9 +318,13 @@ function handleGamepadInput(deltaTime) {
     const rightX = applyDeadzone(gamepad.axes[2] || 0);
     const rightY = applyDeadzone(gamepad.axes[3] || 0);
 
+    // LT for sprint
+    const ltValue = gamepad.buttons[6]?.value || 0;
+    const isSprinting = ltValue > 0.3;
+
     // Movement (left stick) - only in free mode
     if (viewMode === 'free' && (leftX !== 0 || leftY !== 0)) {
-        const speed = CONFIG.gamepadMoveSpeed * deltaTime;
+        const speed = CONFIG.gamepadMoveSpeed * deltaTime * (isSprinting ? CONFIG.sprintMultiplier : 1);
         const direction = new THREE.Vector3();
 
         // Get camera forward direction (where it's looking)
@@ -338,13 +354,16 @@ function handleGamepadInput(deltaTime) {
         camera.quaternion.setFromEuler(euler);
     }
 
-    // Timeline control (bumpers LB/RB)
-    if (gamepad.buttons[4]?.pressed) { // LB - skip back
-        skip(-CONFIG.skipSeconds * deltaTime * 2);
+    // LB/RB for player cycling
+    if (gamepad.buttons[4]?.pressed && !gamepad.buttons[4]._lastState) { // LB - previous player
+        cyclePlayer(-1);
     }
-    if (gamepad.buttons[5]?.pressed) { // RB - skip forward
-        skip(CONFIG.skipSeconds * deltaTime * 2);
+    gamepad.buttons[4]._lastState = gamepad.buttons[4]?.pressed;
+
+    if (gamepad.buttons[5]?.pressed && !gamepad.buttons[5]._lastState) { // RB - next player
+        cyclePlayer(1);
     }
+    gamepad.buttons[5]._lastState = gamepad.buttons[5]?.pressed;
 
     // Play/Pause (A button) - only on press, not hold
     if (gamepad.buttons[0]?.pressed && !gamepad.buttons[0]._lastState) {
@@ -364,6 +383,17 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[13]._lastState = gamepad.buttons[13]?.pressed;
 
+    // DPad Left for player names toggle
+    if (gamepad.buttons[14]?.pressed && !gamepad.buttons[14]._lastState) { // DPad Left
+        togglePlayerNames();
+    }
+    gamepad.buttons[14]._lastState = gamepad.buttons[14]?.pressed;
+
+    // DPad Right for timeline skip forward
+    if (gamepad.buttons[15]?.pressed) {
+        skip(CONFIG.skipSeconds * deltaTime * 2);
+    }
+
     // View mode (Y button cycles views)
     if (gamepad.buttons[3]?.pressed && !gamepad.buttons[3]._lastState) {
         cycleViewMode();
@@ -376,11 +406,10 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[8]._lastState = gamepad.buttons[8]?.pressed;
 
-    // Triggers for fine timeline scrubbing
-    const lt = gamepad.buttons[6]?.value || 0;
-    const rt = gamepad.buttons[7]?.value || 0;
-    if (lt > 0.1 || rt > 0.1) {
-        const scrubAmount = (rt - lt) * 100 * deltaTime;
+    // RT for fine timeline scrubbing
+    const rtValue = gamepad.buttons[7]?.value || 0;
+    if (rtValue > 0.1) {
+        const scrubAmount = rtValue * 100 * deltaTime;
         currentTimeMs = Math.max(startTimeMs, Math.min(startTimeMs + totalDurationMs, currentTimeMs + scrubAmount));
         updateTimeDisplay();
         updatePlayerPositions();
@@ -397,10 +426,128 @@ function changeSpeed(direction) {
 }
 
 function cycleViewMode() {
-    const modes = ['free', 'top', 'orbit', 'follow'];
+    const modes = ['free', 'follow', 'orbit', 'top'];
     const currentIndex = modes.indexOf(viewMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setViewMode(modes[nextIndex]);
+}
+
+// Cycle through players
+function cyclePlayer(direction) {
+    if (players.length === 0) return;
+
+    selectedPlayerIndex = (selectedPlayerIndex + direction + players.length) % players.length;
+    const player = players[selectedPlayerIndex];
+    followPlayer = player.name;
+
+    // Update the follow select dropdown
+    const select = document.getElementById('followPlayerSelect');
+    if (select) {
+        select.value = player.name;
+    }
+
+    // Update POV selector if visible
+    updatePOVSelector();
+
+    // Show notification
+    showPlayerSelectNotification(player.name);
+
+    // If in follow mode, stay in follow mode. Otherwise switch to follow.
+    if (viewMode !== 'free') {
+        setViewMode('follow');
+    }
+}
+
+function showPlayerSelectNotification(playerName) {
+    // Remove existing notification
+    const existing = document.querySelector('.player-select-notification');
+    if (existing) existing.remove();
+
+    const notification = document.createElement('div');
+    notification.className = 'player-select-notification';
+    notification.textContent = playerName;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 1500);
+}
+
+function updatePOVSelector() {
+    const povList = document.getElementById('pov-list');
+    if (!povList) return;
+
+    // Update selection state in POV list
+    const items = povList.querySelectorAll('.pov-item');
+    items.forEach((item, index) => {
+        if (index === selectedPlayerIndex) {
+            item.classList.add('selected');
+        } else {
+            item.classList.remove('selected');
+        }
+    });
+}
+
+// Toggle controls panel collapse
+function toggleControlsPanel() {
+    controlsCollapsed = !controlsCollapsed;
+    const hint = document.getElementById('controls-hint');
+    if (hint) {
+        hint.classList.toggle('collapsed', controlsCollapsed);
+    }
+}
+
+// Toggle between keyboard and controller hints
+function toggleInputType() {
+    showKeyboardControls = !showKeyboardControls;
+    const keyboardDiv = document.getElementById('keyboardControls');
+    const controllerDiv = document.getElementById('controllerControls');
+    const inputText = document.getElementById('inputTypeText');
+
+    if (keyboardDiv && controllerDiv) {
+        keyboardDiv.style.display = showKeyboardControls ? 'block' : 'none';
+        controllerDiv.style.display = showKeyboardControls ? 'none' : 'block';
+    }
+    if (inputText) {
+        inputText.textContent = showKeyboardControls ? 'Keyboard' : 'Controller';
+    }
+}
+
+// Toggle player names visibility on waypoints
+function togglePlayerNames() {
+    showPlayerNames = !showPlayerNames;
+    // Recreate player markers to update waypoint canvases
+    recreateWaypoints();
+    showGamepadNotification(showPlayerNames ? 'Names: ON' : 'Names: OFF');
+}
+
+// Recreate waypoints with current name visibility setting
+async function recreateWaypoints() {
+    // Load all emblems first
+    const emblemImages = {};
+    await Promise.all(players.map(async player => {
+        if (player.emblemUrl) {
+            emblemImages[player.name] = await loadEmblemImage(player.emblemUrl);
+        }
+    }));
+
+    players.forEach(player => {
+        const marker = playerMarkers[player.name];
+        if (!marker) return;
+
+        // Get team color for name display
+        const teamColor = player.team.includes('red') || player.team === '_game_team_red' ? 0xff3333 :
+                          player.team.includes('blue') || player.team === '_game_team_blue' ? 0x3399ff : player.color;
+
+        // Create new waypoint canvas
+        const emblemImage = emblemImages[player.name];
+        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage, teamColor);
+        const labelTexture = new THREE.CanvasTexture(waypointCanvas);
+
+        // Update the sprite material
+        if (marker.label && marker.label.material) {
+            marker.label.material.map.dispose();
+            marker.label.material.map = labelTexture;
+            marker.label.material.needsUpdate = true;
+        }
+    });
 }
 
 function showGamepadNotification(message) {
@@ -428,11 +575,19 @@ function onKeyDown(e) {
             e.preventDefault();
             togglePlayPause();
             break;
-        case 'ArrowLeft':
+        case 'BracketLeft': // [ key - previous player (like LB)
+            e.preventDefault();
+            cyclePlayer(-1);
+            break;
+        case 'BracketRight': // ] key - next player (like RB)
+            e.preventDefault();
+            cyclePlayer(1);
+            break;
+        case 'Comma': // < key - skip back
             e.preventDefault();
             skip(-CONFIG.skipSeconds);
             break;
-        case 'ArrowRight':
+        case 'Period': // > key - skip forward
             e.preventDefault();
             skip(CONFIG.skipSeconds);
             break;
@@ -444,20 +599,28 @@ function onKeyDown(e) {
             e.preventDefault();
             changeSpeed(-1);
             break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            cyclePlayer(-1);
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            cyclePlayer(1);
+            break;
+        case 'KeyY':
+            cycleViewMode();
+            break;
         case 'Digit1':
-            setViewMode('top');
+            setViewMode('free');
             break;
         case 'Digit2':
-            setViewMode('free');
+            setViewMode('follow');
             break;
         case 'Digit3':
             setViewMode('orbit');
             break;
         case 'Digit4':
-            setViewMode('follow');
-            break;
-        case 'KeyF':
-            toggleFullscreen();
+            setViewMode('top');
             break;
         case 'Tab':
             e.preventDefault();
@@ -465,6 +628,9 @@ function onKeyDown(e) {
             break;
         case 'KeyK':
             toggleKillfeed();
+            break;
+        case 'KeyP':
+            togglePlayerNames();
             break;
         case 'KeyM':
             // Toggle mute (future audio support)
@@ -942,11 +1108,11 @@ function createLabelCanvas(text, color) {
     return canvas;
 }
 
-// Create a Halo-style waypoint canvas with emblem box, name, and arrow
+// Create a Halo-style waypoint canvas with emblem box, name (if enabled), and arrow
 function createWaypointCanvas(text, color, emblemImage = null, teamColor = null) {
     const canvas = document.createElement('canvas');
     canvas.width = 128;
-    canvas.height = 180;
+    canvas.height = showPlayerNames ? 180 : 120; // Smaller if no name
     const ctx = canvas.getContext('2d');
 
     const colorHex = `#${color.toString(16).padStart(6, '0')}`;
@@ -978,21 +1144,26 @@ function createWaypointCanvas(text, color, emblemImage = null, teamColor = null)
         ctx.fillText(text.charAt(0).toUpperCase(), canvas.width / 2, boxY + boxSize / 2);
     }
 
-    // Draw player name below box (in team color)
-    const nameY = boxY + boxSize + 8;
-    ctx.font = 'bold 14px Overpass, sans-serif';
-    ctx.fillStyle = teamColorHex;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-    ctx.shadowBlur = 3;
-    ctx.shadowOffsetX = 1;
-    ctx.shadowOffsetY = 1;
-    ctx.fillText(text.substring(0, 12), canvas.width / 2, nameY);
-    ctx.shadowBlur = 0;
+    let arrowY;
+    if (showPlayerNames) {
+        // Draw player name below box (in team color)
+        const nameY = boxY + boxSize + 8;
+        ctx.font = 'bold 14px Overpass, sans-serif';
+        ctx.fillStyle = teamColorHex;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+        ctx.shadowBlur = 3;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 1;
+        ctx.fillText(text.substring(0, 12), canvas.width / 2, nameY);
+        ctx.shadowBlur = 0;
+        arrowY = nameY + 20;
+    } else {
+        arrowY = boxY + boxSize + 8;
+    }
 
-    // Draw blue waypoint arrow below name
-    const arrowY = nameY + 20;
+    // Draw blue waypoint arrow
     const arrowSize = 12;
     ctx.fillStyle = '#00aaff';
     ctx.beginPath();
@@ -1014,6 +1185,78 @@ function loadEmblemImage(url) {
         img.onerror = () => resolve(null);
         img.src = url;
     });
+}
+
+// Update waypoint appearance based on death state
+function updateWaypointDeathState(marker) {
+    if (!marker || !marker.label) return;
+
+    const wasDead = marker._wasDead || false;
+    const isDead = marker.isDead || false;
+
+    // Only update if state changed
+    if (wasDead !== isDead) {
+        marker._wasDead = isDead;
+
+        if (isDead) {
+            // Create death waypoint (X instead of emblem)
+            const deathCanvas = createDeathWaypointCanvas();
+            const deathTexture = new THREE.CanvasTexture(deathCanvas);
+            marker.label.material.map.dispose();
+            marker.label.material.map = deathTexture;
+            marker.label.material.needsUpdate = true;
+            marker.label.scale.set(2.0, 2.5, 1); // Smaller for death marker
+        } else if (marker.player) {
+            // Restore normal waypoint
+            const player = marker.player;
+            const teamColor = player.team.includes('red') || player.team === '_game_team_red' ? 0xff3333 :
+                              player.team.includes('blue') || player.team === '_game_team_blue' ? 0x3399ff : player.color;
+            const waypointCanvas = createWaypointCanvas(player.name, player.color, marker.emblemImage, teamColor);
+            const labelTexture = new THREE.CanvasTexture(waypointCanvas);
+            marker.label.material.map.dispose();
+            marker.label.material.map = labelTexture;
+            marker.label.material.needsUpdate = true;
+            marker.label.scale.set(2.5, showPlayerNames ? 3.5 : 2.4, 1);
+        }
+    }
+}
+
+// Create a death waypoint canvas with X
+function createDeathWaypointCanvas() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 80;
+    canvas.height = 100;
+    const ctx = canvas.getContext('2d');
+
+    // Box with X
+    const boxSize = 64;
+    const boxX = (canvas.width - boxSize) / 2;
+    const boxY = 5;
+
+    // Dark background
+    ctx.fillStyle = 'rgba(60, 20, 20, 0.9)';
+    ctx.fillRect(boxX, boxY, boxSize, boxSize);
+
+    // Red border
+    ctx.strokeStyle = '#ff3333';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(boxX, boxY, boxSize, boxSize);
+
+    // Big red X
+    ctx.strokeStyle = '#ff3333';
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    const padding = 12;
+    ctx.beginPath();
+    ctx.moveTo(boxX + padding, boxY + padding);
+    ctx.lineTo(boxX + boxSize - padding, boxY + boxSize - padding);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(boxX + boxSize - padding, boxY + padding);
+    ctx.lineTo(boxX + padding, boxY + boxSize - padding);
+    ctx.stroke();
+
+    return canvas;
 }
 
 function updatePlayerPositions() {
@@ -1042,7 +1285,18 @@ function updatePlayerPositions() {
         if (!marker) continue;
 
         const pos = playerPositions[player.name];
-        if (pos) {
+
+        // Check if position is valid (not at origin which indicates dead/respawning)
+        const isValidPosition = pos && (Math.abs(pos.x) > 0.1 || Math.abs(pos.y) > 0.1 || Math.abs(pos.z) > 0.1);
+
+        if (isValidPosition) {
+            // Store last known valid position
+            lastKnownPositions[player.name] = {
+                x: pos.x, y: pos.y, z: pos.z,
+                facingYaw: pos.facingYaw,
+                isCrouching: pos.isCrouching
+            };
+
             // Convert from Halo coords (Z-up) to Three.js (Y-up): X stays, Z becomes Y, Y becomes -Z
             marker.group.position.set(pos.x, pos.z, -pos.y);
             // Apply facing direction
@@ -1057,9 +1311,35 @@ function updatePlayerPositions() {
             }
 
             marker.group.visible = true;
+            marker.isDead = false;
+
+            // Show normal marker
+            if (marker.body) marker.body.visible = true;
+            if (marker.head) marker.head.visible = true;
+            if (marker.arrow) marker.arrow.visible = true;
+
+        } else if (lastKnownPositions[player.name]) {
+            // Player is dead - keep at last known position
+            const lastPos = lastKnownPositions[player.name];
+            marker.group.position.set(lastPos.x, lastPos.z, -lastPos.y);
+            if (!isNaN(lastPos.facingYaw)) marker.group.rotation.y = lastPos.facingYaw;
+
+            marker.group.visible = true;
+            marker.isDead = true;
+
+            // Hide body/head, show death state
+            if (marker.body) marker.body.visible = false;
+            if (marker.head) marker.head.visible = false;
+            if (marker.arrow) marker.arrow.visible = false;
+
         } else {
+            // No position data ever - hide completely
             marker.group.visible = false;
+            marker.isDead = false;
         }
+
+        // Update waypoint appearance based on death state
+        updateWaypointDeathState(marker);
     }
 
     // Follow camera (Y-up)
@@ -1126,14 +1406,19 @@ function formatTime(ms) {
 function setViewMode(mode) {
     viewMode = mode;
 
-    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`${mode}ViewBtn`)?.classList.add('active');
+    // Update the view mode button text
+    const viewModeText = document.getElementById('viewModeText');
+    const viewModeBtn = document.getElementById('viewModeBtn');
+    if (viewModeText) {
+        const modeNames = { free: 'Free', follow: 'Follow', orbit: 'Orbit', top: 'Top' };
+        viewModeText.textContent = modeNames[mode] || mode;
+    }
+    if (viewModeBtn) {
+        viewModeBtn.classList.add('active');
+    }
 
     const followSelect = document.getElementById('followPlayerSelect');
     followSelect.style.display = mode === 'follow' ? 'block' : 'none';
-
-    // Update controls hint
-    updateControlsHint();
 
     // Standard Y-up
     camera.up.set(0, 1, 0);
@@ -1148,6 +1433,13 @@ function setViewMode(mode) {
         controls.enabled = true;
     } else if (mode === 'follow') {
         controls.enabled = true;
+        // Auto-select first player if none selected
+        if (!followPlayer && players.length > 0) {
+            followPlayer = players[0].name;
+            selectedPlayerIndex = 0;
+            const select = document.getElementById('followPlayerSelect');
+            if (select) select.value = followPlayer;
+        }
     }
 }
 
@@ -1234,26 +1526,6 @@ function updateFollowSelect() {
     });
 }
 
-function updateControlsHint() {
-    const hint = document.getElementById('controls-hint');
-    if (!hint) return;
-
-    if (viewMode === 'free') {
-        hint.innerHTML = `
-            <div><kbd>WASD</kbd> Move</div>
-            <div><kbd>Q</kbd><kbd>E</kbd> Up/Down</div>
-            <div><kbd>Shift</kbd> Sprint</div>
-            <div><kbd>Mouse</kbd> Look</div>
-            <div><kbd>Tab</kbd> Scoreboard</div>
-        `;
-    } else {
-        hint.innerHTML = `
-            <div><kbd>Space</kbd> Play/Pause</div>
-            <div><kbd>←</kbd><kbd>→</kbd> Skip 5s</div>
-            <div><kbd>Tab</kbd> Scoreboard</div>
-        `;
-    }
-}
 
 // ===== Scoreboard =====
 function toggleScoreboard() {
@@ -1376,45 +1648,6 @@ function addKillEntry(killerName, victimName, weapon) {
     }
 }
 
-function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-    } else {
-        document.exitFullscreen();
-    }
-}
-
-// Browser fullscreen (fills browser window, hides header/controls)
-let isBrowserFullscreen = false;
-
-function toggleBrowserFullscreen() {
-    isBrowserFullscreen = !isBrowserFullscreen;
-    const container = document.querySelector('.viewer-container');
-    const header = document.querySelector('.viewer-header');
-    const controls = document.querySelector('.playback-controls');
-    const expandIcon = document.getElementById('expandIcon');
-    const compressIcon = document.getElementById('compressIcon');
-
-    if (isBrowserFullscreen) {
-        container.classList.add('browser-fullscreen');
-        header.style.display = 'none';
-        controls.classList.add('fullscreen-mode');
-        expandIcon.style.display = 'none';
-        compressIcon.style.display = 'block';
-    } else {
-        container.classList.remove('browser-fullscreen');
-        header.style.display = 'flex';
-        controls.classList.remove('fullscreen-mode');
-        expandIcon.style.display = 'block';
-        compressIcon.style.display = 'none';
-    }
-
-    // Trigger resize to update canvas
-    onWindowResize();
-}
-
-// Add fullscreen button listener
-document.getElementById('fullscreenBtn')?.addEventListener('click', toggleBrowserFullscreen);
 
 // ===== Animation Loop =====
 function animate() {

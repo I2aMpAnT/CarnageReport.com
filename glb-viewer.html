@@ -33,10 +33,6 @@
                 <span id="gameType"></span>
                 <span id="gameDate"></span>
             </div>
-            <button class="fullscreen-btn" id="fullscreenBtn" title="Toggle Fullscreen">
-                <svg id="expandIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-                <svg id="compressIcon" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
-            </button>
         </header>
 
         <!-- 3D Canvas Container -->
@@ -55,11 +51,6 @@
                 <div class="error-icon">!</div>
                 <div class="error-text" id="error-text">Failed to load map</div>
                 <button class="error-retry" onclick="retryLoad()">Retry</button>
-            </div>
-
-            <!-- Debug Text (top of canvas) -->
-            <div id="debug-text" class="debug-text">
-                Cam: (0, 0, 0) | Map: 0° 0° 0° | Player: (0, 0, 0)
             </div>
 
             <!-- Scoreboard (Tab to toggle) -->
@@ -137,39 +128,53 @@
             </div>
 
             <div class="view-controls">
-                <button class="view-btn active" id="freeViewBtn" title="Free Camera (WASD + Mouse)">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                    Free
-                </button>
-                <button class="view-btn" id="topViewBtn" title="Top-Down View">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z"/></svg>
-                    Top
-                </button>
-                <button class="view-btn" id="orbitViewBtn" title="Orbit Camera (Mouse Drag)">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                    Orbit
-                </button>
-                <button class="view-btn" id="followBtn" title="Follow Player">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                    Follow
+                <button class="view-btn active" id="viewModeBtn" title="Cycle View Mode (Y)">
+                    <svg id="viewModeIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    <span id="viewModeText">Free</span>
                 </button>
                 <select id="followPlayerSelect" class="follow-select" style="display: none;">
                     <option value="">Select Player...</option>
                 </select>
-                <button class="view-btn active" id="heatmapBtn" title="Toggle Death Heatmap" onclick="toggleDeathHeatmap()">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                    Deaths
-                </button>
             </div>
         </div>
 
-        <!-- Controls Hint -->
+        <!-- Controls Hint (Collapsible) -->
         <div id="controls-hint" class="controls-hint">
-            <div><kbd>WASD</kbd> Move</div>
-            <div><kbd>Q</kbd><kbd>E</kbd> Up/Down</div>
-            <div><kbd>Shift</kbd> Sprint</div>
-            <div><kbd>Mouse</kbd> Look</div>
-            <div><kbd>Space</kbd> Play/Pause</div>
+            <div class="controls-header">
+                <button class="input-toggle" id="inputToggleBtn" title="Switch Input Type">
+                    <span id="inputTypeText">Keyboard</span>
+                </button>
+                <button class="controls-collapse-btn" id="controlsCollapseBtn" title="Toggle Controls">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </button>
+            </div>
+            <div class="controls-content" id="controlsContent">
+                <!-- Keyboard controls (default) -->
+                <div id="keyboardControls">
+                    <div><kbd>WASD</kbd> Move</div>
+                    <div><kbd>Q</kbd><kbd>E</kbd> Up/Down</div>
+                    <div><kbd>Shift</kbd> Sprint</div>
+                    <div><kbd>Mouse</kbd> Look</div>
+                    <div><kbd>Space</kbd> Play/Pause</div>
+                    <div><kbd>Tab</kbd> Scoreboard</div>
+                    <div><kbd>K</kbd> Killfeed</div>
+                    <div><kbd>P</kbd> Names</div>
+                    <div><kbd>Y</kbd> Cycle View</div>
+                    <div><kbd>[</kbd><kbd>]</kbd> Cycle Player</div>
+                </div>
+                <!-- Controller controls -->
+                <div id="controllerControls" style="display: none;">
+                    <div><span class="gpad">Left Stick</span> Move</div>
+                    <div><span class="gpad">Right Stick</span> Look</div>
+                    <div><span class="gpad">LT</span> Sprint</div>
+                    <div><span class="gpad">A</span> Play/Pause</div>
+                    <div><span class="gpad">Back</span> Scoreboard</div>
+                    <div><span class="gpad">DPad Down</span> Killfeed</div>
+                    <div><span class="gpad">DPad Left</span> Names</div>
+                    <div><span class="gpad">Y</span> Cycle View</div>
+                    <div><span class="gpad">LB</span><span class="gpad">RB</span> Cycle Player</div>
+                </div>
+            </div>
         </div>
     </div>
 
