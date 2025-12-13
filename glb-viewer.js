@@ -110,7 +110,7 @@ let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
 // Telemetry rotation calibration (in degrees)
-let telemetryRotation = { x: 0, y: 180, z: 0 };
+let telemetryRotation = { x: 0, y: 0, z: 0 };
 
 // ===== Initialization =====
 async function init() {
@@ -317,12 +317,12 @@ function setupEventListeners() {
     }
     if (resetRotationBtn) {
         resetRotationBtn.addEventListener('click', () => {
-            telemetryRotation = { x: 0, y: 180, z: 0 };
+            telemetryRotation = { x: 0, y: 0, z: 0 };
             if (rotationXSlider) rotationXSlider.value = 0;
-            if (rotationYSlider) rotationYSlider.value = 180;
+            if (rotationYSlider) rotationYSlider.value = 0;
             if (rotationZSlider) rotationZSlider.value = 0;
             document.getElementById('rotXValue').textContent = '0°';
-            document.getElementById('rotYValue').textContent = '180°';
+            document.getElementById('rotYValue').textContent = '0°';
             document.getElementById('rotZValue').textContent = '0°';
             updatePlayerPositions();
         });
