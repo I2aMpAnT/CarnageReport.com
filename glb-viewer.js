@@ -136,7 +136,6 @@ let wasPlayingBeforeDrag = false;
 
 // Death heatmap
 let deathPositions = [];
-let deathMarkers = [];
 let showDeathHeatmap = true;
 
 // Map center for camera positioning
@@ -966,49 +965,152 @@ async function createPlayerMarkers() {
 }
 
 // ===== Death Heatmap =====
+let heatmapMesh = null;
+
 function createDeathHeatmap() {
-    // Clear existing death markers
-    deathMarkers.forEach(marker => scene.remove(marker));
-    deathMarkers = [];
+    // Clear existing heatmap
+    if (heatmapMesh) {
+        scene.remove(heatmapMesh);
+        if (heatmapMesh.geometry) heatmapMesh.geometry.dispose();
+        if (heatmapMesh.material) {
+            if (heatmapMesh.material.map) heatmapMesh.material.map.dispose();
+            heatmapMesh.material.dispose();
+        }
+        heatmapMesh = null;
+    }
 
     if (!showDeathHeatmap || deathPositions.length === 0) return;
 
-    // Create death markers for each death position
+    // Calculate bounds from death positions (in Halo coords)
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+
     deathPositions.forEach(death => {
-        // Create skull/X marker for death location
-        const group = new THREE.Group();
-
-        // Red glow sphere for death location
-        const glowGeometry = new THREE.SphereGeometry(0.8, 16, 16);
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: 0xff0000,
-            transparent: true,
-            opacity: 0.4
-        });
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-        group.add(glow);
-
-        // X marker for death
-        const xSize = 0.5;
-        const xGeometry = new THREE.BufferGeometry();
-        const xVertices = new Float32Array([
-            -xSize, 0, -xSize, xSize, 0, xSize,  // First line
-            -xSize, 0, xSize, xSize, 0, -xSize   // Second line
-        ]);
-        xGeometry.setAttribute('position', new THREE.BufferAttribute(xVertices, 3));
-        const xMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3 });
-        const xMarker = new THREE.LineSegments(xGeometry, xMaterial);
-        xMarker.position.y = 0.5;
-        group.add(xMarker);
-
-        // Position in Three.js coordinates (convert from Halo coords)
-        group.position.set(death.x, death.z, -death.y);
-
-        scene.add(group);
-        deathMarkers.push(group);
+        minX = Math.min(minX, death.x);
+        maxX = Math.max(maxX, death.x);
+        minY = Math.min(minY, death.y);
+        maxY = Math.max(maxY, death.y);
     });
 
-    console.log(`Created ${deathMarkers.length} death markers`);
+    // Add padding
+    const padding = 15;
+    minX -= padding;
+    maxX += padding;
+    minY -= padding;
+    maxY += padding;
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    // Create heatmap canvas
+    const resolution = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = resolution;
+    canvas.height = resolution;
+    const ctx = canvas.getContext('2d');
+
+    // Clear with transparent
+    ctx.clearRect(0, 0, resolution, resolution);
+
+    // Draw gaussian blobs for each death (accumulate intensity)
+    const radius = resolution * 0.1; // Blob radius
+    deathPositions.forEach(death => {
+        // Convert to canvas coordinates
+        const canvasX = ((death.x - minX) / width) * resolution;
+        const canvasY = ((death.y - minY) / height) * resolution;
+
+        // Draw radial gradient (gaussian-like blob)
+        const gradient = ctx.createRadialGradient(canvasX, canvasY, 0, canvasX, canvasY, radius);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(canvasX, canvasY, radius, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // Get the intensity data and apply color gradient
+    const imageData = ctx.getImageData(0, 0, resolution, resolution);
+    const data = imageData.data;
+
+    // Apply heatmap color gradient based on intensity
+    for (let i = 0; i < data.length; i += 4) {
+        const intensity = data[i + 3] / 255; // Use alpha as intensity
+
+        if (intensity > 0.02) {
+            // Color gradient: blue -> cyan -> green -> yellow -> red
+            const color = getHeatmapColor(Math.min(1, intensity * 2));
+            data[i] = color.r;
+            data[i + 1] = color.g;
+            data[i + 2] = color.b;
+            data[i + 3] = Math.min(220, intensity * 500); // Boost visibility
+        } else {
+            data[i + 3] = 0; // Fully transparent for very low intensity
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    // Create Three.js texture and plane
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    const planeGeometry = new THREE.PlaneGeometry(width, height);
+    const planeMaterial = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.85,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        blending: THREE.NormalBlending
+    });
+
+    heatmapMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+
+    // Position the plane (convert Halo coords to Three.js)
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    heatmapMesh.position.set(centerX, 0.3, -centerY); // Slightly above ground
+    heatmapMesh.rotation.x = -Math.PI / 2; // Lay flat
+    heatmapMesh.rotation.z = Math.PI; // Correct orientation
+
+    scene.add(heatmapMesh);
+    console.log(`Created heatmap with ${deathPositions.length} death positions`);
+}
+
+function getHeatmapColor(intensity) {
+    // Color stops: blue (cold) -> cyan -> green -> yellow -> red (hot)
+    const stops = [
+        { pos: 0, r: 0, g: 0, b: 255 },       // Blue
+        { pos: 0.25, r: 0, g: 255, b: 255 },  // Cyan
+        { pos: 0.5, r: 0, g: 255, b: 0 },     // Green
+        { pos: 0.75, r: 255, g: 255, b: 0 },  // Yellow
+        { pos: 1, r: 255, g: 0, b: 0 }        // Red
+    ];
+
+    // Clamp and find color stops
+    intensity = Math.max(0, Math.min(1, intensity));
+
+    let lower = stops[0], upper = stops[stops.length - 1];
+    for (let i = 0; i < stops.length - 1; i++) {
+        if (intensity >= stops[i].pos && intensity <= stops[i + 1].pos) {
+            lower = stops[i];
+            upper = stops[i + 1];
+            break;
+        }
+    }
+
+    // Interpolate between color stops
+    const range = upper.pos - lower.pos;
+    const t = range > 0 ? (intensity - lower.pos) / range : 0;
+
+    return {
+        r: Math.round(lower.r + (upper.r - lower.r) * t),
+        g: Math.round(lower.g + (upper.g - lower.g) * t),
+        b: Math.round(lower.b + (upper.b - lower.b) * t)
+    };
 }
 
 function toggleDeathHeatmap() {
