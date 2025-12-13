@@ -1370,3 +1370,21 @@ body {
     background: #ff6600;
     border-radius: 3px;
 }
+
+/* Simple Debug Text (top of canvas) */
+.debug-text {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.75);
+    color: #00ff00;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    padding: 6px 16px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    z-index: 100;
+    white-space: nowrap;
+    pointer-events: none;
+}
