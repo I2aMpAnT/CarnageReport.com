@@ -674,26 +674,49 @@ body {
 /* Responsive */
 @media (max-width: 768px) {
     .viewer-header {
-        flex-wrap: wrap;
-        gap: 10px;
-        padding: 8px 12px;
+        flex-wrap: nowrap;
+        gap: 8px;
+        padding: 6px 10px;
+        min-height: 50px;
+    }
+
+    .viewer-title {
+        flex: 1;
+        min-width: 0;
+        justify-content: center;
     }
 
     .viewer-title span {
-        font-size: 14px;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .viewer-logo {
-        height: 30px;
+        height: 28px;
     }
 
     .back-link {
-        font-size: 12px;
-        padding: 6px 10px;
+        font-size: 0;
+        padding: 8px;
+        min-width: 36px;
+        justify-content: center;
+    }
+
+    .back-link svg {
+        width: 20px;
+        height: 20px;
     }
 
     .game-info {
-        font-size: 11px;
+        display: none;
+    }
+
+    .fullscreen-btn {
+        width: 36px;
+        height: 36px;
+        padding: 6px;
     }
 
     .player-legend {
@@ -703,81 +726,182 @@ body {
     }
 
     .playback-controls {
-        padding: 10px;
+        padding: 8px;
+        gap: 8px;
     }
 
-    .control-buttons {
-        flex-wrap: wrap;
+    .timeline-container {
+        flex-direction: row;
+        align-items: center;
         gap: 10px;
     }
 
+    .time-display {
+        font-size: 11px;
+        min-width: auto;
+        white-space: nowrap;
+    }
+
+    .timeline-wrapper {
+        flex: 1;
+    }
+
+    .control-buttons {
+        flex-wrap: nowrap;
+        gap: 8px;
+        justify-content: center;
+    }
+
     .control-btn {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
     }
 
     .control-btn.play-btn {
-        width: 60px;
-        height: 60px;
+        width: 52px;
+        height: 52px;
+    }
+
+    .control-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .speed-control {
+        margin-left: 0;
+    }
+
+    .speed-control label {
+        display: none;
+    }
+
+    .speed-control select {
+        padding: 6px 8px;
+        font-size: 11px;
+        min-width: 55px;
     }
 
     .view-controls {
-        flex-wrap: wrap;
-        gap: 6px;
+        flex-wrap: nowrap;
+        gap: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
     }
 
     .view-btn {
-        padding: 10px 12px;
-        font-size: 11px;
+        padding: 8px 10px;
+        font-size: 10px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .view-btn svg {
+        width: 16px;
+        height: 16px;
     }
 
     .stats-panel {
         position: static;
-        margin: 10px;
+        margin: 8px;
     }
 
     .pov-selector {
-        top: 60px;
-        left: 10px;
-        max-width: 180px;
-        min-width: 160px;
+        top: 56px;
+        left: 8px;
+        max-width: 160px;
+        min-width: 140px;
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
     }
 
     .pov-header {
-        padding: 8px 12px;
-        font-size: 11px;
+        padding: 8px 10px;
+        font-size: 10px;
     }
 
     .pov-item {
-        padding: 5px 6px;
-        gap: 8px;
+        padding: 6px 8px;
+        gap: 6px;
     }
 
     .pov-emblem, .pov-emblem-fallback {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
     }
 
     .pov-name {
-        font-size: 11px;
+        font-size: 10px;
     }
 
     .controls-hint {
         display: none;
     }
 
-    .timeline-container {
-        flex-direction: column;
-        gap: 8px;
+    .debug-text {
+        font-size: 10px;
+        padding: 4px 10px;
+        top: 6px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+    .viewer-header {
+        padding: 4px 8px;
+        min-height: 44px;
+    }
+
+    .viewer-title span {
+        font-size: 11px;
+    }
+
+    .viewer-logo {
+        height: 24px;
+    }
+
+    .back-link {
+        padding: 6px;
+        min-width: 32px;
+    }
+
+    .fullscreen-btn {
+        width: 32px;
+        height: 32px;
+    }
+
+    .playback-controls {
+        padding: 6px;
+    }
+
+    .control-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .control-btn.play-btn {
+        width: 48px;
+        height: 48px;
+    }
+
+    .view-btn {
+        padding: 6px 8px;
+        font-size: 9px;
     }
 
     .time-display {
-        font-size: 13px;
-        min-width: auto;
+        font-size: 10px;
     }
 
-    .speed-control {
-        margin-left: 0;
+    .pov-selector {
+        top: 50px;
+        max-width: 140px;
+        min-width: 120px;
+    }
+
+    .debug-text {
+        font-size: 9px;
+        padding: 3px 8px;
     }
 }
 
@@ -877,67 +1001,122 @@ body {
 /* Landscape mode on mobile */
 @media (max-height: 500px) and (orientation: landscape) {
     .viewer-header {
-        padding: 5px 12px;
+        padding: 4px 10px;
+        min-height: 36px;
     }
 
     .viewer-logo {
-        height: 25px;
+        height: 22px;
     }
 
     .viewer-title span {
-        font-size: 12px;
+        font-size: 11px;
+    }
+
+    .back-link {
+        padding: 4px;
+        min-width: 28px;
+    }
+
+    .fullscreen-btn {
+        width: 28px;
+        height: 28px;
+        padding: 4px;
     }
 
     .playback-controls {
-        padding: 6px 10px;
+        padding: 4px 8px;
+        gap: 4px;
+    }
+
+    .timeline-container {
+        gap: 8px;
+    }
+
+    .time-display {
+        font-size: 10px;
+    }
+
+    .control-buttons {
+        gap: 6px;
     }
 
     .control-btn {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
     }
 
     .control-btn.play-btn {
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
     }
 
     .control-btn svg {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
     }
 
     .view-controls {
-        margin-top: 2px;
+        margin-top: 0;
+        gap: 3px;
     }
 
     .view-btn {
-        padding: 6px 10px;
+        padding: 5px 8px;
+        font-size: 9px;
+    }
+
+    .view-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .speed-control select {
+        padding: 4px 6px;
         font-size: 10px;
     }
 
     .virtual-joystick {
-        bottom: 100px;
+        bottom: 80px;
         left: 15px;
     }
 
     .joystick-base {
-        width: 80px;
-        height: 80px;
+        width: 70px;
+        height: 70px;
     }
 
     .joystick-stick {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
     }
 
     .pov-selector {
-        top: 50px;
-        max-height: 200px;
+        top: 42px;
+        max-height: calc(100vh - 120px);
     }
 
     .pov-list {
-        max-height: 150px;
+        max-height: 120px;
+    }
+
+    .pov-item {
+        padding: 4px 6px;
+    }
+
+    .pov-emblem, .pov-emblem-fallback {
+        width: 24px;
+        height: 24px;
+    }
+
+    .pov-name {
+        font-size: 9px;
+    }
+
+    .debug-text {
+        font-size: 9px;
+        padding: 2px 8px;
+        top: 4px;
     }
 
     .controls-hint.mobile-hint {

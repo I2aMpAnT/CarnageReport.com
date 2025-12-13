@@ -182,10 +182,12 @@ function setupScene() {
 
     // Add test marker at a known CSV position (red sphere)
     // From CSV: X=-8.8194, Y=-4.4711, Z=-9.8421
+    // Test marker at known Halo coords: X=-8.8194, Y=-4.4711, Z=-9.8421
+    // Transform to scene: (-x, z, y) = (8.8194, -9.8421, -4.4711)
     const testGeom = new THREE.SphereGeometry(0.5);
     const testMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const testMarker = new THREE.Mesh(testGeom, testMat);
-    testMarker.position.set(-8.8194, -4.4711, -9.8421);
+    testMarker.position.set(8.8194, -9.8421, -4.4711);
     testMarker.name = 'testMarker';
     scene.add(testMarker);
 
@@ -1054,9 +1056,12 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Direct coordinate mapping (map is rotated to Z-up)
-            marker.group.position.set(pos.x, pos.y, pos.z);
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.z = pos.facingYaw;
+            // Transform Halo coords to match map rotation (-90° X, -180° Y)
+            // Halo: (x, y, z) where Z is up
+            // After rotation: scene position = (-x, z, y)
+            marker.group.position.set(-pos.x, pos.z, pos.y);
+            // Yaw rotates around Z in Halo (up), which is Y in scene after transform
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
 
             if (pos.isCrouching) {
                 marker.body.scale.y = 0.7;
@@ -1462,8 +1467,8 @@ function updateDebugInfo() {
         camRotZ = (euler.z * 180 / Math.PI).toFixed(0);
     }
 
-    // First player position (3D scene position)
-    let playerX = '0', playerY = '0', playerZ = '0';
+    // First player position and rotation (3D scene position)
+    let playerX = '0', playerY = '0', playerZ = '0', playerRotY = '0';
     if (players.length > 0) {
         const firstPlayer = players[0];
         const marker = playerMarkers[firstPlayer.name];
@@ -1471,10 +1476,11 @@ function updateDebugInfo() {
             playerX = marker.group.position.x.toFixed(1);
             playerY = marker.group.position.y.toFixed(1);
             playerZ = marker.group.position.z.toFixed(1);
+            playerRotY = (marker.group.rotation.y * 180 / Math.PI).toFixed(0);
         }
     }
 
-    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | Rot: ${camRotX}° ${camRotY}° ${camRotZ}° | Player: (${playerX}, ${playerY}, ${playerZ})`;
+    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | CamRot: ${camRotX}° ${camRotY}° ${camRotZ}° | Player: (${playerX}, ${playerY}, ${playerZ}) Yaw: ${playerRotY}°`;
 }
 
 function togglePOVPanel() {
