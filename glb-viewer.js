@@ -248,15 +248,9 @@ function setupEventListeners() {
     // Click anywhere on timeline track to seek
     timelineContainer.addEventListener('click', onTimelineClick);
 
-    // View controls
-    document.getElementById('topViewBtn').addEventListener('click', () => setViewMode('top'));
-    document.getElementById('freeViewBtn').addEventListener('click', () => setViewMode('free'));
-    document.getElementById('orbitViewBtn')?.addEventListener('click', () => setViewMode('orbit'));
-    document.getElementById('followBtn').addEventListener('click', () => {
-        const select = document.getElementById('followPlayerSelect');
-        select.style.display = select.style.display === 'none' ? 'block' : 'none';
-    });
-    document.getElementById('followPlayerSelect').addEventListener('change', (e) => {
+    // View controls - single cycling button
+    document.getElementById('viewModeBtn')?.addEventListener('click', () => cycleViewMode());
+    document.getElementById('followPlayerSelect')?.addEventListener('change', (e) => {
         if (e.target.value) {
             followPlayer = e.target.value;
             setViewMode('follow');
