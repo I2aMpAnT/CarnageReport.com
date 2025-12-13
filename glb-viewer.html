@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Game Replay - CarnageReport.com</title>
+    <title>Halo 2 Theater Mode - CarnageReport.com</title>
     <link rel="icon" type="image/x-icon" href="H2CRFinal.ico">
     <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="glb-viewer.css">
@@ -20,7 +20,7 @@
             </a>
             <div class="viewer-title">
                 <img src="H2CRFinal.png" alt="Logo" class="viewer-logo">
-                <span id="mapName">3D Game Replay</span>
+                <span id="mapName">Theater Mode</span>
             </div>
             <div class="game-info">
                 <span id="gameType"></span>
@@ -51,10 +51,12 @@
             </div>
         </div>
 
-        <!-- Player Legend -->
-        <div id="player-legend" class="player-legend">
-            <div class="legend-title">Players</div>
-            <div id="player-list" class="player-list"></div>
+        <!-- POV Selector Panel -->
+        <div id="pov-selector" class="pov-selector">
+            <div class="pov-header">POV SELECT</div>
+            <div id="pov-list" class="pov-list">
+                <!-- Populated by JS -->
+            </div>
         </div>
 
         <!-- Playback Controls -->
@@ -115,6 +117,10 @@
                 <select id="followPlayerSelect" class="follow-select" style="display: none;">
                     <option value="">Select Player...</option>
                 </select>
+                <button class="view-btn active" id="heatmapBtn" title="Toggle Death Heatmap" onclick="toggleDeathHeatmap()">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    Deaths
+                </button>
             </div>
         </div>
 
@@ -130,7 +136,6 @@
                         <tr>
                             <th>Player</th>
                             <th>Weapon</th>
-                            <th>State</th>
                         </tr>
                     </thead>
                     <tbody id="live-stats-body">
@@ -146,6 +151,52 @@
             <div><kbd>Shift</kbd> Sprint</div>
             <div><kbd>Mouse</kbd> Look</div>
             <div><kbd>Space</kbd> Play/Pause</div>
+        </div>
+
+        <!-- Debug Overlay -->
+        <div id="debug-overlay" class="debug-overlay">
+            <div class="debug-header">
+                DEBUG INFO
+                <button id="debug-toggle" class="debug-toggle">−</button>
+            </div>
+            <div id="debug-content" class="debug-content">
+                <div class="debug-section">
+                    <div class="debug-title">Camera Position</div>
+                    <div id="debug-cam-pos">X: 0 Y: 0 Z: 0</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Camera Rotation (deg)</div>
+                    <div id="debug-cam-rot">X: 0 Y: 0 Z: 0</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Camera Up Vector</div>
+                    <div id="debug-cam-up">X: 0 Y: 0 Z: 1</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Map Model Rotation (deg)</div>
+                    <div id="debug-map-rot">X: 0 Y: 0 Z: 0</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Map Bounds</div>
+                    <div id="debug-map-bounds">Loading...</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Player 1 Position</div>
+                    <div id="debug-player-pos">X: 0 Y: 0 Z: 0</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Map Rotation Controls</div>
+                    <div class="debug-controls">
+                        <label>X: <input type="range" id="map-rot-x" min="-180" max="180" value="0"><span id="map-rot-x-val">0°</span></label>
+                        <label>Y: <input type="range" id="map-rot-y" min="-180" max="180" value="0"><span id="map-rot-y-val">0°</span></label>
+                        <label>Z: <input type="range" id="map-rot-z" min="-180" max="180" value="0"><span id="map-rot-z-val">0°</span></label>
+                        <button id="reset-map-rot" class="debug-btn">Reset</button>
+                        <button id="apply-rot-90x" class="debug-btn">+90° X</button>
+                        <button id="apply-rot-90y" class="debug-btn">+90° Y</button>
+                        <button id="apply-rot-90z" class="debug-btn">+90° Z</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
