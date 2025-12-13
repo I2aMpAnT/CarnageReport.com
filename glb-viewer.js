@@ -131,6 +131,9 @@ let showPlayerNames = false;
 // Track last known positions for dead player handling
 let lastKnownPositions = {};
 
+// Dynamic speed multiplier (from RT or Z key)
+let dynamicSpeedMultiplier = 1;
+
 // ===== Initialization =====
 async function init() {
     parseUrlParams();
@@ -383,16 +386,22 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[13]._lastState = gamepad.buttons[13]?.pressed;
 
-    // DPad Left for player names toggle
-    if (gamepad.buttons[14]?.pressed && !gamepad.buttons[14]._lastState) { // DPad Left
-        togglePlayerNames();
+    // DPad Left/Right for timeline skip (10 seconds)
+    if (gamepad.buttons[14]?.pressed && !gamepad.buttons[14]._lastState) { // DPad Left - skip back
+        skip(-10);
     }
     gamepad.buttons[14]._lastState = gamepad.buttons[14]?.pressed;
 
-    // DPad Right for timeline skip forward
-    if (gamepad.buttons[15]?.pressed) {
-        skip(CONFIG.skipSeconds * deltaTime * 2);
+    if (gamepad.buttons[15]?.pressed && !gamepad.buttons[15]._lastState) { // DPad Right - skip forward
+        skip(10);
     }
+    gamepad.buttons[15]._lastState = gamepad.buttons[15]?.pressed;
+
+    // X button (2) for player names toggle
+    if (gamepad.buttons[2]?.pressed && !gamepad.buttons[2]._lastState) {
+        togglePlayerNames();
+    }
+    gamepad.buttons[2]._lastState = gamepad.buttons[2]?.pressed;
 
     // View mode (Y button cycles views)
     if (gamepad.buttons[3]?.pressed && !gamepad.buttons[3]._lastState) {
@@ -406,13 +415,20 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[8]._lastState = gamepad.buttons[8]?.pressed;
 
-    // RT for fine timeline scrubbing
+    // Right stick click (RS = button 11) for top-down view
+    if (gamepad.buttons[11]?.pressed && !gamepad.buttons[11]._lastState) {
+        setViewMode('top');
+    }
+    gamepad.buttons[11]._lastState = gamepad.buttons[11]?.pressed;
+
+    // RT for dynamic playback speed (light press = slower, full press = faster)
     const rtValue = gamepad.buttons[7]?.value || 0;
     if (rtValue > 0.1) {
-        const scrubAmount = rtValue * 100 * deltaTime;
-        currentTimeMs = Math.max(startTimeMs, Math.min(startTimeMs + totalDurationMs, currentTimeMs + scrubAmount));
-        updateTimeDisplay();
-        updatePlayerPositions();
+        // Map RT pressure to speed multiplier: 0.1-1.0 -> 1.5x to 8x
+        const dynamicSpeed = 1 + (rtValue * 7); // 1.5x at light press, 8x at full press
+        dynamicSpeedMultiplier = dynamicSpeed;
+    } else {
+        dynamicSpeedMultiplier = 1;
     }
 }
 
@@ -622,6 +638,9 @@ function onKeyDown(e) {
         case 'Digit4':
             setViewMode('top');
             break;
+        case 'KeyT':
+            setViewMode('top');
+            break;
         case 'Tab':
             e.preventDefault();
             toggleScoreboard();
@@ -631,6 +650,9 @@ function onKeyDown(e) {
             break;
         case 'KeyP':
             togglePlayerNames();
+            break;
+        case 'KeyZ':
+            // Z key for speed boost - handled in animation loop via keys state
             break;
         case 'KeyM':
             // Toggle mute (future audio support)
@@ -1663,9 +1685,22 @@ function animate() {
     // Handle gamepad input
     handleGamepadInput(deltaTime);
 
-    // Update playback
-    if (isPlaying) {
-        currentTimeMs += deltaTime * 1000 * playbackSpeed;
+    // Check Z key for keyboard speed boost
+    if (keys['KeyZ']) {
+        dynamicSpeedMultiplier = 4; // 4x speed when Z held
+    } else if (dynamicSpeedMultiplier > 1 && !keys['KeyZ']) {
+        // Only reset if it was set by keyboard (gamepad handles its own reset)
+        const gamepad = navigator.getGamepads()[gamepadIndex];
+        const rtValue = gamepad?.buttons[7]?.value || 0;
+        if (rtValue <= 0.1) {
+            dynamicSpeedMultiplier = 1;
+        }
+    }
+
+    // Update playback with dynamic speed multiplier
+    if (isPlaying || dynamicSpeedMultiplier > 1) {
+        const effectiveSpeed = playbackSpeed * dynamicSpeedMultiplier;
+        currentTimeMs += deltaTime * 1000 * effectiveSpeed;
 
         if (currentTimeMs >= startTimeMs + totalDurationMs) {
             currentTimeMs = startTimeMs; // Loop
