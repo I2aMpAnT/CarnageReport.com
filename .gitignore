@@ -32,3 +32,6 @@ MMR.json
 head_to_head_matches.json
 head_to_head_stats.json
 populate_stats_fixed.py
+
+# Large 3D map assets (served separately)
+maps3D/

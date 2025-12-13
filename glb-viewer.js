@@ -1569,59 +1569,96 @@ function positionCameraToFit() {
 }
 
 // ===== UI Updates =====
-function updatePlayerLegend() {
-    const container = document.getElementById('player-list');
+function updatePOVSelector() {
+    const container = document.getElementById('pov-list');
     if (!container) return;
     container.innerHTML = '';
 
+    // Add Free Camera option first
+    const freeCamItem = document.createElement('div');
+    freeCamItem.className = 'pov-item free-camera';
+    freeCamItem.dataset.pov = 'free';
+    if (viewMode === 'free') freeCamItem.classList.add('selected');
+    freeCamItem.onclick = () => selectPOV('free');
+
+    const freeCamIcon = document.createElement('div');
+    freeCamIcon.className = 'pov-emblem-fallback';
+    freeCamIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>';
+
+    const freeCamName = document.createElement('span');
+    freeCamName.className = 'pov-name';
+    freeCamName.textContent = 'Free Camera';
+
+    freeCamItem.appendChild(freeCamIcon);
+    freeCamItem.appendChild(freeCamName);
+    container.appendChild(freeCamItem);
+
+    // Add player items
     players.forEach(player => {
         const item = document.createElement('div');
-        item.className = 'player-item';
-        item.onclick = () => {
-            followPlayer = player.name;
-            setViewMode('follow');
-        };
+        item.className = 'pov-item';
+        item.dataset.pov = player.name;
 
-        // Emblem image instead of color box
+        // Add team class for color stripe
+        if (player.team.includes('blue')) {
+            item.classList.add('team-blue');
+        } else if (player.team.includes('red')) {
+            item.classList.add('team-red');
+        }
+
+        // Check if this player is currently selected
+        if (viewMode === 'follow' && followPlayer === player.name) {
+            item.classList.add('selected');
+        }
+
+        item.onclick = () => selectPOV(player.name);
+
+        // Emblem image
         const emblem = document.createElement('img');
-        emblem.className = 'player-emblem';
+        emblem.className = 'pov-emblem';
         emblem.src = player.emblemUrl;
         emblem.alt = player.name;
-        emblem.style.width = '32px';
-        emblem.style.height = '32px';
-        emblem.style.borderRadius = '4px';
-        emblem.style.marginRight = '8px';
         emblem.onerror = () => {
-            // Fallback to color box if emblem fails to load
-            emblem.style.display = 'none';
-            const colorBox = document.createElement('div');
-            colorBox.className = 'player-color';
-            colorBox.style.backgroundColor = `#${player.color.toString(16).padStart(6, '0')}`;
-            item.insertBefore(colorBox, item.firstChild);
+            // Replace with fallback on error
+            const fallback = document.createElement('div');
+            fallback.className = 'pov-emblem-fallback';
+            fallback.style.color = `#${player.color.toString(16).padStart(6, '0')}`;
+            fallback.textContent = player.name.charAt(0).toUpperCase();
+            emblem.replaceWith(fallback);
         };
 
+        // Player name
         const name = document.createElement('span');
-        name.className = 'player-name';
+        name.className = 'pov-name';
         name.textContent = getPlayerDisplayName(player.name);
-
-        const team = document.createElement('span');
-        team.className = 'player-team';
-        if (player.team.includes('blue')) {
-            team.classList.add('blue');
-            team.textContent = 'Blue';
-        } else if (player.team.includes('red')) {
-            team.classList.add('red');
-            team.textContent = 'Red';
-        } else {
-            team.classList.add('ffa');
-            team.textContent = 'FFA';
-        }
 
         item.appendChild(emblem);
         item.appendChild(name);
-        item.appendChild(team);
         container.appendChild(item);
     });
+}
+
+function selectPOV(pov) {
+    // Update selection in UI
+    document.querySelectorAll('.pov-item').forEach(item => {
+        item.classList.remove('selected');
+        if (item.dataset.pov === pov) {
+            item.classList.add('selected');
+        }
+    });
+
+    if (pov === 'free') {
+        setViewMode('free');
+        followPlayer = null;
+    } else {
+        followPlayer = pov;
+        setViewMode('follow');
+    }
+}
+
+// Legacy function name for compatibility
+function updatePlayerLegend() {
+    updatePOVSelector();
 }
 
 function updateFollowSelect() {
