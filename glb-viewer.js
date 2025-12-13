@@ -199,14 +199,18 @@ function setupScene() {
 }
 
 function setupLighting() {
-    const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+    // Ambient fill
+    const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
     scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362e24, 0.6);
+    // Hemisphere: bright from above (Y+), darker from below
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
+    hemiLight.position.set(0, 200, 0);
     scene.add(hemiLight);
 
+    // Main light - directly from above (top-down)
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(50, 100, 50);
+    dirLight.position.set(0, 200, 0);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
@@ -218,8 +222,9 @@ function setupLighting() {
     dirLight.shadow.camera.bottom = -100;
     scene.add(dirLight);
 
-    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
-    fillLight.position.set(-50, 50, -50);
+    // Subtle fill from side
+    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.2);
+    fillLight.position.set(50, 100, 50);
     scene.add(fillLight);
 }
 
