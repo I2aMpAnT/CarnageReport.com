@@ -144,8 +144,8 @@ function setupScene() {
     scene.fog = new THREE.Fog(0x0a0a12, 50, 200);
 
     camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, 0, CONFIG.defaultCameraHeight);
-    camera.up.set(0, 0, 1); // Z-up
+    camera.position.set(0, CONFIG.defaultCameraHeight, 0);
+    camera.up.set(0, 1, 0); // Y-up (standard)
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -303,26 +303,28 @@ function handleGamepadInput(deltaTime) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera yaw for XY plane movement (Z-up)
-        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
-        const yaw = euler.z;
+        // Get camera forward direction (where it's looking)
+        const forward = new THREE.Vector3();
+        camera.getWorldDirection(forward);
 
-        const forward = new THREE.Vector3(-Math.sin(yaw), Math.cos(yaw), 0);
-        const right = new THREE.Vector3(Math.cos(yaw), Math.sin(yaw), 0);
+        // Get right vector (perpendicular to forward and up)
+        const right = new THREE.Vector3();
+        right.crossVectors(forward, camera.up).normalize();
 
-        direction.addScaledVector(right, leftX);
-        direction.addScaledVector(forward, -leftY);
+        // Left stick: forward/back and strafe
+        direction.addScaledVector(forward, -leftY); // Forward/back
+        direction.addScaledVector(right, leftX);    // Strafe left/right
 
         camera.position.addScaledVector(direction, speed);
     }
 
-    // Look (right stick) - only in free mode (Z-up)
+    // Look (right stick) - only in free mode
     if (viewMode === 'free' && (rightX !== 0 || rightY !== 0)) {
-        const euler = new THREE.Euler(0, 0, 0, 'ZXY');
+        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
         euler.setFromQuaternion(camera.quaternion);
 
-        euler.z -= rightX * CONFIG.gamepadLookSensitivity; // Yaw around Z
-        euler.x -= rightY * CONFIG.gamepadLookSensitivity; // Pitch
+        euler.y -= rightX * CONFIG.gamepadLookSensitivity; // Yaw (left/right)
+        euler.x -= rightY * CONFIG.gamepadLookSensitivity; // Pitch (up/down)
         euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
 
         camera.quaternion.setFromEuler(euler);
@@ -486,12 +488,12 @@ function onMouseMove(e) {
     const movementX = e.movementX || 0;
     const movementY = e.movementY || 0;
 
-    // Z-up: yaw around Z, pitch around X
-    const euler = new THREE.Euler(0, 0, 0, 'ZXY');
+    // Standard FPS look: yaw around Y, pitch around X
+    const euler = new THREE.Euler(0, 0, 0, 'YXZ');
     euler.setFromQuaternion(camera.quaternion);
 
-    euler.z -= movementX * CONFIG.lookSensitivity; // Yaw
-    euler.x -= movementY * CONFIG.lookSensitivity; // Pitch
+    euler.y -= movementX * CONFIG.lookSensitivity; // Yaw (left/right)
+    euler.x -= movementY * CONFIG.lookSensitivity; // Pitch (up/down)
 
     // Clamp vertical look
     euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
@@ -519,23 +521,23 @@ function handleKeyboardMovement(deltaTime) {
 
     const direction = new THREE.Vector3();
 
-    // Get camera yaw from quaternion (rotation around Z for Z-up)
-    const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
-    const yaw = euler.z;
+    // Get camera forward direction (where it's looking)
+    const forward = new THREE.Vector3();
+    camera.getWorldDirection(forward);
 
-    // Forward/back on XY plane based on camera yaw
-    const forward = new THREE.Vector3(-Math.sin(yaw), Math.cos(yaw), 0);
-    const right = new THREE.Vector3(Math.cos(yaw), Math.sin(yaw), 0);
+    // Get right vector (perpendicular to forward and up)
+    const right = new THREE.Vector3();
+    right.crossVectors(forward, camera.up).normalize();
 
-    // WASD movement on XY plane
-    if (keys['KeyW'] || keys['ArrowUp']) direction.add(forward);
-    if (keys['KeyS'] || keys['ArrowDown']) direction.sub(forward);
+    // WASD: forward/back in look direction, strafe left/right
+    if (keys['KeyW']) direction.add(forward);
+    if (keys['KeyS']) direction.sub(forward);
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement (Z-up)
-    if (keys['KeyQ'] || keys['PageDown']) direction.z -= 1;
-    if (keys['KeyE'] || keys['PageUp']) direction.z += 1;
+    // Vertical movement (Y-up)
+    if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
+    if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
 
     if (direction.length() > 0) {
         direction.normalize();
@@ -756,8 +758,8 @@ function parseTelemetryCSV(csvText) {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
         const emblem = playerEmblemData[name] || {};
-        // Generate emblem URL
-        const emblemUrl = `https://www.halo2pc.com/test-pages/CartoStat/Emblem/emblem.php?P=${emblem.primaryColor || 0}&S=${emblem.secondaryColor || 0}&EP=${emblem.tertiaryColor || 0}&ES=${emblem.quaternaryColor || 0}&EF=${emblem.emblemForeground || 0}&EB=${emblem.emblemBackground || 0}&ET=0`;
+        // Generate emblem URL from VPS
+        const emblemUrl = `http://104.207.143.249:3001/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
         players.push({ name, team, color, emblem, emblemUrl });
     });
 
@@ -1011,9 +1013,6 @@ function updatePlayerPositions() {
         }
     }
 
-    const liveStatsBody = document.getElementById('live-stats-body');
-    if (liveStatsBody) liveStatsBody.innerHTML = '';
-
     for (const player of players) {
         const marker = playerMarkers[player.name];
         if (!marker) continue;
@@ -1034,31 +1033,20 @@ function updatePlayerPositions() {
             }
 
             marker.group.visible = true;
-
-            if (liveStatsBody) {
-                const state = pos.isCrouching ? 'Crouching' : (pos.isAirborne ? 'Airborne' : 'Standing');
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span></td>
-                    <td>${pos.currentWeapon}</td>
-                    <td>${state}</td>
-                `;
-                liveStatsBody.appendChild(row);
-            }
         } else {
             marker.group.visible = false;
         }
     }
 
-    // Follow camera (Z-up)
+    // Follow camera (Y-up)
     if (viewMode === 'follow' && followPlayer) {
         const marker = playerMarkers[followPlayer];
         if (marker && marker.group.visible) {
             const targetPos = marker.group.position.clone();
-            targetPos.z += CONFIG.followCameraHeight; // Z-up
+            targetPos.y += CONFIG.followCameraHeight; // Y-up
 
-            const offset = new THREE.Vector3(0, -CONFIG.followCameraDistance, 0); // Behind in Y
-            offset.applyAxisAngle(new THREE.Vector3(0, 0, 1), marker.group.rotation.z);
+            const offset = new THREE.Vector3(0, 0, CONFIG.followCameraDistance); // Behind in Z
+            offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), marker.group.rotation.y);
 
             camera.position.lerp(targetPos.clone().add(offset), 0.1);
             controls.target.lerp(marker.group.position, 0.1);
@@ -1123,12 +1111,12 @@ function setViewMode(mode) {
     // Update controls hint
     updateControlsHint();
 
-    // All modes use Z-up
-    camera.up.set(0, 0, 1);
+    // Standard Y-up
+    camera.up.set(0, 1, 0);
 
     if (mode === 'top') {
         controls.enabled = false;
-        camera.position.set(0, 0, CONFIG.defaultCameraHeight);
+        camera.position.set(0, CONFIG.defaultCameraHeight, 0);
         camera.lookAt(0, 0, 0);
     } else if (mode === 'free') {
         controls.enabled = false;
@@ -1155,14 +1143,15 @@ function positionCameraToFit() {
         maxZ = Math.max(maxZ, row.z);
     });
 
+    // Halo coords: X=right, Y=forward, Z=up
+    // Three.js:    X=right, Y=up, Z=back
     const centerX = (minX + maxX) / 2;
-    const centerY = (minY + maxY) / 2;
-    const centerZ = (minZ + maxZ) / 2;
-    const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
+    const centerY = (minZ + maxZ) / 2;  // Halo Z -> Three.js Y
+    const centerZ = -(minY + maxY) / 2; // Halo Y -> Three.js -Z
 
-    // Z-up: camera above looking down at center
-    camera.position.set(centerX, centerY, maxZ + maxRange * 0.8);
-    controls.target.set(centerX, centerY, centerZ);
+    // Start camera at center of player area at eye level, looking forward
+    camera.position.set(centerX, centerY + 2, centerZ);
+    controls.target.set(centerX, centerY + 2, centerZ - 10); // Look forward (-Z)
     controls.update();
 }
 
@@ -1241,11 +1230,6 @@ function updateControlsHint() {
         `;
     }
 }
-
-window.toggleStatsPanel = function() {
-    const panel = document.getElementById('stats-panel');
-    if (panel) panel.classList.toggle('collapsed');
-};
 
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
