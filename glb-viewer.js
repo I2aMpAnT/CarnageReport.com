@@ -18,15 +18,15 @@ const CONFIG = {
     defaultSpeed: 1,
     skipSeconds: 5,
 
-    // Movement settings
-    moveSpeed: 30,
+    // Movement settings (reduced for better control)
+    moveSpeed: 15,
     sprintMultiplier: 2.5,
     lookSensitivity: 0.002,
 
     // Gamepad settings
     gamepadDeadzone: 0.15,
     gamepadLookSensitivity: 0.05,
-    gamepadMoveSpeed: 40,
+    gamepadMoveSpeed: 20,
 
     teamColors: {
         '_game_team_blue': 0x0066ff,
@@ -79,6 +79,7 @@ function mapNameToGlbFilename(mapName) {
 // ===== State =====
 let scene, camera, renderer, controls;
 let mapModel = null;
+let helmetModel = null;  // Master Chief helmet template
 let playerMarkers = {};
 let telemetryData = [];
 let players = [];
@@ -91,6 +92,7 @@ let lastFrameTime = 0;
 let animationFrameId = null;
 let followPlayer = null;
 let viewMode = 'free';
+let previousViewMode = 'free';  // For RS click toggle back
 
 // Input state
 const keys = {};
@@ -200,13 +202,16 @@ function setupScene() {
 }
 
 function setupLighting() {
-    const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+    // Strong ambient light for base visibility (especially interiors)
+    const ambientLight = new THREE.AmbientLight(0x606070, 1.2);
     scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362e24, 0.6);
+    // Hemisphere light for natural sky/ground gradient
+    const hemiLight = new THREE.HemisphereLight(0xaaccff, 0x444422, 0.8);
     scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    // Main directional light (sun)
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
     dirLight.position.set(50, 100, 50);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -219,9 +224,23 @@ function setupLighting() {
     dirLight.shadow.camera.bottom = -100;
     scene.add(dirLight);
 
-    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
-    fillLight.position.set(-50, 50, -50);
-    scene.add(fillLight);
+    // Fill lights from multiple angles to illuminate interiors
+    const fillLight1 = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight1.position.set(-50, 30, -50);
+    scene.add(fillLight1);
+
+    const fillLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight2.position.set(50, 30, -50);
+    scene.add(fillLight2);
+
+    const fillLight3 = new THREE.DirectionalLight(0xffffff, 0.4);
+    fillLight3.position.set(-50, 30, 50);
+    scene.add(fillLight3);
+
+    // Bottom fill light to reduce harsh shadows in enclosed spaces
+    const bottomFill = new THREE.DirectionalLight(0x8888aa, 0.3);
+    bottomFill.position.set(0, -50, 0);
+    scene.add(bottomFill);
 }
 
 function setupEventListeners() {
@@ -416,9 +435,9 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[8]._lastState = gamepad.buttons[8]?.pressed;
 
-    // Right stick click (RS = button 11) for top-down view
+    // Right stick click (RS = button 11) - toggle top-down view
     if (gamepad.buttons[11]?.pressed && !gamepad.buttons[11]._lastState) {
-        setViewMode('top');
+        toggleTopDown();
     }
     gamepad.buttons[11]._lastState = gamepad.buttons[11]?.pressed;
 
@@ -447,6 +466,17 @@ function cycleViewMode() {
     const currentIndex = modes.indexOf(viewMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setViewMode(modes[nextIndex]);
+}
+
+function toggleTopDown() {
+    if (viewMode === 'top') {
+        // Return to previous view mode
+        setViewMode(previousViewMode !== 'top' ? previousViewMode : 'free');
+    } else {
+        // Save current mode and switch to top-down
+        previousViewMode = viewMode;
+        setViewMode('top');
+    }
 }
 
 // Cycle through players
@@ -640,7 +670,7 @@ function onKeyDown(e) {
             setViewMode('top');
             break;
         case 'KeyT':
-            setViewMode('top');
+            toggleTopDown();
             break;
         case 'Tab':
             e.preventDefault();
@@ -806,6 +836,36 @@ function onWindowResize() {
 }
 
 // ===== Loading =====
+
+// Load Master Chief helmet model for player markers
+async function loadHelmetModel() {
+    return new Promise((resolve) => {
+        const loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        loader.setDRACOLoader(dracoLoader);
+
+        loader.load(
+            'maps3D/MasterChief.glb',
+            (gltf) => {
+                helmetModel = gltf.scene;
+                // Center the model if needed
+                const box = new THREE.Box3().setFromObject(helmetModel);
+                const center = box.getCenter(new THREE.Vector3());
+                helmetModel.position.sub(center);
+                console.log('Master Chief helmet model loaded');
+                resolve();
+            },
+            undefined,
+            (error) => {
+                console.warn('Failed to load MasterChief.glb, using fallback markers:', error);
+                helmetModel = null;
+                resolve();
+            }
+        );
+    });
+}
+
 async function loadMapAndTelemetry() {
     const loadingOverlay = document.getElementById('loading-overlay');
     const loadingText = document.querySelector('.loading-text');
@@ -835,6 +895,10 @@ async function loadMapAndTelemetry() {
             console.warn('GLB not found, using fallback view:', glbError);
             showFallbackMessage();
         }
+
+        // Load helmet model for player markers
+        loadingText.textContent = 'Loading player models...';
+        await loadHelmetModel();
 
         await createPlayerMarkers();
         loadingOverlay.style.display = 'none';
@@ -970,8 +1034,9 @@ function parseTelemetryCSV(csvText) {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
         const emblem = playerEmblemData[name] || {};
-        // Generate emblem URL from VPS
-        const emblemUrl = `http://104.207.143.249:3001/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
+        // Generate emblem URL - use relative path if on same domain, otherwise use emblem server
+        // Note: For HTTPS pages, emblem server must also be HTTPS or use a proxy
+        const emblemUrl = `/emblems/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
         players.push({ name, team, color, emblem, emblemUrl });
     });
 
@@ -1035,51 +1100,66 @@ async function createPlayerMarkers() {
         }
     }));
 
+    // Detect FFA: more than 2 unique teams means FFA (use white helmets)
+    const uniqueTeams = new Set(players.map(p => p.team).filter(t => t && t !== 'none' && t !== ''));
+    const isFFA = uniqueTeams.size > 2 || uniqueTeams.size === 0;
+
     players.forEach(player => {
         const group = new THREE.Group();
         group.name = `player_${player.name}`;
 
-        const bodyGeometry = new THREE.CylinderGeometry(
-            CONFIG.playerMarkerSize * 0.4,
-            CONFIG.playerMarkerSize * 0.5,
-            CONFIG.playerMarkerHeight * 0.7,
-            16
-        );
-        const bodyMaterial = new THREE.MeshStandardMaterial({
-            color: player.color,
-            metalness: 0.3,
-            roughness: 0.7,
-            emissive: player.color,
-            emissiveIntensity: 0.2
-        });
-        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.y = CONFIG.playerMarkerHeight * 0.35;
-        body.castShadow = true;
-        group.add(body);
+        // Helmet container for pitch rotation
+        const helmetPivot = new THREE.Group();
+        let helmet = null;
 
-        const headGeometry = new THREE.SphereGeometry(CONFIG.playerMarkerSize * 0.35, 16, 16);
-        const headMaterial = new THREE.MeshStandardMaterial({
-            color: player.color,
-            metalness: 0.3,
-            roughness: 0.7,
-            emissive: player.color,
-            emissiveIntensity: 0.2
-        });
-        const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.y = CONFIG.playerMarkerHeight * 0.8;
-        head.castShadow = true;
-        group.add(head);
+        // Determine helmet color: white for FFA, red/blue for teams
+        let helmetColor;
+        if (isFFA) {
+            helmetColor = 0xffffff; // White for FFA
+        } else if (player.team.includes('red') || player.team === '_game_team_red') {
+            helmetColor = 0xff3333; // Red team
+        } else if (player.team.includes('blue') || player.team === '_game_team_blue') {
+            helmetColor = 0x3399ff; // Blue team
+        } else {
+            helmetColor = 0xffffff; // Default white
+        }
 
-        const arrowGeometry = new THREE.ConeGeometry(0.15, 0.4, 8);
-        const arrowMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            emissive: 0xffffff,
-            emissiveIntensity: 0.5
-        });
-        const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-        arrow.rotation.x = Math.PI / 2;
-        arrow.position.set(0, CONFIG.playerMarkerHeight * 0.5, CONFIG.playerMarkerSize * 0.6);
-        group.add(arrow);
+        if (helmetModel) {
+            // Clone the helmet model
+            helmet = helmetModel.clone();
+
+            // Apply team color to all meshes in the helmet
+            helmet.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = child.material.clone();
+                    child.material.color.setHex(helmetColor);
+                    child.material.emissive = new THREE.Color(helmetColor);
+                    child.material.emissiveIntensity = 0.15;
+                    child.castShadow = true;
+                }
+            });
+
+            // Scale helmet to appropriate size (adjust based on model)
+            helmet.scale.set(0.8, 0.8, 0.8);
+            helmetPivot.add(helmet);
+        } else {
+            // Fallback: sphere head if helmet not loaded
+            const headGeometry = new THREE.SphereGeometry(CONFIG.playerMarkerSize * 0.4, 16, 16);
+            const headMaterial = new THREE.MeshStandardMaterial({
+                color: helmetColor,
+                metalness: 0.5,
+                roughness: 0.5,
+                emissive: helmetColor,
+                emissiveIntensity: 0.15
+            });
+            helmet = new THREE.Mesh(headGeometry, headMaterial);
+            helmet.castShadow = true;
+            helmetPivot.add(helmet);
+        }
+
+        // Position helmet at head height
+        helmetPivot.position.y = CONFIG.playerMarkerHeight * 0.8;
+        group.add(helmetPivot);
 
         // Use waypoint canvas with emblem if available
         const emblemImage = emblemImages[player.name];
@@ -1094,16 +1174,16 @@ async function createPlayerMarkers() {
             depthTest: false
         });
         const label = new THREE.Sprite(labelMaterial);
-        label.scale.set(2.5, 3.5, 1); // Aspect ratio 128:180
+        label.scale.set(2.5, 3.5, 1);
         label.position.y = CONFIG.playerMarkerHeight + 2.5;
         group.add(label);
 
-        const glow = new THREE.PointLight(player.color, 0.5, 3);
+        const glow = new THREE.PointLight(helmetColor, 0.5, 3);
         glow.position.y = CONFIG.playerMarkerHeight * 0.5;
         group.add(glow);
 
         scene.add(group);
-        playerMarkers[player.name] = { group, body, head, arrow, label, player, emblemImage };
+        playerMarkers[player.name] = { group, helmet, helmetPivot, label, player, emblemImage, helmetColor };
     });
 }
 
@@ -1317,43 +1397,46 @@ function updatePlayerPositions() {
             lastKnownPositions[player.name] = {
                 x: pos.x, y: pos.y, z: pos.z,
                 facingYaw: pos.facingYaw,
+                facingPitch: pos.facingPitch,
                 isCrouching: pos.isCrouching
             };
 
             // Convert from Halo coords (Z-up) to Three.js (Y-up): X stays, Z becomes Y, Y becomes -Z
             marker.group.position.set(pos.x, pos.z, -pos.y);
-            // Apply facing direction
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = pos.facingYaw;
+            // Apply facing direction (yaw) to the group
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = pos.facingYaw + Math.PI;  // +180° rotation fix
 
-            if (pos.isCrouching) {
-                marker.body.scale.y = 0.7;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
-            } else {
-                marker.body.scale.y = 1;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
+            // Apply pitch to the helmet pivot (looking up/down)
+            if (marker.helmetPivot && !isNaN(pos.facingPitch)) {
+                marker.helmetPivot.rotation.x = -pos.facingPitch; // Negative for proper direction
+            }
+
+            // Handle crouch - lower helmet position
+            if (marker.helmetPivot) {
+                if (pos.isCrouching) {
+                    marker.helmetPivot.position.y = CONFIG.playerMarkerHeight * 0.5; // Lower when crouching
+                } else {
+                    marker.helmetPivot.position.y = CONFIG.playerMarkerHeight * 0.8; // Normal height
+                }
             }
 
             marker.group.visible = true;
             marker.isDead = false;
 
-            // Show normal marker
-            if (marker.body) marker.body.visible = true;
-            if (marker.head) marker.head.visible = true;
-            if (marker.arrow) marker.arrow.visible = true;
+            // Show helmet
+            if (marker.helmet) marker.helmet.visible = true;
 
         } else if (lastKnownPositions[player.name]) {
             // Player is dead - keep at last known position
             const lastPos = lastKnownPositions[player.name];
             marker.group.position.set(lastPos.x, lastPos.z, -lastPos.y);
-            if (!isNaN(lastPos.facingYaw)) marker.group.rotation.y = lastPos.facingYaw;
+            if (!isNaN(lastPos.facingYaw)) marker.group.rotation.y = lastPos.facingYaw + Math.PI;  // +180° rotation fix
 
             marker.group.visible = true;
             marker.isDead = true;
 
-            // Hide body/head, show death state
-            if (marker.body) marker.body.visible = false;
-            if (marker.head) marker.head.visible = false;
-            if (marker.arrow) marker.arrow.visible = false;
+            // Hide helmet when dead
+            if (marker.helmet) marker.helmet.visible = false;
 
         } else {
             // No position data ever - hide completely
@@ -1467,30 +1550,38 @@ function setViewMode(mode) {
 }
 
 function positionCameraToFit() {
-    if (telemetryData.length === 0) return;
+    if (telemetryData.length === 0 || players.length === 0) return;
 
-    let minX = Infinity, maxX = -Infinity;
-    let minY = Infinity, maxY = -Infinity;
-    let minZ = Infinity, maxZ = -Infinity;
+    // Get initial positions for all players (first occurrence of each)
+    const initialPositions = {};
+    for (const row of telemetryData) {
+        if (!initialPositions[row.playerName]) {
+            initialPositions[row.playerName] = { x: row.x, y: row.y, z: row.z };
+        }
+        // Stop once we have all players
+        if (Object.keys(initialPositions).length >= players.length) break;
+    }
 
-    telemetryData.forEach(row => {
-        minX = Math.min(minX, row.x);
-        maxX = Math.max(maxX, row.x);
-        minY = Math.min(minY, row.y);
-        maxY = Math.max(maxY, row.y);
-        minZ = Math.min(minZ, row.z);
-        maxZ = Math.max(maxZ, row.z);
+    // Calculate average position of all players at game start
+    let avgX = 0, avgY = 0, avgZ = 0;
+    const positions = Object.values(initialPositions);
+    positions.forEach(pos => {
+        avgX += pos.x;
+        avgY += pos.y;
+        avgZ += pos.z;
     });
+    avgX /= positions.length;
+    avgY /= positions.length;
+    avgZ /= positions.length;
 
-    // Halo coords: X=right, Y=forward, Z=up
-    // Three.js:    X=right, Y=up, Z=back
-    const centerX = (minX + maxX) / 2;
-    const centerY = (minZ + maxZ) / 2;  // Halo Z -> Three.js Y
-    const centerZ = -(minY + maxY) / 2; // Halo Y -> Three.js -Z
+    // Convert Halo coords (Z-up) to Three.js (Y-up)
+    // Start camera above average player position, looking down at slight angle
+    const camX = avgX;
+    const camY = avgZ + 15;  // Above players (Halo Z -> Three.js Y)
+    const camZ = -avgY + 10; // Behind players (Halo Y -> Three.js -Z)
 
-    // Start camera at center of player area at eye level, looking forward
-    camera.position.set(centerX, centerY + 2, centerZ);
-    controls.target.set(centerX, centerY + 2, centerZ - 10); // Look forward (-Z)
+    camera.position.set(camX, camY, camZ);
+    controls.target.set(avgX, avgZ, -avgY);
     controls.update();
 }
 
