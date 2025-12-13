@@ -8,8 +8,8 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 // ===== Configuration =====
 const CONFIG = {
-    mapsPath: '/maps3D/',
-    telemetryPath: '/stats/theater/',
+    mapsPath: 'maps3D/',
+    telemetryPath: 'stats/',
     playerMarkerSize: 0.5,
     playerMarkerHeight: 1.8,
     defaultCameraHeight: 50,
@@ -18,15 +18,15 @@ const CONFIG = {
     defaultSpeed: 1,
     skipSeconds: 5,
 
-    // Movement settings (reduced for better control)
-    moveSpeed: 15,
+    // Movement settings
+    moveSpeed: 30,
     sprintMultiplier: 2.5,
     lookSensitivity: 0.002,
 
     // Gamepad settings
     gamepadDeadzone: 0.15,
     gamepadLookSensitivity: 0.05,
-    gamepadMoveSpeed: 20,
+    gamepadMoveSpeed: 40,
 
     teamColors: {
         '_game_team_blue': 0x0066ff,
@@ -43,18 +43,16 @@ const CONFIG = {
 };
 
 // Map name to GLB filename mapping
-// GLB files available: ascension, backwash, beavercreek, burial_mounds, coagulation,
-// colossus, containment, cyclotron, deltatap, derelict, dune, elongation, foundation,
-// gemini, headlong, highplains, highplains2, lockout, midship, triplicate, turf, warlock, waterworks, zanzibar
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
+    'sanctuary': 'sanctuary',
     'warlock': 'warlock',
-    'sanctuary': 'deltatap',
     'beaver creek': 'beavercreek',
     'ascension': 'ascension',
     'coagulation': 'coagulation',
     'zanzibar': 'zanzibar',
+    'ivory tower': 'ivory_tower',
     'burial mounds': 'burial_mounds',
     'colossus': 'colossus',
     'headlong': 'headlong',
@@ -62,13 +60,15 @@ const MAP_NAME_TO_GLB = {
     'foundation': 'foundation',
     'backwash': 'backwash',
     'containment': 'containment',
+    'desolation': 'desolation',
+    'district': 'district',
     'elongation': 'elongation',
     'gemini': 'gemini',
+    'relic': 'relic',
+    'terminal': 'terminal',
+    'tombstone': 'tombstone',
     'turf': 'turf',
-    'desolation': 'derelict',
-    'relic': 'dune',
-    'terminal': 'highplains',
-    'ivory tower': 'cyclotron'
+    'uplift': 'uplift'
 };
 
 function mapNameToGlbFilename(mapName) {
@@ -79,7 +79,6 @@ function mapNameToGlbFilename(mapName) {
 // ===== State =====
 let scene, camera, renderer, controls;
 let mapModel = null;
-let helmetModel = null;  // Master Chief helmet template
 let playerMarkers = {};
 let telemetryData = [];
 let players = [];
@@ -92,7 +91,6 @@ let lastFrameTime = 0;
 let animationFrameId = null;
 let followPlayer = null;
 let viewMode = 'free';
-let previousViewMode = 'free';  // For RS click toggle back
 
 // Input state
 const keys = {};
@@ -112,42 +110,6 @@ let gameInfo = {};
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
-// Scoreboard state
-let scoreboardVisible = false;
-let playerStats = {}; // Track kills/deaths per player
-let scoreboardSortColumn = 'score'; // 'kills', 'deaths', 'score'
-let scoreboardSortAscending = false; // false = descending (highest first)
-
-// Killfeed state
-let killfeedVisible = true;
-let killEntries = [];
-
-// Controls panel state
-let controlsCollapsed = false;
-let showKeyboardControls = true; // true = keyboard, false = controller
-
-// Selected player index for cycling
-let selectedPlayerIndex = 0;
-
-// Rotation calibration offsets (radians)
-let rotationOffsetX = 0;
-let rotationOffsetY = Math.PI;  // Start with 180° offset
-let rotationOffsetZ = 0;
-
-// Player trails
-let showTrails = false;
-let playerTrails = {};  // name -> array of positions
-const TRAIL_MAX_POINTS = 500;  // Max trail points per player
-
-// Player name visibility (default off)
-let showPlayerNames = false;
-
-// Track last known positions for dead player handling
-let lastKnownPositions = {};
-
-// Dynamic speed multiplier (from RT or Z key)
-let dynamicSpeedMultiplier = 1;
-
 // ===== Initialization =====
 async function init() {
     await parseUrlParams();
@@ -158,111 +120,36 @@ async function init() {
     animate();
 }
 
-// Helper to parse datetime strings (same logic as script.js)
-function parseGameDateTime(dateStr) {
-    if (!dateStr) return null;
-    try {
-        let year, month, day, hours = 0, minutes = 0;
-        // ISO format with T: 2025-12-09T07:45:00
-        const isoTMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{2})/);
-        if (isoTMatch) {
-            [, year, month, day, hours, minutes] = isoTMatch.map(v => parseInt(v) || 0);
-        }
-        // ISO format with space: 2025-12-09 07:45:00
-        if (!year) {
-            const isoSpaceMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})/);
-            if (isoSpaceMatch) {
-                [, year, month, day, hours, minutes] = isoSpaceMatch.map(v => parseInt(v) || 0);
-            }
-        }
-        // US format: 12/9/2025 7:45
-        if (!year) {
-            const usMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
-            if (usMatch) {
-                [, month, day, year, hours, minutes] = usMatch.map(v => parseInt(v) || 0);
-            }
-        }
-        if (year) {
-            return new Date(year, month - 1, day, hours, minutes);
-        }
-    } catch (e) {}
-    return null;
-}
-
-// Load games data from playlist files (mirrors script.js loading)
-async function loadGamesData() {
-    const games = [];
-    try {
-        // Fetch playlists config
-        const playlistsResponse = await fetch('/playlists.json');
-        if (!playlistsResponse.ok) return games;
-        const playlistsConfig = await playlistsResponse.json();
-
-        // Load matches from each playlist
-        for (const playlist of playlistsConfig.playlists || []) {
-            try {
-                const matchesResponse = await fetch(`/${playlist.matches_file}`);
-                if (matchesResponse.ok) {
-                    const matchesData = await matchesResponse.json();
-                    for (const match of matchesData.matches || []) {
-                        games.push({
-                            map: match.map,
-                            gametype: match.gametype,
-                            timestamp: match.timestamp,
-                            source_file: match.source_file,
-                            playlist: playlist.name
-                        });
-                    }
-                }
-            } catch (e) {
-                console.warn(`Failed to load ${playlist.matches_file}:`, e);
-            }
-        }
-
-        // Sort chronologically (oldest first = game #1)
-        games.sort((a, b) => {
-            const timeA = parseGameDateTime(a.timestamp) || new Date(0);
-            const timeB = parseGameDateTime(b.timestamp) || new Date(0);
-            return timeA - timeB;
-        });
-    } catch (e) {
-        console.error('Failed to load playlists:', e);
-    }
-    return games;
-}
-
 async function parseUrlParams() {
-    const params = new URLSearchParams(window.location.search);
-
-    // Support path-based URL: /theater/{gameNumber}
+    // Check for /theater/{gameNumber} URL
     const pathMatch = window.location.pathname.match(/\/theater\/(\d+)/);
+
     if (pathMatch) {
-        const gameNumber = parseInt(pathMatch[1]);
-        // Load games data from playlist files
+        const gameNumber = pathMatch[1];
         try {
-            const games = await loadGamesData();
-            if (gameNumber >= 1 && gameNumber <= games.length) {
-                const game = games[gameNumber - 1]; // 1-indexed for users
-                // Derive telemetry filename from source_file
-                if (game.source_file) {
-                    telemetryFile = game.source_file.replace('.xlsx', '_theater.csv');
-                }
+            const response = await fetch('/gameindex.json');
+            const gameIndex = await response.json();
+            const game = gameIndex[gameNumber];
+
+            if (game) {
                 mapName = game.map || 'Unknown';
-                gameInfo = {
-                    map: mapName,
-                    gameType: game.gametype || '',
-                    date: game.timestamp || '',
-                    variant: game.gametype || ''
-                };
+                telemetryFile = game.theater || '';
             } else {
-                console.error(`Game #${gameNumber} not found (${games.length} games available)`);
+                console.error(`Game #${gameNumber} not found`);
+                mapName = 'Unknown';
+                telemetryFile = '';
             }
         } catch (e) {
-            console.error('Failed to load games:', e);
+            console.error('Failed to load gameindex.json:', e);
+            mapName = 'Unknown';
+            telemetryFile = '';
         }
+        gameInfo = { map: mapName, gameType: '', date: '', variant: '' };
     } else {
-        telemetryFile = params.get('telemetry') || '';
+        // Fallback to query params
+        const params = new URLSearchParams(window.location.search);
         mapName = params.get('map') || 'Midship';
+        telemetryFile = params.get('telemetry') || '';
         gameInfo = {
             map: mapName,
             gameType: params.get('gametype') || '',
@@ -286,7 +173,6 @@ function setupScene() {
 
     camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
     camera.position.set(0, CONFIG.defaultCameraHeight, 0);
-    camera.up.set(0, 1, 0); // Y-up (standard)
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -317,16 +203,13 @@ function setupScene() {
 }
 
 function setupLighting() {
-    // Strong ambient light for base visibility (especially interiors)
-    const ambientLight = new THREE.AmbientLight(0x606070, 1.2);
+    const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
     scene.add(ambientLight);
 
-    // Hemisphere light for natural sky/ground gradient
-    const hemiLight = new THREE.HemisphereLight(0xaaccff, 0x444422, 0.8);
+    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362e24, 0.6);
     scene.add(hemiLight);
 
-    // Main directional light (sun)
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
     dirLight.position.set(50, 100, 50);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -339,23 +222,9 @@ function setupLighting() {
     dirLight.shadow.camera.bottom = -100;
     scene.add(dirLight);
 
-    // Fill lights from multiple angles to illuminate interiors
-    const fillLight1 = new THREE.DirectionalLight(0xffffff, 0.4);
-    fillLight1.position.set(-50, 30, -50);
-    scene.add(fillLight1);
-
-    const fillLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
-    fillLight2.position.set(50, 30, -50);
-    scene.add(fillLight2);
-
-    const fillLight3 = new THREE.DirectionalLight(0xffffff, 0.4);
-    fillLight3.position.set(-50, 30, 50);
-    scene.add(fillLight3);
-
-    // Bottom fill light to reduce harsh shadows in enclosed spaces
-    const bottomFill = new THREE.DirectionalLight(0x8888aa, 0.3);
-    bottomFill.position.set(0, -50, 0);
-    scene.add(bottomFill);
+    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
+    fillLight.position.set(-50, 50, -50);
+    scene.add(fillLight);
 }
 
 function setupEventListeners() {
@@ -379,22 +248,20 @@ function setupEventListeners() {
     // Click anywhere on timeline track to seek
     timelineContainer.addEventListener('click', onTimelineClick);
 
-    // View controls - single cycling button
-    document.getElementById('viewModeBtn')?.addEventListener('click', () => cycleViewMode());
+    // View controls
+    document.getElementById('topViewBtn').addEventListener('click', () => setViewMode('top'));
+    document.getElementById('freeViewBtn').addEventListener('click', () => setViewMode('free'));
+    document.getElementById('orbitViewBtn')?.addEventListener('click', () => setViewMode('orbit'));
+    document.getElementById('followBtn').addEventListener('click', () => {
+        const select = document.getElementById('followPlayerSelect');
+        select.style.display = select.style.display === 'none' ? 'block' : 'none';
+    });
     document.getElementById('followPlayerSelect').addEventListener('change', (e) => {
         if (e.target.value) {
             followPlayer = e.target.value;
-            selectedPlayerIndex = players.findIndex(p => p.name === e.target.value);
             setViewMode('follow');
         }
     });
-
-    // Controls panel toggle
-    document.getElementById('controlsCollapseBtn')?.addEventListener('click', toggleControlsPanel);
-    document.getElementById('inputToggleBtn')?.addEventListener('click', toggleInputType);
-
-    // Rotation calibration sliders
-    setupCalibrationPanel();
 
     // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
@@ -458,27 +325,22 @@ function handleGamepadInput(deltaTime) {
     const rightX = applyDeadzone(gamepad.axes[2] || 0);
     const rightY = applyDeadzone(gamepad.axes[3] || 0);
 
-    // LT for dynamic sprint (pressure sensitive)
-    const ltValue = gamepad.buttons[6]?.value || 0;
-    // Map LT pressure: 0 = 1x, full press = sprintMultiplier (2.5x)
-    const sprintModifier = 1 + (ltValue * (CONFIG.sprintMultiplier - 1));
-
     // Movement (left stick) - only in free mode
     if (viewMode === 'free' && (leftX !== 0 || leftY !== 0)) {
-        const speed = CONFIG.gamepadMoveSpeed * deltaTime * sprintModifier;
+        const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward direction (where it's looking)
+        // Get camera forward/right vectors (ignore Y for ground movement)
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
+        forward.y = 0;
+        forward.normalize();
 
-        // Get right vector (perpendicular to forward and up)
         const right = new THREE.Vector3();
         right.crossVectors(forward, camera.up).normalize();
 
-        // Left stick: forward/back and strafe
-        direction.addScaledVector(forward, -leftY); // Forward/back
-        direction.addScaledVector(right, leftX);    // Strafe left/right
+        direction.addScaledVector(right, leftX);
+        direction.addScaledVector(forward, -leftY);
 
         camera.position.addScaledVector(direction, speed);
     }
@@ -488,23 +350,20 @@ function handleGamepadInput(deltaTime) {
         const euler = new THREE.Euler(0, 0, 0, 'YXZ');
         euler.setFromQuaternion(camera.quaternion);
 
-        euler.y -= rightX * CONFIG.gamepadLookSensitivity; // Yaw (left/right)
-        euler.x -= rightY * CONFIG.gamepadLookSensitivity; // Pitch (up/down)
+        euler.y -= rightX * CONFIG.gamepadLookSensitivity;
+        euler.x -= rightY * CONFIG.gamepadLookSensitivity;
         euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
 
         camera.quaternion.setFromEuler(euler);
     }
 
-    // LB/RB for player cycling
-    if (gamepad.buttons[4]?.pressed && !gamepad.buttons[4]._lastState) { // LB - previous player
-        cyclePlayer(-1);
+    // Timeline control (bumpers LB/RB)
+    if (gamepad.buttons[4]?.pressed) { // LB - skip back
+        skip(-CONFIG.skipSeconds * deltaTime * 2);
     }
-    gamepad.buttons[4]._lastState = gamepad.buttons[4]?.pressed;
-
-    if (gamepad.buttons[5]?.pressed && !gamepad.buttons[5]._lastState) { // RB - next player
-        cyclePlayer(1);
+    if (gamepad.buttons[5]?.pressed) { // RB - skip forward
+        skip(CONFIG.skipSeconds * deltaTime * 2);
     }
-    gamepad.buttons[5]._lastState = gamepad.buttons[5]?.pressed;
 
     // Play/Pause (A button) - only on press, not hold
     if (gamepad.buttons[0]?.pressed && !gamepad.buttons[0]._lastState) {
@@ -512,40 +371,15 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[0]._lastState = gamepad.buttons[0]?.pressed;
 
-    // DPad Up - increase speed
+    // Speed control (DPad Up/Down)
     if (gamepad.buttons[12]?.pressed && !gamepad.buttons[12]._lastState) {
-        changeSpeed(1);
+        changeSpeed(1); // Increase speed
+    }
+    if (gamepad.buttons[13]?.pressed && !gamepad.buttons[13]._lastState) {
+        changeSpeed(-1); // Decrease speed
     }
     gamepad.buttons[12]._lastState = gamepad.buttons[12]?.pressed;
-
-    // DPad Down - toggle killfeed
-    if (gamepad.buttons[13]?.pressed && !gamepad.buttons[13]._lastState) {
-        toggleKillfeed();
-    }
     gamepad.buttons[13]._lastState = gamepad.buttons[13]?.pressed;
-
-    // DPad Left/Right for timeline skip (10 seconds)
-    if (gamepad.buttons[14]?.pressed && !gamepad.buttons[14]._lastState) { // DPad Left - skip back
-        skip(-10);
-    }
-    gamepad.buttons[14]._lastState = gamepad.buttons[14]?.pressed;
-
-    if (gamepad.buttons[15]?.pressed && !gamepad.buttons[15]._lastState) { // DPad Right - skip forward
-        skip(10);
-    }
-    gamepad.buttons[15]._lastState = gamepad.buttons[15]?.pressed;
-
-    // X button (2) for player names toggle
-    if (gamepad.buttons[2]?.pressed && !gamepad.buttons[2]._lastState) {
-        togglePlayerNames();
-    }
-    gamepad.buttons[2]._lastState = gamepad.buttons[2]?.pressed;
-
-    // B button (1) for trails toggle
-    if (gamepad.buttons[1]?.pressed && !gamepad.buttons[1]._lastState) {
-        toggleTrails();
-    }
-    gamepad.buttons[1]._lastState = gamepad.buttons[1]?.pressed;
 
     // View mode (Y button cycles views)
     if (gamepad.buttons[3]?.pressed && !gamepad.buttons[3]._lastState) {
@@ -553,26 +387,14 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[3]._lastState = gamepad.buttons[3]?.pressed;
 
-    // Back button (button 8) toggles scoreboard
-    if (gamepad.buttons[8]?.pressed && !gamepad.buttons[8]._lastState) {
-        toggleScoreboard();
-    }
-    gamepad.buttons[8]._lastState = gamepad.buttons[8]?.pressed;
-
-    // Right stick click (RS = button 11) - toggle top-down view
-    if (gamepad.buttons[11]?.pressed && !gamepad.buttons[11]._lastState) {
-        toggleTopDown();
-    }
-    gamepad.buttons[11]._lastState = gamepad.buttons[11]?.pressed;
-
-    // RT for dynamic playback speed (light press = slower, full press = faster)
-    const rtValue = gamepad.buttons[7]?.value || 0;
-    if (rtValue > 0.1) {
-        // Map RT pressure to speed multiplier: 0.1-1.0 -> 1.5x to 8x
-        const dynamicSpeed = 1 + (rtValue * 7); // 1.5x at light press, 8x at full press
-        dynamicSpeedMultiplier = dynamicSpeed;
-    } else {
-        dynamicSpeedMultiplier = 1;
+    // Triggers for fine timeline scrubbing
+    const lt = gamepad.buttons[6]?.value || 0;
+    const rt = gamepad.buttons[7]?.value || 0;
+    if (lt > 0.1 || rt > 0.1) {
+        const scrubAmount = (rt - lt) * 100 * deltaTime;
+        currentTimeMs = Math.max(startTimeMs, Math.min(startTimeMs + totalDurationMs, currentTimeMs + scrubAmount));
+        updateTimeDisplay();
+        updatePlayerPositions();
     }
 }
 
@@ -586,195 +408,18 @@ function changeSpeed(direction) {
 }
 
 function cycleViewMode() {
-    const modes = ['free', 'follow', 'orbit', 'top'];
+    const modes = ['free', 'top', 'orbit', 'follow'];
     const currentIndex = modes.indexOf(viewMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setViewMode(modes[nextIndex]);
 }
 
-function toggleTopDown() {
-    if (viewMode === 'top') {
-        // Return to previous view mode
-        setViewMode(previousViewMode !== 'top' ? previousViewMode : 'free');
-    } else {
-        // Save current mode and switch to top-down
-        previousViewMode = viewMode;
-        setViewMode('top');
-    }
-}
-
-// Cycle through players
-function cyclePlayer(direction) {
-    if (players.length === 0) return;
-
-    selectedPlayerIndex = (selectedPlayerIndex + direction + players.length) % players.length;
-    const player = players[selectedPlayerIndex];
-    followPlayer = player.name;
-
-    // Update the follow select dropdown
-    const select = document.getElementById('followPlayerSelect');
-    if (select) {
-        select.value = player.name;
-    }
-
-    // Show notification
-    showPlayerSelectNotification(player.name);
-
-    // If in follow mode, stay in follow mode. Otherwise switch to follow.
-    if (viewMode !== 'free') {
-        setViewMode('follow');
-    }
-}
-
-function showPlayerSelectNotification(playerName) {
-    // Remove existing notification
-    const existing = document.querySelector('.player-select-notification');
-    if (existing) existing.remove();
-
-    const notification = document.createElement('div');
-    notification.className = 'player-select-notification';
-    notification.textContent = playerName;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 1500);
-}
-
-// Toggle controls panel collapse
-function toggleControlsPanel() {
-    controlsCollapsed = !controlsCollapsed;
-    const hint = document.getElementById('controls-hint');
-    if (hint) {
-        hint.classList.toggle('collapsed', controlsCollapsed);
-    }
-}
-
-// Toggle between keyboard and controller hints
-function toggleInputType() {
-    showKeyboardControls = !showKeyboardControls;
-    const keyboardDiv = document.getElementById('keyboardControls');
-    const controllerDiv = document.getElementById('controllerControls');
-    const inputText = document.getElementById('inputTypeText');
-
-    if (keyboardDiv && controllerDiv) {
-        keyboardDiv.style.display = showKeyboardControls ? 'block' : 'none';
-        controllerDiv.style.display = showKeyboardControls ? 'none' : 'block';
-    }
-    if (inputText) {
-        inputText.textContent = showKeyboardControls ? 'Keyboard' : 'Controller';
-    }
-}
-
-// Setup rotation calibration panel
-function setupCalibrationPanel() {
-    const rotXSlider = document.getElementById('rotationX');
-    const rotYSlider = document.getElementById('rotationY');
-    const rotZSlider = document.getElementById('rotationZ');
-    const rotXValue = document.getElementById('rotXValue');
-    const rotYValue = document.getElementById('rotYValue');
-    const rotZValue = document.getElementById('rotZValue');
-    const resetBtn = document.getElementById('resetRotation');
-    const toggleBtn = document.getElementById('calibrationToggle');
-    const content = document.getElementById('calibrationContent');
-
-    if (rotXSlider) {
-        rotXSlider.addEventListener('input', (e) => {
-            const deg = parseInt(e.target.value);
-            rotationOffsetX = deg * Math.PI / 180;
-            if (rotXValue) rotXValue.textContent = `${deg}°`;
-            updatePlayerPositions();
-        });
-    }
-
-    if (rotYSlider) {
-        rotYSlider.addEventListener('input', (e) => {
-            const deg = parseInt(e.target.value);
-            rotationOffsetY = deg * Math.PI / 180;
-            if (rotYValue) rotYValue.textContent = `${deg}°`;
-            updatePlayerPositions();
-        });
-    }
-
-    if (rotZSlider) {
-        rotZSlider.addEventListener('input', (e) => {
-            const deg = parseInt(e.target.value);
-            rotationOffsetZ = deg * Math.PI / 180;
-            if (rotZValue) rotZValue.textContent = `${deg}°`;
-            updatePlayerPositions();
-        });
-    }
-
-    if (resetBtn) {
-        resetBtn.addEventListener('click', () => {
-            rotationOffsetX = 0;
-            rotationOffsetY = Math.PI;
-            rotationOffsetZ = 0;
-            if (rotXSlider) rotXSlider.value = 0;
-            if (rotYSlider) rotYSlider.value = 180;
-            if (rotZSlider) rotZSlider.value = 0;
-            if (rotXValue) rotXValue.textContent = '0°';
-            if (rotYValue) rotYValue.textContent = '180°';
-            if (rotZValue) rotZValue.textContent = '0°';
-            updatePlayerPositions();
-            showGamepadNotification('Rotation Reset');
-        });
-    }
-
-    if (toggleBtn && content) {
-        toggleBtn.addEventListener('click', () => {
-            content.classList.toggle('collapsed');
-            toggleBtn.textContent = content.classList.contains('collapsed') ? '+' : '−';
-        });
-    }
-}
-
-// Toggle player names visibility on waypoints
-function togglePlayerNames() {
-    showPlayerNames = !showPlayerNames;
-    // Recreate player markers to update waypoint canvases
-    recreateWaypoints();
-    showGamepadNotification(showPlayerNames ? 'Names: ON' : 'Names: OFF');
-}
-
-// Recreate waypoints with current name visibility setting
-async function recreateWaypoints() {
-    // Load all emblems first
-    const emblemImages = {};
-    await Promise.all(players.map(async player => {
-        if (player.emblemUrl) {
-            emblemImages[player.name] = await loadEmblemImage(player.emblemUrl);
-        }
-    }));
-
-    players.forEach(player => {
-        const marker = playerMarkers[player.name];
-        if (!marker) return;
-
-        // Get team color for name display
-        const teamColor = player.team.includes('red') || player.team === '_game_team_red' ? 0xff3333 :
-                          player.team.includes('blue') || player.team === '_game_team_blue' ? 0x3399ff : player.color;
-
-        // Create new waypoint canvas
-        const emblemImage = emblemImages[player.name];
-        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage, teamColor);
-        const labelTexture = new THREE.CanvasTexture(waypointCanvas);
-
-        // Update the sprite material
-        if (marker.label && marker.label.material) {
-            marker.label.material.map.dispose();
-            marker.label.material.map = labelTexture;
-            marker.label.material.needsUpdate = true;
-        }
-    });
-}
-
 function showGamepadNotification(message) {
-    // Remove any existing notifications first to prevent stacking
-    document.querySelectorAll('.gamepad-notification').forEach(n => n.remove());
-
     const notification = document.createElement('div');
     notification.className = 'gamepad-notification';
     notification.textContent = message;
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 2000);
+    setTimeout(() => notification.remove(), 3000);
 }
 
 function updateSpeedDisplay() {
@@ -794,19 +439,11 @@ function onKeyDown(e) {
             e.preventDefault();
             togglePlayPause();
             break;
-        case 'BracketLeft': // [ key - previous player (like LB)
-            e.preventDefault();
-            cyclePlayer(-1);
-            break;
-        case 'BracketRight': // ] key - next player (like RB)
-            e.preventDefault();
-            cyclePlayer(1);
-            break;
-        case 'Comma': // < key - skip back
+        case 'ArrowLeft':
             e.preventDefault();
             skip(-CONFIG.skipSeconds);
             break;
-        case 'Period': // > key - skip forward
+        case 'ArrowRight':
             e.preventDefault();
             skip(CONFIG.skipSeconds);
             break;
@@ -818,47 +455,20 @@ function onKeyDown(e) {
             e.preventDefault();
             changeSpeed(-1);
             break;
-        case 'ArrowLeft':
-            e.preventDefault();
-            cyclePlayer(-1);
-            break;
-        case 'ArrowRight':
-            e.preventDefault();
-            cyclePlayer(1);
-            break;
-        case 'KeyY':
-            cycleViewMode();
-            break;
         case 'Digit1':
-            setViewMode('free');
+            setViewMode('top');
             break;
         case 'Digit2':
-            setViewMode('follow');
+            setViewMode('free');
             break;
         case 'Digit3':
             setViewMode('orbit');
             break;
         case 'Digit4':
-            setViewMode('top');
+            setViewMode('follow');
             break;
-        case 'KeyT':
-            toggleTopDown();
-            break;
-        case 'Tab':
-            e.preventDefault();
-            toggleScoreboard();
-            break;
-        case 'KeyK':
-            toggleKillfeed();
-            break;
-        case 'KeyP':
-            togglePlayerNames();
-            break;
-        case 'KeyL':
-            toggleTrails();
-            break;
-        case 'KeyZ':
-            // Z key for speed boost - handled in animation loop via keys state
+        case 'KeyF':
+            toggleFullscreen();
             break;
         case 'KeyM':
             // Toggle mute (future audio support)
@@ -905,12 +515,11 @@ function onMouseMove(e) {
     const movementX = e.movementX || 0;
     const movementY = e.movementY || 0;
 
-    // Standard FPS look: yaw around Y, pitch around X
     const euler = new THREE.Euler(0, 0, 0, 'YXZ');
     euler.setFromQuaternion(camera.quaternion);
 
-    euler.y -= movementX * CONFIG.lookSensitivity; // Yaw (left/right)
-    euler.x -= movementY * CONFIG.lookSensitivity; // Pitch (up/down)
+    euler.y -= movementX * CONFIG.lookSensitivity;
+    euler.x -= movementY * CONFIG.lookSensitivity;
 
     // Clamp vertical look
     euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
@@ -937,22 +546,19 @@ function handleKeyboardMovement(deltaTime) {
     const speed = CONFIG.moveSpeed * deltaTime * (keys['ShiftLeft'] || keys['ShiftRight'] ? CONFIG.sprintMultiplier : 1);
 
     const direction = new THREE.Vector3();
-
-    // Get camera forward direction (where it's looking)
     const forward = new THREE.Vector3();
     camera.getWorldDirection(forward);
 
-    // Get right vector (perpendicular to forward and up)
     const right = new THREE.Vector3();
     right.crossVectors(forward, camera.up).normalize();
 
-    // WASD: forward/back in look direction, strafe left/right
-    if (keys['KeyW']) direction.add(forward);
-    if (keys['KeyS']) direction.sub(forward);
+    // WASD movement
+    if (keys['KeyW'] || keys['ArrowUp']) direction.add(forward);
+    if (keys['KeyS'] || keys['ArrowDown']) direction.sub(forward);
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement (Y-up)
+    // Vertical movement
     if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
     if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
 
@@ -1011,36 +617,6 @@ function onWindowResize() {
 }
 
 // ===== Loading =====
-
-// Load Master Chief helmet model for player markers
-async function loadHelmetModel() {
-    return new Promise((resolve) => {
-        const loader = new GLTFLoader();
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-        loader.setDRACOLoader(dracoLoader);
-
-        loader.load(
-            '/maps3D/MasterChief.glb',
-            (gltf) => {
-                helmetModel = gltf.scene;
-                // Center the model if needed
-                const box = new THREE.Box3().setFromObject(helmetModel);
-                const center = box.getCenter(new THREE.Vector3());
-                helmetModel.position.sub(center);
-                console.log('Master Chief helmet model loaded');
-                resolve();
-            },
-            undefined,
-            (error) => {
-                console.warn('Failed to load MasterChief.glb, using fallback markers:', error);
-                helmetModel = null;
-                resolve();
-            }
-        );
-    });
-}
-
 async function loadMapAndTelemetry() {
     const loadingOverlay = document.getElementById('loading-overlay');
     const loadingText = document.querySelector('.loading-text');
@@ -1070,10 +646,6 @@ async function loadMapAndTelemetry() {
             console.warn('GLB not found, using fallback view:', glbError);
             showFallbackMessage();
         }
-
-        // Load helmet model for player markers
-        loadingText.textContent = 'Loading player models...';
-        await loadHelmetModel();
 
         await createPlayerMarkers();
         loadingOverlay.style.display = 'none';
@@ -1209,9 +781,8 @@ function parseTelemetryCSV(csvText) {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
         const emblem = playerEmblemData[name] || {};
-        // Generate emblem URL - use relative path if on same domain, otherwise use emblem server
-        // Note: For HTTPS pages, emblem server must also be HTTPS or use a proxy
-        const emblemUrl = `/emblems/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
+        // Generate emblem URL
+        const emblemUrl = `https://www.halo2pc.com/test-pages/CartoStat/Emblem/emblem.php?P=${emblem.primaryColor || 0}&S=${emblem.secondaryColor || 0}&EP=${emblem.tertiaryColor || 0}&ES=${emblem.quaternaryColor || 0}&EF=${emblem.emblemForeground || 0}&EB=${emblem.emblemBackground || 0}&ET=0`;
         players.push({ name, team, color, emblem, emblemUrl });
     });
 
@@ -1275,73 +846,55 @@ async function createPlayerMarkers() {
         }
     }));
 
-    // Detect FFA: more than 2 unique teams means FFA (use white helmets)
-    const uniqueTeams = new Set(players.map(p => p.team).filter(t => t && t !== 'none' && t !== ''));
-    const isFFA = uniqueTeams.size > 2 || uniqueTeams.size === 0;
-
     players.forEach(player => {
         const group = new THREE.Group();
         group.name = `player_${player.name}`;
 
-        // Helmet container for pitch rotation
-        const helmetPivot = new THREE.Group();
-        let helmet = null;
+        const bodyGeometry = new THREE.CylinderGeometry(
+            CONFIG.playerMarkerSize * 0.4,
+            CONFIG.playerMarkerSize * 0.5,
+            CONFIG.playerMarkerHeight * 0.7,
+            16
+        );
+        const bodyMaterial = new THREE.MeshStandardMaterial({
+            color: player.color,
+            metalness: 0.3,
+            roughness: 0.7,
+            emissive: player.color,
+            emissiveIntensity: 0.2
+        });
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        body.position.y = CONFIG.playerMarkerHeight * 0.35;
+        body.castShadow = true;
+        group.add(body);
 
-        // Determine helmet color: white for FFA, red/blue for teams
-        let helmetColor;
-        if (isFFA) {
-            helmetColor = 0xffffff; // White for FFA
-        } else if (player.team.includes('red') || player.team === '_game_team_red') {
-            helmetColor = 0xff3333; // Red team
-        } else if (player.team.includes('blue') || player.team === '_game_team_blue') {
-            helmetColor = 0x3399ff; // Blue team
-        } else {
-            helmetColor = 0xffffff; // Default white
-        }
+        const headGeometry = new THREE.SphereGeometry(CONFIG.playerMarkerSize * 0.35, 16, 16);
+        const headMaterial = new THREE.MeshStandardMaterial({
+            color: player.color,
+            metalness: 0.3,
+            roughness: 0.7,
+            emissive: player.color,
+            emissiveIntensity: 0.2
+        });
+        const head = new THREE.Mesh(headGeometry, headMaterial);
+        head.position.y = CONFIG.playerMarkerHeight * 0.8;
+        head.castShadow = true;
+        group.add(head);
 
-        if (helmetModel) {
-            // Clone the helmet model
-            helmet = helmetModel.clone();
-
-            // Apply team color to all meshes in the helmet
-            helmet.traverse((child) => {
-                if (child.isMesh) {
-                    child.material = child.material.clone();
-                    child.material.color.setHex(helmetColor);
-                    child.material.emissive = new THREE.Color(helmetColor);
-                    child.material.emissiveIntensity = 0.15;
-                    child.castShadow = true;
-                }
-            });
-
-            // Scale helmet to appropriate size (adjust based on model)
-            helmet.scale.set(0.8, 0.8, 0.8);
-            helmetPivot.add(helmet);
-        } else {
-            // Fallback: sphere head if helmet not loaded
-            const headGeometry = new THREE.SphereGeometry(CONFIG.playerMarkerSize * 0.4, 16, 16);
-            const headMaterial = new THREE.MeshStandardMaterial({
-                color: helmetColor,
-                metalness: 0.5,
-                roughness: 0.5,
-                emissive: helmetColor,
-                emissiveIntensity: 0.15
-            });
-            helmet = new THREE.Mesh(headGeometry, headMaterial);
-            helmet.castShadow = true;
-            helmetPivot.add(helmet);
-        }
-
-        // Position helmet at head height
-        helmetPivot.position.y = CONFIG.playerMarkerHeight * 0.8;
-        group.add(helmetPivot);
+        const arrowGeometry = new THREE.ConeGeometry(0.15, 0.4, 8);
+        const arrowMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            emissive: 0xffffff,
+            emissiveIntensity: 0.5
+        });
+        const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+        arrow.rotation.x = Math.PI / 2;
+        arrow.position.set(0, CONFIG.playerMarkerHeight * 0.5, CONFIG.playerMarkerSize * 0.6);
+        group.add(arrow);
 
         // Use waypoint canvas with emblem if available
         const emblemImage = emblemImages[player.name];
-        // Get team color for name display
-        const teamColor = player.team.includes('red') || player.team === '_game_team_red' ? 0xff3333 :
-                          player.team.includes('blue') || player.team === '_game_team_blue' ? 0x3399ff : player.color;
-        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage, teamColor);
+        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage);
         const labelTexture = new THREE.CanvasTexture(waypointCanvas);
         const labelMaterial = new THREE.SpriteMaterial({
             map: labelTexture,
@@ -1349,34 +902,16 @@ async function createPlayerMarkers() {
             depthTest: false
         });
         const label = new THREE.Sprite(labelMaterial);
-        label.scale.set(2.5, 3.5, 1);
-        label.position.y = CONFIG.playerMarkerHeight + 2.5;
+        label.scale.set(2.5, 3.125, 1); // Aspect ratio 128:160
+        label.position.y = CONFIG.playerMarkerHeight + 2;
         group.add(label);
 
-        const glow = new THREE.PointLight(helmetColor, 0.5, 3);
+        const glow = new THREE.PointLight(player.color, 0.5, 3);
         glow.position.y = CONFIG.playerMarkerHeight * 0.5;
         group.add(glow);
 
         scene.add(group);
-
-        // Create trail line for this player
-        const trailGeometry = new THREE.BufferGeometry();
-        const trailPositions = new Float32Array(TRAIL_MAX_POINTS * 3);
-        trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
-        trailGeometry.setDrawRange(0, 0);
-        const trailMaterial = new THREE.LineBasicMaterial({
-            color: helmetColor,
-            transparent: true,
-            opacity: 0.6
-        });
-        const trailLine = new THREE.Line(trailGeometry, trailMaterial);
-        trailLine.visible = showTrails;
-        scene.add(trailLine);
-
-        // Initialize trail array for this player
-        playerTrails[player.name] = [];
-
-        playerMarkers[player.name] = { group, helmet, helmetPivot, label, player, emblemImage, helmetColor, trailLine };
+        playerMarkers[player.name] = { group, body, head, arrow, label, player, emblemImage };
     });
 }
 
@@ -1404,70 +939,67 @@ function createLabelCanvas(text, color) {
     return canvas;
 }
 
-// Create a Halo-style waypoint canvas with emblem box, name (if enabled), and arrow
-function createWaypointCanvas(text, color, emblemImage = null, teamColor = null) {
+// Create a Halo-style waypoint canvas with emblem and arrow
+function createWaypointCanvas(text, color, emblemImage = null) {
     const canvas = document.createElement('canvas');
     canvas.width = 128;
-    canvas.height = showPlayerNames ? 180 : 120; // Smaller if no name
+    canvas.height = 160;
     const ctx = canvas.getContext('2d');
 
     const colorHex = `#${color.toString(16).padStart(6, '0')}`;
-    const teamColorHex = teamColor ? `#${teamColor.toString(16).padStart(6, '0')}` : colorHex;
+    const waypointBlue = '#00aaff';
 
-    // Emblem box dimensions
-    const boxSize = 64;
-    const boxX = (canvas.width - boxSize) / 2;
+    // Draw waypoint arrow pointing down
+    const arrowY = 130;
+    const arrowSize = 20;
+    ctx.fillStyle = waypointBlue;
+    ctx.beginPath();
+    ctx.moveTo(64, arrowY + arrowSize);  // Bottom point
+    ctx.lineTo(64 - arrowSize / 2, arrowY);  // Top left
+    ctx.lineTo(64 + arrowSize / 2, arrowY);  // Top right
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw emblem box background
+    const boxX = 14;
     const boxY = 10;
+    const boxSize = 100;
 
-    // Draw emblem box background (white border like Halo 2)
-    ctx.fillStyle = 'rgba(40, 40, 50, 0.95)';
+    // Outer glow
+    ctx.shadowColor = waypointBlue;
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = 'rgba(0, 40, 80, 0.9)';
     ctx.fillRect(boxX, boxY, boxSize, boxSize);
+    ctx.shadowBlur = 0;
 
-    // White border
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
+    // Border
+    ctx.strokeStyle = waypointBlue;
+    ctx.lineWidth = 3;
     ctx.strokeRect(boxX, boxY, boxSize, boxSize);
+
+    // Inner border
+    ctx.strokeStyle = 'rgba(0, 170, 255, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
 
     // Draw emblem if available
     if (emblemImage && emblemImage.complete) {
-        ctx.drawImage(emblemImage, boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
+        ctx.drawImage(emblemImage, boxX + 10, boxY + 10, boxSize - 20, boxSize - 20);
     } else {
         // Draw player initial as fallback
-        ctx.font = 'bold 32px Orbitron, sans-serif';
+        ctx.font = 'bold 50px Orbitron, sans-serif';
         ctx.fillStyle = colorHex;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(text.charAt(0).toUpperCase(), canvas.width / 2, boxY + boxSize / 2);
+        ctx.fillText(text.charAt(0).toUpperCase(), 64, 60);
     }
 
-    let arrowY;
-    if (showPlayerNames) {
-        // Draw player name below box (in team color)
-        const nameY = boxY + boxSize + 8;
-        ctx.font = 'bold 14px Overpass, sans-serif';
-        ctx.fillStyle = teamColorHex;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-        ctx.shadowBlur = 3;
-        ctx.shadowOffsetX = 1;
-        ctx.shadowOffsetY = 1;
-        ctx.fillText(text.substring(0, 12), canvas.width / 2, nameY);
-        ctx.shadowBlur = 0;
-        arrowY = nameY + 20;
-    } else {
-        arrowY = boxY + boxSize + 8;
-    }
-
-    // Draw blue waypoint arrow
-    const arrowSize = 12;
-    ctx.fillStyle = '#00aaff';
-    ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, arrowY + arrowSize);  // Bottom point
-    ctx.lineTo(canvas.width / 2 - arrowSize / 2, arrowY);  // Top left
-    ctx.lineTo(canvas.width / 2 + arrowSize / 2, arrowY);  // Top right
-    ctx.closePath();
-    ctx.fill();
+    // Draw player name below box
+    ctx.font = 'bold 14px Overpass, sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(text.substring(0, 12), 64, boxY + boxSize + 4);
 
     return canvas;
 }
@@ -1483,230 +1015,73 @@ function loadEmblemImage(url) {
     });
 }
 
-// Update waypoint appearance based on death state
-function updateWaypointDeathState(marker) {
-    if (!marker || !marker.label) return;
-
-    const wasDead = marker._wasDead || false;
-    const isDead = marker.isDead || false;
-
-    // Only update if state changed
-    if (wasDead !== isDead) {
-        marker._wasDead = isDead;
-
-        if (isDead) {
-            // Create death waypoint (X instead of emblem)
-            const deathCanvas = createDeathWaypointCanvas();
-            const deathTexture = new THREE.CanvasTexture(deathCanvas);
-            marker.label.material.map.dispose();
-            marker.label.material.map = deathTexture;
-            marker.label.material.needsUpdate = true;
-            marker.label.scale.set(2.0, 2.5, 1); // Smaller for death marker
-        } else if (marker.player) {
-            // Restore normal waypoint
-            const player = marker.player;
-            const teamColor = player.team.includes('red') || player.team === '_game_team_red' ? 0xff3333 :
-                              player.team.includes('blue') || player.team === '_game_team_blue' ? 0x3399ff : player.color;
-            const waypointCanvas = createWaypointCanvas(player.name, player.color, marker.emblemImage, teamColor);
-            const labelTexture = new THREE.CanvasTexture(waypointCanvas);
-            marker.label.material.map.dispose();
-            marker.label.material.map = labelTexture;
-            marker.label.material.needsUpdate = true;
-            marker.label.scale.set(2.5, showPlayerNames ? 3.5 : 2.4, 1);
-        }
-    }
-}
-
-// Create a death waypoint canvas with X
-function createDeathWaypointCanvas() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 80;
-    canvas.height = 100;
-    const ctx = canvas.getContext('2d');
-
-    // Box with X
-    const boxSize = 64;
-    const boxX = (canvas.width - boxSize) / 2;
-    const boxY = 5;
-
-    // Dark background
-    ctx.fillStyle = 'rgba(60, 20, 20, 0.9)';
-    ctx.fillRect(boxX, boxY, boxSize, boxSize);
-
-    // Red border
-    ctx.strokeStyle = '#ff3333';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(boxX, boxY, boxSize, boxSize);
-
-    // Big red X
-    ctx.strokeStyle = '#ff3333';
-    ctx.lineWidth = 8;
-    ctx.lineCap = 'round';
-    const padding = 12;
-    ctx.beginPath();
-    ctx.moveTo(boxX + padding, boxY + padding);
-    ctx.lineTo(boxX + boxSize - padding, boxY + boxSize - padding);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(boxX + boxSize - padding, boxY + padding);
-    ctx.lineTo(boxX + padding, boxY + boxSize - padding);
-    ctx.stroke();
-
-    return canvas;
-}
-
-// Helper to interpolate between two values
-function lerp(a, b, t) {
-    return a + (b - a) * t;
-}
-
-// Helper to interpolate angles (handles wraparound)
-function lerpAngle(a, b, t) {
-    let diff = b - a;
-    // Normalize to -PI to PI
-    while (diff > Math.PI) diff -= Math.PI * 2;
-    while (diff < -Math.PI) diff += Math.PI * 2;
-    return a + diff * t;
-}
-
 function updatePlayerPositions() {
-    // Build interpolated positions for each player
-    const playerInterpolated = {};
+    const playerPositions = {};
+    let startIdx = 0;
 
-    for (const player of players) {
-        let before = null;
-        let after = null;
-
-        // Find the two telemetry entries bracketing currentTimeMs for this player
-        for (let i = 0; i < telemetryData.length; i++) {
-            const row = telemetryData[i];
-            if (row.playerName !== player.name) continue;
-
-            if (row.gameTimeMs <= currentTimeMs) {
-                before = row;
-            } else if (!after) {
-                after = row;
-                break; // Found both, stop searching
-            }
-        }
-
-        if (before && after && after.gameTimeMs !== before.gameTimeMs) {
-            // Interpolate between before and after
-            const t = (currentTimeMs - before.gameTimeMs) / (after.gameTimeMs - before.gameTimeMs);
-            const clampedT = Math.max(0, Math.min(1, t));
-
-            playerInterpolated[player.name] = {
-                x: lerp(before.x, after.x, clampedT),
-                y: lerp(before.y, after.y, clampedT),
-                z: lerp(before.z, after.z, clampedT),
-                facingYaw: lerpAngle(before.facingYaw || 0, after.facingYaw || 0, clampedT),
-                facingPitch: lerp(before.facingPitch || 0, after.facingPitch || 0, clampedT),
-                isCrouching: before.isCrouching,
-                gameTimeMs: currentTimeMs
-            };
-        } else if (before) {
-            // Only have a before point, use it directly
-            playerInterpolated[player.name] = before;
-        } else if (after) {
-            // Only have an after point, use it
-            playerInterpolated[player.name] = after;
+    for (let i = 0; i < telemetryData.length; i++) {
+        if (telemetryData[i].gameTimeMs >= currentTimeMs) {
+            startIdx = Math.max(0, i - players.length * 2);
+            break;
         }
     }
+
+    for (let i = startIdx; i < telemetryData.length; i++) {
+        const row = telemetryData[i];
+        if (row.gameTimeMs > currentTimeMs + 200) break;
+
+        if (!playerPositions[row.playerName] ||
+            Math.abs(row.gameTimeMs - currentTimeMs) < Math.abs(playerPositions[row.playerName].gameTimeMs - currentTimeMs)) {
+            playerPositions[row.playerName] = row;
+        }
+    }
+
+    const liveStatsBody = document.getElementById('live-stats-body');
+    if (liveStatsBody) liveStatsBody.innerHTML = '';
 
     for (const player of players) {
         const marker = playerMarkers[player.name];
         if (!marker) continue;
 
-        const pos = playerInterpolated[player.name];
+        const pos = playerPositions[player.name];
+        if (pos) {
+            marker.group.position.set(pos.x, pos.z, -pos.y);
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
 
-        // Check if position is valid (not at origin which indicates dead/respawning)
-        const isValidPosition = pos && (Math.abs(pos.x) > 0.1 || Math.abs(pos.y) > 0.1 || Math.abs(pos.z) > 0.1);
-
-        if (isValidPosition) {
-            // Store last known valid position
-            lastKnownPositions[player.name] = {
-                x: pos.x, y: pos.y, z: pos.z,
-                facingYaw: pos.facingYaw,
-                facingPitch: pos.facingPitch,
-                isCrouching: pos.isCrouching
-            };
-
-            // Convert from Halo coords (Z-up) to Three.js (Y-up): X stays, Z becomes Y, Y becomes -Z
-            const threePos = { x: pos.x, y: pos.z, z: -pos.y };
-            marker.group.position.set(threePos.x, threePos.y, threePos.z);
-            // Apply facing direction (yaw) to the group with calibration offsets
-            if (!isNaN(pos.facingYaw)) {
-                marker.group.rotation.set(rotationOffsetX, pos.facingYaw + rotationOffsetY, rotationOffsetZ);
-            }
-
-            // Update trail
-            if (showTrails && marker.trailLine) {
-                const trail = playerTrails[player.name];
-                const lastTrailPos = trail.length > 0 ? trail[trail.length - 1] : null;
-                // Only add point if moved enough distance
-                if (!lastTrailPos ||
-                    Math.abs(threePos.x - lastTrailPos.x) > 0.1 ||
-                    Math.abs(threePos.y - lastTrailPos.y) > 0.1 ||
-                    Math.abs(threePos.z - lastTrailPos.z) > 0.1) {
-                    trail.push({ x: threePos.x, y: threePos.y, z: threePos.z });
-                    if (trail.length > TRAIL_MAX_POINTS) trail.shift();
-                    updateTrailGeometry(marker.trailLine, trail);
-                }
-            }
-
-            // Apply pitch to the helmet pivot (looking up/down)
-            if (marker.helmetPivot && !isNaN(pos.facingPitch)) {
-                marker.helmetPivot.rotation.x = -pos.facingPitch; // Negative for proper direction
-            }
-
-            // Handle crouch - lower helmet position
-            if (marker.helmetPivot) {
-                if (pos.isCrouching) {
-                    marker.helmetPivot.position.y = CONFIG.playerMarkerHeight * 0.5; // Lower when crouching
-                } else {
-                    marker.helmetPivot.position.y = CONFIG.playerMarkerHeight * 0.8; // Normal height
-                }
+            if (pos.isCrouching) {
+                marker.body.scale.y = 0.7;
+                marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
+            } else {
+                marker.body.scale.y = 1;
+                marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
             }
 
             marker.group.visible = true;
-            marker.isDead = false;
 
-            // Show helmet
-            if (marker.helmet) marker.helmet.visible = true;
-
-        } else if (lastKnownPositions[player.name]) {
-            // Player is dead - keep at last known position
-            const lastPos = lastKnownPositions[player.name];
-            marker.group.position.set(lastPos.x, lastPos.z, -lastPos.y);
-            if (!isNaN(lastPos.facingYaw)) {
-                marker.group.rotation.set(rotationOffsetX, lastPos.facingYaw + rotationOffsetY, rotationOffsetZ);
+            if (liveStatsBody) {
+                const state = pos.isCrouching ? 'Crouching' : (pos.isAirborne ? 'Airborne' : 'Standing');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span></td>
+                    <td>${pos.currentWeapon}</td>
+                    <td>${state}</td>
+                `;
+                liveStatsBody.appendChild(row);
             }
-
-            marker.group.visible = true;
-            marker.isDead = true;
-
-            // Hide helmet when dead
-            if (marker.helmet) marker.helmet.visible = false;
-
         } else {
-            // No position data ever - hide completely
             marker.group.visible = false;
-            marker.isDead = false;
         }
-
-        // Update waypoint appearance based on death state
-        updateWaypointDeathState(marker);
     }
 
-    // Follow camera (Y-up)
+    // Follow camera
     if (viewMode === 'follow' && followPlayer) {
         const marker = playerMarkers[followPlayer];
         if (marker && marker.group.visible) {
             const targetPos = marker.group.position.clone();
-            targetPos.y += CONFIG.followCameraHeight; // Y-up
+            targetPos.y += CONFIG.followCameraHeight;
 
-            const offset = new THREE.Vector3(0, 0, CONFIG.followCameraDistance); // Behind in Z
-            offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), marker.group.rotation.y);
+            const offset = new THREE.Vector3(0, 0, CONFIG.followCameraDistance);
+            offset.applyQuaternion(marker.group.quaternion);
 
             camera.position.lerp(targetPos.clone().add(offset), 0.1);
             controls.target.lerp(marker.group.position, 0.1);
@@ -1762,76 +1137,55 @@ function formatTime(ms) {
 function setViewMode(mode) {
     viewMode = mode;
 
-    // Update the view mode button text
-    const viewModeText = document.getElementById('viewModeText');
-    const viewModeBtn = document.getElementById('viewModeBtn');
-    if (viewModeText) {
-        const modeNames = { free: 'Free', follow: 'Follow', orbit: 'Orbit', top: 'Top' };
-        viewModeText.textContent = modeNames[mode] || mode;
-    }
-    if (viewModeBtn) {
-        viewModeBtn.classList.add('active');
-    }
+    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`${mode}ViewBtn`)?.classList.add('active');
 
     const followSelect = document.getElementById('followPlayerSelect');
     followSelect.style.display = mode === 'follow' ? 'block' : 'none';
 
-    // Standard Y-up
-    camera.up.set(0, 1, 0);
+    // Update controls hint
+    updateControlsHint();
 
     if (mode === 'top') {
         controls.enabled = false;
         camera.position.set(0, CONFIG.defaultCameraHeight, 0);
         camera.lookAt(0, 0, 0);
+        camera.up.set(0, 0, -1);
     } else if (mode === 'free') {
         controls.enabled = false;
+        camera.up.set(0, 1, 0);
     } else if (mode === 'orbit') {
         controls.enabled = true;
+        camera.up.set(0, 1, 0);
     } else if (mode === 'follow') {
         controls.enabled = true;
-        // Auto-select first player if none selected
-        if (!followPlayer && players.length > 0) {
-            followPlayer = players[0].name;
-            selectedPlayerIndex = 0;
-            const select = document.getElementById('followPlayerSelect');
-            if (select) select.value = followPlayer;
-        }
+        camera.up.set(0, 1, 0);
     }
 }
 
 function positionCameraToFit() {
-    if (telemetryData.length === 0 || players.length === 0) return;
+    if (telemetryData.length === 0) return;
 
-    // Get initial positions for all players (first occurrence of each)
-    const initialPositions = {};
-    for (const row of telemetryData) {
-        if (!initialPositions[row.playerName]) {
-            initialPositions[row.playerName] = { x: row.x, y: row.y, z: row.z };
-        }
-        // Stop once we have all players
-        if (Object.keys(initialPositions).length >= players.length) break;
-    }
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    let minZ = Infinity, maxZ = -Infinity;
 
-    // Calculate average position of all players at game start
-    let avgX = 0, avgY = 0, avgZ = 0;
-    const positions = Object.values(initialPositions);
-    positions.forEach(pos => {
-        avgX += pos.x;
-        avgY += pos.y;
-        avgZ += pos.z;
+    telemetryData.forEach(row => {
+        minX = Math.min(minX, row.x);
+        maxX = Math.max(maxX, row.x);
+        minY = Math.min(minY, row.y);
+        maxY = Math.max(maxY, row.y);
+        minZ = Math.min(minZ, row.z);
+        maxZ = Math.max(maxZ, row.z);
     });
-    avgX /= positions.length;
-    avgY /= positions.length;
-    avgZ /= positions.length;
 
-    // Convert Halo coords (Z-up) to Three.js (Y-up)
-    // Start camera above average player position, looking down at slight angle
-    const camX = avgX;
-    const camY = avgZ + 15;  // Above players (Halo Z -> Three.js Y)
-    const camZ = -avgY + 10; // Behind players (Halo Y -> Three.js -Z)
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const centerZ = (minZ + maxZ) / 2;
+    const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
 
-    camera.position.set(camX, camY, camZ);
-    controls.target.set(avgX, avgZ, -avgY);
+    camera.position.set(centerX, maxZ + maxRange * 0.8, -centerY);
+    controls.target.set(centerX, centerZ, -centerY);
     controls.update();
 }
 
@@ -1890,199 +1244,71 @@ function updateFollowSelect() {
     });
 }
 
-// ===== Player Trails =====
-function updateTrailGeometry(trailLine, trail) {
-    const positions = trailLine.geometry.attributes.position.array;
-    for (let i = 0; i < trail.length; i++) {
-        positions[i * 3] = trail[i].x;
-        positions[i * 3 + 1] = trail[i].y;
-        positions[i * 3 + 2] = trail[i].z;
-    }
-    trailLine.geometry.attributes.position.needsUpdate = true;
-    trailLine.geometry.setDrawRange(0, trail.length);
-}
+function updateControlsHint() {
+    const hint = document.getElementById('controls-hint');
+    if (!hint) return;
 
-function toggleTrails() {
-    showTrails = !showTrails;
-    // Update trail visibility for all players
-    Object.values(playerMarkers).forEach(marker => {
-        if (marker.trailLine) {
-            marker.trailLine.visible = showTrails;
-        }
-    });
-    // Clear trails when turning off
-    if (!showTrails) {
-        Object.keys(playerTrails).forEach(name => {
-            playerTrails[name] = [];
-            const marker = playerMarkers[name];
-            if (marker && marker.trailLine) {
-                marker.trailLine.geometry.setDrawRange(0, 0);
-            }
-        });
-    }
-    showGamepadNotification(`Trails: ${showTrails ? 'ON' : 'OFF'}`);
-}
-
-// ===== Scoreboard =====
-function toggleScoreboard() {
-    scoreboardVisible = !scoreboardVisible;
-    const scoreboard = document.getElementById('scoreboard');
-    if (scoreboard) {
-        scoreboard.style.display = scoreboardVisible ? 'flex' : 'none';
-        if (scoreboardVisible) {
-            updateScoreboard();
-        }
-    }
-}
-
-function updateScoreboard() {
-    const redContainer = document.getElementById('red-team-players');
-    const blueContainer = document.getElementById('blue-team-players');
-    if (!redContainer || !blueContainer) return;
-
-    const redPlayers = [];
-    const bluePlayers = [];
-
-    players.forEach(player => {
-        const stats = playerStats[player.name] || { kills: 0, deaths: 0, score: 0 };
-        const marker = playerMarkers[player.name];
-        const isDead = marker && !marker.group.visible;
-
-        const playerData = {
-            name: player.name,
-            emblemUrl: player.emblemUrl,
-            kills: stats.kills,
-            deaths: stats.deaths,
-            score: stats.score,
-            weapon: stats.weapon || 'Unknown',
-            isDead: isDead
-        };
-
-        if (player.team.includes('red') || player.team === '_game_team_red') {
-            redPlayers.push(playerData);
-        } else if (player.team.includes('blue') || player.team === '_game_team_blue') {
-            bluePlayers.push(playerData);
-        }
-    });
-
-    // Sort by selected column
-    const sortFn = (a, b) => {
-        const aVal = a[scoreboardSortColumn] || 0;
-        const bVal = b[scoreboardSortColumn] || 0;
-        return scoreboardSortAscending ? aVal - bVal : bVal - aVal;
-    };
-    redPlayers.sort(sortFn);
-    bluePlayers.sort(sortFn);
-
-    // Calculate team totals
-    const redScore = redPlayers.reduce((sum, p) => sum + p.score, 0);
-    const blueScore = bluePlayers.reduce((sum, p) => sum + p.score, 0);
-
-    document.getElementById('red-team-score').textContent = redScore;
-    document.getElementById('blue-team-score').textContent = blueScore;
-
-    // Render sortable header and players
-    const headerHtml = renderScoreboardHeader();
-    redContainer.innerHTML = headerHtml + redPlayers.map(p => renderScoreboardPlayer(p)).join('');
-    blueContainer.innerHTML = headerHtml + bluePlayers.map(p => renderScoreboardPlayer(p)).join('');
-
-    // Add click handlers to headers
-    document.querySelectorAll('.scoreboard-sort').forEach(el => {
-        el.onclick = () => sortScoreboard(el.dataset.sort);
-    });
-}
-
-function renderScoreboardHeader() {
-    const arrow = (col) => {
-        if (scoreboardSortColumn !== col) return '';
-        return scoreboardSortAscending ? ' ▲' : ' ▼';
-    };
-    return `
-        <div class="scoreboard-header-row">
-            <span class="header-spacer"></span>
-            <span class="header-name">Player</span>
-            <div class="header-stats">
-                <span class="scoreboard-sort" data-sort="kills">K${arrow('kills')}</span>
-                <span class="scoreboard-sort" data-sort="deaths">D${arrow('deaths')}</span>
-            </div>
-        </div>
-    `;
-}
-
-function sortScoreboard(column) {
-    if (scoreboardSortColumn === column) {
-        // Toggle direction
-        scoreboardSortAscending = !scoreboardSortAscending;
+    if (viewMode === 'free') {
+        hint.innerHTML = `
+            <div><kbd>WASD</kbd> Move</div>
+            <div><kbd>Q</kbd><kbd>E</kbd> Up/Down</div>
+            <div><kbd>Shift</kbd> Sprint</div>
+            <div><kbd>Mouse</kbd> Look</div>
+            <div><kbd>Space</kbd> Play/Pause</div>
+        `;
     } else {
-        scoreboardSortColumn = column;
-        scoreboardSortAscending = false; // Default to descending
-    }
-    updateScoreboard();
-}
-
-function renderScoreboardPlayer(player) {
-    const emblemHtml = player.isDead
-        ? '<div class="player-emblem dead-emblem"><span class="dead-x">X</span></div>'
-        : `<div class="player-emblem"><img src="${player.emblemUrl}" alt="" onerror="this.parentElement.innerHTML='?'"></div>`;
-
-    return `
-        <div class="scoreboard-player ${player.isDead ? 'dead' : ''}">
-            ${emblemHtml}
-            <span class="player-name">${player.name}</span>
-            <div class="player-stats">
-                <span>K${player.kills}</span>
-                <span>D${player.deaths}</span>
-            </div>
-        </div>
-    `;
-}
-
-// ===== Killfeed =====
-function toggleKillfeed() {
-    killfeedVisible = !killfeedVisible;
-    const killfeed = document.getElementById('killfeed');
-    if (killfeed) {
-        killfeed.classList.toggle('hidden', !killfeedVisible);
+        hint.innerHTML = `
+            <div><kbd>Space</kbd> Play/Pause</div>
+            <div><kbd>←</kbd><kbd>→</kbd> Skip 5s</div>
+            <div><kbd>↑</kbd><kbd>↓</kbd> Speed</div>
+        `;
     }
 }
 
-function addKillEntry(killerName, victimName, weapon) {
-    if (!killfeedVisible) return;
+window.toggleStatsPanel = function() {
+    const panel = document.getElementById('stats-panel');
+    if (panel) panel.classList.toggle('collapsed');
+};
 
-    const killfeed = document.getElementById('killfeed');
-    if (!killfeed) return;
-
-    // Find players to get team colors
-    const killer = players.find(p => p.name === killerName);
-    const victim = players.find(p => p.name === victimName);
-
-    const killerIsBlue = killer && (killer.team.includes('blue') || killer.team === '_game_team_blue');
-    const victimIsBlue = victim && (victim.team.includes('blue') || victim.team === '_game_team_blue');
-
-    const entry = document.createElement('div');
-    entry.className = 'kill-entry';
-    entry.innerHTML = `
-        <span class="killer ${killerIsBlue ? 'blue' : ''}">${killerName}</span>
-        <span class="weapon-icon"><img src="weapons/${weapon.toLowerCase().replace(/\s+/g, '_')}.png" alt="${weapon}" onerror="this.parentElement.textContent='[${weapon}]'"></span>
-        <span class="victim ${victimIsBlue ? 'blue' : ''}">${victimName}</span>
-    `;
-
-    // Insert at top
-    killfeed.insertBefore(entry, killfeed.firstChild);
-
-    // Remove after animation completes
-    setTimeout(() => {
-        if (entry.parentElement) {
-            entry.remove();
-        }
-    }, 3000);
-
-    // Limit entries
-    while (killfeed.children.length > 6) {
-        killfeed.removeChild(killfeed.lastChild);
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
     }
 }
 
+// Browser fullscreen (fills browser window, hides header/controls)
+let isBrowserFullscreen = false;
+
+function toggleBrowserFullscreen() {
+    isBrowserFullscreen = !isBrowserFullscreen;
+    const container = document.querySelector('.viewer-container');
+    const header = document.querySelector('.viewer-header');
+    const controls = document.querySelector('.playback-controls');
+    const expandIcon = document.getElementById('expandIcon');
+    const compressIcon = document.getElementById('compressIcon');
+
+    if (isBrowserFullscreen) {
+        container.classList.add('browser-fullscreen');
+        header.style.display = 'none';
+        controls.classList.add('fullscreen-mode');
+        expandIcon.style.display = 'none';
+        compressIcon.style.display = 'block';
+    } else {
+        container.classList.remove('browser-fullscreen');
+        header.style.display = 'flex';
+        controls.classList.remove('fullscreen-mode');
+        expandIcon.style.display = 'block';
+        compressIcon.style.display = 'none';
+    }
+
+    // Trigger resize to update canvas
+    onWindowResize();
+}
+
+// Add fullscreen button listener
+document.getElementById('fullscreenBtn')?.addEventListener('click', toggleBrowserFullscreen);
 
 // ===== Animation Loop =====
 function animate() {
@@ -2098,22 +1324,9 @@ function animate() {
     // Handle gamepad input
     handleGamepadInput(deltaTime);
 
-    // Check Z key for keyboard speed boost
-    if (keys['KeyZ']) {
-        dynamicSpeedMultiplier = 4; // 4x speed when Z held
-    } else if (dynamicSpeedMultiplier > 1 && !keys['KeyZ']) {
-        // Only reset if it was set by keyboard (gamepad handles its own reset)
-        const gamepad = navigator.getGamepads()[gamepadIndex];
-        const rtValue = gamepad?.buttons[7]?.value || 0;
-        if (rtValue <= 0.1) {
-            dynamicSpeedMultiplier = 1;
-        }
-    }
-
-    // Update playback with dynamic speed multiplier
-    if (isPlaying || dynamicSpeedMultiplier > 1) {
-        const effectiveSpeed = playbackSpeed * dynamicSpeedMultiplier;
-        currentTimeMs += deltaTime * 1000 * effectiveSpeed;
+    // Update playback
+    if (isPlaying) {
+        currentTimeMs += deltaTime * 1000 * playbackSpeed;
 
         if (currentTimeMs >= startTimeMs + totalDurationMs) {
             currentTimeMs = startTimeMs; // Loop

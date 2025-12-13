@@ -1,0 +1,414 @@
+{
+  "1": {
+    "map": "Midship",
+    "theater": "20251128_074332_theater.csv"
+  },
+  "2": {
+    "map": "Midship",
+    "theater": "20251128_201839_theater.csv"
+  },
+  "3": {
+    "map": "Beaver Creek",
+    "theater": "20251128_202256_theater.csv"
+  },
+  "4": {
+    "map": "Lockout",
+    "theater": "20251128_204504_theater.csv"
+  },
+  "5": {
+    "map": "Warlock",
+    "theater": "20251128_205019_theater.csv"
+  },
+  "6": {
+    "map": "Sanctuary",
+    "theater": "20251128_210553_theater.csv"
+  },
+  "7": {
+    "map": "Warlock",
+    "theater": "20251202_203858_theater.csv"
+  },
+  "8": {
+    "map": "Midship",
+    "theater": "20251202_204558_theater.csv"
+  },
+  "9": {
+    "map": "Sanctuary",
+    "theater": "20251202_210205_theater.csv"
+  },
+  "10": {
+    "map": "Warlock",
+    "theater": "20251205_015328_theater.csv"
+  },
+  "11": {
+    "map": "Sanctuary",
+    "theater": "20251205_020151_theater.csv"
+  },
+  "12": {
+    "map": "Midship",
+    "theater": "20251205_021632_theater.csv"
+  },
+  "13": {
+    "map": "Lockout",
+    "theater": "20251205_023212_theater.csv"
+  },
+  "14": {
+    "map": "Sanctuary",
+    "theater": "20251205_023445_theater.csv"
+  },
+  "15": {
+    "map": "Midship",
+    "theater": "20251205_222909_theater.csv"
+  },
+  "16": {
+    "map": "Beaver Creek",
+    "theater": "20251205_223635_theater.csv"
+  },
+  "17": {
+    "map": "Lockout",
+    "theater": "20251205_225101_theater.csv"
+  },
+  "18": {
+    "map": "Warlock",
+    "theater": "20251205_225641_theater.csv"
+  },
+  "19": {
+    "map": "Sanctuary",
+    "theater": "20251205_231359_theater.csv"
+  },
+  "20": {
+    "map": "Midship",
+    "theater": "20251205_235823_theater.csv"
+  },
+  "21": {
+    "map": "Warlock",
+    "theater": "20251206_012212_theater.csv"
+  },
+  "22": {
+    "map": "Beaver Creek",
+    "theater": "20251206_013159_theater.csv"
+  },
+  "23": {
+    "map": "Midship",
+    "theater": "20251206_024552_theater.csv"
+  },
+  "24": {
+    "map": "Beaver Creek",
+    "theater": "20251206_025423_theater.csv"
+  },
+  "25": {
+    "map": "Lockout",
+    "theater": "20251206_031014_theater.csv"
+  },
+  "26": {
+    "map": "Warlock",
+    "theater": "20251206_031629_theater.csv"
+  },
+  "27": {
+    "map": "Sanctuary",
+    "theater": "20251206_033331_theater.csv"
+  },
+  "28": {
+    "map": "Lockout",
+    "theater": "20251206_034108_theater.csv"
+  },
+  "29": {
+    "map": "Midship",
+    "theater": "20251206_035803_theater.csv"
+  },
+  "30": {
+    "map": "Midship",
+    "theater": "20251206_041718_theater.csv"
+  },
+  "31": {
+    "map": "Midship",
+    "theater": "20251206_042331_theater.csv"
+  },
+  "32": {
+    "map": "Warlock",
+    "theater": "20251206_042800_theater.csv"
+  },
+  "33": {
+    "map": "Warlock",
+    "theater": "20251206_044406_theater.csv"
+  },
+  "34": {
+    "map": "Sanctuary",
+    "theater": "20251206_045415_theater.csv"
+  },
+  "35": {
+    "map": "Midship",
+    "theater": "20251206_050850_theater.csv"
+  },
+  "36": {
+    "map": "Beaver Creek",
+    "theater": "20251206_051617_theater.csv"
+  },
+  "37": {
+    "map": "Sanctuary",
+    "theater": "20251206_053531_theater.csv"
+  },
+  "38": {
+    "map": "Midship",
+    "theater": "20251206_001617_theater.csv"
+  },
+  "39": {
+    "map": "Sanctuary",
+    "theater": "20251206_002326_theater.csv"
+  },
+  "40": {
+    "map": "Midship",
+    "theater": "20251206_003907_theater.csv"
+  },
+  "41": {
+    "map": "Lockout",
+    "theater": "20251206_005346_theater.csv"
+  },
+  "42": {
+    "map": "Midship",
+    "theater": "20251207_132608_theater.csv"
+  },
+  "43": {
+    "map": "Midship",
+    "theater": "20251207_013248_theater.csv"
+  },
+  "44": {
+    "map": "Warlock",
+    "theater": "20251207_133236_theater.csv"
+  },
+  "45": {
+    "map": "Lockout",
+    "theater": "20251207_134801_theater.csv"
+  },
+  "46": {
+    "map": "Beaver Creek",
+    "theater": "20251207_014119_theater.csv"
+  },
+  "47": {
+    "map": "Lockout",
+    "theater": "20251207_015415_theater.csv"
+  },
+  "48": {
+    "map": "Beaver Creek",
+    "theater": "20251207_135502_theater.csv"
+  },
+  "49": {
+    "map": "Sanctuary",
+    "theater": "20251207_141047_theater.csv"
+  },
+  "50": {
+    "map": "Warlock",
+    "theater": "20251207_020617_theater.csv"
+  },
+  "51": {
+    "map": "Midship",
+    "theater": "20251207_143108_theater.csv"
+  },
+  "52": {
+    "map": "Midship",
+    "theater": "20251207_145001_theater.csv"
+  },
+  "53": {
+    "map": "Sanctuary",
+    "theater": "20251207_145730_theater.csv"
+  },
+  "54": {
+    "map": "Midship",
+    "theater": "20251207_151311_theater.csv"
+  },
+  "55": {
+    "map": "Midship",
+    "theater": "20251207_032101_theater.csv"
+  },
+  "56": {
+    "map": "Lockout",
+    "theater": "20251207_151949_theater.csv"
+  },
+  "57": {
+    "map": "Warlock",
+    "theater": "20251207_153539_theater.csv"
+  },
+  "58": {
+    "map": "Midship",
+    "theater": "20251207_034246_theater.csv"
+  },
+  "59": {
+    "map": "Midship",
+    "theater": "20251207_035321_theater.csv"
+  },
+  "60": {
+    "map": "Sanctuary",
+    "theater": "20251207_040505_theater.csv"
+  },
+  "61": {
+    "map": "Warlock",
+    "theater": "20251207_042051_theater.csv"
+  },
+  "62": {
+    "map": "Lockout",
+    "theater": "20251207_042931_theater.csv"
+  },
+  "63": {
+    "map": "Midship",
+    "theater": "20251207_043658_theater.csv"
+  },
+  "64": {
+    "map": "Midship",
+    "theater": "20251207_180237_theater.csv"
+  },
+  "65": {
+    "map": "Warlock",
+    "theater": "20251207_181044_theater.csv"
+  },
+  "66": {
+    "map": "Sanctuary",
+    "theater": "20251207_182803_theater.csv"
+  },
+  "67": {
+    "map": "Beaver Creek",
+    "theater": "20251207_183514_theater.csv"
+  },
+  "68": {
+    "map": "Midship",
+    "theater": "20251207_124814_theater.csv"
+  },
+  "69": {
+    "map": "Midship",
+    "theater": "20251207_130405_theater.csv"
+  },
+  "70": {
+    "map": "Midship",
+    "theater": "20251207_192353_theater.csv"
+  },
+  "71": {
+    "map": "Sanctuary",
+    "theater": "20251207_193522_theater.csv"
+  },
+  "72": {
+    "map": "Lockout",
+    "theater": "20251207_194148_theater.csv"
+  },
+  "73": {
+    "map": "Lockout",
+    "theater": "20251207_195749_theater.csv"
+  },
+  "74": {
+    "map": "Midship",
+    "theater": "20251207_200740_theater.csv"
+  },
+  "75": {
+    "map": "Warlock",
+    "theater": "20251207_202401_theater.csv"
+  },
+  "76": {
+    "map": "Beaver Creek",
+    "theater": "20251207_203243_theater.csv"
+  },
+  "77": {
+    "map": "Midship",
+    "theater": "20251207_210103_theater.csv"
+  },
+  "78": {
+    "map": "Beaver Creek",
+    "theater": "20251207_210728_theater.csv"
+  },
+  "79": {
+    "map": "Lockout",
+    "theater": "20251207_212532_theater.csv"
+  },
+  "80": {
+    "map": "Warlock",
+    "theater": "20251207_213052_theater.csv"
+  },
+  "81": {
+    "map": "Sanctuary",
+    "theater": "20251207_214648_theater.csv"
+  },
+  "82": {
+    "map": "Midship",
+    "theater": "20251209_181937_theater.csv"
+  },
+  "83": {
+    "map": "Midship",
+    "theater": "20251209_183637_theater.csv"
+  },
+  "84": {
+    "map": "Beaver Creek",
+    "theater": "20251209_184331_theater.csv"
+  },
+  "85": {
+    "map": "Lockout",
+    "theater": "20251209_185811_theater.csv"
+  },
+  "86": {
+    "map": "Warlock",
+    "theater": "20251209_190454_theater.csv"
+  },
+  "87": {
+    "map": "Sanctuary",
+    "theater": "20251209_192855_theater.csv"
+  },
+  "88": {
+    "map": "Midship",
+    "theater": "20251210_000851_theater.csv"
+  },
+  "89": {
+    "map": "Beaver Creek",
+    "theater": "20251210_001740_theater.csv"
+  },
+  "90": {
+    "map": "Lockout",
+    "theater": "20251210_003212_theater.csv"
+  },
+  "91": {
+    "map": "Warlock",
+    "theater": "20251210_003815_theater.csv"
+  },
+  "92": {
+    "map": "Sanctuary",
+    "theater": "20251210_010434_theater.csv"
+  },
+  "93": {
+    "map": "Midship",
+    "theater": "20251210_014447_theater.csv"
+  },
+  "94": {
+    "map": "Midship",
+    "theater": "20251211_235810_theater.csv"
+  },
+  "95": {
+    "map": "Warlock",
+    "theater": "20251212_012709_theater.csv"
+  },
+  "96": {
+    "map": "Beaver Creek",
+    "theater": "20251212_013414_theater.csv"
+  },
+  "97": {
+    "map": "Lockout",
+    "theater": "20251212_014759_theater.csv"
+  },
+  "98": {
+    "map": "Midship",
+    "theater": "20251212_001058_theater.csv"
+  },
+  "99": {
+    "map": "Warlock",
+    "theater": "20251212_001718_theater.csv"
+  },
+  "100": {
+    "map": "Sanctuary",
+    "theater": "20251212_002821_theater.csv"
+  },
+  "101": {
+    "map": "Lockout",
+    "theater": "20251212_003705_theater.csv"
+  },
+  "102": {
+    "map": "Midship",
+    "theater": "20251212_005031_theater.csv"
+  },
+  "103": {
+    "map": "Midship",
+    "theater": "20251212_010821_theater.csv"
+  }
+}

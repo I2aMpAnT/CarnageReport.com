@@ -31,6 +31,7 @@ RANKHISTORY_FILE = 'rankhistory.json'
 MANUAL_PLAYLISTS_FILE = 'manual_playlists.json'
 PROCESSED_STATE_FILE = 'processed_state.json'
 SERIES_FILE = 'series.json'
+GAMEINDEX_FILE = 'gameindex.json'
 
 # Bot match history files (on VPS at /home/carnagereport/bot/)
 BOT_DIR = '/home/carnagereport/bot'
@@ -202,6 +203,86 @@ def save_custom_games(data):
     """Save custom games."""
     with open(CUSTOMGAMES_FILE, 'w') as f:
         json.dump(data, f, indent=2)
+
+def generate_game_index():
+    """
+    Generate gameindex.json for theater mode - maps game numbers to map/theater file.
+    Game 1 = oldest game, sorted chronologically.
+    """
+    all_games = []
+
+    # Load playlists config
+    try:
+        with open(PLAYLISTS_FILE, 'r') as f:
+            playlists_config = json.load(f)
+    except:
+        print("  Warning: Could not load playlists.json for game index")
+        return
+
+    # Load matches from each playlist
+    for playlist in playlists_config.get('playlists', []):
+        matches_file = playlist.get('matches_file')
+        if matches_file and os.path.exists(matches_file):
+            try:
+                with open(matches_file, 'r') as f:
+                    data = json.load(f)
+                for match in data.get('matches', []):
+                    all_games.append({
+                        'map': match.get('map'),
+                        'timestamp': match.get('timestamp'),
+                        'source_file': match.get('source_file')
+                    })
+            except Exception as e:
+                print(f"  Warning: Could not load {matches_file}: {e}")
+
+    # Load custom games
+    custom_file = playlists_config.get('custom_games', {}).get('matches_file')
+    if custom_file and os.path.exists(custom_file):
+        try:
+            with open(custom_file, 'r') as f:
+                data = json.load(f)
+            for match in data.get('matches', []):
+                all_games.append({
+                    'map': match.get('map'),
+                    'timestamp': match.get('timestamp'),
+                    'source_file': match.get('source_file')
+                })
+        except Exception as e:
+            print(f"  Warning: Could not load {custom_file}: {e}")
+
+    # Parse timestamp for sorting
+    def parse_ts(ts):
+        if not ts:
+            return datetime.min
+        try:
+            # Try MM/DD/YYYY HH:MM format
+            return datetime.strptime(ts, '%m/%d/%Y %H:%M')
+        except:
+            try:
+                # Try MM/DD/YYYY H:MM format (single digit hour)
+                return datetime.strptime(ts, '%m/%d/%Y %H:%M')
+            except:
+                return datetime.min
+
+    # Sort chronologically (oldest first = Game 1)
+    all_games.sort(key=lambda g: parse_ts(g.get('timestamp')))
+
+    # Build index
+    index = {}
+    for i, game in enumerate(all_games):
+        game_num = i + 1
+        source = game.get('source_file', '')
+        theater_file = source.replace('.xlsx', '_theater.csv') if source else None
+        index[str(game_num)] = {
+            'map': game.get('map'),
+            'theater': theater_file
+        }
+
+    # Save index
+    with open(GAMEINDEX_FILE, 'w') as f:
+        json.dump(index, f, indent=2)
+
+    return len(index)
 
 def get_team_signature(game):
     """
@@ -2469,6 +2550,11 @@ def main():
         save_custom_games(custom_data)
         playlist_files_saved.append(CUSTOMGAMES_FILE)
         print(f"    Saved {CUSTOMGAMES_FILE} ({len(untagged_games)} custom games)")
+
+    # Generate game index for theater mode (maps game numbers to theater files)
+    game_count = generate_game_index()
+    if game_count:
+        print(f"    Saved {GAMEINDEX_FILE} ({game_count} games indexed)")
 
     # Extract and save player emblems (most recent emblem for each player)
     # Maps discord_id to their emblem_url
