@@ -321,13 +321,14 @@ function handleGamepadInput(deltaTime) {
     const rightX = applyDeadzone(gamepad.axes[2] || 0);
     const rightY = applyDeadzone(gamepad.axes[3] || 0);
 
-    // LT for sprint
+    // LT for dynamic sprint (pressure sensitive)
     const ltValue = gamepad.buttons[6]?.value || 0;
-    const isSprinting = ltValue > 0.3;
+    // Map LT pressure: 0 = 1x, full press = sprintMultiplier (2.5x)
+    const sprintModifier = 1 + (ltValue * (CONFIG.sprintMultiplier - 1));
 
     // Movement (left stick) - only in free mode
     if (viewMode === 'free' && (leftX !== 0 || leftY !== 0)) {
-        const speed = CONFIG.gamepadMoveSpeed * deltaTime * (isSprinting ? CONFIG.sprintMultiplier : 1);
+        const speed = CONFIG.gamepadMoveSpeed * deltaTime * sprintModifier;
         const direction = new THREE.Vector3();
 
         // Get camera forward direction (where it's looking)
