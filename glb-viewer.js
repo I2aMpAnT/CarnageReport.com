@@ -828,13 +828,14 @@ function parseCSVLine(line) {
 
 function showFallbackMessage() {
     const container = document.getElementById('canvas-container');
+    const glbFilename = mapNameToGlbFilename(mapName);
     const message = document.createElement('div');
     message.className = 'no-glb-message';
     message.innerHTML = `
         <h2>No 3D Map Available</h2>
         <p>The GLB file for <strong>${mapName}</strong> hasn't been added yet.</p>
         <p>To add it, place the GLB file at:</p>
-        <code>maps/${mapName}.glb</code>
+        <code>${CONFIG.mapsPath}${glbFilename}.glb</code>
         <p>Player positions will still be displayed on the grid.</p>
     `;
     container.appendChild(message);
