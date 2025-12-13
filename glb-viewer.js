@@ -43,6 +43,56 @@ const CONFIG = {
 };
 
 // Map name to GLB filename mapping (player-facing name → internal GLB filename)
+// Weapon name to icon filename mapping
+const WEAPON_ICONS = {
+    'assault bomb': 'AssaultBomb',
+    'battle rifle': 'BattleRifle',
+    'beam rifle': 'BeamRifle',
+    'brute plasma rifle': 'BrutePlasmaRifle',
+    'brute shot': 'BruteShot',
+    'carbine': 'Carbine',
+    'covenant carbine': 'Carbine',
+    'energy sword': 'EnergySword',
+    'sword': 'EnergySword',
+    'flag': 'Flag',
+    'frag grenade': 'FragGrenadeHUD',
+    'fuel rod': 'FuelRod',
+    'fuel rod gun': 'FuelRod',
+    'fuel rod cannon': 'FuelRod',
+    'magnum': 'Magnum',
+    'pistol': 'Magnum',
+    'melee': 'MeleeKill',
+    'needler': 'Needler',
+    'oddball': 'OddBall',
+    'ball': 'OddBall',
+    'plasma grenade': 'PlasmaGrenadeHUD',
+    'plasma pistol': 'PlasmaPistol',
+    'plasma rifle': 'PlasmaRifle',
+    'rocket launcher': 'RocketLauncher',
+    'rockets': 'RocketLauncher',
+    'sentinel beam': 'SentinelBeam',
+    'shotgun': 'Shotgun',
+    'smg': 'SmG',
+    'sniper rifle': 'SniperRifle',
+    'sniper': 'SniperRifle'
+};
+
+function getWeaponIconUrl(weaponName) {
+    if (!weaponName || weaponName === 'Unknown') return null;
+    const normalized = weaponName.toLowerCase().trim();
+    const iconName = WEAPON_ICONS[normalized];
+    if (iconName) {
+        return `/assets/weapons/${iconName}.png`;
+    }
+    // Try to find a partial match
+    for (const [key, value] of Object.entries(WEAPON_ICONS)) {
+        if (normalized.includes(key) || key.includes(normalized)) {
+            return `/assets/weapons/${value}.png`;
+        }
+    }
+    return null;
+}
+
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
@@ -594,9 +644,10 @@ function onKeyDown(e) {
 function toggleScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
     if (scoreboard) {
-        const isShowing = scoreboard.style.display === 'none';
-        scoreboard.style.display = isShowing ? 'block' : 'none';
-        if (isShowing) {
+        // Check if currently visible (empty string or 'block' means visible)
+        const isVisible = scoreboard.style.display !== 'none';
+        scoreboard.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) {
             populateScoreboard();
         }
     }
@@ -624,13 +675,21 @@ function populateScoreboard() {
         const pos = playerPositions[player.name] || {};
         const marker = playerMarkers[player.name];
         const emblemUrl = player.emblemUrl || '';
+        const weaponName = pos.currentWeapon || 'Unknown';
+        const weaponIconUrl = getWeaponIconUrl(weaponName);
 
         const playerDiv = document.createElement('div');
         playerDiv.className = 'scoreboard-player';
+
+        // Use weapon icon if available, otherwise show text
+        const weaponHtml = weaponIconUrl
+            ? `<img src="${weaponIconUrl}" class="player-weapon-icon" alt="${weaponName}" title="${weaponName}" onerror="this.outerHTML='<span class=\\'player-weapon\\'>${weaponName}</span>'" />`
+            : `<span class="player-weapon">${weaponName}</span>`;
+
         playerDiv.innerHTML = `
             <img src="${emblemUrl}" class="player-emblem" onerror="this.style.display='none'" />
             <span class="player-name" style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span>
-            <span class="player-weapon">${pos.currentWeapon || 'Unknown'}</span>
+            ${weaponHtml}
         `;
 
         // Determine team
@@ -857,6 +916,9 @@ async function loadMapAndTelemetry() {
         await createPlayerMarkers();
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
+
+        // Populate scoreboard with initial data
+        populateScoreboard();
 
         // Set initial view mode
         setViewMode('free');
@@ -1195,11 +1257,12 @@ function createWaypointCanvas(text, color, emblemImage = null) {
     const ctx = canvas.getContext('2d');
 
     const colorHex = `#${color.toString(16).padStart(6, '0')}`;
+    const haloBlue = '#00aaff';
 
-    // Draw waypoint arrow pointing down (team colored)
+    // Draw waypoint arrow pointing down (halo blue)
     const arrowY = 130;
     const arrowSize = 20;
-    ctx.fillStyle = colorHex;
+    ctx.fillStyle = haloBlue;
     ctx.beginPath();
     ctx.moveTo(64, arrowY + arrowSize);  // Bottom point
     ctx.lineTo(64 - arrowSize / 2, arrowY);  // Top left
@@ -1212,8 +1275,8 @@ function createWaypointCanvas(text, color, emblemImage = null) {
     const boxY = 10;
     const boxSize = 100;
 
-    // Dark background (no glow)
-    ctx.fillStyle = 'rgba(0, 20, 40, 0.85)';
+    // Dark background (pure black, no blue tint)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
     ctx.fillRect(boxX, boxY, boxSize, boxSize);
 
     // Thin border (1px white)
