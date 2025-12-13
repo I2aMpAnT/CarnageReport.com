@@ -421,7 +421,8 @@ function findGamesForVod(vod) {
                 const rawType = game.details['Game Type'] || 'Unknown';
                 const baseGameType = getBaseGametype(rawType, game.playlist, game);
                 matchingGames.push({
-                    index: index,
+                    index: index,  // Keep array index for legacy compatibility
+                    gameNumber: game.gameNumber,  // Stable game number for navigation
                     mapName: game.details['Map Name'] || 'Unknown',
                     gameType: baseGameType,
                     startTime: game.details['Start Time'],
@@ -609,7 +610,8 @@ function buildVodGameEntries() {
                     streamer: vod.user.displayName,
                     streamerChannel: vod.user.twitchName,
                     date: new Date(vod.createdAt),
-                    gameIndex: game.index
+                    gameIndex: game.index,
+                    gameNumber: game.gameNumber  // Stable game number for navigation
                 });
             }
         }
@@ -675,7 +677,7 @@ function renderTwitchHubVods(filterQuery = '') {
 
         html += `
             <div class="twitch-hub-card" data-map="${entry.mapName}" data-gametype="${entry.gameType}">
-                <div class="vod-game-header" onclick="navigateToGame(${entry.gameIndex})">${entry.mapName} - ${entry.gameType}</div>
+                <div class="vod-game-header" onclick="navigateToGame(${entry.gameNumber})">${entry.mapName} - ${entry.gameType}</div>
                 <div class="twitch-hub-embed-wrapper" data-embed-url="${embedUrl}" data-vod-url="${vodUrl}">
                     <div class="twitch-lazy-placeholder" onclick="loadTwitchEmbed(this)">
                         <div class="twitch-lazy-icon">▶</div>
@@ -739,12 +741,10 @@ function filterTwitchVods() {
 }
 
 // Navigate to a specific game in the games list and expand it
-function navigateToGame(gameIndex) {
+// gameNumber is the stable game number that matches gameindex.json (1-indexed)
+function navigateToGame(gameNumber) {
     // Switch to Games History tab
     switchMainTab('gamehistory');
-
-    // Calculate the game number (gameIndex is 0-based, gameNumber is 1-based)
-    const gameNumber = gameIndex + 1;
 
     // Scroll to and expand the game
     setTimeout(() => {
@@ -753,7 +753,7 @@ function navigateToGame(gameIndex) {
             gameElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             // Expand if not already expanded
             if (!gameElement.classList.contains('expanded')) {
-                toggleGameDetails(gameNumber);
+                toggleGameDetails('game', gameNumber);
             }
         }
     }, 100);
@@ -1904,6 +1904,14 @@ async function loadGamesData() {
         });
         console.log('[DEBUG] Games sorted chronologically');
 
+        // IMPORTANT: Assign game numbers BEFORE any filtering
+        // Game numbers must match gameindex.json (1-indexed, oldest = 1)
+        // This ensures game numbers remain stable even when games are filtered out
+        for (let i = 0; i < gamesData.length; i++) {
+            gamesData[i].gameNumber = i + 1;
+        }
+        console.log('[DEBUG] Assigned game numbers to all games');
+
         console.log('[DEBUG] Games loaded successfully!');
         console.log('[DEBUG] Number of games:', gamesData.length);
         if (gamesData.length > 0) {
@@ -2120,10 +2128,10 @@ function renderGamesList() {
     
     console.log('[DEBUG] Creating game items...');
     // Iterate in reverse order (newest games first at top, oldest at bottom)
-    // Game numbers: oldest game = 1, newest game = length
+    // Use game.gameNumber which is assigned before filtering and matches gameindex.json
     for (let i = gamesData.length - 1; i >= 0; i--) {
         const game = gamesData[i];
-        const gameNumber = i + 1;  // Oldest game at index 0 = Game 1
+        const gameNumber = game.gameNumber;  // Use stable game number, not array index
         console.log(`[DEBUG] Creating game ${gameNumber}:`, game.details);
         const gameItem = createGameItem(game, gameNumber);
         gamesList.appendChild(gameItem);
@@ -2140,10 +2148,9 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     gameDiv.className = 'game-item';
     gameDiv.id = `${idPrefix}-${gameNumber}`;
 
-    // Store the actual gamesData index for reliable game lookup
-    // Use originalIndex if it exists (from profile games), otherwise find it
-    const gameDataIndex = game.originalIndex !== undefined ? game.originalIndex : gamesData.indexOf(game);
-    gameDiv.setAttribute('data-game-index', gameDataIndex);
+    // Store the stable game number for reliable game lookup
+    // This ensures correct game is found even after filtering
+    gameDiv.setAttribute('data-game-number', gameNumber);
     
     const details = game.details;
     const players = game.players;
@@ -2285,9 +2292,9 @@ function toggleGameDetails(idPrefix, gameNumber) {
         gameItem.classList.add('expanded');
 
         if (!gameContent.innerHTML) {
-            // Get the stored game index from data attribute
-            const gameIndex = parseInt(gameItem.getAttribute('data-game-index'));
-            const game = gamesData[gameIndex];
+            // Get the stored game number and find the game by its stable gameNumber property
+            const gameNumber = parseInt(gameItem.getAttribute('data-game-number'));
+            const game = gamesData.find(g => g.gameNumber === gameNumber);
             if (game) {
                 gameContent.innerHTML = renderGameContent(game);
                 // Load scoreboard emblems
@@ -7112,7 +7119,8 @@ function renderProfileGames(games) {
     container.innerHTML = '';
 
     games.forEach((game, idx) => {
-        const gameNumber = game.originalIndex + 1;
+        // Use stable gameNumber if available, fall back to originalIndex for compatibility
+        const gameNumber = game.gameNumber || (game.originalIndex + 1);
         const gameDiv = createGameItem(game, gameNumber, 'profile-game');
         container.appendChild(gameDiv);
     });
@@ -7383,10 +7391,10 @@ function filterGames(preFilteredGames = null) {
 function renderFilteredGames(games) {
     const container = document.getElementById('gamesList');
     container.innerHTML = '';
-    
+
     games.forEach((game, idx) => {
-        const originalIndex = gamesData.indexOf(game);
-        const gameNumber = originalIndex + 1;
+        // Use stable gameNumber which matches gameindex.json
+        const gameNumber = game.gameNumber;
         const gameDiv = createGameItem(game, gameNumber);
         container.appendChild(gameDiv);
     });
@@ -7517,8 +7525,13 @@ function open3DReplay(gameIndex) {
         return;
     }
 
-    // Game number is 1-indexed (oldest game = 1)
-    const gameNumber = gameIndex + 1;
+    // Use the stored gameNumber (assigned before filtering) to match gameindex.json
+    // This ensures the correct game is loaded even when games have been filtered out
+    const gameNumber = game.gameNumber;
+    if (!gameNumber) {
+        console.error('Game number not found for game:', game);
+        return;
+    }
 
     // Open theater mode with simple game number URL
     window.open(`/theater/${gameNumber}`, '_blank');
