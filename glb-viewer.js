@@ -1427,50 +1427,35 @@ function updateMapRotation() {
 }
 
 function updateDebugInfo() {
+    const debugText = document.getElementById('debug-text');
+    if (!debugText) return;
+
     // Camera position
-    const camPosEl = document.getElementById('debug-cam-pos');
-    if (camPosEl && camera) {
-        camPosEl.textContent = `X: ${camera.position.x.toFixed(2)} Y: ${camera.position.y.toFixed(2)} Z: ${camera.position.z.toFixed(2)}`;
+    const camX = camera?.position.x.toFixed(1) || '0';
+    const camY = camera?.position.y.toFixed(1) || '0';
+    const camZ = camera?.position.z.toFixed(1) || '0';
+
+    // Map rotation (in degrees)
+    let mapRotX = '0', mapRotY = '0', mapRotZ = '0';
+    if (mapModel) {
+        mapRotX = (mapModel.rotation.x * 180 / Math.PI).toFixed(0);
+        mapRotY = (mapModel.rotation.y * 180 / Math.PI).toFixed(0);
+        mapRotZ = (mapModel.rotation.z * 180 / Math.PI).toFixed(0);
     }
 
-    // Camera rotation (in degrees)
-    const camRotEl = document.getElementById('debug-cam-rot');
-    if (camRotEl && camera) {
-        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'XYZ');
-        camRotEl.textContent = `X: ${(euler.x * 180 / Math.PI).toFixed(1)} Y: ${(euler.y * 180 / Math.PI).toFixed(1)} Z: ${(euler.z * 180 / Math.PI).toFixed(1)}`;
-    }
-
-    // Camera up vector
-    const camUpEl = document.getElementById('debug-cam-up');
-    if (camUpEl && camera) {
-        camUpEl.textContent = `X: ${camera.up.x.toFixed(2)} Y: ${camera.up.y.toFixed(2)} Z: ${camera.up.z.toFixed(2)}`;
-    }
-
-    // Map model rotation
-    const mapRotEl = document.getElementById('debug-map-rot');
-    if (mapRotEl && mapModel) {
-        mapRotEl.textContent = `X: ${(mapModel.rotation.x * 180 / Math.PI).toFixed(1)}° Y: ${(mapModel.rotation.y * 180 / Math.PI).toFixed(1)}° Z: ${(mapModel.rotation.z * 180 / Math.PI).toFixed(1)}°`;
-    } else if (mapRotEl) {
-        mapRotEl.textContent = 'No map loaded';
-    }
-
-    // Map bounds
-    const mapBoundsEl = document.getElementById('debug-map-bounds');
-    if (mapBoundsEl && mapModel) {
-        const box = new THREE.Box3().setFromObject(mapModel);
-        mapBoundsEl.innerHTML = `Min: (${box.min.x.toFixed(1)}, ${box.min.y.toFixed(1)}, ${box.min.z.toFixed(1)})<br>Max: (${box.max.x.toFixed(1)}, ${box.max.y.toFixed(1)}, ${box.max.z.toFixed(1)})`;
-    }
-
-    // First player position
-    const playerPosEl = document.getElementById('debug-player-pos');
-    if (playerPosEl && players.length > 0) {
+    // First player position (3D scene position)
+    let playerX = '0', playerY = '0', playerZ = '0';
+    if (players.length > 0) {
         const firstPlayer = players[0];
         const marker = playerMarkers[firstPlayer.name];
         if (marker && marker.group) {
-            const pos = marker.group.position;
-            playerPosEl.textContent = `X: ${pos.x.toFixed(2)} Y: ${pos.y.toFixed(2)} Z: ${pos.z.toFixed(2)}`;
+            playerX = marker.group.position.x.toFixed(1);
+            playerY = marker.group.position.y.toFixed(1);
+            playerZ = marker.group.position.z.toFixed(1);
         }
     }
+
+    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | Map: ${mapRotX}° ${mapRotY}° ${mapRotZ}° | Player: (${playerX}, ${playerY}, ${playerZ})`;
 }
 
 // ===== Initialize =====
