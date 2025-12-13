@@ -181,19 +181,17 @@ function setupScene() {
     scene.add(axesHelper);
 
     // Add test marker at a known CSV position (red sphere)
-    // From CSV: X=-8.8194, Y=-4.4711, Z=-9.8421
-    // Test marker at known Halo coords: X=-8.8194, Y=-4.4711, Z=-9.8421
-    // Transform to scene: (-x, z, y) = (8.8194, -9.8421, -4.4711)
+    // From CSV: Halo X=-8.8194, Y=-4.4711, Z=-9.8421
+    // Transform to scene (x, z, -y): (-8.8194, -9.8421, 4.4711)
     const testGeom = new THREE.SphereGeometry(0.5);
     const testMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const testMarker = new THREE.Mesh(testGeom, testMat);
-    testMarker.position.set(8.8194, -9.8421, -4.4711);
+    testMarker.position.set(-8.8194, -9.8421, 4.4711);
     testMarker.name = 'testMarker';
     scene.add(testMarker);
 
-    // Grid on XY plane (Z-up)
+    // Grid on XZ plane (horizontal, Y-up)
     const gridHelper = new THREE.GridHelper(100, 100, 0x00c8ff, 0x1a1a2e);
-    gridHelper.rotation.x = Math.PI / 2; // Rotate to XY plane for Z-up
     gridHelper.name = 'gridHelper';
     scene.add(gridHelper);
 
@@ -678,10 +676,8 @@ async function loadGLB(path, onProgress) {
             (gltf) => {
                 mapModel = gltf.scene;
 
-                // Rotate map to align with Halo coordinate system
-                // -90° X (Y-up to Z-up) and -180° Y (flip orientation)
-                mapModel.rotation.x = -Math.PI / 2;
-                mapModel.rotation.y = -Math.PI;
+                // GLB is Y-up (standard), Three.js is Y-up - no rotation needed
+                // Player coords will be transformed from Halo Z-up to Three.js Y-up
 
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
@@ -1056,12 +1052,13 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Transform Halo coords to match map rotation (-90° X, -180° Y)
+            // Transform Halo coords (Z-up) to Three.js (Y-up)
             // Halo: (x, y, z) where Z is up
-            // After rotation: scene position = (-x, z, y)
-            marker.group.position.set(-pos.x, pos.z, pos.y);
-            // Yaw rotates around Z in Halo (up), which is Y in scene after transform
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
+            // Three.js: (x, y, z) where Y is up
+            // Transform: scene.x = halo.x, scene.y = halo.z, scene.z = -halo.y
+            marker.group.position.set(pos.x, pos.z, -pos.y);
+            // Yaw rotates around Halo Z (up), which is scene Y after transform
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = pos.facingYaw;
 
             if (pos.isCrouching) {
                 marker.body.scale.y = 0.7;
