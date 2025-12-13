@@ -250,36 +250,19 @@ def generate_game_index():
         except Exception as e:
             print(f"  Warning: Could not load {custom_file}: {e}")
 
-    # Parse timestamp for sorting
-    def parse_ts(ts):
-        if not ts:
+    # Parse timestamp from source_file (YYYYMMDD_HHMMSS.xlsx format)
+    def parse_filename_ts(source_file):
+        if not source_file:
             return datetime.min
-        # Strip trailing AM/PM from 24-hour times (data bug: "18:23 PM")
-        ts_clean = ts
-        if ' PM' in ts or ' AM' in ts:
-            parts = ts.rsplit(' ', 1)
-            if len(parts) == 2 and ':' in parts[0]:
-                time_part = parts[0].split(' ')[-1]
-                hour = int(time_part.split(':')[0])
-                if hour > 12:  # 24-hour time with erroneous AM/PM
-                    ts_clean = parts[0]
-        # Try multiple formats
-        formats = [
-            '%m/%d/%Y %H:%M',      # 11/28/2025 20:03
-            '%m/%d/%Y %I:%M %p',   # 12/5/2025 1:45 AM
-            '%m/%d/%Y %I:%M%p',    # 12/5/2025 1:45AM
-            '%Y-%m-%d %H:%M:%S',   # 2025-12-09 19:05:00 (ISO)
-            '%Y-%m-%d %H:%M',      # 2025-12-09 19:05
-        ]
-        for fmt in formats:
-            try:
-                return datetime.strptime(ts_clean, fmt)
-            except ValueError:
-                continue
-        return datetime.min
+        try:
+            # Extract timestamp from filename like "20251128_074332.xlsx"
+            basename = os.path.basename(source_file).replace('.xlsx', '')
+            return datetime.strptime(basename, '%Y%m%d_%H%M%S')
+        except:
+            return datetime.min
 
-    # Sort chronologically (oldest first = Game 1)
-    all_games.sort(key=lambda g: parse_ts(g.get('timestamp')))
+    # Sort chronologically by filename timestamp (oldest first = Game 1)
+    all_games.sort(key=lambda g: parse_filename_ts(g.get('source_file')))
 
     # Build index - all games get numbered, theater is null if file doesn't exist
     # Theater files are in /home/carnagereport/stats/ (web stats dir)
