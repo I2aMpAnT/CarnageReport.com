@@ -4199,7 +4199,7 @@ function renderPlayerSearchResults(playerName, includeCustomGames = false) {
     // Games list
     html += '<div class="search-games-list">';
     playerGames.forEach((game, index) => {
-        html += renderSearchGameCard(game, gamesData.length - gamesData.indexOf(game), playerName);
+        html += renderSearchGameCard(game, gamesData.indexOf(game) + 1, playerName);
     });
     html += '</div>';
 
@@ -4286,7 +4286,7 @@ function renderMapSearchResults(mapName) {
     // Games list
     html += '<div class="search-games-list">';
     mapGames.forEach((game, index) => {
-        html += renderSearchGameCard(game, gamesData.length - gamesData.indexOf(game));
+        html += renderSearchGameCard(game, gamesData.indexOf(game) + 1);
     });
     html += '</div>';
     
@@ -4369,7 +4369,7 @@ function renderGametypeSearchResults(gametypeName) {
     // Games list
     html += '<div class="search-games-list">';
     gametypeGames.forEach((game, index) => {
-        html += renderSearchGameCard(game, gamesData.length - gamesData.indexOf(game));
+        html += renderSearchGameCard(game, gamesData.indexOf(game) + 1);
     });
     html += '</div>';
     
@@ -4494,7 +4494,7 @@ function renderMedalSearchResults(medalName) {
     // Games list
     html += '<div class="search-games-list">';
     medalGames.forEach(({ game, count }) => {
-        html += renderSearchGameCard(game, gamesData.length - gamesData.indexOf(game));
+        html += renderSearchGameCard(game, gamesData.indexOf(game) + 1);
     });
     html += '</div>';
 
@@ -4723,7 +4723,7 @@ function renderWeaponSearchResults(weaponName) {
     // Games list
     html += '<div class="search-games-list">';
     weaponGames.forEach(({ game, kills }) => {
-        html += renderSearchGameCard(game, gamesData.length - gamesData.indexOf(game));
+        html += renderSearchGameCard(game, gamesData.indexOf(game) + 1);
     });
     html += '</div>';
 
@@ -4892,8 +4892,8 @@ function toggleSearchGameDetails(searchCardId, gameNumber) {
         gameItem.classList.remove('expanded');
         gameContent.innerHTML = '';
     } else {
-        // Find the game data
-        const game = gamesData[gamesData.length - gameNumber];
+        // Find the game data (gameNumber is 1-indexed, oldest = 1)
+        const game = gamesData[gameNumber - 1];
         if (game) {
             gameItem.classList.add('expanded');
             gameContent.innerHTML = renderGameContent(game);
