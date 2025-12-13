@@ -1221,3 +1221,152 @@ body {
     font-family: 'Share Tech Mono', monospace;
     margin: 0 3px;
 }
+
+/* Debug Overlay */
+.debug-overlay {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #ff6600;
+    border-radius: 8px;
+    min-width: 280px;
+    max-width: 320px;
+    z-index: 1000;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: #00ff00;
+}
+
+.debug-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: linear-gradient(180deg, #ff6600 0%, #cc5500 100%);
+    color: #000;
+    font-weight: bold;
+    font-size: 13px;
+    border-radius: 6px 6px 0 0;
+}
+
+.debug-toggle {
+    background: rgba(0,0,0,0.3);
+    border: none;
+    color: #000;
+    font-size: 18px;
+    font-weight: bold;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.debug-toggle:hover {
+    background: rgba(0,0,0,0.5);
+}
+
+.debug-content {
+    padding: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.debug-content.collapsed {
+    display: none;
+}
+
+.debug-section {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 102, 0, 0.3);
+}
+
+.debug-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.debug-title {
+    color: #ff6600;
+    font-size: 11px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.debug-section > div:not(.debug-title):not(.debug-controls) {
+    color: #00ff00;
+    font-size: 13px;
+}
+
+.debug-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.debug-controls label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #aaa;
+}
+
+.debug-controls input[type="range"] {
+    flex: 1;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #333;
+    border-radius: 3px;
+}
+
+.debug-controls input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #ff6600;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.debug-controls span {
+    min-width: 40px;
+    text-align: right;
+    color: #00ff00;
+}
+
+.debug-btn {
+    padding: 6px 12px;
+    background: rgba(255, 102, 0, 0.2);
+    border: 1px solid #ff6600;
+    color: #ff6600;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    transition: all 0.2s;
+}
+
+.debug-btn:hover {
+    background: rgba(255, 102, 0, 0.4);
+}
+
+.debug-controls .debug-btn {
+    margin-top: 4px;
+}
+
+/* Debug scrollbar */
+.debug-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.debug-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.debug-content::-webkit-scrollbar-thumb {
+    background: #ff6600;
+    border-radius: 3px;
+}

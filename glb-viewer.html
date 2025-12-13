@@ -152,6 +152,52 @@
             <div><kbd>Mouse</kbd> Look</div>
             <div><kbd>Space</kbd> Play/Pause</div>
         </div>
+
+        <!-- Debug Overlay -->
+        <div id="debug-overlay" class="debug-overlay">
+            <div class="debug-header">
+                DEBUG INFO
+                <button id="debug-toggle" class="debug-toggle">−</button>
+            </div>
+            <div id="debug-content" class="debug-content">
+                <div class="debug-section">
+                    <div class="debug-title">Camera Position</div>
+                    <div id="debug-cam-pos">X: 0 Y: 0 Z: 0</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Camera Rotation (deg)</div>
+                    <div id="debug-cam-rot">X: 0 Y: 0 Z: 0</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Camera Up Vector</div>
+                    <div id="debug-cam-up">X: 0 Y: 0 Z: 1</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Map Model Rotation (deg)</div>
+                    <div id="debug-map-rot">X: 0 Y: 0 Z: 0</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Map Bounds</div>
+                    <div id="debug-map-bounds">Loading...</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Player 1 Position</div>
+                    <div id="debug-player-pos">X: 0 Y: 0 Z: 0</div>
+                </div>
+                <div class="debug-section">
+                    <div class="debug-title">Map Rotation Controls</div>
+                    <div class="debug-controls">
+                        <label>X: <input type="range" id="map-rot-x" min="-180" max="180" value="0"><span id="map-rot-x-val">0°</span></label>
+                        <label>Y: <input type="range" id="map-rot-y" min="-180" max="180" value="0"><span id="map-rot-y-val">0°</span></label>
+                        <label>Z: <input type="range" id="map-rot-z" min="-180" max="180" value="0"><span id="map-rot-z-val">0°</span></label>
+                        <button id="reset-map-rot" class="debug-btn">Reset</button>
+                        <button id="apply-rot-90x" class="debug-btn">+90° X</button>
+                        <button id="apply-rot-90y" class="debug-btn">+90° Y</button>
+                        <button id="apply-rot-90z" class="debug-btn">+90° Z</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Three.js and GLB Viewer Script -->
