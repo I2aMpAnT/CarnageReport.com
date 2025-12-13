@@ -9,7 +9,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 // ===== Configuration =====
 const CONFIG = {
     mapsPath: '/maps3D/',
-    telemetryPath: '/stats/',
+    telemetryPath: '/stats/theater/',
     playerMarkerSize: 0.5,
     playerMarkerHeight: 1.8,
     defaultCameraHeight: 50,
@@ -43,16 +43,17 @@ const CONFIG = {
 };
 
 // Map name to GLB filename mapping
+// GLB files available: ascension, backwash, beavercreek, burial_mounds, coagulation,
+// colossus, containment, cyclotron, deltatap, derelict, dune, elongation, foundation,
+// gemini, headlong, highplains, highplains2, lockout, midship, triplicate, turf, warlock, waterworks, zanzibar
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
-    'sanctuary': 'sanctuary',
     'warlock': 'warlock',
     'beaver creek': 'beavercreek',
     'ascension': 'ascension',
     'coagulation': 'coagulation',
     'zanzibar': 'zanzibar',
-    'ivory tower': 'ivory_tower',
     'burial mounds': 'burial_mounds',
     'colossus': 'colossus',
     'headlong': 'headlong',
@@ -60,15 +61,18 @@ const MAP_NAME_TO_GLB = {
     'foundation': 'foundation',
     'backwash': 'backwash',
     'containment': 'containment',
-    'desolation': 'desolation',
-    'district': 'district',
     'elongation': 'elongation',
     'gemini': 'gemini',
-    'relic': 'relic',
-    'terminal': 'terminal',
-    'tombstone': 'tombstone',
     'turf': 'turf',
-    'uplift': 'uplift'
+    // Additional available maps
+    'cyclotron': 'cyclotron',
+    'deltatap': 'deltatap',
+    'derelict': 'derelict',
+    'dune': 'dune',
+    'highplains': 'highplains',
+    'triplicate': 'triplicate'
+    // NOTE: sanctuary, ivory tower, desolation, district, relic, terminal, tombstone, uplift
+    // do not have GLB files yet
 };
 
 function mapNameToGlbFilename(mapName) {
@@ -617,9 +621,6 @@ function cyclePlayer(direction) {
         select.value = player.name;
     }
 
-    // Update POV selector if visible
-    updatePOVSelector();
-
     // Show notification
     showPlayerSelectNotification(player.name);
 
@@ -639,21 +640,6 @@ function showPlayerSelectNotification(playerName) {
     notification.textContent = playerName;
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 1500);
-}
-
-function updatePOVSelector() {
-    const povList = document.getElementById('pov-list');
-    if (!povList) return;
-
-    // Update selection state in POV list
-    const items = povList.querySelectorAll('.pov-item');
-    items.forEach((item, index) => {
-        if (index === selectedPlayerIndex) {
-            item.classList.add('selected');
-        } else {
-            item.classList.remove('selected');
-        }
-    });
 }
 
 // Toggle controls panel collapse
@@ -1573,24 +1559,61 @@ function createDeathWaypointCanvas() {
     return canvas;
 }
 
+// Helper to interpolate between two values
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
+
+// Helper to interpolate angles (handles wraparound)
+function lerpAngle(a, b, t) {
+    let diff = b - a;
+    // Normalize to -PI to PI
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    return a + diff * t;
+}
+
 function updatePlayerPositions() {
-    const playerPositions = {};
-    let startIdx = 0;
+    // Build interpolated positions for each player
+    const playerInterpolated = {};
 
-    for (let i = 0; i < telemetryData.length; i++) {
-        if (telemetryData[i].gameTimeMs >= currentTimeMs) {
-            startIdx = Math.max(0, i - players.length * 2);
-            break;
+    for (const player of players) {
+        let before = null;
+        let after = null;
+
+        // Find the two telemetry entries bracketing currentTimeMs for this player
+        for (let i = 0; i < telemetryData.length; i++) {
+            const row = telemetryData[i];
+            if (row.playerName !== player.name) continue;
+
+            if (row.gameTimeMs <= currentTimeMs) {
+                before = row;
+            } else if (!after) {
+                after = row;
+                break; // Found both, stop searching
+            }
         }
-    }
 
-    for (let i = startIdx; i < telemetryData.length; i++) {
-        const row = telemetryData[i];
-        if (row.gameTimeMs > currentTimeMs + 200) break;
+        if (before && after && after.gameTimeMs !== before.gameTimeMs) {
+            // Interpolate between before and after
+            const t = (currentTimeMs - before.gameTimeMs) / (after.gameTimeMs - before.gameTimeMs);
+            const clampedT = Math.max(0, Math.min(1, t));
 
-        if (!playerPositions[row.playerName] ||
-            Math.abs(row.gameTimeMs - currentTimeMs) < Math.abs(playerPositions[row.playerName].gameTimeMs - currentTimeMs)) {
-            playerPositions[row.playerName] = row;
+            playerInterpolated[player.name] = {
+                x: lerp(before.x, after.x, clampedT),
+                y: lerp(before.y, after.y, clampedT),
+                z: lerp(before.z, after.z, clampedT),
+                facingYaw: lerpAngle(before.facingYaw || 0, after.facingYaw || 0, clampedT),
+                facingPitch: lerp(before.facingPitch || 0, after.facingPitch || 0, clampedT),
+                isCrouching: before.isCrouching,
+                gameTimeMs: currentTimeMs
+            };
+        } else if (before) {
+            // Only have a before point, use it directly
+            playerInterpolated[player.name] = before;
+        } else if (after) {
+            // Only have an after point, use it
+            playerInterpolated[player.name] = after;
         }
     }
 
@@ -1598,7 +1621,7 @@ function updatePlayerPositions() {
         const marker = playerMarkers[player.name];
         if (!marker) continue;
 
-        const pos = playerPositions[player.name];
+        const pos = playerInterpolated[player.name];
 
         // Check if position is valid (not at origin which indicates dead/respawning)
         const isValidPosition = pos && (Math.abs(pos.x) > 0.1 || Math.abs(pos.y) > 0.1 || Math.abs(pos.z) > 0.1);
