@@ -110,6 +110,9 @@ let gameInfo = {};
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
+// Debug visibility
+let debugVisible = true;
+
 // ===== Initialization =====
 async function init() {
     parseUrlParams();
@@ -479,6 +482,9 @@ function onKeyDown(e) {
             if (pointerLocked) {
                 document.exitPointerLock();
             }
+            break;
+        case 'Backquote':
+            toggleDebugVisibility();
             break;
     }
 }
@@ -1456,6 +1462,28 @@ function updateDebugInfo() {
     }
 
     debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | Map: ${mapRotX}° ${mapRotY}° ${mapRotZ}° | Player: (${playerX}, ${playerY}, ${playerZ})`;
+}
+
+function toggleDebugVisibility() {
+    debugVisible = !debugVisible;
+
+    // Toggle axes helper
+    const axesHelper = scene.getObjectByName('axesHelper');
+    if (axesHelper) axesHelper.visible = debugVisible;
+
+    // Toggle test marker
+    const testMarker = scene.getObjectByName('testMarker');
+    if (testMarker) testMarker.visible = debugVisible;
+
+    // Toggle grid helper
+    const gridHelper = scene.getObjectByName('gridHelper');
+    if (gridHelper) gridHelper.visible = debugVisible;
+
+    // Toggle debug text
+    const debugText = document.getElementById('debug-text');
+    if (debugText) debugText.style.display = debugVisible ? 'block' : 'none';
+
+    console.log(`Debug visibility: ${debugVisible ? 'ON' : 'OFF'} (press \` to toggle)`);
 }
 
 // ===== Initialize =====
