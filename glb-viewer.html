@@ -138,6 +138,29 @@
             </div>
         </div>
 
+        <!-- Rotation Calibration Panel -->
+        <div id="rotation-calibration" class="rotation-calibration">
+            <div class="calibration-header">
+                <span>Rotation Calibration</span>
+                <button class="calibration-toggle" id="calibrationToggle">−</button>
+            </div>
+            <div class="calibration-content" id="calibrationContent">
+                <div class="calibration-slider">
+                    <label>X: <span id="rotXValue">0°</span></label>
+                    <input type="range" id="rotationX" min="-180" max="180" value="0" step="5">
+                </div>
+                <div class="calibration-slider">
+                    <label>Y: <span id="rotYValue">180°</span></label>
+                    <input type="range" id="rotationY" min="-180" max="180" value="180" step="5">
+                </div>
+                <div class="calibration-slider">
+                    <label>Z: <span id="rotZValue">0°</span></label>
+                    <input type="range" id="rotationZ" min="-180" max="180" value="0" step="5">
+                </div>
+                <button class="calibration-reset" id="resetRotation">Reset</button>
+            </div>
+        </div>
+
         <!-- Controls Hint (Collapsible) -->
         <div id="controls-hint" class="controls-hint">
             <div class="controls-header">
@@ -161,6 +184,7 @@
                     <div><kbd>Tab</kbd> Scoreboard</div>
                     <div><kbd>K</kbd> Killfeed</div>
                     <div><kbd>P</kbd> Names</div>
+                    <div><kbd>L</kbd> Trails</div>
                     <div><kbd>Y</kbd> Cycle View</div>
                     <div><kbd>T</kbd> Top-Down</div>
                     <div><kbd>[</kbd><kbd>]</kbd> Cycle Player</div>

@@ -127,6 +127,16 @@ let showKeyboardControls = true; // true = keyboard, false = controller
 // Selected player index for cycling
 let selectedPlayerIndex = 0;
 
+// Rotation calibration offsets (radians)
+let rotationOffsetX = 0;
+let rotationOffsetY = Math.PI;  // Start with 180° offset
+let rotationOffsetZ = 0;
+
+// Player trails
+let showTrails = false;
+let playerTrails = {};  // name -> array of positions
+const TRAIL_MAX_POINTS = 500;  // Max trail points per player
+
 // Player name visibility (default off)
 let showPlayerNames = false;
 
@@ -277,6 +287,9 @@ function setupEventListeners() {
     // Controls panel toggle
     document.getElementById('controlsCollapseBtn')?.addEventListener('click', toggleControlsPanel);
     document.getElementById('inputToggleBtn')?.addEventListener('click', toggleInputType);
+
+    // Rotation calibration sliders
+    setupCalibrationPanel();
 
     // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
@@ -557,6 +570,69 @@ function toggleInputType() {
     }
 }
 
+// Setup rotation calibration panel
+function setupCalibrationPanel() {
+    const rotXSlider = document.getElementById('rotationX');
+    const rotYSlider = document.getElementById('rotationY');
+    const rotZSlider = document.getElementById('rotationZ');
+    const rotXValue = document.getElementById('rotXValue');
+    const rotYValue = document.getElementById('rotYValue');
+    const rotZValue = document.getElementById('rotZValue');
+    const resetBtn = document.getElementById('resetRotation');
+    const toggleBtn = document.getElementById('calibrationToggle');
+    const content = document.getElementById('calibrationContent');
+
+    if (rotXSlider) {
+        rotXSlider.addEventListener('input', (e) => {
+            const deg = parseInt(e.target.value);
+            rotationOffsetX = deg * Math.PI / 180;
+            if (rotXValue) rotXValue.textContent = `${deg}°`;
+            updatePlayerPositions();
+        });
+    }
+
+    if (rotYSlider) {
+        rotYSlider.addEventListener('input', (e) => {
+            const deg = parseInt(e.target.value);
+            rotationOffsetY = deg * Math.PI / 180;
+            if (rotYValue) rotYValue.textContent = `${deg}°`;
+            updatePlayerPositions();
+        });
+    }
+
+    if (rotZSlider) {
+        rotZSlider.addEventListener('input', (e) => {
+            const deg = parseInt(e.target.value);
+            rotationOffsetZ = deg * Math.PI / 180;
+            if (rotZValue) rotZValue.textContent = `${deg}°`;
+            updatePlayerPositions();
+        });
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            rotationOffsetX = 0;
+            rotationOffsetY = Math.PI;
+            rotationOffsetZ = 0;
+            if (rotXSlider) rotXSlider.value = 0;
+            if (rotYSlider) rotYSlider.value = 180;
+            if (rotZSlider) rotZSlider.value = 0;
+            if (rotXValue) rotXValue.textContent = '0°';
+            if (rotYValue) rotYValue.textContent = '180°';
+            if (rotZValue) rotZValue.textContent = '0°';
+            updatePlayerPositions();
+            showGamepadNotification('Rotation Reset');
+        });
+    }
+
+    if (toggleBtn && content) {
+        toggleBtn.addEventListener('click', () => {
+            content.classList.toggle('collapsed');
+            toggleBtn.textContent = content.classList.contains('collapsed') ? '+' : '−';
+        });
+    }
+}
+
 // Toggle player names visibility on waypoints
 function togglePlayerNames() {
     showPlayerNames = !showPlayerNames;
@@ -598,11 +674,14 @@ async function recreateWaypoints() {
 }
 
 function showGamepadNotification(message) {
+    // Remove any existing notifications first to prevent stacking
+    document.querySelectorAll('.gamepad-notification').forEach(n => n.remove());
+
     const notification = document.createElement('div');
     notification.className = 'gamepad-notification';
     notification.textContent = message;
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
+    setTimeout(() => notification.remove(), 2000);
 }
 
 function updateSpeedDisplay() {
@@ -681,6 +760,9 @@ function onKeyDown(e) {
             break;
         case 'KeyP':
             togglePlayerNames();
+            break;
+        case 'KeyL':
+            toggleTrails();
             break;
         case 'KeyZ':
             // Z key for speed boost - handled in animation loop via keys state
@@ -1183,7 +1265,25 @@ async function createPlayerMarkers() {
         group.add(glow);
 
         scene.add(group);
-        playerMarkers[player.name] = { group, helmet, helmetPivot, label, player, emblemImage, helmetColor };
+
+        // Create trail line for this player
+        const trailGeometry = new THREE.BufferGeometry();
+        const trailPositions = new Float32Array(TRAIL_MAX_POINTS * 3);
+        trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+        trailGeometry.setDrawRange(0, 0);
+        const trailMaterial = new THREE.LineBasicMaterial({
+            color: helmetColor,
+            transparent: true,
+            opacity: 0.6
+        });
+        const trailLine = new THREE.Line(trailGeometry, trailMaterial);
+        trailLine.visible = showTrails;
+        scene.add(trailLine);
+
+        // Initialize trail array for this player
+        playerTrails[player.name] = [];
+
+        playerMarkers[player.name] = { group, helmet, helmetPivot, label, player, emblemImage, helmetColor, trailLine };
     });
 }
 
@@ -1402,9 +1502,27 @@ function updatePlayerPositions() {
             };
 
             // Convert from Halo coords (Z-up) to Three.js (Y-up): X stays, Z becomes Y, Y becomes -Z
-            marker.group.position.set(pos.x, pos.z, -pos.y);
-            // Apply facing direction (yaw) to the group
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = pos.facingYaw + Math.PI;  // +180° rotation fix
+            const threePos = { x: pos.x, y: pos.z, z: -pos.y };
+            marker.group.position.set(threePos.x, threePos.y, threePos.z);
+            // Apply facing direction (yaw) to the group with calibration offsets
+            if (!isNaN(pos.facingYaw)) {
+                marker.group.rotation.set(rotationOffsetX, pos.facingYaw + rotationOffsetY, rotationOffsetZ);
+            }
+
+            // Update trail
+            if (showTrails && marker.trailLine) {
+                const trail = playerTrails[player.name];
+                const lastTrailPos = trail.length > 0 ? trail[trail.length - 1] : null;
+                // Only add point if moved enough distance
+                if (!lastTrailPos ||
+                    Math.abs(threePos.x - lastTrailPos.x) > 0.1 ||
+                    Math.abs(threePos.y - lastTrailPos.y) > 0.1 ||
+                    Math.abs(threePos.z - lastTrailPos.z) > 0.1) {
+                    trail.push({ x: threePos.x, y: threePos.y, z: threePos.z });
+                    if (trail.length > TRAIL_MAX_POINTS) trail.shift();
+                    updateTrailGeometry(marker.trailLine, trail);
+                }
+            }
 
             // Apply pitch to the helmet pivot (looking up/down)
             if (marker.helmetPivot && !isNaN(pos.facingPitch)) {
@@ -1430,7 +1548,9 @@ function updatePlayerPositions() {
             // Player is dead - keep at last known position
             const lastPos = lastKnownPositions[player.name];
             marker.group.position.set(lastPos.x, lastPos.z, -lastPos.y);
-            if (!isNaN(lastPos.facingYaw)) marker.group.rotation.y = lastPos.facingYaw + Math.PI;  // +180° rotation fix
+            if (!isNaN(lastPos.facingYaw)) {
+                marker.group.rotation.set(rotationOffsetX, lastPos.facingYaw + rotationOffsetY, rotationOffsetZ);
+            }
 
             marker.group.visible = true;
             marker.isDead = true;
@@ -1640,6 +1760,38 @@ function updateFollowSelect() {
     });
 }
 
+// ===== Player Trails =====
+function updateTrailGeometry(trailLine, trail) {
+    const positions = trailLine.geometry.attributes.position.array;
+    for (let i = 0; i < trail.length; i++) {
+        positions[i * 3] = trail[i].x;
+        positions[i * 3 + 1] = trail[i].y;
+        positions[i * 3 + 2] = trail[i].z;
+    }
+    trailLine.geometry.attributes.position.needsUpdate = true;
+    trailLine.geometry.setDrawRange(0, trail.length);
+}
+
+function toggleTrails() {
+    showTrails = !showTrails;
+    // Update trail visibility for all players
+    Object.values(playerMarkers).forEach(marker => {
+        if (marker.trailLine) {
+            marker.trailLine.visible = showTrails;
+        }
+    });
+    // Clear trails when turning off
+    if (!showTrails) {
+        Object.keys(playerTrails).forEach(name => {
+            playerTrails[name] = [];
+            const marker = playerMarkers[name];
+            if (marker && marker.trailLine) {
+                marker.trailLine.geometry.setDrawRange(0, 0);
+            }
+        });
+    }
+    showGamepadNotification(`Trails: ${showTrails ? 'ON' : 'OFF'}`);
+}
 
 // ===== Scoreboard =====
 function toggleScoreboard() {
