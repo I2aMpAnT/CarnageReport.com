@@ -732,6 +732,11 @@ async function loadGLB(path, onProgress) {
             path,
             (gltf) => {
                 mapModel = gltf.scene;
+
+                // Rotate map from Z-up to Y-up coordinate system
+                // GLB files from Halo/Blender may use Z-up
+                mapModel.rotation.x = -Math.PI / 2;
+
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
