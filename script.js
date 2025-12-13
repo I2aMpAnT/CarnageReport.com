@@ -224,36 +224,69 @@ function parseGameDateTime(dateStr) {
             }
         }
 
-        // Try US format (12/9/2025 7:45 or 12/9/2025 7:45:00)
+        // Try US format with AM/PM (12/9/2025 7:45 AM or 12/9/2025 7:45:00 PM)
         if (!year) {
-            const usMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
-            if (usMatch) {
-                [, month, day, year, hours, minutes] = usMatch.map(v => parseInt(v) || 0);
+            const usAmPmMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
+            if (usAmPmMatch) {
+                [, month, day, year, hours, minutes] = usAmPmMatch.map(v => parseInt(v) || 0);
+                const ampm = usAmPmMatch[7];
+                if (ampm) {
+                    // Convert 12-hour to 24-hour format
+                    if (ampm.toUpperCase() === 'AM' && hours === 12) {
+                        hours = 0;  // 12 AM = midnight
+                    } else if (ampm.toUpperCase() === 'PM' && hours !== 12) {
+                        hours += 12;  // 1 PM = 13, etc.
+                    }
+                }
             }
         }
 
-        // Try US format with 2-digit year (12/9/25 7:45)
+        // Try US format with 2-digit year and optional AM/PM (12/9/25 7:45 AM)
         if (!year) {
-            const us2Match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+            const us2Match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
             if (us2Match) {
                 [, month, day, year, hours, minutes] = us2Match.map(v => parseInt(v) || 0);
                 year = year < 50 ? 2000 + year : 1900 + year;
+                const ampm = us2Match[7];
+                if (ampm) {
+                    if (ampm.toUpperCase() === 'AM' && hours === 12) {
+                        hours = 0;
+                    } else if (ampm.toUpperCase() === 'PM' && hours !== 12) {
+                        hours += 12;
+                    }
+                }
             }
         }
 
-        // Try dash format (12-09-2025 07:45)
+        // Try dash format with optional AM/PM (12-09-2025 07:45 PM)
         if (!year) {
-            const dashMatch = dateStr.match(/^(\d{1,2})-(\d{1,2})-(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+            const dashMatch = dateStr.match(/^(\d{1,2})-(\d{1,2})-(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
             if (dashMatch) {
                 [, month, day, year, hours, minutes] = dashMatch.map(v => parseInt(v) || 0);
+                const ampm = dashMatch[7];
+                if (ampm) {
+                    if (ampm.toUpperCase() === 'AM' && hours === 12) {
+                        hours = 0;
+                    } else if (ampm.toUpperCase() === 'PM' && hours !== 12) {
+                        hours += 12;
+                    }
+                }
             }
         }
 
-        // Try YYYY/MM/DD format (2025/12/09 07:45)
+        // Try YYYY/MM/DD format with optional AM/PM (2025/12/09 07:45 PM)
         if (!year) {
-            const ymdSlashMatch = dateStr.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+            const ymdSlashMatch = dateStr.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
             if (ymdSlashMatch) {
                 [, year, month, day, hours, minutes] = ymdSlashMatch.map(v => parseInt(v) || 0);
+                const ampm = ymdSlashMatch[7];
+                if (ampm) {
+                    if (ampm.toUpperCase() === 'AM' && hours === 12) {
+                        hours = 0;
+                    } else if (ampm.toUpperCase() === 'PM' && hours !== 12) {
+                        hours += 12;
+                    }
+                }
             }
         }
 
@@ -1711,8 +1744,7 @@ async function toggleCustomGames(show) {
                 details: {
                     'Start Time': match.timestamp,
                     'Map Name': match.map,
-                    'Game Type': match.gametype,
-                    'Variant Name': match.variant || match.gametype
+                    'Game Type': match.gametype
                 },
                 players: convertMatchToPlayers(match, { is_team: true }),
                 playlist: null,  // Unranked
@@ -1790,7 +1822,6 @@ async function loadGamesData() {
                                     'Start Time': match.timestamp,
                                     'Map Name': match.map,
                                     'Game Type': match.gametype,
-                                    'Variant Name': match.variant_name || match.gametype,
                                     'Duration': match.duration || '0:00'
                                 },
                                 players: convertMatchToPlayers(match, playlist),
@@ -1845,7 +1876,6 @@ async function loadGamesData() {
                     'Start Time': match.timestamp,
                     'Map Name': match.map,
                     'Game Type': match.gametype,
-                    'Variant Name': match.variant || match.variant_name || match.gametype,
                     'Duration': match.duration || '0:00'
                 },
                 players: convertMatchToPlayers(match, { is_team: true }),
@@ -2282,7 +2312,7 @@ function renderGameContent(game) {
     let teamScoreHtml = '';
     const teams = {};
     let hasRealTeams = false;
-    const isOddball = rawGameType.toLowerCase().includes('oddball') || rawGameType.toLowerCase().includes('ball');
+    const isOddball = displayGameType.toLowerCase().includes('oddball') || displayGameType.toLowerCase().includes('ball');
     
     game.players.forEach(player => {
         const team = player.team;
@@ -4792,7 +4822,7 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     // Calculate team scores
     let teamScoreHtml = '';
     const teams = {};
-    const isOddball = rawGameType.toLowerCase().includes('oddball') || rawGameType.toLowerCase().includes('ball');
+    const isOddball = displayGameType.toLowerCase().includes('oddball') || displayGameType.toLowerCase().includes('ball');
 
     players.forEach(player => {
         const team = player.team;

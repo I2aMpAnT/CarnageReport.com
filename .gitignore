@@ -33,5 +33,5 @@ head_to_head_matches.json
 head_to_head_stats.json
 populate_stats_fixed.py
 
-# Large 3D map assets (served separately)
+# Large 3D map assets
 maps3D/

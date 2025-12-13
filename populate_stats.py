@@ -130,11 +130,13 @@ def get_base_gametype(game_type_field):
     """
     Convert Game Type field to full display name.
     Input: 'CTF', 'Slayer', 'Oddball', 'Assault', 'KoTH', 'Territories', 'Juggernaut'
+           Also handles underscore versions: 'capture_the_flag', 'team_slayer', etc.
     Output: 'Capture the Flag', 'Team Slayer', 'Oddball', 'Assault', 'King of the Hill', etc.
     """
     if not game_type_field:
         return 'Unknown'
-    gt = game_type_field.strip().lower()
+    # Normalize: lowercase and convert underscores to spaces
+    gt = game_type_field.strip().lower().replace('_', ' ')
     mapping = {
         'ctf': 'Capture the Flag',
         'capture the flag': 'Capture the Flag',
@@ -270,7 +272,6 @@ def detect_series(games, get_display_name_func):
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
                 'gametype': get_base_gametype(game['details'].get('Game Type', '')),
-                'variant_name': game['details'].get('Variant Name', ''),
                 'winner': game_winner,
                 'source_file': game.get('source_file', '')
             })
@@ -300,7 +301,6 @@ def detect_series(games, get_display_name_func):
                     'timestamp': game['details'].get('Start Time', ''),
                     'map': game['details'].get('Map Name', 'Unknown'),
                     'gametype': get_base_gametype(game['details'].get('Game Type', '')),
-                    'variant_name': game['details'].get('Variant Name', ''),
                     'winner': game_winner,
                     'source_file': game.get('source_file', '')
                 }],
@@ -1265,7 +1265,6 @@ def parse_excel_file(file_path):
         row = game_details_df.iloc[0]
         details = {
             'Game Type': str(row.get('Game Type', 'Unknown')),
-            'Variant Name': str(row.get('Variant Name', 'Unknown')),
             'Map Name': str(row.get('Map Name', 'Unknown')),
             'Start Time': str(row.get('Start Time', '')),
             'End Time': str(row.get('End Time', '')),
@@ -1374,10 +1373,10 @@ def determine_winners_losers(game):
     players = game['players']
 
     # Check if this is a CTF or Oddball game (need special score handling)
-    variant_name = game['details'].get('Variant Name', '').lower()
+    # Use ONLY Game Type field, ignore Variant Name
     game_type = game['details'].get('Game Type', '').lower()
-    is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
-    is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
+    is_ctf = 'ctf' in game_type or 'capture' in game_type
+    is_oddball = 'oddball' in game_type
 
     # Build detailed stats lookup for CTF
     detailed = {}
@@ -1608,7 +1607,7 @@ def main():
         all_games.append(game)
 
         map_name = game['details'].get('Map Name', 'Unknown')
-        gametype = game['details'].get('Variant Name', 'Unknown')
+        gametype = get_base_gametype(game['details'].get('Game Type', 'Unknown'))
 
         if playlist:
             if playlist not in games_by_playlist:
@@ -1632,6 +1631,10 @@ def main():
     ranked_games.extend(games_by_playlist.get(PLAYLIST_TEAM_HARDCORE, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_DOUBLE_TEAM, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_HEAD_TO_HEAD, []))
+
+    # Sort ranked games chronologically by timestamp (source_file is timestamp-based)
+    # This ensures ranks are calculated in the correct order
+    ranked_games.sort(key=lambda g: g.get('source_file', ''))
 
     print(f"\nTotal ranked games (for XP/rank): {len(ranked_games)}")
     print(f"Total games (for stats): {len(all_games)}")
@@ -1834,7 +1837,7 @@ def main():
         print(f"\n  Processing {len(games_to_process_for_stats)} ranked games for stats...")
 
     for game_num, game in enumerate(games_to_process_for_stats, 1):
-        game_name = game['details'].get('Variant Name', 'Unknown')
+        game_name = get_base_gametype(game['details'].get('Game Type', 'Unknown'))
         playlist = game.get('playlist')
         playlist_tag = f"[{playlist}]" if playlist else "[UNRANKED]"
 
@@ -1869,7 +1872,7 @@ def main():
 
     for game_num, game in enumerate(games_to_process_for_xp, 1):
         winners, losers = determine_winners_losers(game)
-        game_name = game['details'].get('Variant Name', 'Unknown')
+        game_name = get_base_gametype(game['details'].get('Game Type', 'Unknown'))
         playlist = game.get('playlist')
 
         if not playlist:
@@ -2100,9 +2103,9 @@ def main():
             # Store flat rank for each playlist (legacy compatibility)
             rankstats[user_id][playlist] = playlist_rank
 
-            # Track highest rank across all playlists
-            if playlist_highest > overall_highest_rank:
-                overall_highest_rank = playlist_highest
+            # Track highest CURRENT rank across all playlists (not peak rank)
+            if playlist_rank > overall_highest_rank:
+                overall_highest_rank = playlist_rank
 
             # Primary playlist is the one with most XP
             if playlist_xp > primary_xp:
@@ -2202,10 +2205,10 @@ def main():
             blue_team = [get_display_name(p['name']) for p in game['players'] if p.get('team') == 'Blue']
 
             # Check if this is a CTF or Oddball game (need special score handling)
-            variant_name = game['details'].get('Variant Name', '').lower()
+            # Use ONLY Game Type field, ignore Variant Name
             game_type = game['details'].get('Game Type', '').lower()
-            is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
-            is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
+            is_ctf = 'ctf' in game_type or 'capture' in game_type
+            is_oddball = 'oddball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
@@ -2295,7 +2298,6 @@ def main():
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
                 'gametype': get_base_gametype(game['details'].get('Game Type', '')),
-                'variant_name': game['details'].get('Variant Name', ''),
                 'duration': game['details'].get('Duration', '0:00'),
                 'red_score': red_score,
                 'blue_score': blue_score,
@@ -2361,10 +2363,10 @@ def main():
             winner_team = 'Red' if any(p in red_team for p in winners) else 'Blue' if winners else 'Tie'
 
             # Check if this is a CTF or Oddball game (need special score handling)
-            variant_name = game['details'].get('Variant Name', '').lower()
+            # Use ONLY Game Type field, ignore Variant Name
             game_type = game['details'].get('Game Type', '').lower()
-            is_ctf = 'ctf' in variant_name or 'ctf' in game_type or 'capture' in game_type or 'flag' in variant_name
-            is_oddball = 'oddball' in variant_name or 'oddball' in game_type or 'ball' in game_type
+            is_ctf = 'ctf' in game_type or 'capture' in game_type
+            is_oddball = 'oddball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
@@ -2449,7 +2451,6 @@ def main():
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
                 'gametype': get_base_gametype(game['details'].get('Game Type', '')),
-                'variant_name': game['details'].get('Variant Name', 'Unknown'),
                 'duration': game['details'].get('Duration', '0:00'),
                 'red_score': red_score,
                 'blue_score': blue_score,
