@@ -144,7 +144,9 @@ function setupScene() {
     scene.fog = new THREE.Fog(0x0a0a12, 50, 200);
 
     camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, CONFIG.defaultCameraHeight, 0);
+    // Set Z as up direction (Halo uses Z-up coordinate system)
+    camera.up.set(0, 0, 1);
+    camera.position.set(0, -CONFIG.defaultCameraHeight, CONFIG.defaultCameraHeight);
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -168,6 +170,7 @@ function setupScene() {
     setupLighting();
 
     const gridHelper = new THREE.GridHelper(100, 100, 0x00c8ff, 0x1a1a2e);
+    gridHelper.rotation.x = Math.PI / 2; // Rotate to XY plane (Z-up)
     gridHelper.name = 'gridHelper';
     scene.add(gridHelper);
 
@@ -297,15 +300,15 @@ function handleGamepadInput(deltaTime) {
     const rightX = applyDeadzone(gamepad.axes[2] || 0);
     const rightY = applyDeadzone(gamepad.axes[3] || 0);
 
-    // Movement (left stick) - only in free mode
+    // Movement (left stick) - only in free mode (Z-up)
     if (viewMode === 'free' && (leftX !== 0 || leftY !== 0)) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward/right vectors (ignore Y for ground movement)
+        // Get camera forward/right vectors (ignore Z for ground movement since Z is up)
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
-        forward.y = 0;
+        forward.z = 0;
         forward.normalize();
 
         const right = new THREE.Vector3();
@@ -317,14 +320,14 @@ function handleGamepadInput(deltaTime) {
         camera.position.addScaledVector(direction, speed);
     }
 
-    // Look (right stick) - only in free mode
+    // Look (right stick) - only in free mode (Z-up)
     if (viewMode === 'free' && (rightX !== 0 || rightY !== 0)) {
-        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        const euler = new THREE.Euler(0, 0, 0, 'ZYX'); // Z-up rotation order
         euler.setFromQuaternion(camera.quaternion);
 
-        euler.y -= rightX * CONFIG.gamepadLookSensitivity;
-        euler.x -= rightY * CONFIG.gamepadLookSensitivity;
-        euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+        euler.z -= rightX * CONFIG.gamepadLookSensitivity; // Yaw around Z
+        euler.y -= rightY * CONFIG.gamepadLookSensitivity; // Pitch
+        euler.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.y));
 
         camera.quaternion.setFromEuler(euler);
     }
@@ -487,14 +490,15 @@ function onMouseMove(e) {
     const movementX = e.movementX || 0;
     const movementY = e.movementY || 0;
 
-    const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+    // Z-up rotation: yaw around Z axis, pitch around local X
+    const euler = new THREE.Euler(0, 0, 0, 'ZYX');
     euler.setFromQuaternion(camera.quaternion);
 
-    euler.y -= movementX * CONFIG.lookSensitivity;
-    euler.x -= movementY * CONFIG.lookSensitivity;
+    euler.z -= movementX * CONFIG.lookSensitivity; // Yaw around Z
+    euler.y -= movementY * CONFIG.lookSensitivity; // Pitch
 
     // Clamp vertical look
-    euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+    euler.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.y));
 
     camera.quaternion.setFromEuler(euler);
 }
@@ -530,9 +534,9 @@ function handleKeyboardMovement(deltaTime) {
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement
-    if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
-    if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
+    // Vertical movement (Z is up)
+    if (keys['KeyQ'] || keys['PageDown']) direction.z -= 1;
+    if (keys['KeyE'] || keys['PageUp']) direction.z += 1;
 
     if (direction.length() > 0) {
         direction.normalize();
@@ -836,7 +840,8 @@ async function createPlayerMarkers() {
             emissiveIntensity: 0.2
         });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.y = CONFIG.playerMarkerHeight * 0.35;
+        body.position.z = CONFIG.playerMarkerHeight * 0.35; // Z is up
+        body.rotation.x = Math.PI / 2; // Rotate cylinder to stand upright
         body.castShadow = true;
         group.add(body);
 
@@ -849,7 +854,7 @@ async function createPlayerMarkers() {
             emissiveIntensity: 0.2
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.y = CONFIG.playerMarkerHeight * 0.8;
+        head.position.z = CONFIG.playerMarkerHeight * 0.8; // Z is up
         head.castShadow = true;
         group.add(head);
 
@@ -860,8 +865,8 @@ async function createPlayerMarkers() {
             emissiveIntensity: 0.5
         });
         const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-        arrow.rotation.x = Math.PI / 2;
-        arrow.position.set(0, CONFIG.playerMarkerHeight * 0.5, CONFIG.playerMarkerSize * 0.6);
+        arrow.rotation.y = -Math.PI / 2; // Point forward in X direction
+        arrow.position.set(CONFIG.playerMarkerSize * 0.6, 0, CONFIG.playerMarkerHeight * 0.5); // Z is up
         group.add(arrow);
 
         // Use waypoint canvas with emblem if available
@@ -875,11 +880,11 @@ async function createPlayerMarkers() {
         });
         const label = new THREE.Sprite(labelMaterial);
         label.scale.set(2.5, 3.125, 1); // Aspect ratio 128:160
-        label.position.y = CONFIG.playerMarkerHeight + 2;
+        label.position.z = CONFIG.playerMarkerHeight + 2; // Z is up
         group.add(label);
 
         const glow = new THREE.PointLight(player.color, 0.5, 3);
-        glow.position.y = CONFIG.playerMarkerHeight * 0.5;
+        glow.position.z = CONFIG.playerMarkerHeight * 0.5; // Z is up
         group.add(glow);
 
         scene.add(group);
@@ -1017,15 +1022,16 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            marker.group.position.set(pos.x, pos.z, -pos.y);
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
+            // Direct 1:1 mapping - Z-up coordinate system
+            marker.group.position.set(pos.x, pos.y, pos.z);
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.z = -pos.facingYaw;
 
             if (pos.isCrouching) {
-                marker.body.scale.y = 0.7;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
+                marker.body.scale.z = 0.7; // Z-up: scale on Z axis
+                marker.head.position.z = CONFIG.playerMarkerHeight * 0.6;
             } else {
-                marker.body.scale.y = 1;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
+                marker.body.scale.z = 1;
+                marker.head.position.z = CONFIG.playerMarkerHeight * 0.8;
             }
 
             marker.group.visible = true;
@@ -1045,15 +1051,15 @@ function updatePlayerPositions() {
         }
     }
 
-    // Follow camera
+    // Follow camera (Z-up)
     if (viewMode === 'follow' && followPlayer) {
         const marker = playerMarkers[followPlayer];
         if (marker && marker.group.visible) {
             const targetPos = marker.group.position.clone();
-            targetPos.y += CONFIG.followCameraHeight;
+            targetPos.z += CONFIG.followCameraHeight; // Z is up
 
-            const offset = new THREE.Vector3(0, 0, CONFIG.followCameraDistance);
-            offset.applyQuaternion(marker.group.quaternion);
+            const offset = new THREE.Vector3(-CONFIG.followCameraDistance, 0, CONFIG.followCameraHeight);
+            offset.applyAxisAngle(new THREE.Vector3(0, 0, 1), marker.group.rotation.z);
 
             camera.position.lerp(targetPos.clone().add(offset), 0.1);
             controls.target.lerp(marker.group.position, 0.1);
@@ -1118,20 +1124,36 @@ function setViewMode(mode) {
     // Update controls hint
     updateControlsHint();
 
+    // All modes use Z-up coordinate system
+    camera.up.set(0, 0, 1);
+
     if (mode === 'top') {
         controls.enabled = false;
-        camera.position.set(0, CONFIG.defaultCameraHeight, 0);
-        camera.lookAt(0, 0, 0);
-        camera.up.set(0, 0, -1);
+        // Position camera above looking down (Z is up, so high Z value)
+        const height = mapSize * 1.5;
+        camera.position.set(mapCenter.x, mapCenter.y, mapCenter.z + height);
+        camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
     } else if (mode === 'free') {
         controls.enabled = false;
-        camera.up.set(0, 1, 0);
+        // Start at first player position if available
+        if (telemetryData.length > 0) {
+            const firstPos = telemetryData[0];
+            const eyeHeight = 2;
+            camera.position.set(firstPos.x, firstPos.y, firstPos.z + eyeHeight);
+            // Look in player's facing direction
+            const yaw = firstPos.facingYaw || 0;
+            const lookDist = 10;
+            camera.lookAt(
+                firstPos.x + Math.cos(yaw) * lookDist,
+                firstPos.y + Math.sin(yaw) * lookDist,
+                firstPos.z + eyeHeight
+            );
+        }
     } else if (mode === 'orbit') {
         controls.enabled = true;
-        camera.up.set(0, 1, 0);
+        controls.target.set(mapCenter.x, mapCenter.y, mapCenter.z);
     } else if (mode === 'follow') {
         controls.enabled = true;
-        camera.up.set(0, 1, 0);
     }
 }
 
@@ -1151,14 +1173,23 @@ function positionCameraToFit() {
         maxZ = Math.max(maxZ, row.z);
     });
 
-    const centerX = (minX + maxX) / 2;
-    const centerY = (minY + maxY) / 2;
-    const centerZ = (minZ + maxZ) / 2;
-    const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
+    // Store map center and size for view switching (direct Z-up coords)
+    mapCenter = {
+        x: (minX + maxX) / 2,
+        y: (minY + maxY) / 2,
+        z: (minZ + maxZ) / 2
+    };
+    mapSize = Math.max(maxX - minX, maxY - minY, 30);
 
-    camera.position.set(centerX, maxZ + maxRange * 0.8, -centerY);
-    controls.target.set(centerX, centerZ, -centerY);
+    // Position camera above the play area looking down
+    const height = mapSize * 1.2;
+    camera.position.set(mapCenter.x, mapCenter.y, mapCenter.z + height);
+    camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
+
+    controls.target.set(mapCenter.x, mapCenter.y, mapCenter.z);
     controls.update();
+
+    console.log(`Map center: (${mapCenter.x.toFixed(1)}, ${mapCenter.y.toFixed(1)}, ${mapCenter.z.toFixed(1)}), size: ${mapSize.toFixed(1)}`);
 }
 
 // ===== UI Updates =====
