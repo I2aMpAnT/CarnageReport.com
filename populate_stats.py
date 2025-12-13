@@ -267,10 +267,10 @@ def generate_game_index():
     # Sort chronologically (oldest first = Game 1)
     all_games.sort(key=lambda g: parse_ts(g.get('timestamp')))
 
-    # Build index
+    # Build index - all games get numbered, theater is null if no file
     index = {}
     for i, game in enumerate(all_games):
-        game_num = i + 1
+        game_num = i + 1  # Website game number (1-indexed)
         source = game.get('source_file', '')
         theater_file = source.replace('.xlsx', '_theater.csv') if source else None
         index[str(game_num)] = {
