@@ -109,8 +109,13 @@ let gameInfo = {};
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
-// Telemetry rotation calibration (in degrees)
-let telemetryRotation = { x: 0, y: 0, z: 0 };
+// Axis inversion state
+let axisInvert = { x: 1, y: 1, z: 1 };  // 1 = normal, -1 = inverted
+
+// FPS tracking
+let fpsFrames = 0;
+let fpsLastTime = performance.now();
+let fpsDisplay = 0;
 
 // ===== Initialization =====
 async function init() {
@@ -286,44 +291,45 @@ function setupEventListeners() {
     // Pointer lock
     document.addEventListener('pointerlockchange', onPointerLockChange);
 
-    // Rotation calibration sliders
-    const rotationXSlider = document.getElementById('rotationX');
-    const rotationYSlider = document.getElementById('rotationY');
-    const rotationZSlider = document.getElementById('rotationZ');
-    const resetRotationBtn = document.getElementById('resetRotation');
+    // Axis invert buttons
+    const invertXBtn = document.getElementById('invertX');
+    const invertYBtn = document.getElementById('invertY');
+    const invertZBtn = document.getElementById('invertZ');
+    const resetInvertBtn = document.getElementById('resetInvert');
     const calibrationToggle = document.getElementById('calibrationToggle');
     const calibrationContent = document.getElementById('calibrationContent');
 
-    if (rotationXSlider) {
-        rotationXSlider.addEventListener('input', (e) => {
-            telemetryRotation.x = parseFloat(e.target.value);
-            document.getElementById('rotXValue').textContent = `${telemetryRotation.x}°`;
+    function updateInvertButtonStyles() {
+        if (invertXBtn) invertXBtn.classList.toggle('active', axisInvert.x === -1);
+        if (invertYBtn) invertYBtn.classList.toggle('active', axisInvert.y === -1);
+        if (invertZBtn) invertZBtn.classList.toggle('active', axisInvert.z === -1);
+    }
+
+    if (invertXBtn) {
+        invertXBtn.addEventListener('click', () => {
+            axisInvert.x *= -1;
+            updateInvertButtonStyles();
             updatePlayerPositions();
         });
     }
-    if (rotationYSlider) {
-        rotationYSlider.addEventListener('input', (e) => {
-            telemetryRotation.y = parseFloat(e.target.value);
-            document.getElementById('rotYValue').textContent = `${telemetryRotation.y}°`;
+    if (invertYBtn) {
+        invertYBtn.addEventListener('click', () => {
+            axisInvert.y *= -1;
+            updateInvertButtonStyles();
             updatePlayerPositions();
         });
     }
-    if (rotationZSlider) {
-        rotationZSlider.addEventListener('input', (e) => {
-            telemetryRotation.z = parseFloat(e.target.value);
-            document.getElementById('rotZValue').textContent = `${telemetryRotation.z}°`;
+    if (invertZBtn) {
+        invertZBtn.addEventListener('click', () => {
+            axisInvert.z *= -1;
+            updateInvertButtonStyles();
             updatePlayerPositions();
         });
     }
-    if (resetRotationBtn) {
-        resetRotationBtn.addEventListener('click', () => {
-            telemetryRotation = { x: 0, y: 0, z: 0 };
-            if (rotationXSlider) rotationXSlider.value = 0;
-            if (rotationYSlider) rotationYSlider.value = 0;
-            if (rotationZSlider) rotationZSlider.value = 0;
-            document.getElementById('rotXValue').textContent = '0°';
-            document.getElementById('rotYValue').textContent = '0°';
-            document.getElementById('rotZValue').textContent = '0°';
+    if (resetInvertBtn) {
+        resetInvertBtn.addEventListener('click', () => {
+            axisInvert = { x: 1, y: 1, z: 1 };
+            updateInvertButtonStyles();
             updatePlayerPositions();
         });
     }
@@ -387,19 +393,16 @@ function handleGamepadInput(deltaTime) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward direction projected onto horizontal plane
+        // Get camera's actual forward direction (where it's looking)
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
-        forward.y = 0;  // Project onto horizontal plane
-        if (forward.lengthSq() > 0.001) {
-            forward.normalize();
-        } else {
-            forward.set(0, 0, -1);
-        }
 
-        // Right vector - always horizontal
+        // Right vector perpendicular to forward
         const right = new THREE.Vector3();
         right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+        if (right.lengthSq() < 0.001) {
+            right.set(1, 0, 0);
+        }
 
         // Left stick: X = strafe, Y = forward/back (inverted)
         direction.addScaledVector(right, leftX);
@@ -420,13 +423,15 @@ function handleGamepadInput(deltaTime) {
         camera.quaternion.setFromEuler(euler);
     }
 
-    // Timeline control (bumpers LB/RB)
-    if (gamepad.buttons[4]?.pressed) { // LB - skip back
-        skip(-CONFIG.skipSeconds * deltaTime * 2);
+    // Player cycling (bumpers LB/RB)
+    if (gamepad.buttons[4]?.pressed && !gamepad.buttons[4]._lastState) { // LB - previous player
+        cyclePreviousPlayer();
     }
-    if (gamepad.buttons[5]?.pressed) { // RB - skip forward
-        skip(CONFIG.skipSeconds * deltaTime * 2);
+    if (gamepad.buttons[5]?.pressed && !gamepad.buttons[5]._lastState) { // RB - next player
+        cycleNextPlayer();
     }
+    gamepad.buttons[4]._lastState = gamepad.buttons[4]?.pressed;
+    gamepad.buttons[5]._lastState = gamepad.buttons[5]?.pressed;
 
     // Play/Pause (A button) - only on press, not hold
     if (gamepad.buttons[0]?.pressed && !gamepad.buttons[0]._lastState) {
@@ -434,12 +439,18 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[0]._lastState = gamepad.buttons[0]?.pressed;
 
-    // Speed control (DPad Up/Down)
+    // DPad controls
     if (gamepad.buttons[12]?.pressed && !gamepad.buttons[12]._lastState) {
-        changeSpeed(1); // Increase speed
+        changeSpeed(1); // DPad Up - increase speed
     }
     if (gamepad.buttons[13]?.pressed && !gamepad.buttons[13]._lastState) {
-        changeSpeed(-1); // Decrease speed
+        toggleKillfeed(); // DPad Down - killfeed
+    }
+    if (gamepad.buttons[14]?.pressed) { // DPad Left - skip back
+        skip(-CONFIG.skipSeconds * deltaTime * 2);
+    }
+    if (gamepad.buttons[15]?.pressed) { // DPad Right - skip forward
+        skip(CONFIG.skipSeconds * deltaTime * 2);
     }
     gamepad.buttons[12]._lastState = gamepad.buttons[12]?.pressed;
     gamepad.buttons[13]._lastState = gamepad.buttons[13]?.pressed;
@@ -583,8 +594,56 @@ function onKeyDown(e) {
 function toggleScoreboard() {
     const scoreboard = document.getElementById('scoreboard');
     if (scoreboard) {
-        scoreboard.style.display = scoreboard.style.display === 'none' ? 'block' : 'none';
+        const isShowing = scoreboard.style.display === 'none';
+        scoreboard.style.display = isShowing ? 'block' : 'none';
+        if (isShowing) {
+            populateScoreboard();
+        }
     }
+}
+
+function populateScoreboard() {
+    const redTeamPlayers = document.getElementById('red-team-players');
+    const blueTeamPlayers = document.getElementById('blue-team-players');
+
+    if (!redTeamPlayers || !blueTeamPlayers) return;
+
+    redTeamPlayers.innerHTML = '';
+    blueTeamPlayers.innerHTML = '';
+
+    // Get current player positions for weapon info
+    const playerPositions = {};
+    for (let i = telemetryData.length - 1; i >= 0; i--) {
+        const row = telemetryData[i];
+        if (row.gameTimeMs <= currentTimeMs && !playerPositions[row.playerName]) {
+            playerPositions[row.playerName] = row;
+        }
+    }
+
+    players.forEach(player => {
+        const pos = playerPositions[player.name] || {};
+        const marker = playerMarkers[player.name];
+        const emblemUrl = player.emblemUrl || '';
+
+        const playerDiv = document.createElement('div');
+        playerDiv.className = 'scoreboard-player';
+        playerDiv.innerHTML = `
+            <img src="${emblemUrl}" class="player-emblem" onerror="this.style.display='none'" />
+            <span class="player-name" style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span>
+            <span class="player-weapon">${pos.currentWeapon || 'Unknown'}</span>
+        `;
+
+        // Determine team
+        const team = player.team || '';
+        if (team.includes('red') || team === '_game_team_red') {
+            redTeamPlayers.appendChild(playerDiv);
+        } else if (team.includes('blue') || team === '_game_team_blue') {
+            blueTeamPlayers.appendChild(playerDiv);
+        } else {
+            // FFA - add to both or create separate section
+            redTeamPlayers.appendChild(playerDiv);
+        }
+    });
 }
 
 function toggleKillfeed() {
@@ -682,22 +741,20 @@ function handleKeyboardMovement(deltaTime) {
 
     const direction = new THREE.Vector3();
 
-    // Get camera's forward direction projected onto horizontal plane
+    // Get camera's actual forward direction (where it's looking, including up/down)
     const forward = new THREE.Vector3();
     camera.getWorldDirection(forward);
-    forward.y = 0;  // Project onto horizontal plane
-    if (forward.lengthSq() > 0.001) {
-        forward.normalize();
-    } else {
-        // Camera pointing straight up/down - use default forward
-        forward.set(0, 0, -1);
-    }
 
-    // Right vector - always horizontal, perpendicular to forward
+    // Get right vector perpendicular to forward
     const right = new THREE.Vector3();
     right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
 
-    // WASD movement - horizontal plane movement in camera facing direction
+    // If looking straight up/down, use camera's right vector
+    if (right.lengthSq() < 0.001) {
+        right.set(1, 0, 0);
+    }
+
+    // WASD movement - move in actual camera direction
     if (keys['KeyW']) direction.add(forward);
     if (keys['KeyS']) direction.sub(forward);
     if (keys['KeyA']) direction.sub(right);
@@ -1138,12 +1195,11 @@ function createWaypointCanvas(text, color, emblemImage = null) {
     const ctx = canvas.getContext('2d');
 
     const colorHex = `#${color.toString(16).padStart(6, '0')}`;
-    const waypointBlue = '#00aaff';
 
-    // Draw waypoint arrow pointing down
+    // Draw waypoint arrow pointing down (team colored)
     const arrowY = 130;
     const arrowSize = 20;
-    ctx.fillStyle = waypointBlue;
+    ctx.fillStyle = colorHex;
     ctx.beginPath();
     ctx.moveTo(64, arrowY + arrowSize);  // Bottom point
     ctx.lineTo(64 - arrowSize / 2, arrowY);  // Top left
@@ -1156,26 +1212,18 @@ function createWaypointCanvas(text, color, emblemImage = null) {
     const boxY = 10;
     const boxSize = 100;
 
-    // Outer glow
-    ctx.shadowColor = waypointBlue;
-    ctx.shadowBlur = 15;
-    ctx.fillStyle = 'rgba(0, 40, 80, 0.9)';
+    // Dark background (no glow)
+    ctx.fillStyle = 'rgba(0, 20, 40, 0.85)';
     ctx.fillRect(boxX, boxY, boxSize, boxSize);
-    ctx.shadowBlur = 0;
 
-    // Border
-    ctx.strokeStyle = waypointBlue;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(boxX, boxY, boxSize, boxSize);
-
-    // Inner border
-    ctx.strokeStyle = 'rgba(0, 170, 255, 0.5)';
+    // Thin border (1px white)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.lineWidth = 1;
-    ctx.strokeRect(boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
+    ctx.strokeRect(boxX, boxY, boxSize, boxSize);
 
     // Draw emblem if available
     if (emblemImage && emblemImage.complete) {
-        ctx.drawImage(emblemImage, boxX + 10, boxY + 10, boxSize - 20, boxSize - 20);
+        ctx.drawImage(emblemImage, boxX + 8, boxY + 8, boxSize - 16, boxSize - 16);
     } else {
         // Draw player initial as fallback
         ctx.font = 'bold 50px Orbitron, sans-serif';
@@ -1185,9 +1233,9 @@ function createWaypointCanvas(text, color, emblemImage = null) {
         ctx.fillText(text.charAt(0).toUpperCase(), 64, 60);
     }
 
-    // Draw player name below box
+    // Draw player name below box (team colored)
     ctx.font = 'bold 14px Overpass, sans-serif';
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = colorHex;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     ctx.fillText(text.substring(0, 12), 64, boxY + boxSize + 4);
@@ -1230,29 +1278,27 @@ function updatePlayerPositions() {
     const liveStatsBody = document.getElementById('live-stats-body');
     if (liveStatsBody) liveStatsBody.innerHTML = '';
 
-    // Convert calibration rotation from degrees to radians
-    const calibRotX = THREE.MathUtils.degToRad(telemetryRotation.x);
-    const calibRotY = THREE.MathUtils.degToRad(telemetryRotation.y);
-    const calibRotZ = THREE.MathUtils.degToRad(telemetryRotation.z);
-
     for (const player of players) {
         const marker = playerMarkers[player.name];
         if (!marker) continue;
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Position: Halo X->Three X, Halo Z->Three Y (height), Halo Y->Three Z
-            marker.group.position.set(pos.x, pos.z, pos.y);
+            // Position with axis inversion: Halo X->Three X, Halo Z->Three Y (height), Halo Y->Three Z
+            marker.group.position.set(
+                pos.x * axisInvert.x,
+                pos.z * axisInvert.z,
+                pos.y * axisInvert.y
+            );
 
-            // Apply yaw (horizontal rotation) with calibration offset
+            // Apply yaw (horizontal rotation)
             if (!isNaN(pos.facingYaw)) {
-                marker.group.rotation.y = -pos.facingYaw + calibRotY;
+                marker.group.rotation.y = -pos.facingYaw;
             }
 
-            // Apply pitch (vertical rotation) to the model container
+            // Apply pitch to model container
             if (marker.modelContainer && !isNaN(pos.facingPitch)) {
-                marker.modelContainer.rotation.x = pos.facingPitch + calibRotX;
-                marker.modelContainer.rotation.z = calibRotZ;
+                marker.modelContainer.rotation.x = pos.facingPitch;
             }
 
             // Handle crouching by scaling the model
@@ -1526,6 +1572,16 @@ function animate() {
     const currentTime = performance.now();
     const deltaTime = (currentTime - lastFrameTime) / 1000; // Convert to seconds
     lastFrameTime = currentTime;
+
+    // FPS tracking
+    fpsFrames++;
+    if (currentTime - fpsLastTime >= 1000) {
+        fpsDisplay = fpsFrames;
+        fpsFrames = 0;
+        fpsLastTime = currentTime;
+        const fpsCounter = document.getElementById('fps-counter');
+        if (fpsCounter) fpsCounter.textContent = `${fpsDisplay} FPS`;
+    }
 
     // Handle keyboard movement
     handleKeyboardMovement(deltaTime);

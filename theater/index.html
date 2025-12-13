@@ -39,6 +39,9 @@
         <div id="canvas-container">
             <canvas id="glb-canvas"></canvas>
 
+            <!-- FPS Counter -->
+            <div id="fps-counter" style="position: absolute; top: 10px; left: 10px; color: #00aaff; font-family: 'Share Tech Mono', monospace; font-size: 14px; opacity: 0.7; pointer-events: none; text-shadow: 0 0 2px rgba(0,0,0,0.8);">0 FPS</div>
+
             <!-- Loading overlay -->
             <div id="loading-overlay" class="loading-overlay">
                 <div class="loading-spinner"></div>
@@ -130,26 +133,19 @@
             </div>
         </div>
 
-        <!-- Rotation Calibration Panel -->
-        <div id="rotation-calibration" class="rotation-calibration">
+        <!-- Axis Invert Panel -->
+        <div id="axis-calibration" class="axis-calibration">
             <div class="calibration-header">
-                <span>Rotation Calibration</span>
+                <span>Axis Invert</span>
                 <button class="calibration-toggle" id="calibrationToggle">−</button>
             </div>
             <div class="calibration-content" id="calibrationContent">
-                <div class="calibration-slider">
-                    <label>X: <span id="rotXValue">0°</span></label>
-                    <input type="range" id="rotationX" min="-180" max="180" value="0" step="5">
+                <div class="invert-buttons">
+                    <button class="invert-btn" id="invertX">Invert X</button>
+                    <button class="invert-btn" id="invertY">Invert Y</button>
+                    <button class="invert-btn" id="invertZ">Invert Z</button>
                 </div>
-                <div class="calibration-slider">
-                    <label>Y: <span id="rotYValue">0°</span></label>
-                    <input type="range" id="rotationY" min="-180" max="180" value="0" step="5">
-                </div>
-                <div class="calibration-slider">
-                    <label>Z: <span id="rotZValue">0°</span></label>
-                    <input type="range" id="rotationZ" min="-180" max="180" value="0" step="5">
-                </div>
-                <button class="calibration-reset" id="resetRotation">Reset</button>
+                <button class="calibration-reset" id="resetInvert">Reset All</button>
             </div>
         </div>
 
