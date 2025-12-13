@@ -65,11 +65,10 @@ const MAP_NAME_TO_GLB = {
     'elongation': 'elongation',
     'gemini': 'gemini',
     'turf': 'turf',
-    'derelict': 'derelict',
-    'dune': 'dune',
-    'highplains': 'highplains',
-    'triplicate': 'triplicate',
-    'cyclotron': 'cyclotron'
+    'desolation': 'derelict',
+    'relic': 'dune',
+    'terminal': 'highplains',
+    'ivory tower': 'cyclotron'
 };
 
 function mapNameToGlbFilename(mapName) {
