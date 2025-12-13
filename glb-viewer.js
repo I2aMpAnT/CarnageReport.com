@@ -420,13 +420,15 @@ function handleGamepadInput(deltaTime) {
         camera.quaternion.setFromEuler(euler);
     }
 
-    // Timeline control (bumpers LB/RB)
-    if (gamepad.buttons[4]?.pressed) { // LB - skip back
-        skip(-CONFIG.skipSeconds * deltaTime * 2);
+    // Player cycling (bumpers LB/RB)
+    if (gamepad.buttons[4]?.pressed && !gamepad.buttons[4]._lastState) { // LB - previous player
+        cyclePreviousPlayer();
     }
-    if (gamepad.buttons[5]?.pressed) { // RB - skip forward
-        skip(CONFIG.skipSeconds * deltaTime * 2);
+    if (gamepad.buttons[5]?.pressed && !gamepad.buttons[5]._lastState) { // RB - next player
+        cycleNextPlayer();
     }
+    gamepad.buttons[4]._lastState = gamepad.buttons[4]?.pressed;
+    gamepad.buttons[5]._lastState = gamepad.buttons[5]?.pressed;
 
     // Play/Pause (A button) - only on press, not hold
     if (gamepad.buttons[0]?.pressed && !gamepad.buttons[0]._lastState) {
@@ -434,12 +436,18 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[0]._lastState = gamepad.buttons[0]?.pressed;
 
-    // Speed control (DPad Up/Down)
+    // DPad controls
     if (gamepad.buttons[12]?.pressed && !gamepad.buttons[12]._lastState) {
-        changeSpeed(1); // Increase speed
+        changeSpeed(1); // DPad Up - increase speed
     }
     if (gamepad.buttons[13]?.pressed && !gamepad.buttons[13]._lastState) {
-        changeSpeed(-1); // Decrease speed
+        toggleKillfeed(); // DPad Down - killfeed
+    }
+    if (gamepad.buttons[14]?.pressed) { // DPad Left - skip back
+        skip(-CONFIG.skipSeconds * deltaTime * 2);
+    }
+    if (gamepad.buttons[15]?.pressed) { // DPad Right - skip forward
+        skip(CONFIG.skipSeconds * deltaTime * 2);
     }
     gamepad.buttons[12]._lastState = gamepad.buttons[12]?.pressed;
     gamepad.buttons[13]._lastState = gamepad.buttons[13]?.pressed;
