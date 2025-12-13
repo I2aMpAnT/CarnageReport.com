@@ -219,6 +219,27 @@ async function loadGamesData() {
             }
         }
 
+        // Load custom games
+        if (playlistsConfig.custom_games?.matches_file) {
+            try {
+                const customResponse = await fetch(`/${playlistsConfig.custom_games.matches_file}`);
+                if (customResponse.ok) {
+                    const customData = await customResponse.json();
+                    for (const match of customData.matches || []) {
+                        games.push({
+                            map: match.map,
+                            gametype: match.gametype,
+                            timestamp: match.timestamp,
+                            source_file: match.source_file,
+                            playlist: 'Custom'
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to load custom games:', e);
+            }
+        }
+
         // Sort chronologically (oldest first = game #1)
         games.sort((a, b) => {
             const timeA = parseGameDateTime(a.timestamp) || new Date(0);
