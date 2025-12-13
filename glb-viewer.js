@@ -201,13 +201,16 @@ function setupScene() {
 }
 
 function setupLighting() {
-    const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+    // Strong ambient for interior visibility - key for seeing inside structures
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362e24, 0.6);
+    // Hemisphere light - softer sky/ground blend
+    const hemiLight = new THREE.HemisphereLight(0xaaccff, 0x444422, 0.4);
     scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    // Main directional light (sun) - reduced to not overpower
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
     dirLight.position.set(50, 100, 50);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -220,9 +223,18 @@ function setupLighting() {
     dirLight.shadow.camera.bottom = -100;
     scene.add(dirLight);
 
-    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
-    fillLight.position.set(-50, 50, -50);
-    scene.add(fillLight);
+    // Fill lights from multiple angles to illuminate interiors
+    const fillLight1 = new THREE.DirectionalLight(0xffffee, 0.4);
+    fillLight1.position.set(-50, 20, -50);
+    scene.add(fillLight1);
+
+    const fillLight2 = new THREE.DirectionalLight(0xeeeeff, 0.4);
+    fillLight2.position.set(50, 20, -50);
+    scene.add(fillLight2);
+
+    const fillLight3 = new THREE.DirectionalLight(0xffeedd, 0.3);
+    fillLight3.position.set(0, -30, 0);  // Light from below for under-ramps/platforms
+    scene.add(fillLight3);
 }
 
 function setupEventListeners() {
