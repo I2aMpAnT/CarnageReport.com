@@ -130,11 +130,13 @@ def get_base_gametype(game_type_field):
     """
     Convert Game Type field to full display name.
     Input: 'CTF', 'Slayer', 'Oddball', 'Assault', 'KoTH', 'Territories', 'Juggernaut'
+           Also handles underscore versions: 'capture_the_flag', 'team_slayer', etc.
     Output: 'Capture the Flag', 'Team Slayer', 'Oddball', 'Assault', 'King of the Hill', etc.
     """
     if not game_type_field:
         return 'Unknown'
-    gt = game_type_field.strip().lower()
+    # Normalize: lowercase and convert underscores to spaces
+    gt = game_type_field.strip().lower().replace('_', ' ')
     mapping = {
         'ctf': 'Capture the Flag',
         'capture the flag': 'Capture the Flag',
@@ -1377,7 +1379,7 @@ def determine_winners_losers(game):
     # Use ONLY Game Type field, ignore Variant Name
     game_type = game['details'].get('Game Type', '').lower()
     is_ctf = 'ctf' in game_type or 'capture' in game_type
-    is_oddball = 'oddball' in game_type or 'ball' in game_type
+    is_oddball = 'oddball' in game_type
 
     # Build detailed stats lookup for CTF
     detailed = {}
@@ -1632,6 +1634,10 @@ def main():
     ranked_games.extend(games_by_playlist.get(PLAYLIST_TEAM_HARDCORE, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_DOUBLE_TEAM, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_HEAD_TO_HEAD, []))
+
+    # Sort ranked games chronologically by timestamp (source_file is timestamp-based)
+    # This ensures ranks are calculated in the correct order
+    ranked_games.sort(key=lambda g: g.get('source_file', ''))
 
     print(f"\nTotal ranked games (for XP/rank): {len(ranked_games)}")
     print(f"Total games (for stats): {len(all_games)}")
@@ -2100,9 +2106,9 @@ def main():
             # Store flat rank for each playlist (legacy compatibility)
             rankstats[user_id][playlist] = playlist_rank
 
-            # Track highest rank across all playlists
-            if playlist_highest > overall_highest_rank:
-                overall_highest_rank = playlist_highest
+            # Track highest CURRENT rank across all playlists (not peak rank)
+            if playlist_rank > overall_highest_rank:
+                overall_highest_rank = playlist_rank
 
             # Primary playlist is the one with most XP
             if playlist_xp > primary_xp:
@@ -2205,7 +2211,7 @@ def main():
             # Use ONLY Game Type field, ignore Variant Name
             game_type = game['details'].get('Game Type', '').lower()
             is_ctf = 'ctf' in game_type or 'capture' in game_type
-            is_oddball = 'oddball' in game_type or 'ball' in game_type
+            is_oddball = 'oddball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
@@ -2364,7 +2370,7 @@ def main():
             # Use ONLY Game Type field, ignore Variant Name
             game_type = game['details'].get('Game Type', '').lower()
             is_ctf = 'ctf' in game_type or 'capture' in game_type
-            is_oddball = 'oddball' in game_type or 'ball' in game_type
+            is_oddball = 'oddball' in game_type
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
