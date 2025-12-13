@@ -19,8 +19,7 @@
         {
           "timestamp": "11/28/2025 20:03",
           "map": "Midship",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF MidWar",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251128_201839.xlsx"
         },
@@ -28,7 +27,6 @@
           "timestamp": "11/28/2025 20:19",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 2007",
           "winner": "Blue",
           "source_file": "20251128_202256.xlsx"
         },
@@ -36,7 +34,6 @@
           "timestamp": "11/28/2025 20:29",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "MLG Ball 2007",
           "winner": "Blue",
           "source_file": "20251128_204504.xlsx"
         },
@@ -44,15 +41,13 @@
           "timestamp": "11/28/2025 20:45",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 2007",
           "winner": "Red",
           "source_file": "20251128_205019.xlsx"
         },
         {
           "timestamp": "11/28/2025 20:50",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF Sanc",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251128_210553.xlsx"
         }
@@ -83,8 +78,7 @@
         {
           "timestamp": "12/12/2025 12:01 AM",
           "map": "Midship",
-          "gametype": "Bomb",
-          "variant_name": "MidBomb",
+          "gametype": "Assault",
           "winner": "Red",
           "source_file": "20251212_001058.xlsx"
         },
@@ -92,15 +86,13 @@
           "timestamp": "12/12/2025 12:11 AM",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251212_001718.xlsx"
         },
         {
           "timestamp": "12/12/2025 12:18 AM",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG Sanc CTF",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251212_002821.xlsx"
         },
@@ -108,7 +100,6 @@
           "timestamp": "12/12/2025 12:29 AM",
           "map": "Lockout",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Blue",
           "source_file": "20251212_003705.xlsx"
         },
@@ -116,7 +107,6 @@
           "timestamp": "12/12/2025 12:38 AM",
           "map": "Midship",
           "gametype": "Oddball",
-          "variant_name": "MLG bawl",
           "winner": "Red",
           "source_file": "20251212_005031.xlsx"
         },
@@ -124,7 +114,6 @@
           "timestamp": "12/12/2025 12:54 AM",
           "map": "Midship",
           "gametype": "Oddball",
-          "variant_name": "MLG bawl",
           "winner": "Red",
           "source_file": "20251212_010821.xlsx"
         }
@@ -155,8 +144,7 @@
         {
           "timestamp": "12/12/2025 1:12 AM",
           "map": "Warlock",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG MidWar CTF",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251212_012709.xlsx"
         },
@@ -164,7 +152,6 @@
           "timestamp": "12/12/2025 1:27 AM",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251212_013414.xlsx"
         },
@@ -172,7 +159,6 @@
           "timestamp": "12/12/2025 1:35 AM",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "MLG bawl",
           "winner": "Blue",
           "source_file": "20251212_014759.xlsx"
         }
@@ -203,8 +189,7 @@
         {
           "timestamp": "12/2/2025 20:23",
           "map": "Warlock",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG MidWar CTF",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251202_203858.xlsx"
         },
@@ -212,15 +197,13 @@
           "timestamp": "12/2/2025 20:40",
           "map": "Midship",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251202_204558.xlsx"
         },
         {
           "timestamp": "12/2/2025 20:46",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG Sanc CTF",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251202_210205.xlsx"
         }
@@ -251,8 +234,7 @@
         {
           "timestamp": "12/5/2025 10:19 PM",
           "map": "Midship",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF MidWar",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251205_222909.xlsx"
         }
@@ -284,7 +266,6 @@
           "timestamp": "12/5/2025 10:29 PM",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 2007",
           "winner": "Blue",
           "source_file": "20251205_223635.xlsx"
         },
@@ -292,7 +273,6 @@
           "timestamp": "12/5/2025 10:37 PM",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "MLG Ball 2007",
           "winner": "Blue",
           "source_file": "20251205_225101.xlsx"
         },
@@ -300,15 +280,13 @@
           "timestamp": "12/5/2025 10:51 PM",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 2007",
           "winner": "Blue",
           "source_file": "20251205_225641.xlsx"
         },
         {
           "timestamp": "12/5/2025 10:58 PM",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF Sanc",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251205_231359.xlsx"
         }
@@ -339,8 +317,7 @@
         {
           "timestamp": "12/5/2025 1:45 AM",
           "map": "Warlock",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG MidWar CTF",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251205_015328.xlsx"
         },
@@ -348,15 +325,13 @@
           "timestamp": "12/5/2025 1:54 AM",
           "map": "Sanctuary",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS Default",
           "winner": "Red",
           "source_file": "20251205_020151.xlsx"
         },
         {
           "timestamp": "12/5/2025 2:02 AM",
           "map": "Midship",
-          "gametype": "Bomb",
-          "variant_name": "MidBomb",
+          "gametype": "Assault",
           "winner": "Blue",
           "source_file": "20251205_021632.xlsx"
         },
@@ -364,15 +339,13 @@
           "timestamp": "12/5/2025 2:17 AM",
           "map": "Lockout",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251205_023212.xlsx"
         },
         {
           "timestamp": "12/5/2025 2:33 AM",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG Sanc CTF",
+          "gametype": "Capture the Flag",
           "winner": null,
           "source_file": "20251205_023445.xlsx"
         }
@@ -403,8 +376,7 @@
         {
           "timestamp": "12/6/2025 12:01 AM",
           "map": "Midship",
-          "gametype": "Bomb",
-          "variant_name": "MLG Bomb 07",
+          "gametype": "Assault",
           "winner": "Red",
           "source_file": "20251206_001617.xlsx"
         },
@@ -412,7 +384,6 @@
           "timestamp": "12/6/2025 12:16 AM",
           "map": "Sanctuary",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS Sanc 2007",
           "winner": "Red",
           "source_file": "20251206_002326.xlsx"
         },
@@ -420,7 +391,6 @@
           "timestamp": "12/6/2025 12:24 AM",
           "map": "Midship",
           "gametype": "Oddball",
-          "variant_name": "MLG Ball 2007",
           "winner": "Blue",
           "source_file": "20251206_003907.xlsx"
         },
@@ -428,15 +398,13 @@
           "timestamp": "12/6/2025 12:41 AM",
           "map": "Lockout",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 2007",
           "winner": "Blue",
           "source_file": "20251206_005346.xlsx"
         },
         {
           "timestamp": "12/6/2025 1:01 AM",
           "map": "Warlock",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF MidWar",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251206_012212.xlsx"
         },
@@ -444,7 +412,6 @@
           "timestamp": "12/6/2025 1:24 AM",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 2007",
           "winner": "Blue",
           "source_file": "20251206_013159.xlsx"
         }
@@ -475,8 +442,7 @@
         {
           "timestamp": "12/6/2025 2:29 AM",
           "map": "Midship",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG MidWar CTF",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251206_024552.xlsx"
         },
@@ -484,7 +450,6 @@
           "timestamp": "12/6/2025 2:47 AM",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251206_025423.xlsx"
         },
@@ -492,7 +457,6 @@
           "timestamp": "12/6/2025 2:55 AM",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "MLG bawl",
           "winner": "Blue",
           "source_file": "20251206_031014.xlsx"
         },
@@ -500,15 +464,13 @@
           "timestamp": "12/6/2025 3:11 AM",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Blue",
           "source_file": "20251206_031629.xlsx"
         },
         {
           "timestamp": "12/6/2025 3:18 AM",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG Sanc CTF",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251206_033331.xlsx"
         },
@@ -516,15 +478,13 @@
           "timestamp": "12/6/2025 3:34 AM",
           "map": "Lockout",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251206_034108.xlsx"
         },
         {
           "timestamp": "12/6/2025 3:43 AM",
           "map": "Midship",
-          "gametype": "Bomb",
-          "variant_name": "MidBomb",
+          "gametype": "Assault",
           "winner": "Red",
           "source_file": "20251206_035803.xlsx"
         }
@@ -555,16 +515,14 @@
         {
           "timestamp": "12/6/2025 4:27 AM",
           "map": "Warlock",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG MidWar CTF",
+          "gametype": "Capture the Flag",
           "winner": null,
           "source_file": "20251206_042800.xlsx"
         },
         {
           "timestamp": "12/6/2025 4:28 AM",
           "map": "Warlock",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG MidWar CTF",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251206_044406.xlsx"
         },
@@ -572,7 +530,6 @@
           "timestamp": "12/6/2025 4:46 AM",
           "map": "Sanctuary",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS Default",
           "winner": "Blue",
           "source_file": "20251206_045415.xlsx"
         },
@@ -580,7 +537,6 @@
           "timestamp": "12/6/2025 4:55 AM",
           "map": "Midship",
           "gametype": "Oddball",
-          "variant_name": "MLG bawl",
           "winner": "Blue",
           "source_file": "20251206_050850.xlsx"
         },
@@ -588,15 +544,13 @@
           "timestamp": "12/6/2025 5:10 AM",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251206_051617.xlsx"
         },
         {
           "timestamp": "12/6/2025 5:17 AM",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG Sanc CTF",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251206_053531.xlsx"
         }
@@ -627,8 +581,7 @@
         {
           "timestamp": "12/7/2025 19:08",
           "map": "Midship",
-          "gametype": "capture_the_flag",
-          "variant_name": "2007 CTF MidWar",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251207_192353.xlsx"
         },
@@ -636,7 +589,6 @@
           "timestamp": "12/7/2025 19:36",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "2007 Ball",
           "winner": "Red",
           "source_file": "20251207_194148.xlsx"
         },
@@ -644,7 +596,6 @@
           "timestamp": "12/7/2025 19:42",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "2007 Ball",
           "winner": "Red",
           "source_file": "20251207_195749.xlsx"
         }
@@ -675,8 +626,7 @@
         {
           "timestamp": "12/7/2025 1:06 PM",
           "map": "Midship",
-          "gametype": "capture_the_flag",
-          "variant_name": "Flag",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251207_132608.xlsx"
         }
@@ -707,8 +657,7 @@
         {
           "timestamp": "12/7/2025 1:17",
           "map": "Midship",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG MidWar CTF",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251207_013248.xlsx"
         }
@@ -740,7 +689,6 @@
           "timestamp": "12/7/2025 1:27 PM",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "TS",
           "winner": "Red",
           "source_file": "20251207_133236.xlsx"
         },
@@ -748,7 +696,6 @@
           "timestamp": "12/7/2025 1:33 PM",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "Ball",
           "winner": "Red",
           "source_file": "20251207_134801.xlsx"
         }
@@ -780,7 +727,6 @@
           "timestamp": "12/7/2025 1:34",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Blue",
           "source_file": "20251207_014119.xlsx"
         },
@@ -788,7 +734,6 @@
           "timestamp": "12/7/2025 1:42",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "MLG bawl",
           "winner": "Blue",
           "source_file": "20251207_015415.xlsx"
         }
@@ -820,15 +765,13 @@
           "timestamp": "12/7/2025 1:48 PM",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "TS",
           "winner": "Red",
           "source_file": "20251207_135502.xlsx"
         },
         {
           "timestamp": "12/7/2025 1:55 PM",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "Flag for n00bs",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251207_141047.xlsx"
         }
@@ -860,15 +803,13 @@
           "timestamp": "12/7/2025 20:00",
           "map": "Midship",
           "gametype": "Team Slayer",
-          "variant_name": "2007 TS",
           "winner": "Blue",
           "source_file": "20251207_200740.xlsx"
         },
         {
           "timestamp": "12/7/2025 20:08",
           "map": "Warlock",
-          "gametype": "capture_the_flag",
-          "variant_name": "2007 CTF MidWar",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251207_202401.xlsx"
         },
@@ -876,7 +817,6 @@
           "timestamp": "12/7/2025 20:26",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "2007 TS",
           "winner": "Blue",
           "source_file": "20251207_203243.xlsx"
         }
@@ -907,8 +847,7 @@
         {
           "timestamp": "12/7/2025 20:49",
           "map": "Midship",
-          "gametype": "capture_the_flag",
-          "variant_name": "2007 CTF MidWar",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251207_210103.xlsx"
         },
@@ -916,7 +855,6 @@
           "timestamp": "12/7/2025 21:01",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "2007 TS",
           "winner": "Red",
           "source_file": "20251207_210728.xlsx"
         }
@@ -948,7 +886,6 @@
           "timestamp": "12/7/2025 21:10",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "2007 Ball",
           "winner": "Blue",
           "source_file": "20251207_212532.xlsx"
         },
@@ -956,15 +893,13 @@
           "timestamp": "12/7/2025 21:26",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251207_213052.xlsx"
         },
         {
           "timestamp": "12/7/2025 21:31",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG Sanc CTF",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251207_214648.xlsx"
         }
@@ -996,7 +931,6 @@
           "timestamp": "12/7/2025 2:01",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Blue",
           "source_file": "20251207_020617.xlsx"
         }
@@ -1027,8 +961,7 @@
         {
           "timestamp": "12/7/2025 2:33 PM",
           "map": "Midship",
-          "gametype": "Bomb",
-          "variant_name": "Bomb",
+          "gametype": "Assault",
           "winner": "Red",
           "source_file": "20251207_145001.xlsx"
         },
@@ -1036,7 +969,6 @@
           "timestamp": "12/7/2025 2:51 PM",
           "map": "Sanctuary",
           "gametype": "Team Slayer",
-          "variant_name": "TS for n00bs",
           "winner": "Red",
           "source_file": "20251207_145730.xlsx"
         },
@@ -1044,7 +976,6 @@
           "timestamp": "12/7/2025 2:58 PM",
           "map": "Midship",
           "gametype": "Oddball",
-          "variant_name": "Ball",
           "winner": "Red",
           "source_file": "20251207_151311.xlsx"
         },
@@ -1052,15 +983,13 @@
           "timestamp": "12/7/2025 3:14 PM",
           "map": "Lockout",
           "gametype": "Team Slayer",
-          "variant_name": "TS",
           "winner": "Blue",
           "source_file": "20251207_151949.xlsx"
         },
         {
           "timestamp": "12/7/2025 3:20 PM",
           "map": "Warlock",
-          "gametype": "capture_the_flag",
-          "variant_name": "Flag",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251207_153539.xlsx"
         }
@@ -1091,16 +1020,14 @@
         {
           "timestamp": "12/7/2025 3:25",
           "map": "Midship",
-          "gametype": "Bomb",
-          "variant_name": "MLG Bomb 07",
+          "gametype": "Assault",
           "winner": null,
           "source_file": "20251207_034246.xlsx"
         },
         {
           "timestamp": "12/7/2025 3:43",
           "map": "Midship",
-          "gametype": "Bomb",
-          "variant_name": "MLG Bomb 07",
+          "gametype": "Assault",
           "winner": "Red",
           "source_file": "20251207_035321.xlsx"
         },
@@ -1108,15 +1035,13 @@
           "timestamp": "12/7/2025 3:57",
           "map": "Sanctuary",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS Sanc 2007",
           "winner": "Blue",
           "source_file": "20251207_040505.xlsx"
         },
         {
           "timestamp": "12/7/2025 4:06",
           "map": "Warlock",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF MidWar",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251207_042051.xlsx"
         },
@@ -1124,7 +1049,6 @@
           "timestamp": "12/7/2025 4:22",
           "map": "Lockout",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 2007",
           "winner": "Red",
           "source_file": "20251207_042931.xlsx"
         },
@@ -1132,16 +1056,15 @@
           "timestamp": "12/7/2025 4:29",
           "map": "Midship",
           "gametype": "Oddball",
-          "variant_name": "MLG Ball 2007",
-          "winner": null,
+          "winner": "Red",
           "source_file": "20251207_043658.xlsx"
         }
       ],
-      "red_wins": 2,
+      "red_wins": 3,
       "blue_wins": 2,
       "start_time": "12/7/2025 3:25",
       "end_time": "12/7/2025 4:29",
-      "winner": "Tie",
+      "winner": "Red",
       "series_type": "Bo7"
     },
     {
@@ -1163,8 +1086,7 @@
         {
           "timestamp": "12/7/2025 5:45 PM",
           "map": "Midship",
-          "gametype": "Bomb",
-          "variant_name": "MidBomb",
+          "gametype": "Assault",
           "winner": "Blue",
           "source_file": "20251207_180237.xlsx"
         }
@@ -1196,15 +1118,13 @@
           "timestamp": "12/7/2025 6:05 PM",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251207_181044.xlsx"
         },
         {
           "timestamp": "12/7/2025 6:12 PM",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG Sanc CTF",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251207_182803.xlsx"
         },
@@ -1212,7 +1132,6 @@
           "timestamp": "12/7/2025 6:29 PM",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS No Dualz",
           "winner": "Red",
           "source_file": "20251207_183514.xlsx"
         }
@@ -1243,8 +1162,7 @@
         {
           "timestamp": "12/9/2025 18:23 PM",
           "map": "Midship",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF MidWar",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251209_183637.xlsx"
         },
@@ -1252,7 +1170,6 @@
           "timestamp": "12/9/2025 18:37 PM",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 2007",
           "winner": "Red",
           "source_file": "20251209_184331.xlsx"
         },
@@ -1260,29 +1177,26 @@
           "timestamp": "12/9/2025 18:44 PM",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "MLG Ball 2007",
-          "winner": "Blue",
+          "winner": "Red",
           "source_file": "20251209_185811.xlsx"
         },
         {
           "timestamp": "12/9/2025 18:59 PM",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 2007",
           "winner": "Red",
           "source_file": "20251209_190454.xlsx"
         },
         {
           "timestamp": "2025-12-09 19:05:00",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF Sanc",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251209_192855.xlsx"
         }
       ],
-      "red_wins": 3,
-      "blue_wins": 2,
+      "red_wins": 4,
+      "blue_wins": 1,
       "start_time": "12/9/2025 18:23 PM",
       "end_time": "2025-12-09 19:05:00",
       "winner": "Red",
@@ -1307,8 +1221,7 @@
         {
           "timestamp": "2025-12-10 00:00:00",
           "map": "Midship",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF Midwar",
+          "gametype": "Capture the Flag",
           "winner": "Blue",
           "source_file": "20251210_000851.xlsx"
         }
@@ -1340,7 +1253,6 @@
           "timestamp": "2025-12-10 00:10:00",
           "map": "Beaver Creek",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 07",
           "winner": "Red",
           "source_file": "20251210_001740.xlsx"
         },
@@ -1348,7 +1260,6 @@
           "timestamp": "2025-12-10 00:18:00",
           "map": "Lockout",
           "gametype": "Oddball",
-          "variant_name": "MLG Ball 07",
           "winner": "Red",
           "source_file": "20251210_003212.xlsx"
         },
@@ -1356,15 +1267,13 @@
           "timestamp": "2025-12-10 00:33:00",
           "map": "Warlock",
           "gametype": "Team Slayer",
-          "variant_name": "MLG TS 07",
           "winner": "Red",
           "source_file": "20251210_003815.xlsx"
         },
         {
           "timestamp": "2025-12-10 00:39:00",
           "map": "Sanctuary",
-          "gametype": "capture_the_flag",
-          "variant_name": "MLG CTF Sanc",
+          "gametype": "Capture the Flag",
           "winner": "Red",
           "source_file": "20251210_010434.xlsx"
         }
@@ -1395,7 +1304,7 @@
       "series_losses": 0
     },
     "269681242335739905": {
-      "series_wins": 7,
+      "series_wins": 8,
       "series_losses": 6
     },
     "426757496557010948": {
@@ -1403,7 +1312,7 @@
       "series_losses": 7
     },
     "334212655613214721": {
-      "series_wins": 9,
+      "series_wins": 10,
       "series_losses": 8
     },
     "136324687926919168": {
@@ -1411,7 +1320,7 @@
       "series_losses": 6
     },
     "1136095104663306240": {
-      "series_wins": 5,
+      "series_wins": 6,
       "series_losses": 1
     },
     "390747330631958528": {
@@ -1451,12 +1360,12 @@
       "series_losses": 6
     },
     "161726300304834560": {
-      "series_wins": 1,
+      "series_wins": 2,
       "series_losses": 1
     },
     "274372368686776321": {
       "series_wins": 6,
-      "series_losses": 2
+      "series_losses": 3
     },
     "859153194839965718": {
       "series_wins": 0,
@@ -1476,7 +1385,7 @@
     },
     "797210177786347530": {
       "series_wins": 0,
-      "series_losses": 1
+      "series_losses": 2
     },
     "385632391089356810": {
       "series_wins": 5,
@@ -1484,13 +1393,13 @@
     },
     "694412691015598140": {
       "series_wins": 1,
-      "series_losses": 4
+      "series_losses": 5
     },
     "884896715432411178": {
       "series_wins": 6,
       "series_losses": 7
     },
-    "816456729383339163": {
+    "902999496179962187": {
       "series_wins": 4,
       "series_losses": 4
     },
@@ -1502,6 +1411,10 @@
       "series_wins": 0,
       "series_losses": 2
     },
+    "928949046382274301": {
+      "series_wins": 0,
+      "series_losses": 1
+    },
     "177913649728323584": {
       "series_wins": 0,
       "series_losses": 1
@@ -1511,5 +1424,5 @@
       "series_losses": 1
     }
   },
-  "generated_at": "2025-12-12T04:15:23.984617"
+  "generated_at": "2025-12-13T01:59:13.736395"
 }
