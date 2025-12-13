@@ -144,7 +144,8 @@ function setupScene() {
     scene.fog = new THREE.Fog(0x0a0a12, 50, 200);
 
     camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, CONFIG.defaultCameraHeight, 0);
+    camera.position.set(0, 0, CONFIG.defaultCameraHeight);
+    camera.up.set(0, 0, 1); // Z-up
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -302,14 +303,12 @@ function handleGamepadInput(deltaTime) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward/right vectors (ignore Y for ground movement)
-        const forward = new THREE.Vector3();
-        camera.getWorldDirection(forward);
-        forward.y = 0;
-        forward.normalize();
+        // Get camera yaw for XY plane movement (Z-up)
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
+        const yaw = euler.z;
 
-        const right = new THREE.Vector3();
-        right.crossVectors(forward, camera.up).normalize();
+        const forward = new THREE.Vector3(-Math.sin(yaw), Math.cos(yaw), 0);
+        const right = new THREE.Vector3(Math.cos(yaw), Math.sin(yaw), 0);
 
         direction.addScaledVector(right, leftX);
         direction.addScaledVector(forward, -leftY);
@@ -317,13 +316,13 @@ function handleGamepadInput(deltaTime) {
         camera.position.addScaledVector(direction, speed);
     }
 
-    // Look (right stick) - only in free mode
+    // Look (right stick) - only in free mode (Z-up)
     if (viewMode === 'free' && (rightX !== 0 || rightY !== 0)) {
-        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        const euler = new THREE.Euler(0, 0, 0, 'ZXY');
         euler.setFromQuaternion(camera.quaternion);
 
-        euler.y -= rightX * CONFIG.gamepadLookSensitivity;
-        euler.x -= rightY * CONFIG.gamepadLookSensitivity;
+        euler.z -= rightX * CONFIG.gamepadLookSensitivity; // Yaw around Z
+        euler.x -= rightY * CONFIG.gamepadLookSensitivity; // Pitch
         euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
 
         camera.quaternion.setFromEuler(euler);
@@ -487,11 +486,12 @@ function onMouseMove(e) {
     const movementX = e.movementX || 0;
     const movementY = e.movementY || 0;
 
-    const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+    // Z-up: yaw around Z, pitch around X
+    const euler = new THREE.Euler(0, 0, 0, 'ZXY');
     euler.setFromQuaternion(camera.quaternion);
 
-    euler.y -= movementX * CONFIG.lookSensitivity;
-    euler.x -= movementY * CONFIG.lookSensitivity;
+    euler.z -= movementX * CONFIG.lookSensitivity; // Yaw
+    euler.x -= movementY * CONFIG.lookSensitivity; // Pitch
 
     // Clamp vertical look
     euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
@@ -518,21 +518,24 @@ function handleKeyboardMovement(deltaTime) {
     const speed = CONFIG.moveSpeed * deltaTime * (keys['ShiftLeft'] || keys['ShiftRight'] ? CONFIG.sprintMultiplier : 1);
 
     const direction = new THREE.Vector3();
-    const forward = new THREE.Vector3();
-    camera.getWorldDirection(forward);
 
-    const right = new THREE.Vector3();
-    right.crossVectors(forward, camera.up).normalize();
+    // Get camera yaw from quaternion (rotation around Z for Z-up)
+    const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
+    const yaw = euler.z;
 
-    // WASD movement
+    // Forward/back on XY plane based on camera yaw
+    const forward = new THREE.Vector3(-Math.sin(yaw), Math.cos(yaw), 0);
+    const right = new THREE.Vector3(Math.cos(yaw), Math.sin(yaw), 0);
+
+    // WASD movement on XY plane
     if (keys['KeyW'] || keys['ArrowUp']) direction.add(forward);
     if (keys['KeyS'] || keys['ArrowDown']) direction.sub(forward);
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement
-    if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
-    if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
+    // Vertical movement (Z-up)
+    if (keys['KeyQ'] || keys['PageDown']) direction.z -= 1;
+    if (keys['KeyE'] || keys['PageUp']) direction.z += 1;
 
     if (direction.length() > 0) {
         direction.normalize();
@@ -1047,15 +1050,15 @@ function updatePlayerPositions() {
         }
     }
 
-    // Follow camera
+    // Follow camera (Z-up)
     if (viewMode === 'follow' && followPlayer) {
         const marker = playerMarkers[followPlayer];
         if (marker && marker.group.visible) {
             const targetPos = marker.group.position.clone();
-            targetPos.y += CONFIG.followCameraHeight;
+            targetPos.z += CONFIG.followCameraHeight; // Z-up
 
-            const offset = new THREE.Vector3(0, 0, CONFIG.followCameraDistance);
-            offset.applyQuaternion(marker.group.quaternion);
+            const offset = new THREE.Vector3(0, -CONFIG.followCameraDistance, 0); // Behind in Y
+            offset.applyAxisAngle(new THREE.Vector3(0, 0, 1), marker.group.rotation.z);
 
             camera.position.lerp(targetPos.clone().add(offset), 0.1);
             controls.target.lerp(marker.group.position, 0.1);
@@ -1120,20 +1123,19 @@ function setViewMode(mode) {
     // Update controls hint
     updateControlsHint();
 
+    // All modes use Z-up
+    camera.up.set(0, 0, 1);
+
     if (mode === 'top') {
         controls.enabled = false;
-        camera.position.set(0, CONFIG.defaultCameraHeight, 0);
+        camera.position.set(0, 0, CONFIG.defaultCameraHeight);
         camera.lookAt(0, 0, 0);
-        camera.up.set(0, 0, -1);
     } else if (mode === 'free') {
         controls.enabled = false;
-        camera.up.set(0, 1, 0);
     } else if (mode === 'orbit') {
         controls.enabled = true;
-        camera.up.set(0, 1, 0);
     } else if (mode === 'follow') {
         controls.enabled = true;
-        camera.up.set(0, 1, 0);
     }
 }
 
@@ -1158,8 +1160,9 @@ function positionCameraToFit() {
     const centerZ = (minZ + maxZ) / 2;
     const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
 
-    camera.position.set(centerX, maxZ + maxRange * 0.8, -centerY);
-    controls.target.set(centerX, centerZ, -centerY);
+    // Z-up: camera above looking down at center
+    camera.position.set(centerX, centerY, maxZ + maxRange * 0.8);
+    controls.target.set(centerX, centerY, centerZ);
     controls.update();
 }
 
