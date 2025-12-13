@@ -2000,3 +2000,56 @@ body {
     background: rgba(255, 100, 0, 0.4);
     border-color: #ff9900;
 }
+
+/* Scoreboard Header Row */
+.scoreboard-header-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.3);
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.scoreboard-header-row .header-spacer {
+    width: 28px;
+    flex-shrink: 0;
+}
+
+.scoreboard-header-row .header-name {
+    flex: 1;
+}
+
+.scoreboard-header-row .header-stats {
+    display: flex;
+    gap: 8px;
+}
+
+.scoreboard-sort {
+    cursor: pointer;
+    min-width: 32px;
+    text-align: right;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.scoreboard-sort:hover {
+    background: rgba(0, 200, 255, 0.2);
+    color: #00c8ff;
+}
+
+.red-team .scoreboard-sort:hover {
+    background: rgba(255, 100, 100, 0.3);
+    color: #ff6666;
+}
+
+.blue-team .scoreboard-sort:hover {
+    background: rgba(100, 150, 255, 0.3);
+    color: #6699ff;
+}

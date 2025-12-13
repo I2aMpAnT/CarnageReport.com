@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halo 2 Theater Mode - CarnageReport.com</title>
+    <link rel="icon" type="image/x-icon" href="../H2CRFinal.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Highway+Gothic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../glb-viewer.css">
+    <style>
+        @font-face {
+            font-family: 'Highway Gothic';
+            src: local('Highway Gothic'), local('Interstate'), local('Clearview Highway');
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+    <div class="viewer-container">
+        <!-- Header -->
+        <header class="viewer-header">
+            <a href="../index.html" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+                Back to Stats
+            </a>
+            <div class="viewer-title">
+                <img src="../H2CRFinal.png" alt="Logo" class="viewer-logo">
+                <span id="mapName">Theater Mode</span>
+            </div>
+            <div class="game-info">
+                <span id="gameType"></span>
+                <span id="gameDate"></span>
+            </div>
+        </header>
+
+        <!-- 3D Canvas Container -->
+        <div id="canvas-container">
+            <canvas id="glb-canvas"></canvas>
+
+            <!-- Loading overlay -->
+            <div id="loading-overlay" class="loading-overlay">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Loading 3D Map...</div>
+                <div class="loading-progress" id="loading-progress">0%</div>
+            </div>
+
+            <!-- Error overlay -->
+            <div id="error-overlay" class="error-overlay" style="display: none;">
+                <div class="error-icon">!</div>
+                <div class="error-text" id="error-text">Failed to load map</div>
+                <button class="error-retry" onclick="retryLoad()">Retry</button>
+            </div>
+
+            <!-- Scoreboard (Tab to toggle) -->
+            <div id="scoreboard" class="scoreboard" style="display: none;">
+                <div class="scoreboard-team red-team">
+                    <div class="team-header">
+                        <span class="team-name">Red Team</span>
+                        <span class="team-score" id="red-team-score">0</span>
+                    </div>
+                    <div class="team-players" id="red-team-players">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <div class="scoreboard-team blue-team">
+                    <div class="team-header">
+                        <span class="team-name">Blue Team</span>
+                        <span class="team-score" id="blue-team-score">0</span>
+                    </div>
+                    <div class="team-players" id="blue-team-players">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Killfeed (K to toggle) -->
+            <div id="killfeed" class="killfeed">
+                <!-- Kill entries populated by JS -->
+            </div>
+        </div>
+
+        <!-- POV Selector Panel -->
+        <div id="pov-selector" class="pov-selector">
+            <div class="pov-header">POV SELECT</div>
+            <div id="pov-list" class="pov-list">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Playback Controls -->
+        <div class="playback-controls">
+            <div class="timeline-container">
+                <div class="time-display">
+                    <span id="currentTime">00:00</span>
+                    <span class="time-separator">/</span>
+                    <span id="totalTime">00:00</span>
+                </div>
+                <div class="timeline-wrapper">
+                    <input type="range" id="timeline" class="timeline-slider" min="0" max="100" value="0">
+                    <div class="timeline-progress" id="timeline-progress"></div>
+                </div>
+            </div>
+
+            <div class="control-buttons">
+                <button class="control-btn" id="skipBackBtn" title="Skip Back 10s">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/></svg>
+                </button>
+                <button class="control-btn play-btn" id="playPauseBtn" title="Play/Pause">
+                    <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display: none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                <button class="control-btn" id="skipForwardBtn" title="Skip Forward 10s">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+                </button>
+                <div class="speed-control">
+                    <label>Speed:</label>
+                    <select id="playbackSpeed">
+                        <option value="0.25">0.25x</option>
+                        <option value="0.5">0.5x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="2">2x</option>
+                        <option value="4">4x</option>
+                        <option value="8">8x</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="view-controls">
+                <button class="view-btn active" id="viewModeBtn" title="Cycle View Mode (Y)">
+                    <svg id="viewModeIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    <span id="viewModeText">Free</span>
+                </button>
+                <select id="followPlayerSelect" class="follow-select" style="display: none;">
+                    <option value="">Select Player...</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Rotation Calibration Panel -->
+        <div id="rotation-calibration" class="rotation-calibration">
+            <div class="calibration-header">
+                <span>Rotation Calibration</span>
+                <button class="calibration-toggle" id="calibrationToggle">−</button>
+            </div>
+            <div class="calibration-content" id="calibrationContent">
+                <div class="calibration-slider">
+                    <label>X: <span id="rotXValue">0°</span></label>
+                    <input type="range" id="rotationX" min="-180" max="180" value="0" step="5">
+                </div>
+                <div class="calibration-slider">
+                    <label>Y: <span id="rotYValue">180°</span></label>
+                    <input type="range" id="rotationY" min="-180" max="180" value="180" step="5">
+                </div>
+                <div class="calibration-slider">
+                    <label>Z: <span id="rotZValue">0°</span></label>
+                    <input type="range" id="rotationZ" min="-180" max="180" value="0" step="5">
+                </div>
+                <button class="calibration-reset" id="resetRotation">Reset</button>
+            </div>
+        </div>
+
+        <!-- Controls Hint (Collapsible) -->
+        <div id="controls-hint" class="controls-hint">
+            <div class="controls-header">
+                <button class="input-toggle" id="inputToggleBtn" title="Switch Input Type">
+                    <span id="inputTypeText">Keyboard</span>
+                </button>
+                <button class="controls-collapse-btn" id="controlsCollapseBtn" title="Toggle Controls">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                </button>
+            </div>
+            <div class="controls-content" id="controlsContent">
+                <!-- Keyboard controls (default) -->
+                <div id="keyboardControls">
+                    <div><kbd>WASD</kbd> Move</div>
+                    <div><kbd>Q</kbd><kbd>E</kbd> Up/Down</div>
+                    <div><kbd>Shift</kbd> Sprint</div>
+                    <div><kbd>Mouse</kbd> Look</div>
+                    <div><kbd>Space</kbd> Play/Pause</div>
+                    <div><kbd>&lt;</kbd><kbd>&gt;</kbd> Skip 10s</div>
+                    <div><kbd>Z</kbd> Speed Boost</div>
+                    <div><kbd>Tab</kbd> Scoreboard</div>
+                    <div><kbd>K</kbd> Killfeed</div>
+                    <div><kbd>P</kbd> Names</div>
+                    <div><kbd>L</kbd> Trails</div>
+                    <div><kbd>Y</kbd> Cycle View</div>
+                    <div><kbd>T</kbd> Top-Down</div>
+                    <div><kbd>[</kbd><kbd>]</kbd> Cycle Player</div>
+                </div>
+                <!-- Controller controls -->
+                <div id="controllerControls" style="display: none;">
+                    <div><span class="gpad">Left Stick</span> Move</div>
+                    <div><span class="gpad">Right Stick</span> Look</div>
+                    <div><span class="gpad">LT</span> Sprint</div>
+                    <div><span class="gpad">A</span> Play/Pause</div>
+                    <div><span class="gpad">DPad L/R</span> Skip 10s</div>
+                    <div><span class="gpad">RT</span> Speed Boost</div>
+                    <div><span class="gpad">Back</span> Scoreboard</div>
+                    <div><span class="gpad">DPad Down</span> Killfeed</div>
+                    <div><span class="gpad">X</span> Names</div>
+                    <div><span class="gpad">B</span> Trails</div>
+                    <div><span class="gpad">Y</span> Cycle View</div>
+                    <div><span class="gpad">RS</span> Top-Down</div>
+                    <div><span class="gpad">LB</span><span class="gpad">RB</span> Cycle Player</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js and GLB Viewer Script -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="../glb-viewer.js"></script>
+</body>
+</html>

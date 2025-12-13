@@ -8,8 +8,8 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 // ===== Configuration =====
 const CONFIG = {
-    mapsPath: 'maps3D/',
-    telemetryPath: 'stats/',
+    mapsPath: '/maps3D/',
+    telemetryPath: '/stats/',
     playerMarkerSize: 0.5,
     playerMarkerHeight: 1.8,
     defaultCameraHeight: 50,
@@ -115,6 +115,8 @@ let wasPlayingBeforeDrag = false;
 // Scoreboard state
 let scoreboardVisible = false;
 let playerStats = {}; // Track kills/deaths per player
+let scoreboardSortColumn = 'score'; // 'kills', 'deaths', 'score'
+let scoreboardSortAscending = false; // false = descending (highest first)
 
 // Killfeed state
 let killfeedVisible = true;
@@ -158,8 +160,20 @@ async function init() {
 
 function parseUrlParams() {
     const params = new URLSearchParams(window.location.search);
+
+    // Support path-based URL: /theater/{filename}
+    const pathMatch = window.location.pathname.match(/\/theater\/([^\/]+)/);
+    if (pathMatch) {
+        telemetryFile = pathMatch[1];
+        // Add .csv extension if not present
+        if (!telemetryFile.includes('.')) {
+            telemetryFile += '.csv';
+        }
+    } else {
+        telemetryFile = params.get('telemetry') || '';
+    }
+
     mapName = params.get('map') || 'Midship';
-    telemetryFile = params.get('telemetry') || '';
     gameInfo = {
         map: mapName,
         gameType: params.get('gametype') || '',
@@ -934,7 +948,7 @@ async function loadHelmetModel() {
         loader.setDRACOLoader(dracoLoader);
 
         loader.load(
-            'maps3D/MasterChief.glb',
+            '/maps3D/MasterChief.glb',
             (gltf) => {
                 helmetModel = gltf.scene;
                 // Center the model if needed
@@ -1841,9 +1855,14 @@ function updateScoreboard() {
         }
     });
 
-    // Sort by score (highest first)
-    redPlayers.sort((a, b) => b.score - a.score);
-    bluePlayers.sort((a, b) => b.score - a.score);
+    // Sort by selected column
+    const sortFn = (a, b) => {
+        const aVal = a[scoreboardSortColumn] || 0;
+        const bVal = b[scoreboardSortColumn] || 0;
+        return scoreboardSortAscending ? aVal - bVal : bVal - aVal;
+    };
+    redPlayers.sort(sortFn);
+    bluePlayers.sort(sortFn);
 
     // Calculate team totals
     const redScore = redPlayers.reduce((sum, p) => sum + p.score, 0);
@@ -1852,9 +1871,43 @@ function updateScoreboard() {
     document.getElementById('red-team-score').textContent = redScore;
     document.getElementById('blue-team-score').textContent = blueScore;
 
-    // Render players
-    redContainer.innerHTML = redPlayers.map(p => renderScoreboardPlayer(p)).join('');
-    blueContainer.innerHTML = bluePlayers.map(p => renderScoreboardPlayer(p)).join('');
+    // Render sortable header and players
+    const headerHtml = renderScoreboardHeader();
+    redContainer.innerHTML = headerHtml + redPlayers.map(p => renderScoreboardPlayer(p)).join('');
+    blueContainer.innerHTML = headerHtml + bluePlayers.map(p => renderScoreboardPlayer(p)).join('');
+
+    // Add click handlers to headers
+    document.querySelectorAll('.scoreboard-sort').forEach(el => {
+        el.onclick = () => sortScoreboard(el.dataset.sort);
+    });
+}
+
+function renderScoreboardHeader() {
+    const arrow = (col) => {
+        if (scoreboardSortColumn !== col) return '';
+        return scoreboardSortAscending ? ' ▲' : ' ▼';
+    };
+    return `
+        <div class="scoreboard-header-row">
+            <span class="header-spacer"></span>
+            <span class="header-name">Player</span>
+            <div class="header-stats">
+                <span class="scoreboard-sort" data-sort="kills">K${arrow('kills')}</span>
+                <span class="scoreboard-sort" data-sort="deaths">D${arrow('deaths')}</span>
+            </div>
+        </div>
+    `;
+}
+
+function sortScoreboard(column) {
+    if (scoreboardSortColumn === column) {
+        // Toggle direction
+        scoreboardSortAscending = !scoreboardSortAscending;
+    } else {
+        scoreboardSortColumn = column;
+        scoreboardSortAscending = false; // Default to descending
+    }
+    updateScoreboard();
 }
 
 function renderScoreboardPlayer(player) {
