@@ -240,6 +240,7 @@ def generate_game_index():
     """
     Generate gameindex.json for theater mode - maps game numbers to map/theater file.
     Game 1 = oldest game, sorted chronologically.
+    Also includes player info for name resolution and emblems.
     """
     all_games = []
 
@@ -251,7 +252,7 @@ def generate_game_index():
         print("  Warning: Could not load playlists.json for game index")
         return
 
-    # Load matches from each playlist
+    # Load matches from each playlist (with full player data)
     for playlist in playlists_config.get('playlists', []):
         matches_file = playlist.get('matches_file')
         if matches_file and os.path.exists(matches_file):
@@ -259,11 +260,7 @@ def generate_game_index():
                 with open(matches_file, 'r') as f:
                     data = json.load(f)
                 for match in data.get('matches', []):
-                    all_games.append({
-                        'map': match.get('map'),
-                        'timestamp': match.get('timestamp'),
-                        'source_file': match.get('source_file')
-                    })
+                    all_games.append(match)  # Keep full match data
             except Exception as e:
                 print(f"  Warning: Could not load {matches_file}: {e}")
 
@@ -274,11 +271,7 @@ def generate_game_index():
             with open(custom_file, 'r') as f:
                 data = json.load(f)
             for match in data.get('matches', []):
-                all_games.append({
-                    'map': match.get('map'),
-                    'timestamp': match.get('timestamp'),
-                    'source_file': match.get('source_file')
-                })
+                all_games.append(match)  # Keep full match data
         except Exception as e:
             print(f"  Warning: Could not load {custom_file}: {e}")
 
@@ -286,8 +279,8 @@ def generate_game_index():
     all_games.sort(key=lambda g: parse_game_timestamp(g.get('timestamp')))
 
     # Build index - all games get numbered, check if theater file exists
-    web_stats_dir = '/home/carnagereport/stats'
-    can_check_files = os.path.exists(web_stats_dir)
+    # Theater CSV files are in STATS_THEATER_DIR (/home/carnagereport/stats/theater/)
+    can_check_files = os.path.exists(STATS_THEATER_DIR)
     index = {}
     theater_count = 0
     for i, game in enumerate(all_games):
@@ -296,16 +289,36 @@ def generate_game_index():
         theater_file = source.replace('.xlsx', '_theater.csv') if source else None
         # Only check file existence if stats dir exists (on VPS)
         if theater_file and can_check_files:
-            theater_path = os.path.join(web_stats_dir, theater_file)
+            theater_path = os.path.join(STATS_THEATER_DIR, theater_file)
             if not os.path.exists(theater_path):
                 theater_file = None  # File doesn't exist
             else:
                 theater_count += 1
         elif theater_file:
             theater_count += 1  # Assume exists for local dev
+
+        # Build player info for theater mode (name resolution + emblems)
+        players = {}
+        for p in game.get('player_stats', []):
+            player_name = p.get('name', '')
+            players[player_name] = {
+                'team': p.get('team', ''),
+                'rank': p.get('pre_game_rank', 1)
+            }
+        # Add emblem URLs from detailed_stats
+        for ds in game.get('detailed_stats', []):
+            player_name = ds.get('player', '')
+            if player_name in players:
+                players[player_name]['emblem'] = ds.get('emblem_url', '')
+
         index[str(game_num)] = {
             'map': game.get('map'),
-            'theater': theater_file
+            'theater': theater_file,
+            'gametype': game.get('gametype', ''),
+            'timestamp': game.get('timestamp', ''),
+            'red_score': game.get('red_score', 0),
+            'blue_score': game.get('blue_score', 0),
+            'players': players
         }
     if can_check_files:
         print(f"  {theater_count} games have theater files, {len(index) - theater_count} do not")

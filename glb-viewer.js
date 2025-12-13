@@ -9,7 +9,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 // ===== Configuration =====
 const CONFIG = {
     mapsPath: '/maps3D/',
-    telemetryPath: '/stats/',
+    telemetryPath: '/stats/theater/',
     playerMarkerSize: 0.5,
     playerMarkerHeight: 1.8,
     defaultCameraHeight: 50,
