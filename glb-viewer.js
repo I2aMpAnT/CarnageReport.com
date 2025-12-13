@@ -1158,11 +1158,10 @@ function positionCameraToFit() {
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
     const centerZ = (minZ + maxZ) / 2;
-    const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
 
-    // Z-up: camera above looking down at center
-    camera.position.set(centerX, centerY, maxZ + maxRange * 0.8);
-    controls.target.set(centerX, centerY, centerZ);
+    // Z-up: start camera at center of player area at player height + eye level
+    camera.position.set(centerX, centerY, centerZ + 2);
+    controls.target.set(centerX, centerY + 10, centerZ + 2); // Look forward (Y direction)
     controls.update();
 }
 
