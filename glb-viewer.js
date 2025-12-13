@@ -1011,9 +1011,6 @@ function updatePlayerPositions() {
         }
     }
 
-    const liveStatsBody = document.getElementById('live-stats-body');
-    if (liveStatsBody) liveStatsBody.innerHTML = '';
-
     for (const player of players) {
         const marker = playerMarkers[player.name];
         if (!marker) continue;
@@ -1034,17 +1031,6 @@ function updatePlayerPositions() {
             }
 
             marker.group.visible = true;
-
-            if (liveStatsBody) {
-                const state = pos.isCrouching ? 'Crouching' : (pos.isAirborne ? 'Airborne' : 'Standing');
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span></td>
-                    <td>${pos.currentWeapon}</td>
-                    <td>${state}</td>
-                `;
-                liveStatsBody.appendChild(row);
-            }
         } else {
             marker.group.visible = false;
         }
@@ -1240,11 +1226,6 @@ function updateControlsHint() {
         `;
     }
 }
-
-window.toggleStatsPanel = function() {
-    const panel = document.getElementById('stats-panel');
-    if (panel) panel.classList.toggle('collapsed');
-};
 
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
