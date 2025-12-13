@@ -101,6 +101,20 @@ let pointerLocked = false;
 let gamepadIndex = null;
 let gamepadConnected = false;
 
+// Mobile/Touch state
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                 ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+let touchState = {
+    joystickActive: false,
+    joystickStart: { x: 0, y: 0 },
+    joystickCurrent: { x: 0, y: 0 },
+    lookActive: false,
+    lookStart: { x: 0, y: 0 },
+    lastLook: { x: 0, y: 0 },
+    pinchDistance: 0,
+    touches: []
+};
+
 // URL parameters
 let mapName = '';
 let telemetryFile = '';
@@ -252,6 +266,11 @@ function setupEventListeners() {
 
     // Pointer lock
     document.addEventListener('pointerlockchange', onPointerLockChange);
+
+    // Touch controls for mobile
+    if (isMobile) {
+        setupMobileControls();
+    }
 }
 
 // ===== Gamepad Support =====
@@ -395,6 +414,234 @@ function showGamepadNotification(message) {
     notification.textContent = message;
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 3000);
+}
+
+// ===== Mobile/Touch Controls =====
+function setupMobileControls() {
+    document.body.classList.add('mobile-device');
+
+    // Create virtual joystick
+    createVirtualJoystick();
+
+    // Create look area overlay for right side of screen
+    createLookArea();
+
+    const canvas = document.getElementById('glb-canvas');
+
+    // Touch event listeners
+    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', onTouchEnd, { passive: false });
+    canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
+
+    // Update controls hint for mobile
+    updateMobileControlsHint();
+}
+
+function createVirtualJoystick() {
+    const joystickContainer = document.createElement('div');
+    joystickContainer.id = 'virtual-joystick';
+    joystickContainer.className = 'virtual-joystick';
+    joystickContainer.innerHTML = `
+        <div class="joystick-base">
+            <div class="joystick-stick"></div>
+        </div>
+    `;
+    document.body.appendChild(joystickContainer);
+
+    const base = joystickContainer.querySelector('.joystick-base');
+
+    base.addEventListener('touchstart', onJoystickStart, { passive: false });
+    base.addEventListener('touchmove', onJoystickMove, { passive: false });
+    base.addEventListener('touchend', onJoystickEnd, { passive: false });
+    base.addEventListener('touchcancel', onJoystickEnd, { passive: false });
+}
+
+function createLookArea() {
+    const lookArea = document.createElement('div');
+    lookArea.id = 'look-area';
+    lookArea.className = 'look-area';
+    document.getElementById('canvas-container').appendChild(lookArea);
+
+    lookArea.addEventListener('touchstart', onLookStart, { passive: false });
+    lookArea.addEventListener('touchmove', onLookMove, { passive: false });
+    lookArea.addEventListener('touchend', onLookEnd, { passive: false });
+    lookArea.addEventListener('touchcancel', onLookEnd, { passive: false });
+}
+
+function onJoystickStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const stick = document.querySelector('.joystick-stick');
+    const base = document.querySelector('.joystick-base');
+    const rect = base.getBoundingClientRect();
+
+    touchState.joystickActive = true;
+    touchState.joystickStart = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+    };
+    touchState.joystickCurrent = { x: touch.clientX, y: touch.clientY };
+
+    stick.classList.add('active');
+    updateJoystickVisual();
+}
+
+function onJoystickMove(e) {
+    if (!touchState.joystickActive) return;
+    e.preventDefault();
+
+    const touch = e.touches[0];
+    touchState.joystickCurrent = { x: touch.clientX, y: touch.clientY };
+    updateJoystickVisual();
+}
+
+function onJoystickEnd(e) {
+    touchState.joystickActive = false;
+    touchState.joystickCurrent = { ...touchState.joystickStart };
+
+    const stick = document.querySelector('.joystick-stick');
+    if (stick) {
+        stick.classList.remove('active');
+        stick.style.transform = 'translate(-50%, -50%)';
+    }
+}
+
+function updateJoystickVisual() {
+    const stick = document.querySelector('.joystick-stick');
+    if (!stick) return;
+
+    const maxRadius = 40;
+    let dx = touchState.joystickCurrent.x - touchState.joystickStart.x;
+    let dy = touchState.joystickCurrent.y - touchState.joystickStart.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist > maxRadius) {
+        dx = (dx / dist) * maxRadius;
+        dy = (dy / dist) * maxRadius;
+    }
+
+    stick.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+}
+
+function getJoystickInput() {
+    if (!touchState.joystickActive) return { x: 0, y: 0 };
+
+    const maxRadius = 40;
+    let dx = touchState.joystickCurrent.x - touchState.joystickStart.x;
+    let dy = touchState.joystickCurrent.y - touchState.joystickStart.y;
+
+    return {
+        x: Math.max(-1, Math.min(1, dx / maxRadius)),
+        y: Math.max(-1, Math.min(1, dy / maxRadius))
+    };
+}
+
+function onLookStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    touchState.lookActive = true;
+    touchState.lookStart = { x: touch.clientX, y: touch.clientY };
+    touchState.lastLook = { x: touch.clientX, y: touch.clientY };
+}
+
+function onLookMove(e) {
+    if (!touchState.lookActive || viewMode !== 'free') return;
+    e.preventDefault();
+
+    const touch = e.touches[0];
+    const dx = touch.clientX - touchState.lastLook.x;
+    const dy = touch.clientY - touchState.lastLook.y;
+
+    touchState.lastLook = { x: touch.clientX, y: touch.clientY };
+
+    // Apply look rotation (Z-up)
+    const sensitivity = CONFIG.lookSensitivity * 2; // Slightly higher for touch
+    const euler = new THREE.Euler(0, 0, 0, 'ZYX');
+    euler.setFromQuaternion(camera.quaternion);
+
+    euler.z -= dx * sensitivity; // Yaw around Z
+    euler.y -= dy * sensitivity; // Pitch
+    euler.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.y));
+
+    camera.quaternion.setFromEuler(euler);
+}
+
+function onLookEnd(e) {
+    touchState.lookActive = false;
+}
+
+function onTouchStart(e) {
+    touchState.touches = Array.from(e.touches);
+
+    // Handle pinch zoom start
+    if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        touchState.pinchDistance = Math.sqrt(dx * dx + dy * dy);
+    }
+}
+
+function onTouchMove(e) {
+    touchState.touches = Array.from(e.touches);
+
+    // Handle pinch zoom
+    if (e.touches.length === 2 && viewMode !== 'free') {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const newDistance = Math.sqrt(dx * dx + dy * dy);
+
+        if (touchState.pinchDistance > 0) {
+            const zoomDelta = (newDistance - touchState.pinchDistance) * 0.1;
+            camera.position.z = Math.max(5, Math.min(200, camera.position.z - zoomDelta));
+        }
+
+        touchState.pinchDistance = newDistance;
+    }
+}
+
+function onTouchEnd(e) {
+    touchState.touches = Array.from(e.touches);
+    if (e.touches.length < 2) {
+        touchState.pinchDistance = 0;
+    }
+}
+
+function handleTouchMovement(deltaTime) {
+    if (viewMode !== 'free') return;
+
+    const input = getJoystickInput();
+    if (input.x === 0 && input.y === 0) return;
+
+    const speed = CONFIG.moveSpeed * deltaTime;
+    const direction = new THREE.Vector3();
+
+    // Get camera forward/right vectors (Z-up)
+    const forward = new THREE.Vector3();
+    camera.getWorldDirection(forward);
+    forward.z = 0;
+    forward.normalize();
+
+    const right = new THREE.Vector3();
+    right.crossVectors(forward, camera.up).normalize();
+
+    direction.addScaledVector(right, input.x);
+    direction.addScaledVector(forward, -input.y);
+
+    camera.position.addScaledVector(direction, speed);
+}
+
+function updateMobileControlsHint() {
+    const hint = document.getElementById('controls-hint');
+    if (!hint) return;
+
+    hint.innerHTML = `
+        <div>🕹️ Left: Move</div>
+        <div>👆 Right: Look</div>
+        <div>🤏 Pinch: Zoom</div>
+    `;
+    hint.classList.add('mobile-hint');
 }
 
 function updateSpeedDisplay() {
@@ -1326,6 +1573,11 @@ function animate() {
 
     // Handle gamepad input
     handleGamepadInput(deltaTime);
+
+    // Handle touch/mobile movement
+    if (isMobile) {
+        handleTouchMovement(deltaTime);
+    }
 
     // Update playback
     if (isPlaying) {
