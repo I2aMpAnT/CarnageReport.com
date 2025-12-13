@@ -81,18 +81,32 @@ function getWeaponIcon(weaponName) {
 
 // Map name to GLB filename mapping
 const MAP_NAME_TO_GLB = {
-    'midship': 'midship',
-    'lockout': 'lockout',
-    'beaver creek': 'beavercreek',
     'ascension': 'ascension',
-    'coagulation': 'coagulation',
-    'zanzibar': 'zanzibar',
-    'ivory tower': 'cyclotron',
+    'beaver creek': 'beavercreek',
     'burial mounds': 'burial_mounds',
+    'coagulation': 'coagulation',
     'colossus': 'colossus',
     'headlong': 'headlong',
+    'ivory tower': 'cyclotron',
+    'lockout': 'lockout',
+    'midship': 'midship',
     'waterworks': 'waterworks',
-    'foundation': 'foundation'
+    'zanzibar': 'zanzibar',
+    'foundation': 'foundation',
+    'containment': 'containment',
+    'warlock': 'warlock',
+    'sanctuary': 'deltatap',
+    'turf': 'turf',
+    'backwash': 'backwash',
+    'elongation': 'elongation',
+    'gemini': 'gemini',
+    'relic': 'dune',
+    'terminal': 'triplicate',
+    'district': 'street_sweeper',
+    'uplift': 'needle',
+    'example': 'example',
+    'desolation': 'derelict',
+    'tombstone': 'highplains'
 };
 
 function mapNameToGlbFilename(mapName) {
