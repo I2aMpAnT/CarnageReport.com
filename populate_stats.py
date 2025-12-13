@@ -281,16 +281,27 @@ def generate_game_index():
     # Sort chronologically (oldest first = Game 1)
     all_games.sort(key=lambda g: parse_ts(g.get('timestamp')))
 
-    # Build index - all games get numbered, theater is null if no file
+    # Build index - all games get numbered, theater is null if file doesn't exist
+    # Theater files are in /home/carnagereport/stats/ (web stats dir)
+    web_stats_dir = '/home/carnagereport/stats'
     index = {}
+    theater_count = 0
     for i, game in enumerate(all_games):
         game_num = i + 1  # Website game number (1-indexed)
         source = game.get('source_file', '')
         theater_file = source.replace('.xlsx', '_theater.csv') if source else None
+        # Check if theater file actually exists
+        if theater_file:
+            theater_path = os.path.join(web_stats_dir, theater_file)
+            if not os.path.exists(theater_path):
+                theater_file = None  # File doesn't exist
+            else:
+                theater_count += 1
         index[str(game_num)] = {
             'map': game.get('map'),
             'theater': theater_file
         }
+    print(f"  {theater_count} games have theater files, {len(index) - theater_count} do not")
 
     # Save index
     with open(GAMEINDEX_FILE, 'w') as f:
@@ -1607,6 +1618,10 @@ def main():
     if not new_files and not changed_playlists:
         print("\nNo changes detected - nothing to process!")
         print("  (Add new game files or update manual_playlists.json to trigger processing)")
+        # Still regenerate game index in case it's out of sync
+        game_count = generate_game_index()
+        if game_count:
+            print(f"  Regenerated {GAMEINDEX_FILE} ({game_count} games indexed)")
         return
 
     print(f"\nChanges detected:")
