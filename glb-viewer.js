@@ -181,19 +181,18 @@ function setupScene() {
     scene.add(axesHelper);
 
     // Add test marker at a known CSV position (red sphere)
-    // From CSV: X=-8.8194, Y=-4.4711, Z=-9.8421
-    // Test marker at known Halo coords: X=-8.8194, Y=-4.4711, Z=-9.8421
-    // Transform to scene: (-x, z, y) = (8.8194, -9.8421, -4.4711)
+    // Scene is Z-up matching Halo, direct coords
+    // From CSV: Halo X=-8.8194, Y=-4.4711, Z=-9.8421
     const testGeom = new THREE.SphereGeometry(0.5);
     const testMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const testMarker = new THREE.Mesh(testGeom, testMat);
-    testMarker.position.set(8.8194, -9.8421, -4.4711);
+    testMarker.position.set(-8.8194, -4.4711, -9.8421);
     testMarker.name = 'testMarker';
     scene.add(testMarker);
 
-    // Grid on XY plane (Z-up)
+    // Grid on XY plane (horizontal for Z-up)
     const gridHelper = new THREE.GridHelper(100, 100, 0x00c8ff, 0x1a1a2e);
-    gridHelper.rotation.x = Math.PI / 2; // Rotate to XY plane for Z-up
+    gridHelper.rotation.x = Math.PI / 2; // Rotate to XY plane
     gridHelper.name = 'gridHelper';
     scene.add(gridHelper);
 
@@ -201,14 +200,18 @@ function setupScene() {
 }
 
 function setupLighting() {
-    const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+    // Ambient fill
+    const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
     scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362e24, 0.6);
+    // Hemisphere: bright from above (Z+), darker from below (Z-)
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
+    hemiLight.position.set(0, 0, 200);
     scene.add(hemiLight);
 
+    // Main light - directly from above (top-down, Z+)
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(50, 100, 50);
+    dirLight.position.set(0, 0, 200);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
@@ -220,8 +223,9 @@ function setupLighting() {
     dirLight.shadow.camera.bottom = -100;
     scene.add(dirLight);
 
-    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
-    fillLight.position.set(-50, 50, -50);
+    // Subtle fill from side
+    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.2);
+    fillLight.position.set(50, 50, 100);
     scene.add(fillLight);
 }
 
@@ -678,10 +682,8 @@ async function loadGLB(path, onProgress) {
             (gltf) => {
                 mapModel = gltf.scene;
 
-                // Rotate map to align with Halo coordinate system
-                // -90° X (Y-up to Z-up) and -180° Y (flip orientation)
-                mapModel.rotation.x = -Math.PI / 2;
-                mapModel.rotation.y = -Math.PI;
+                // GLB is Y-up (standard), Three.js is Y-up - no rotation needed
+                // Player coords will be transformed from Halo Z-up to Three.js Y-up
 
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
@@ -1056,19 +1058,17 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Transform Halo coords to match map rotation (-90° X, -180° Y)
-            // Halo: (x, y, z) where Z is up
-            // After rotation: scene position = (-x, z, y)
-            marker.group.position.set(-pos.x, pos.z, pos.y);
-            // Yaw rotates around Z in Halo (up), which is Y in scene after transform
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
+            // Scene is Z-up (matching Halo), direct coordinate mapping
+            marker.group.position.set(pos.x, pos.y, pos.z);
+            // Yaw rotates around Z axis (up)
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.z = pos.facingYaw;
 
             if (pos.isCrouching) {
-                marker.body.scale.y = 0.7;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
+                marker.body.scale.z = 0.7;
+                marker.head.position.z = CONFIG.playerMarkerHeight * 0.6;
             } else {
-                marker.body.scale.y = 1;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
+                marker.body.scale.z = 1;
+                marker.head.position.z = CONFIG.playerMarkerHeight * 0.8;
             }
 
             marker.group.visible = true;
@@ -1458,17 +1458,18 @@ function updateDebugInfo() {
     const camY = camera?.position.y.toFixed(1) || '0';
     const camZ = camera?.position.z.toFixed(1) || '0';
 
-    // Camera rotation (in degrees)
-    let camRotX = '0', camRotY = '0', camRotZ = '0';
+    // Camera rotation (Z-up scene, normalized to 0° = top-down)
+    let pitch = '0', yaw = '0';
     if (camera) {
-        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
-        camRotX = (euler.x * 180 / Math.PI).toFixed(0);
-        camRotY = (euler.y * 180 / Math.PI).toFixed(0);
-        camRotZ = (euler.z * 180 / Math.PI).toFixed(0);
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
+        // Pitch: 0° = looking straight down (-Z), positive = tilting up
+        pitch = ((euler.x * 180 / Math.PI) + 90).toFixed(0);
+        // Yaw: rotation around Z axis
+        yaw = (euler.z * 180 / Math.PI).toFixed(0);
     }
 
     // First player position and rotation (3D scene position)
-    let playerX = '0', playerY = '0', playerZ = '0', playerRotY = '0';
+    let playerX = '0', playerY = '0', playerZ = '0', playerRotZ = '0';
     if (players.length > 0) {
         const firstPlayer = players[0];
         const marker = playerMarkers[firstPlayer.name];
@@ -1476,11 +1477,11 @@ function updateDebugInfo() {
             playerX = marker.group.position.x.toFixed(1);
             playerY = marker.group.position.y.toFixed(1);
             playerZ = marker.group.position.z.toFixed(1);
-            playerRotY = (marker.group.rotation.y * 180 / Math.PI).toFixed(0);
+            playerRotZ = (marker.group.rotation.z * 180 / Math.PI).toFixed(0);
         }
     }
 
-    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | CamRot: ${camRotX}° ${camRotY}° ${camRotZ}° | Player: (${playerX}, ${playerY}, ${playerZ}) Yaw: ${playerRotY}°`;
+    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | Pitch: ${pitch}° Yaw: ${yaw}° | Player: (${playerX}, ${playerY}, ${playerZ}) Facing: ${playerRotZ}°`;
 }
 
 function togglePOVPanel() {
