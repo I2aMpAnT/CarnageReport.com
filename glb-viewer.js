@@ -81,31 +81,32 @@ function getWeaponIcon(weaponName) {
 
 // Map name to GLB filename mapping
 const MAP_NAME_TO_GLB = {
-    'midship': 'midship',
-    'lockout': 'lockout',
-    'sanctuary': 'sanctuary',
-    'warlock': 'warlock',
-    'beaver creek': 'beavercreek',
     'ascension': 'ascension',
-    'coagulation': 'coagulation',
-    'zanzibar': 'zanzibar',
-    'ivory tower': 'ivory_tower',
+    'beaver creek': 'beavercreek',
     'burial mounds': 'burial_mounds',
+    'coagulation': 'coagulation',
     'colossus': 'colossus',
     'headlong': 'headlong',
+    'ivory tower': 'cyclotron',
+    'lockout': 'lockout',
+    'midship': 'midship',
     'waterworks': 'waterworks',
+    'zanzibar': 'zanzibar',
     'foundation': 'foundation',
-    'backwash': 'backwash',
     'containment': 'containment',
-    'desolation': 'desolation',
-    'district': 'district',
+    'warlock': 'warlock',
+    'sanctuary': 'deltatap',
+    'turf': 'turf',
+    'backwash': 'backwash',
     'elongation': 'elongation',
     'gemini': 'gemini',
-    'relic': 'relic',
-    'terminal': 'terminal',
-    'tombstone': 'tombstone',
-    'turf': 'turf',
-    'uplift': 'uplift'
+    'relic': 'dune',
+    'terminal': 'triplicate',
+    'district': 'street_sweeper',
+    'uplift': 'needle',
+    'example': 'example',
+    'desolation': 'derelict',
+    'tombstone': 'highplains'
 };
 
 function mapNameToGlbFilename(mapName) {
@@ -147,9 +148,16 @@ let gameInfo = {};
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
+// Death heatmap
+let deathPositions = [];
+let showDeathHeatmap = true;
+
 // Map center for camera positioning
 let mapCenter = { x: 0, y: 0, z: 0 };
 let mapSize = 50;
+
+// Player display name mappings (from main site)
+let playerDisplayNames = {};
 
 // ===== Initialization =====
 async function init() {
@@ -170,9 +178,25 @@ function parseUrlParams() {
         gameType: params.get('gametype') || '',
         date: params.get('date') || ''
     };
+
+    // Parse player display name mappings
+    const playersParam = params.get('players');
+    if (playersParam) {
+        try {
+            playerDisplayNames = JSON.parse(playersParam);
+        } catch (e) {
+            console.warn('Failed to parse player names:', e);
+        }
+    }
+
     document.getElementById('mapName').textContent = mapName;
     document.getElementById('gameType').textContent = gameInfo.gameType;
     document.getElementById('gameDate').textContent = gameInfo.date;
+}
+
+// Get display name for a player (uses mapping or falls back to in-game name)
+function getPlayerDisplayName(inGameName) {
+    return playerDisplayNames[inGameName] || inGameName;
 }
 
 function setupScene() {
@@ -682,11 +706,12 @@ async function loadMapAndTelemetry() {
         }
 
         await createPlayerMarkers();
+        createDeathHeatmap();
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
 
-        // Set initial view mode to top-down over player area
-        setViewMode('top');
+        // Set initial view mode to free look
+        setViewMode('free');
 
     } catch (error) {
         console.error('Error loading:', error);
@@ -766,6 +791,7 @@ function parseTelemetryCSV(csvText) {
             facingPitch: parseFloat(values[columnIndex['FacingPitch']]) || 0,
             isCrouching: values[columnIndex['IsCrouching']] === 'True',
             isAirborne: values[columnIndex['IsAirborne']] === 'True',
+            isDead: values[columnIndex['IsDead']] === 'True',
             currentWeapon: values[columnIndex['CurrentWeapon']] || 'Unknown',
             // Emblem data
             emblemForeground: parseInt(values[columnIndex['EmblemForeground']]) || 0,
@@ -805,6 +831,28 @@ function parseTelemetryCSV(csvText) {
         }
     });
 
+    // Extract death positions (when a player transitions from alive to dead)
+    deathPositions = [];
+    const playerLastAliveState = {};
+    telemetryData.forEach(row => {
+        const wasAlive = playerLastAliveState[row.playerName] !== undefined && !playerLastAliveState[row.playerName];
+        const isNowDead = row.isDead;
+
+        // Detect death transition (was alive, now dead)
+        if (playerLastAliveState[row.playerName] === false && isNowDead) {
+            deathPositions.push({
+                playerName: row.playerName,
+                team: row.team,
+                x: row.x,
+                y: row.y,
+                z: row.z,
+                gameTimeMs: row.gameTimeMs
+            });
+        }
+        playerLastAliveState[row.playerName] = isNowDead;
+    });
+    console.log(`Found ${deathPositions.length} deaths in telemetry`);
+
     let ffaColorIndex = 0;
     playerSet.forEach((name) => {
         const team = playerTeams[name] || 'none';
@@ -815,7 +863,7 @@ function parseTelemetryCSV(csvText) {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
         const emblem = playerEmblemData[name] || {};
-        // Generate emblem URL using emblem service (proxied through nginx for HTTPS)
+        // Generate emblem URL using local emblem service (proxied through nginx for HTTPS)
         const emblemUrl = `/emblems/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
         players.push({ name, team, color, emblem, emblemUrl });
     });
@@ -928,7 +976,8 @@ async function createPlayerMarkers() {
 
         // Use waypoint canvas with emblem if available
         const emblemImage = emblemImages[player.name];
-        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage);
+        const displayName = getPlayerDisplayName(player.name);
+        const waypointCanvas = createWaypointCanvas(displayName, player.color, emblemImage);
         const labelTexture = new THREE.CanvasTexture(waypointCanvas);
         const labelMaterial = new THREE.SpriteMaterial({
             map: labelTexture,
@@ -947,6 +996,165 @@ async function createPlayerMarkers() {
         scene.add(group);
         playerMarkers[player.name] = { group, body, head, arrow, label, player, emblemImage };
     });
+}
+
+// ===== Death Heatmap =====
+let heatmapMesh = null;
+
+function createDeathHeatmap() {
+    // Clear existing heatmap
+    if (heatmapMesh) {
+        scene.remove(heatmapMesh);
+        if (heatmapMesh.geometry) heatmapMesh.geometry.dispose();
+        if (heatmapMesh.material) {
+            if (heatmapMesh.material.map) heatmapMesh.material.map.dispose();
+            heatmapMesh.material.dispose();
+        }
+        heatmapMesh = null;
+    }
+
+    if (!showDeathHeatmap || deathPositions.length === 0) return;
+
+    // Calculate bounds from death positions (in Halo coords)
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+
+    deathPositions.forEach(death => {
+        minX = Math.min(minX, death.x);
+        maxX = Math.max(maxX, death.x);
+        minY = Math.min(minY, death.y);
+        maxY = Math.max(maxY, death.y);
+    });
+
+    // Add padding
+    const padding = 15;
+    minX -= padding;
+    maxX += padding;
+    minY -= padding;
+    maxY += padding;
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    // Create heatmap canvas
+    const resolution = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = resolution;
+    canvas.height = resolution;
+    const ctx = canvas.getContext('2d');
+
+    // Clear with transparent
+    ctx.clearRect(0, 0, resolution, resolution);
+
+    // Draw gaussian blobs for each death (accumulate intensity)
+    const radius = resolution * 0.1; // Blob radius
+    deathPositions.forEach(death => {
+        // Convert to canvas coordinates
+        const canvasX = ((death.x - minX) / width) * resolution;
+        const canvasY = ((death.y - minY) / height) * resolution;
+
+        // Draw radial gradient (gaussian-like blob)
+        const gradient = ctx.createRadialGradient(canvasX, canvasY, 0, canvasX, canvasY, radius);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(canvasX, canvasY, radius, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // Get the intensity data and apply color gradient
+    const imageData = ctx.getImageData(0, 0, resolution, resolution);
+    const data = imageData.data;
+
+    // Apply heatmap color gradient based on intensity
+    for (let i = 0; i < data.length; i += 4) {
+        const intensity = data[i + 3] / 255; // Use alpha as intensity
+
+        if (intensity > 0.02) {
+            // Color gradient: blue -> cyan -> green -> yellow -> red
+            const color = getHeatmapColor(Math.min(1, intensity * 2));
+            data[i] = color.r;
+            data[i + 1] = color.g;
+            data[i + 2] = color.b;
+            data[i + 3] = Math.min(220, intensity * 500); // Boost visibility
+        } else {
+            data[i + 3] = 0; // Fully transparent for very low intensity
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    // Create Three.js texture and plane
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    const planeGeometry = new THREE.PlaneGeometry(width, height);
+    const planeMaterial = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.85,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        blending: THREE.NormalBlending
+    });
+
+    heatmapMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+
+    // Position the plane (convert Halo coords to Three.js)
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    heatmapMesh.position.set(centerX, 0.3, -centerY); // Slightly above ground
+    heatmapMesh.rotation.x = -Math.PI / 2; // Lay flat
+    heatmapMesh.rotation.z = Math.PI; // Correct orientation
+
+    scene.add(heatmapMesh);
+    console.log(`Created heatmap with ${deathPositions.length} death positions`);
+}
+
+function getHeatmapColor(intensity) {
+    // Color stops: blue (cold) -> cyan -> green -> yellow -> red (hot)
+    const stops = [
+        { pos: 0, r: 0, g: 0, b: 255 },       // Blue
+        { pos: 0.25, r: 0, g: 255, b: 255 },  // Cyan
+        { pos: 0.5, r: 0, g: 255, b: 0 },     // Green
+        { pos: 0.75, r: 255, g: 255, b: 0 },  // Yellow
+        { pos: 1, r: 255, g: 0, b: 0 }        // Red
+    ];
+
+    // Clamp and find color stops
+    intensity = Math.max(0, Math.min(1, intensity));
+
+    let lower = stops[0], upper = stops[stops.length - 1];
+    for (let i = 0; i < stops.length - 1; i++) {
+        if (intensity >= stops[i].pos && intensity <= stops[i + 1].pos) {
+            lower = stops[i];
+            upper = stops[i + 1];
+            break;
+        }
+    }
+
+    // Interpolate between color stops
+    const range = upper.pos - lower.pos;
+    const t = range > 0 ? (intensity - lower.pos) / range : 0;
+
+    return {
+        r: Math.round(lower.r + (upper.r - lower.r) * t),
+        g: Math.round(lower.g + (upper.g - lower.g) * t),
+        b: Math.round(lower.b + (upper.b - lower.b) * t)
+    };
+}
+
+function toggleDeathHeatmap() {
+    showDeathHeatmap = !showDeathHeatmap;
+    createDeathHeatmap();
+    const btn = document.getElementById('heatmapBtn');
+    if (btn) {
+        btn.textContent = showDeathHeatmap ? 'Hide Deaths' : 'Show Deaths';
+        btn.classList.toggle('active', showDeathHeatmap);
+    }
 }
 
 function createLabelCanvas(text, color) {
@@ -1098,8 +1306,9 @@ function updatePlayerPositions() {
                     ? `<img src="${weaponIcon}" alt="${pos.currentWeapon}" class="weapon-icon" style="height: 20px; width: auto; filter: brightness(0) invert(1);">`
                     : pos.currentWeapon || '';
                 const row = document.createElement('tr');
+                const displayName = getPlayerDisplayName(player.name);
                 row.innerHTML = `
-                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span></td>
+                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${displayName}</span></td>
                     <td>${weaponDisplay}</td>
                 `;
                 liveStatsBody.appendChild(row);
@@ -1252,13 +1461,27 @@ function updatePlayerLegend() {
             setViewMode('follow');
         };
 
-        const color = document.createElement('div');
-        color.className = 'player-color';
-        color.style.backgroundColor = `#${player.color.toString(16).padStart(6, '0')}`;
+        // Emblem image instead of color box
+        const emblem = document.createElement('img');
+        emblem.className = 'player-emblem';
+        emblem.src = player.emblemUrl;
+        emblem.alt = player.name;
+        emblem.style.width = '32px';
+        emblem.style.height = '32px';
+        emblem.style.borderRadius = '4px';
+        emblem.style.marginRight = '8px';
+        emblem.onerror = () => {
+            // Fallback to color box if emblem fails to load
+            emblem.style.display = 'none';
+            const colorBox = document.createElement('div');
+            colorBox.className = 'player-color';
+            colorBox.style.backgroundColor = `#${player.color.toString(16).padStart(6, '0')}`;
+            item.insertBefore(colorBox, item.firstChild);
+        };
 
         const name = document.createElement('span');
         name.className = 'player-name';
-        name.textContent = player.name;
+        name.textContent = getPlayerDisplayName(player.name);
 
         const team = document.createElement('span');
         team.className = 'player-team';
@@ -1273,7 +1496,7 @@ function updatePlayerLegend() {
             team.textContent = 'FFA';
         }
 
-        item.appendChild(color);
+        item.appendChild(emblem);
         item.appendChild(name);
         item.appendChild(team);
         container.appendChild(item);
@@ -1287,8 +1510,8 @@ function updateFollowSelect() {
 
     players.forEach(player => {
         const option = document.createElement('option');
-        option.value = player.name;
-        option.textContent = player.name;
+        option.value = player.name; // Keep raw name for internal use
+        option.textContent = getPlayerDisplayName(player.name);
         select.appendChild(option);
     });
 }
@@ -1399,6 +1622,9 @@ window.retryLoad = async function() {
     document.getElementById('loading-overlay').style.display = 'flex';
     await loadMapAndTelemetry();
 };
+
+// ===== Death Heatmap Toggle =====
+window.toggleDeathHeatmap = toggleDeathHeatmap;
 
 // ===== Initialize =====
 init();
