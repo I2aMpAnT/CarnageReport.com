@@ -196,163 +196,6 @@ body {
     background: rgba(0, 200, 255, 0.1);
 }
 
-/* POV Selector Panel */
-.pov-selector {
-    position: absolute;
-    top: 80px;
-    left: 20px;
-    background: rgba(10, 15, 30, 0.95);
-    border: 2px solid rgba(0, 150, 200, 0.4);
-    border-radius: 4px;
-    min-width: 200px;
-    max-width: 220px;
-    z-index: 40;
-    backdrop-filter: blur(10px);
-    overflow: hidden;
-}
-
-.pov-header {
-    background: linear-gradient(180deg, rgba(0, 80, 120, 0.8) 0%, rgba(0, 50, 80, 0.9) 100%);
-    padding: 10px 15px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    color: #00d4ff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-align: center;
-    border-bottom: 1px solid rgba(0, 150, 200, 0.3);
-}
-
-.pov-list {
-    display: flex;
-    flex-direction: column;
-    padding: 8px;
-    gap: 4px;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.pov-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s;
-    border: 2px solid transparent;
-    background: rgba(20, 30, 50, 0.6);
-    position: relative;
-    overflow: hidden;
-}
-
-.pov-item:hover {
-    background: rgba(30, 50, 80, 0.8);
-    border-color: rgba(0, 180, 220, 0.4);
-}
-
-.pov-item.selected {
-    border-color: #00d4ff;
-    background: rgba(0, 80, 120, 0.4);
-    box-shadow: 0 0 10px rgba(0, 200, 255, 0.3), inset 0 0 20px rgba(0, 200, 255, 0.1);
-}
-
-/* Team color stripe on right */
-.pov-item::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 6px;
-    background: transparent;
-}
-
-.pov-item.team-blue::after {
-    background: linear-gradient(180deg, #0066ff 0%, #0044aa 100%);
-}
-
-.pov-item.team-red::after {
-    background: linear-gradient(180deg, #ff3333 0%, #aa2222 100%);
-}
-
-.pov-emblem {
-    width: 40px;
-    height: 40px;
-    border-radius: 4px;
-    background: rgba(0, 40, 80, 0.8);
-    border: 1px solid rgba(0, 150, 200, 0.3);
-    object-fit: cover;
-    flex-shrink: 0;
-}
-
-.pov-emblem-fallback {
-    width: 40px;
-    height: 40px;
-    border-radius: 4px;
-    background: rgba(0, 40, 80, 0.8);
-    border: 1px solid rgba(0, 150, 200, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-
-.pov-name {
-    flex: 1;
-    font-size: 13px;
-    font-weight: 600;
-    color: #e0e8f0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding-right: 10px;
-}
-
-/* Free Camera special item */
-.pov-item.free-camera {
-    background: rgba(40, 30, 60, 0.6);
-}
-
-.pov-item.free-camera:hover {
-    background: rgba(60, 50, 90, 0.8);
-}
-
-.pov-item.free-camera .pov-emblem-fallback {
-    background: rgba(80, 40, 120, 0.8);
-    border-color: rgba(150, 100, 200, 0.4);
-    color: #bb88ff;
-}
-
-.pov-item.free-camera .pov-emblem-fallback svg {
-    width: 24px;
-    height: 24px;
-    fill: #bb88ff;
-}
-
-/* Scrollbar styling */
-.pov-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-.pov-list::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-}
-
-.pov-list::-webkit-scrollbar-thumb {
-    background: rgba(0, 150, 200, 0.4);
-    border-radius: 3px;
-}
-
-.pov-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 180, 220, 0.6);
-}
-
 /* Playback Controls */
 .playback-controls {
     background: linear-gradient(180deg, rgba(15, 15, 25, 0.95) 0%, rgba(20, 20, 35, 0.98) 100%);
@@ -806,34 +649,6 @@ body {
         margin: 8px;
     }
 
-    .pov-selector {
-        top: 56px;
-        left: 8px;
-        max-width: 160px;
-        min-width: 140px;
-        max-height: calc(100vh - 200px);
-        overflow-y: auto;
-    }
-
-    .pov-header {
-        padding: 8px 10px;
-        font-size: 10px;
-    }
-
-    .pov-item {
-        padding: 6px 8px;
-        gap: 6px;
-    }
-
-    .pov-emblem, .pov-emblem-fallback {
-        width: 28px;
-        height: 28px;
-    }
-
-    .pov-name {
-        font-size: 10px;
-    }
-
     .controls-hint {
         display: none;
     }
@@ -891,12 +706,6 @@ body {
 
     .time-display {
         font-size: 10px;
-    }
-
-    .pov-selector {
-        top: 50px;
-        max-width: 140px;
-        min-width: 120px;
     }
 
     .debug-text {
@@ -1089,28 +898,6 @@ body {
     .joystick-stick {
         width: 32px;
         height: 32px;
-    }
-
-    .pov-selector {
-        top: 42px;
-        max-height: calc(100vh - 120px);
-    }
-
-    .pov-list {
-        max-height: 120px;
-    }
-
-    .pov-item {
-        padding: 4px 6px;
-    }
-
-    .pov-emblem, .pov-emblem-fallback {
-        width: 24px;
-        height: 24px;
-    }
-
-    .pov-name {
-        font-size: 9px;
     }
 
     .debug-text {
