@@ -50,6 +50,7 @@ const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
     'warlock': 'warlock',
+    'sanctuary': 'deltatap',
     'beaver creek': 'beavercreek',
     'ascension': 'ascension',
     'coagulation': 'coagulation',
@@ -64,15 +65,11 @@ const MAP_NAME_TO_GLB = {
     'elongation': 'elongation',
     'gemini': 'gemini',
     'turf': 'turf',
-    // Additional available maps
-    'cyclotron': 'cyclotron',
-    'deltatap': 'deltatap',
     'derelict': 'derelict',
     'dune': 'dune',
     'highplains': 'highplains',
-    'triplicate': 'triplicate'
-    // NOTE: sanctuary, ivory tower, desolation, district, relic, terminal, tombstone, uplift
-    // do not have GLB files yet
+    'triplicate': 'triplicate',
+    'cyclotron': 'cyclotron'
 };
 
 function mapNameToGlbFilename(mapName) {
