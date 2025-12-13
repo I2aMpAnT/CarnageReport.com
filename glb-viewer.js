@@ -303,14 +303,12 @@ function handleGamepadInput(deltaTime) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward/right vectors (ignore Z for ground movement in Z-up)
-        const forward = new THREE.Vector3();
-        camera.getWorldDirection(forward);
-        forward.z = 0;
-        forward.normalize();
+        // Get camera yaw for XY plane movement (Z-up)
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
+        const yaw = euler.z;
 
-        const right = new THREE.Vector3();
-        right.crossVectors(forward, camera.up).normalize();
+        const forward = new THREE.Vector3(-Math.sin(yaw), Math.cos(yaw), 0);
+        const right = new THREE.Vector3(Math.cos(yaw), Math.sin(yaw), 0);
 
         direction.addScaledVector(right, leftX);
         direction.addScaledVector(forward, -leftY);
@@ -520,13 +518,16 @@ function handleKeyboardMovement(deltaTime) {
     const speed = CONFIG.moveSpeed * deltaTime * (keys['ShiftLeft'] || keys['ShiftRight'] ? CONFIG.sprintMultiplier : 1);
 
     const direction = new THREE.Vector3();
-    const forward = new THREE.Vector3();
-    camera.getWorldDirection(forward);
 
-    const right = new THREE.Vector3();
-    right.crossVectors(forward, camera.up).normalize();
+    // Get camera yaw from quaternion (rotation around Z for Z-up)
+    const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
+    const yaw = euler.z;
 
-    // WASD movement
+    // Forward/back on XY plane based on camera yaw
+    const forward = new THREE.Vector3(-Math.sin(yaw), Math.cos(yaw), 0);
+    const right = new THREE.Vector3(Math.cos(yaw), Math.sin(yaw), 0);
+
+    // WASD movement on XY plane
     if (keys['KeyW'] || keys['ArrowUp']) direction.add(forward);
     if (keys['KeyS'] || keys['ArrowDown']) direction.sub(forward);
     if (keys['KeyA']) direction.sub(right);
