@@ -559,12 +559,60 @@ header {
     background: rgba(255, 200, 0, 0.2);
 }
 
+/* Game Actions Container */
+.game-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    align-self: flex-start;
+}
+
+/* 3D Replay Button */
+.replay-3d-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, rgba(0, 200, 255, 0.2), rgba(0, 150, 200, 0.1));
+    border: 1px solid rgba(0, 200, 255, 0.4);
+    border-radius: 4px;
+    color: #00c8ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.replay-3d-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 200, 255, 0.3), rgba(0, 150, 200, 0.2));
+    border-color: #00c8ff;
+    box-shadow: 0 0 15px rgba(0, 200, 255, 0.4);
+    transform: translateY(-1px);
+}
+
+.replay-3d-btn:active {
+    transform: translateY(0);
+}
+
+.replay-3d-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.replay-3d-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 /* Download Dropdown */
 .game-download-dropdown {
     position: relative;
     display: inline-block;
-    margin-left: auto;
-    align-self: flex-start;
 }
 
 .download-icon-btn {
