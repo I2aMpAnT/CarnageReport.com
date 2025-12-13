@@ -18,15 +18,15 @@ const CONFIG = {
     defaultSpeed: 1,
     skipSeconds: 5,
 
-    // Movement settings
-    moveSpeed: 30,
+    // Movement settings (reduced for better control)
+    moveSpeed: 15,
     sprintMultiplier: 2.5,
     lookSensitivity: 0.002,
 
     // Gamepad settings
     gamepadDeadzone: 0.15,
     gamepadLookSensitivity: 0.05,
-    gamepadMoveSpeed: 40,
+    gamepadMoveSpeed: 20,
 
     teamColors: {
         '_game_team_blue': 0x0066ff,
@@ -91,6 +91,7 @@ let lastFrameTime = 0;
 let animationFrameId = null;
 let followPlayer = null;
 let viewMode = 'free';
+let previousViewMode = 'free';  // For RS click toggle back
 
 // Input state
 const keys = {};
@@ -433,9 +434,9 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[8]._lastState = gamepad.buttons[8]?.pressed;
 
-    // Right stick click (RS = button 11) for top-down view
+    // Right stick click (RS = button 11) - toggle top-down view
     if (gamepad.buttons[11]?.pressed && !gamepad.buttons[11]._lastState) {
-        setViewMode('top');
+        toggleTopDown();
     }
     gamepad.buttons[11]._lastState = gamepad.buttons[11]?.pressed;
 
@@ -464,6 +465,17 @@ function cycleViewMode() {
     const currentIndex = modes.indexOf(viewMode);
     const nextIndex = (currentIndex + 1) % modes.length;
     setViewMode(modes[nextIndex]);
+}
+
+function toggleTopDown() {
+    if (viewMode === 'top') {
+        // Return to previous view mode
+        setViewMode(previousViewMode !== 'top' ? previousViewMode : 'free');
+    } else {
+        // Save current mode and switch to top-down
+        previousViewMode = viewMode;
+        setViewMode('top');
+    }
 }
 
 // Cycle through players
@@ -657,7 +669,7 @@ function onKeyDown(e) {
             setViewMode('top');
             break;
         case 'KeyT':
-            setViewMode('top');
+            toggleTopDown();
             break;
         case 'Tab':
             e.preventDefault();
@@ -1341,7 +1353,7 @@ function updatePlayerPositions() {
             // Convert from Halo coords (Z-up) to Three.js (Y-up): X stays, Z becomes Y, Y becomes -Z
             marker.group.position.set(pos.x, pos.z, -pos.y);
             // Apply facing direction
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = pos.facingYaw;
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = pos.facingYaw + Math.PI;  // +180° rotation fix
 
             if (pos.isCrouching) {
                 marker.body.scale.y = 0.7;
@@ -1363,7 +1375,7 @@ function updatePlayerPositions() {
             // Player is dead - keep at last known position
             const lastPos = lastKnownPositions[player.name];
             marker.group.position.set(lastPos.x, lastPos.z, -lastPos.y);
-            if (!isNaN(lastPos.facingYaw)) marker.group.rotation.y = lastPos.facingYaw;
+            if (!isNaN(lastPos.facingYaw)) marker.group.rotation.y = lastPos.facingYaw + Math.PI;  // +180° rotation fix
 
             marker.group.visible = true;
             marker.isDead = true;
@@ -1485,30 +1497,38 @@ function setViewMode(mode) {
 }
 
 function positionCameraToFit() {
-    if (telemetryData.length === 0) return;
+    if (telemetryData.length === 0 || players.length === 0) return;
 
-    let minX = Infinity, maxX = -Infinity;
-    let minY = Infinity, maxY = -Infinity;
-    let minZ = Infinity, maxZ = -Infinity;
+    // Get initial positions for all players (first occurrence of each)
+    const initialPositions = {};
+    for (const row of telemetryData) {
+        if (!initialPositions[row.playerName]) {
+            initialPositions[row.playerName] = { x: row.x, y: row.y, z: row.z };
+        }
+        // Stop once we have all players
+        if (Object.keys(initialPositions).length >= players.length) break;
+    }
 
-    telemetryData.forEach(row => {
-        minX = Math.min(minX, row.x);
-        maxX = Math.max(maxX, row.x);
-        minY = Math.min(minY, row.y);
-        maxY = Math.max(maxY, row.y);
-        minZ = Math.min(minZ, row.z);
-        maxZ = Math.max(maxZ, row.z);
+    // Calculate average position of all players at game start
+    let avgX = 0, avgY = 0, avgZ = 0;
+    const positions = Object.values(initialPositions);
+    positions.forEach(pos => {
+        avgX += pos.x;
+        avgY += pos.y;
+        avgZ += pos.z;
     });
+    avgX /= positions.length;
+    avgY /= positions.length;
+    avgZ /= positions.length;
 
-    // Halo coords: X=right, Y=forward, Z=up
-    // Three.js:    X=right, Y=up, Z=back
-    const centerX = (minX + maxX) / 2;
-    const centerY = (minZ + maxZ) / 2;  // Halo Z -> Three.js Y
-    const centerZ = -(minY + maxY) / 2; // Halo Y -> Three.js -Z
+    // Convert Halo coords (Z-up) to Three.js (Y-up)
+    // Start camera above average player position, looking down at slight angle
+    const camX = avgX;
+    const camY = avgZ + 15;  // Above players (Halo Z -> Three.js Y)
+    const camZ = -avgY + 10; // Behind players (Halo Y -> Three.js -Z)
 
-    // Start camera at center of player area at eye level, looking forward
-    camera.position.set(centerX, centerY + 2, centerZ);
-    controls.target.set(centerX, centerY + 2, centerZ - 10); // Look forward (-Z)
+    camera.position.set(camX, camY, camZ);
+    controls.target.set(avgX, avgZ, -avgY);
     controls.update();
 }
 
