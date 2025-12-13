@@ -870,6 +870,7 @@ function parseTelemetryCSV(csvText) {
         const emblem = playerEmblemData[name] || {};
         // Generate emblem URL using local emblem service (proxied through nginx for HTTPS)
         const emblemUrl = `/emblems/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
+        console.log(`Player ${name} emblem data:`, emblem, `URL: ${emblemUrl}`);
         players.push({ name, team, color, emblem, emblemUrl });
     });
 
