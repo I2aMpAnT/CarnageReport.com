@@ -1458,13 +1458,15 @@ function updateDebugInfo() {
     const camY = camera?.position.y.toFixed(1) || '0';
     const camZ = camera?.position.z.toFixed(1) || '0';
 
-    // Camera rotation (in degrees)
-    let camRotX = '0', camRotY = '0', camRotZ = '0';
+    // Camera rotation (normalized - 0° = top-down correct view)
+    // Baseline is looking down (-90° pitch) with no yaw rotation
+    let pitch = '0', yaw = '0';
     if (camera) {
         const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
-        camRotX = (euler.x * 180 / Math.PI).toFixed(0);
-        camRotY = (euler.y * 180 / Math.PI).toFixed(0);
-        camRotZ = (euler.z * 180 / Math.PI).toFixed(0);
+        // Pitch: 0° = looking straight down, positive = tilting up
+        pitch = ((euler.x * 180 / Math.PI) + 90).toFixed(0);
+        // Yaw: 0° = north, positive = clockwise
+        yaw = (euler.y * 180 / Math.PI).toFixed(0);
     }
 
     // First player position and rotation (3D scene position)
@@ -1480,7 +1482,7 @@ function updateDebugInfo() {
         }
     }
 
-    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | CamRot: ${camRotX}° ${camRotY}° ${camRotZ}° | Player: (${playerX}, ${playerY}, ${playerZ}) Yaw: ${playerRotY}°`;
+    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | Pitch: ${pitch}° Yaw: ${yaw}° | Player: (${playerX}, ${playerY}, ${playerZ}) Facing: ${playerRotY}°`;
 }
 
 function togglePOVPanel() {
