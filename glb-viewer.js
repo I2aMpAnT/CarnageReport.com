@@ -156,6 +156,9 @@ let showDeathHeatmap = true;
 let mapCenter = { x: 0, y: 0, z: 0 };
 let mapSize = 50;
 
+// Player display name mappings (from main site)
+let playerDisplayNames = {};
+
 // ===== Initialization =====
 async function init() {
     parseUrlParams();
@@ -175,9 +178,25 @@ function parseUrlParams() {
         gameType: params.get('gametype') || '',
         date: params.get('date') || ''
     };
+
+    // Parse player display name mappings
+    const playersParam = params.get('players');
+    if (playersParam) {
+        try {
+            playerDisplayNames = JSON.parse(playersParam);
+        } catch (e) {
+            console.warn('Failed to parse player names:', e);
+        }
+    }
+
     document.getElementById('mapName').textContent = mapName;
     document.getElementById('gameType').textContent = gameInfo.gameType;
     document.getElementById('gameDate').textContent = gameInfo.date;
+}
+
+// Get display name for a player (uses mapping or falls back to in-game name)
+function getPlayerDisplayName(inGameName) {
+    return playerDisplayNames[inGameName] || inGameName;
 }
 
 function setupScene() {
@@ -957,7 +976,8 @@ async function createPlayerMarkers() {
 
         // Use waypoint canvas with emblem if available
         const emblemImage = emblemImages[player.name];
-        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage);
+        const displayName = getPlayerDisplayName(player.name);
+        const waypointCanvas = createWaypointCanvas(displayName, player.color, emblemImage);
         const labelTexture = new THREE.CanvasTexture(waypointCanvas);
         const labelMaterial = new THREE.SpriteMaterial({
             map: labelTexture,
@@ -1286,8 +1306,9 @@ function updatePlayerPositions() {
                     ? `<img src="${weaponIcon}" alt="${pos.currentWeapon}" class="weapon-icon" style="height: 20px; width: auto; filter: brightness(0) invert(1);">`
                     : pos.currentWeapon || '';
                 const row = document.createElement('tr');
+                const displayName = getPlayerDisplayName(player.name);
                 row.innerHTML = `
-                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span></td>
+                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${displayName}</span></td>
                     <td>${weaponDisplay}</td>
                 `;
                 liveStatsBody.appendChild(row);
@@ -1460,7 +1481,7 @@ function updatePlayerLegend() {
 
         const name = document.createElement('span');
         name.className = 'player-name';
-        name.textContent = player.name;
+        name.textContent = getPlayerDisplayName(player.name);
 
         const team = document.createElement('span');
         team.className = 'player-team';
@@ -1489,8 +1510,8 @@ function updateFollowSelect() {
 
     players.forEach(player => {
         const option = document.createElement('option');
-        option.value = player.name;
-        option.textContent = player.name;
+        option.value = player.name; // Keep raw name for internal use
+        option.textContent = getPlayerDisplayName(player.name);
         select.appendChild(option);
     });
 }
