@@ -42,17 +42,16 @@ const CONFIG = {
     ]
 };
 
-// Map name to GLB filename mapping
+// Map name to GLB filename mapping (player-facing name → internal GLB filename)
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
-    'sanctuary': 'sanctuary',
     'warlock': 'warlock',
+    'sanctuary': 'deltatap',
     'beaver creek': 'beavercreek',
     'ascension': 'ascension',
     'coagulation': 'coagulation',
     'zanzibar': 'zanzibar',
-    'ivory tower': 'ivory_tower',
     'burial mounds': 'burial_mounds',
     'colossus': 'colossus',
     'headlong': 'headlong',
@@ -60,15 +59,14 @@ const MAP_NAME_TO_GLB = {
     'foundation': 'foundation',
     'backwash': 'backwash',
     'containment': 'containment',
-    'desolation': 'desolation',
-    'district': 'district',
     'elongation': 'elongation',
     'gemini': 'gemini',
-    'relic': 'relic',
-    'terminal': 'terminal',
-    'tombstone': 'tombstone',
     'turf': 'turf',
-    'uplift': 'uplift'
+    'desolation': 'derelict',
+    'relic': 'dune',
+    'terminal': 'highplains',
+    'ivory tower': 'cyclotron',
+    'triplicate': 'triplicate'
 };
 
 function mapNameToGlbFilename(mapName) {
@@ -248,15 +246,9 @@ function setupEventListeners() {
     // Click anywhere on timeline track to seek
     timelineContainer.addEventListener('click', onTimelineClick);
 
-    // View controls
-    document.getElementById('topViewBtn').addEventListener('click', () => setViewMode('top'));
-    document.getElementById('freeViewBtn').addEventListener('click', () => setViewMode('free'));
-    document.getElementById('orbitViewBtn')?.addEventListener('click', () => setViewMode('orbit'));
-    document.getElementById('followBtn').addEventListener('click', () => {
-        const select = document.getElementById('followPlayerSelect');
-        select.style.display = select.style.display === 'none' ? 'block' : 'none';
-    });
-    document.getElementById('followPlayerSelect').addEventListener('change', (e) => {
+    // View controls - single cycling button
+    document.getElementById('viewModeBtn')?.addEventListener('click', () => cycleViewMode());
+    document.getElementById('followPlayerSelect')?.addEventListener('change', (e) => {
         if (e.target.value) {
             followPlayer = e.target.value;
             setViewMode('follow');
