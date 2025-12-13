@@ -250,41 +250,66 @@ def generate_game_index():
         except Exception as e:
             print(f"  Warning: Could not load {custom_file}: {e}")
 
-    # Parse timestamp from source_file (YYYYMMDD_HHMMSS.xlsx format)
-    def parse_filename_ts(source_file):
-        if not source_file:
+    # Parse timestamp field (start time) for sorting
+    def parse_ts(ts):
+        if not ts:
             return datetime.min
-        try:
-            # Extract timestamp from filename like "20251128_074332.xlsx"
-            basename = os.path.basename(source_file).replace('.xlsx', '')
-            return datetime.strptime(basename, '%Y%m%d_%H%M%S')
-        except:
-            return datetime.min
+        # Strip trailing AM/PM from 24-hour times (data bug: "18:23 PM")
+        ts_clean = ts
+        if ' PM' in ts or ' AM' in ts:
+            parts = ts.rsplit(' ', 1)
+            if len(parts) == 2 and ':' in parts[0]:
+                time_part = parts[0].split(' ')[-1]
+                try:
+                    hour = int(time_part.split(':')[0])
+                    if hour > 12:  # 24-hour time with erroneous AM/PM
+                        ts_clean = parts[0]
+                except:
+                    pass
+        # Try multiple formats
+        formats = [
+            '%m/%d/%Y %H:%M',      # 11/28/2025 20:03
+            '%m/%d/%Y %I:%M %p',   # 12/5/2025 1:45 AM
+            '%m/%d/%Y %I:%M%p',    # 12/5/2025 1:45AM
+            '%Y-%m-%d %H:%M:%S',   # 2025-12-09 19:05:00 (ISO)
+            '%Y-%m-%d %H:%M',      # 2025-12-09 19:05
+        ]
+        for fmt in formats:
+            try:
+                return datetime.strptime(ts_clean, fmt)
+            except ValueError:
+                continue
+        return datetime.min
 
-    # Sort chronologically by filename timestamp (oldest first = Game 1)
-    all_games.sort(key=lambda g: parse_filename_ts(g.get('source_file')))
+    # Sort chronologically by start time (oldest first = Game 1)
+    all_games.sort(key=lambda g: parse_ts(g.get('timestamp')))
 
-    # Build index - all games get numbered, theater is null if file doesn't exist
-    # Theater files are in /home/carnagereport/stats/ (web stats dir)
+    # Build index - all games get numbered, check if theater file exists
     web_stats_dir = '/home/carnagereport/stats'
+    can_check_files = os.path.exists(web_stats_dir)
     index = {}
     theater_count = 0
     for i, game in enumerate(all_games):
         game_num = i + 1  # Website game number (1-indexed)
         source = game.get('source_file', '')
         theater_file = source.replace('.xlsx', '_theater.csv') if source else None
-        # Check if theater file actually exists
-        if theater_file:
+        # Only check file existence if stats dir exists (on VPS)
+        if theater_file and can_check_files:
             theater_path = os.path.join(web_stats_dir, theater_file)
             if not os.path.exists(theater_path):
                 theater_file = None  # File doesn't exist
             else:
                 theater_count += 1
+        elif theater_file:
+            theater_count += 1  # Assume exists for local dev
         index[str(game_num)] = {
             'map': game.get('map'),
             'theater': theater_file
         }
-    print(f"  {theater_count} games have theater files, {len(index) - theater_count} do not")
+    if can_check_files:
+        print(f"  {theater_count} games have theater files, {len(index) - theater_count} do not")
+    else:
+        print(f"  {theater_count} games indexed (theater file check skipped - not on VPS)")
 
     # Save index
     with open(GAMEINDEX_FILE, 'w') as f:
