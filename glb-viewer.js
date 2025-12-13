@@ -322,15 +322,17 @@ function handleGamepadInput(deltaTime) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward/right vectors (ignore Y for ground movement)
+        // Get camera forward direction, flatten to horizontal plane
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
         forward.y = 0;
         forward.normalize();
 
+        // Right vector perpendicular to forward on horizontal plane
         const right = new THREE.Vector3();
-        right.crossVectors(forward, camera.up).normalize();
+        right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
 
+        // Left stick: X = strafe, Y = forward/back (inverted)
         direction.addScaledVector(right, leftX);
         direction.addScaledVector(forward, -leftY);
 
@@ -538,19 +540,24 @@ function handleKeyboardMovement(deltaTime) {
     const speed = CONFIG.moveSpeed * deltaTime * (keys['ShiftLeft'] || keys['ShiftRight'] ? CONFIG.sprintMultiplier : 1);
 
     const direction = new THREE.Vector3();
+
+    // Get camera forward direction, flatten to horizontal plane for ground movement
     const forward = new THREE.Vector3();
     camera.getWorldDirection(forward);
+    forward.y = 0;  // Keep movement horizontal - W/S don't go up/down
+    forward.normalize();
 
+    // Right vector perpendicular to forward on horizontal plane
     const right = new THREE.Vector3();
-    right.crossVectors(forward, camera.up).normalize();
+    right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
 
-    // WASD movement
+    // WASD movement - always horizontal in the direction camera is facing
     if (keys['KeyW'] || keys['ArrowUp']) direction.add(forward);
     if (keys['KeyS'] || keys['ArrowDown']) direction.sub(forward);
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement
+    // Vertical movement (separate from WASD)
     if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
     if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
 
