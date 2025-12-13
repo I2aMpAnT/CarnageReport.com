@@ -150,7 +150,7 @@ let dynamicSpeedMultiplier = 1;
 
 // ===== Initialization =====
 async function init() {
-    parseUrlParams();
+    await parseUrlParams();
     setupScene();
     setupEventListeners();
     setupGamepad();
@@ -158,28 +158,119 @@ async function init() {
     animate();
 }
 
-function parseUrlParams() {
+// Helper to parse datetime strings (same logic as script.js)
+function parseGameDateTime(dateStr) {
+    if (!dateStr) return null;
+    try {
+        let year, month, day, hours = 0, minutes = 0;
+        // ISO format with T: 2025-12-09T07:45:00
+        const isoTMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{2})/);
+        if (isoTMatch) {
+            [, year, month, day, hours, minutes] = isoTMatch.map(v => parseInt(v) || 0);
+        }
+        // ISO format with space: 2025-12-09 07:45:00
+        if (!year) {
+            const isoSpaceMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})/);
+            if (isoSpaceMatch) {
+                [, year, month, day, hours, minutes] = isoSpaceMatch.map(v => parseInt(v) || 0);
+            }
+        }
+        // US format: 12/9/2025 7:45
+        if (!year) {
+            const usMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+            if (usMatch) {
+                [, month, day, year, hours, minutes] = usMatch.map(v => parseInt(v) || 0);
+            }
+        }
+        if (year) {
+            return new Date(year, month - 1, day, hours, minutes);
+        }
+    } catch (e) {}
+    return null;
+}
+
+// Load games data from playlist files (mirrors script.js loading)
+async function loadGamesData() {
+    const games = [];
+    try {
+        // Fetch playlists config
+        const playlistsResponse = await fetch('/playlists.json');
+        if (!playlistsResponse.ok) return games;
+        const playlistsConfig = await playlistsResponse.json();
+
+        // Load matches from each playlist
+        for (const playlist of playlistsConfig.playlists || []) {
+            try {
+                const matchesResponse = await fetch(`/${playlist.matches_file}`);
+                if (matchesResponse.ok) {
+                    const matchesData = await matchesResponse.json();
+                    for (const match of matchesData.matches || []) {
+                        games.push({
+                            map: match.map,
+                            gametype: match.gametype,
+                            timestamp: match.timestamp,
+                            source_file: match.source_file,
+                            playlist: playlist.name
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn(`Failed to load ${playlist.matches_file}:`, e);
+            }
+        }
+
+        // Sort chronologically (oldest first = game #1)
+        games.sort((a, b) => {
+            const timeA = parseGameDateTime(a.timestamp) || new Date(0);
+            const timeB = parseGameDateTime(b.timestamp) || new Date(0);
+            return timeA - timeB;
+        });
+    } catch (e) {
+        console.error('Failed to load playlists:', e);
+    }
+    return games;
+}
+
+async function parseUrlParams() {
     const params = new URLSearchParams(window.location.search);
 
-    // Support path-based URL: /theater/{filename}
-    const pathMatch = window.location.pathname.match(/\/theater\/([^\/]+)/);
+    // Support path-based URL: /theater/{gameNumber}
+    const pathMatch = window.location.pathname.match(/\/theater\/(\d+)/);
     if (pathMatch) {
-        telemetryFile = pathMatch[1];
-        // Add .csv extension if not present
-        if (!telemetryFile.includes('.')) {
-            telemetryFile += '.csv';
+        const gameNumber = parseInt(pathMatch[1]);
+        // Load games data from playlist files
+        try {
+            const games = await loadGamesData();
+            if (gameNumber >= 1 && gameNumber <= games.length) {
+                const game = games[gameNumber - 1]; // 1-indexed for users
+                // Derive telemetry filename from source_file
+                if (game.source_file) {
+                    telemetryFile = game.source_file.replace('.xlsx', '_theater.csv');
+                }
+                mapName = game.map || 'Unknown';
+                gameInfo = {
+                    map: mapName,
+                    gameType: game.gametype || '',
+                    date: game.timestamp || '',
+                    variant: game.gametype || ''
+                };
+            } else {
+                console.error(`Game #${gameNumber} not found (${games.length} games available)`);
+            }
+        } catch (e) {
+            console.error('Failed to load games:', e);
         }
     } else {
         telemetryFile = params.get('telemetry') || '';
+        mapName = params.get('map') || 'Midship';
+        gameInfo = {
+            map: mapName,
+            gameType: params.get('gametype') || '',
+            date: params.get('date') || '',
+            variant: params.get('variant') || ''
+        };
     }
 
-    mapName = params.get('map') || 'Midship';
-    gameInfo = {
-        map: mapName,
-        gameType: params.get('gametype') || '',
-        date: params.get('date') || '',
-        variant: params.get('variant') || ''
-    };
     document.getElementById('mapName').textContent = mapName;
     document.getElementById('gameType').textContent = gameInfo.variant || gameInfo.gameType;
     document.getElementById('gameDate').textContent = gameInfo.date;
