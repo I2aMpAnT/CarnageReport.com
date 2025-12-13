@@ -2354,11 +2354,11 @@ function renderGameContent(game) {
     // Get game index for 3D replay
     const gameIndex = gamesData.indexOf(game);
 
-    // 3D Replay button (shown when telemetry is available)
+    // Halo 2 Theater Mode button (shown when telemetry is available)
     html += '<div class="game-actions">';
-    html += `<button class="replay-3d-btn" onclick="event.stopPropagation(); open3DReplay(${gameIndex});" title="View 3D Replay">`;
+    html += `<button class="replay-3d-btn" onclick="event.stopPropagation(); open3DReplay(${gameIndex});" title="Halo 2 Theater Mode">`;
     html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>';
-    html += '<span>3D Replay</span>';
+    html += '<span>Halo 2 Theater Mode</span>';
     html += '</button>';
 
     html += '<div class="game-download-dropdown">';
@@ -7488,23 +7488,37 @@ function open3DReplay(gameIndex) {
     }
 
     const mapName = game.details?.['Map Name'] || 'Unknown';
-    const gameType = game.details?.['Game Type'] || '';
-    const variantName = game.details?.['Variant Name'] || '';
+    const rawGameType = game.details?.['Game Type'] || '';
+    const gameType = getBaseGametype(rawGameType, game.playlist, game);
     const startTime = game.details?.['Start Time'] || '';
 
     // Find telemetry file
     const telemetryFile = findTelemetryFileForGame(game);
 
-    // Build viewer URL with parameters
+    // Build player display name mappings for this game
+    const playerNames = {};
+    game.players.forEach(player => {
+        const displayName = getDisplayNameForProfile(player.name);
+        // Only include if different from in-game name and not "No MAC Linked"
+        if (displayName && displayName !== 'No MAC Linked') {
+            playerNames[player.name] = displayName;
+        }
+    });
+
+    // Build viewer URL with parameters (base game type, not variant)
     const params = new URLSearchParams({
         map: mapName,
         gametype: gameType,
-        variant: variantName,
         date: startTime
     });
 
     if (telemetryFile) {
         params.set('telemetry', telemetryFile);
+    }
+
+    // Pass player name mappings as JSON
+    if (Object.keys(playerNames).length > 0) {
+        params.set('players', JSON.stringify(playerNames));
     }
 
     // Open viewer in new tab
