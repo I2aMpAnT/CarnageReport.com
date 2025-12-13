@@ -2426,6 +2426,42 @@
         "rank_before": 19,
         "rank_after": 18,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 1:58 AM",
+        "source_file": "20251213_015900.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2530,
+        "rank_before": 18,
+        "rank_after": 19,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 2:09 AM",
+        "source_file": "20251213_020938.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2630,
+        "rank_before": 19,
+        "rank_after": 19,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 2:25 AM",
+        "source_file": "20251213_022556.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2730,
+        "rank_before": 19,
+        "rank_after": 19,
+        "result": "win"
       }
     ]
   },
@@ -3369,9 +3405,9 @@
         "result": "win"
       },
       {
-        "timestamp": "12/13/2025 4:39 AM",
-        "source_file": "20251213_043909.xlsx",
-        "map": "Midship",
+        "timestamp": "12/13/2025 1:58 AM",
+        "source_file": "20251213_015900.xlsx",
+        "map": "Sanctuary",
         "gametype": "Capture the Flag",
         "playlist": "MLG 4v4",
         "xp_change": -65,
@@ -3381,9 +3417,9 @@
         "result": "loss"
       },
       {
-        "timestamp": "12/13/2025 4:46 AM",
-        "source_file": "20251213_044617.xlsx",
-        "map": "Beaver Creek",
+        "timestamp": "12/13/2025 2:09 AM",
+        "source_file": "20251213_020938.xlsx",
+        "map": "Lockout",
         "gametype": "Team Slayer",
         "playlist": "MLG 4v4",
         "xp_change": -65,
@@ -3393,15 +3429,135 @@
         "result": "loss"
       },
       {
-        "timestamp": "12/13/2025 5:00 AM",
-        "source_file": "20251213_050029.xlsx",
-        "map": "Lockout",
-        "gametype": "Oddball",
+        "timestamp": "12/13/2025 2:25 AM",
+        "source_file": "20251213_022556.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
         "playlist": "MLG 4v4",
         "xp_change": -65,
         "xp_total": 2180,
         "rank_before": 18,
         "rank_after": 17,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 4:39 AM",
+        "source_file": "20251213_043909.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -62,
+        "xp_total": 2118,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 4:46 AM",
+        "source_file": "20251213_044617.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -62,
+        "xp_total": 2056,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:00 AM",
+        "source_file": "20251213_050029.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": -62,
+        "xp_total": 1994,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:42 AM",
+        "source_file": "20251213_054237.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2094,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 5:52 AM",
+        "source_file": "20251213_055214.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 2094,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/13/2025 6:12 AM",
+        "source_file": "20251213_061254.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2194,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:20 AM",
+        "source_file": "20251213_062105.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -62,
+        "xp_total": 2132,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:37 AM",
+        "source_file": "20251213_063708.xlsx",
+        "map": "Midship",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": -62,
+        "xp_total": 2070,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:45 AM",
+        "source_file": "20251213_064559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -62,
+        "xp_total": 2008,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 7:00 AM",
+        "source_file": "20251213_070058.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "MLG 4v4",
+        "xp_change": -62,
+        "xp_total": 1946,
+        "rank_before": 17,
+        "rank_after": 16,
         "result": "loss"
       }
     ]
@@ -4046,9 +4202,9 @@
         "result": "win"
       },
       {
-        "timestamp": "12/13/2025 4:39 AM",
-        "source_file": "20251213_043909.xlsx",
-        "map": "Midship",
+        "timestamp": "12/13/2025 1:58 AM",
+        "source_file": "20251213_015900.xlsx",
+        "map": "Sanctuary",
         "gametype": "Capture the Flag",
         "playlist": "MLG 4v4",
         "xp_change": -67,
@@ -4058,9 +4214,9 @@
         "result": "loss"
       },
       {
-        "timestamp": "12/13/2025 4:46 AM",
-        "source_file": "20251213_044617.xlsx",
-        "map": "Beaver Creek",
+        "timestamp": "12/13/2025 2:09 AM",
+        "source_file": "20251213_020938.xlsx",
+        "map": "Lockout",
         "gametype": "Team Slayer",
         "playlist": "MLG 4v4",
         "xp_change": -67,
@@ -4070,16 +4226,136 @@
         "result": "loss"
       },
       {
-        "timestamp": "12/13/2025 5:00 AM",
-        "source_file": "20251213_050029.xlsx",
-        "map": "Lockout",
-        "gametype": "Oddball",
+        "timestamp": "12/13/2025 2:25 AM",
+        "source_file": "20251213_022556.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
         "playlist": "MLG 4v4",
         "xp_change": -67,
         "xp_total": 2495,
         "rank_before": 19,
         "rank_after": 19,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 4:39 AM",
+        "source_file": "20251213_043909.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -67,
+        "xp_total": 2428,
+        "rank_before": 19,
+        "rank_after": 18,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 4:46 AM",
+        "source_file": "20251213_044617.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -65,
+        "xp_total": 2363,
+        "rank_before": 18,
+        "rank_after": 18,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:00 AM",
+        "source_file": "20251213_050029.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": -65,
+        "xp_total": 2298,
+        "rank_before": 18,
+        "rank_after": 18,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:42 AM",
+        "source_file": "20251213_054237.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -65,
+        "xp_total": 2233,
+        "rank_before": 18,
+        "rank_after": 17,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:52 AM",
+        "source_file": "20251213_055214.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 2233,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/13/2025 6:12 AM",
+        "source_file": "20251213_061254.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -62,
+        "xp_total": 2171,
+        "rank_before": 17,
+        "rank_after": 17,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:20 AM",
+        "source_file": "20251213_062105.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2271,
+        "rank_before": 17,
+        "rank_after": 18,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:37 AM",
+        "source_file": "20251213_063708.xlsx",
+        "map": "Midship",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2371,
+        "rank_before": 18,
+        "rank_after": 18,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:45 AM",
+        "source_file": "20251213_064559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2471,
+        "rank_before": 18,
+        "rank_after": 18,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 7:00 AM",
+        "source_file": "20251213_070058.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2571,
+        "rank_before": 18,
+        "rank_after": 19,
+        "result": "win"
       }
     ]
   },
@@ -5972,15 +6248,51 @@
         "result": "win"
       },
       {
+        "timestamp": "12/13/2025 1:58 AM",
+        "source_file": "20251213_015900.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -67,
+        "xp_total": 2433,
+        "rank_before": 19,
+        "rank_after": 18,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 2:09 AM",
+        "source_file": "20251213_020938.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -65,
+        "xp_total": 2368,
+        "rank_before": 18,
+        "rank_after": 18,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 2:25 AM",
+        "source_file": "20251213_022556.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -65,
+        "xp_total": 2303,
+        "rank_before": 18,
+        "rank_after": 18,
+        "result": "loss"
+      },
+      {
         "timestamp": "12/13/2025 4:39 AM",
         "source_file": "20251213_043909.xlsx",
         "map": "Midship",
         "gametype": "Capture the Flag",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 2600,
-        "rank_before": 19,
-        "rank_after": 19,
+        "xp_total": 2403,
+        "rank_before": 18,
+        "rank_after": 18,
         "result": "win"
       },
       {
@@ -5990,8 +6302,8 @@
         "gametype": "Team Slayer",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 2700,
-        "rank_before": 19,
+        "xp_total": 2503,
+        "rank_before": 18,
         "rank_after": 19,
         "result": "win"
       },
@@ -6002,8 +6314,92 @@
         "gametype": "Oddball",
         "playlist": "MLG 4v4",
         "xp_change": 100,
-        "xp_total": 2800,
+        "xp_total": 2603,
         "rank_before": 19,
+        "rank_after": 19,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 5:42 AM",
+        "source_file": "20251213_054237.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -67,
+        "xp_total": 2536,
+        "rank_before": 19,
+        "rank_after": 19,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:52 AM",
+        "source_file": "20251213_055214.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 2536,
+        "rank_before": 19,
+        "rank_after": 19,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/13/2025 6:12 AM",
+        "source_file": "20251213_061254.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -67,
+        "xp_total": 2469,
+        "rank_before": 19,
+        "rank_after": 18,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:20 AM",
+        "source_file": "20251213_062105.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2569,
+        "rank_before": 18,
+        "rank_after": 19,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:37 AM",
+        "source_file": "20251213_063708.xlsx",
+        "map": "Midship",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2669,
+        "rank_before": 19,
+        "rank_after": 19,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:45 AM",
+        "source_file": "20251213_064559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2769,
+        "rank_before": 19,
+        "rank_after": 20,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 7:00 AM",
+        "source_file": "20251213_070058.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 2869,
+        "rank_before": 20,
         "rank_after": 20,
         "result": "win"
       }
@@ -6529,9 +6925,9 @@
         "result": "win"
       },
       {
-        "timestamp": "12/13/2025 4:39 AM",
-        "source_file": "20251213_043909.xlsx",
-        "map": "Midship",
+        "timestamp": "12/13/2025 1:58 AM",
+        "source_file": "20251213_015900.xlsx",
+        "map": "Sanctuary",
         "gametype": "Capture the Flag",
         "playlist": "MLG 4v4",
         "xp_change": -57,
@@ -6541,9 +6937,9 @@
         "result": "loss"
       },
       {
-        "timestamp": "12/13/2025 4:46 AM",
-        "source_file": "20251213_044617.xlsx",
-        "map": "Beaver Creek",
+        "timestamp": "12/13/2025 2:09 AM",
+        "source_file": "20251213_020938.xlsx",
+        "map": "Lockout",
         "gametype": "Team Slayer",
         "playlist": "MLG 4v4",
         "xp_change": -57,
@@ -6553,16 +6949,136 @@
         "result": "loss"
       },
       {
-        "timestamp": "12/13/2025 5:00 AM",
-        "source_file": "20251213_050029.xlsx",
-        "map": "Lockout",
-        "gametype": "Oddball",
+        "timestamp": "12/13/2025 2:25 AM",
+        "source_file": "20251213_022556.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
         "playlist": "MLG 4v4",
         "xp_change": -57,
         "xp_total": 1533,
         "rank_before": 15,
         "rank_after": 14,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 4:39 AM",
+        "source_file": "20251213_043909.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -55,
+        "xp_total": 1478,
+        "rank_before": 14,
+        "rank_after": 14,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 4:46 AM",
+        "source_file": "20251213_044617.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -55,
+        "xp_total": 1423,
+        "rank_before": 14,
+        "rank_after": 14,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:00 AM",
+        "source_file": "20251213_050029.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": -55,
+        "xp_total": 1368,
+        "rank_before": 14,
+        "rank_after": 13,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:42 AM",
+        "source_file": "20251213_054237.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -52,
+        "xp_total": 1316,
+        "rank_before": 13,
+        "rank_after": 13,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:52 AM",
+        "source_file": "20251213_055214.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 1316,
+        "rank_before": 13,
+        "rank_after": 13,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/13/2025 6:12 AM",
+        "source_file": "20251213_061254.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -52,
+        "xp_total": 1264,
+        "rank_before": 13,
+        "rank_after": 13,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:20 AM",
+        "source_file": "20251213_062105.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1364,
+        "rank_before": 13,
+        "rank_after": 13,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:37 AM",
+        "source_file": "20251213_063708.xlsx",
+        "map": "Midship",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1464,
+        "rank_before": 13,
+        "rank_after": 14,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:45 AM",
+        "source_file": "20251213_064559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1564,
+        "rank_before": 14,
+        "rank_after": 14,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 7:00 AM",
+        "source_file": "20251213_070058.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1664,
+        "rank_before": 14,
+        "rank_after": 15,
+        "result": "win"
       }
     ]
   },
@@ -7029,6 +7545,42 @@
         "rank_before": 4,
         "rank_after": 4,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 1:58 AM",
+        "source_file": "20251213_015900.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 438,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 2:09 AM",
+        "source_file": "20251213_020938.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 538,
+        "rank_before": 5,
+        "rank_after": 6,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 2:25 AM",
+        "source_file": "20251213_022556.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 638,
+        "rank_before": 6,
+        "rank_after": 7,
+        "result": "win"
       }
     ]
   },
@@ -7214,6 +7766,42 @@
         "rank_before": 6,
         "rank_after": 6,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 1:58 AM",
+        "source_file": "20251213_015900.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 636,
+        "rank_before": 6,
+        "rank_after": 7,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 2:09 AM",
+        "source_file": "20251213_020938.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 736,
+        "rank_before": 7,
+        "rank_after": 8,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 2:25 AM",
+        "source_file": "20251213_022556.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 836,
+        "rank_before": 8,
+        "rank_after": 9,
+        "result": "win"
       }
     ]
   },
@@ -7884,6 +8472,90 @@
         "rank_before": 14,
         "rank_after": 15,
         "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 5:42 AM",
+        "source_file": "20251213_054237.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -57,
+        "xp_total": 1550,
+        "rank_before": 15,
+        "rank_after": 14,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:52 AM",
+        "source_file": "20251213_055214.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 1550,
+        "rank_before": 14,
+        "rank_after": 14,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/13/2025 6:12 AM",
+        "source_file": "20251213_061254.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": -55,
+        "xp_total": 1495,
+        "rank_before": 14,
+        "rank_after": 14,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:20 AM",
+        "source_file": "20251213_062105.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1595,
+        "rank_before": 14,
+        "rank_after": 15,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:37 AM",
+        "source_file": "20251213_063708.xlsx",
+        "map": "Midship",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1695,
+        "rank_before": 15,
+        "rank_after": 15,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:45 AM",
+        "source_file": "20251213_064559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1795,
+        "rank_before": 15,
+        "rank_after": 16,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 7:00 AM",
+        "source_file": "20251213_070058.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 1895,
+        "rank_before": 16,
+        "rank_after": 16,
+        "result": "win"
       }
     ]
   },
@@ -8141,6 +8813,90 @@
         "rank_before": 3,
         "rank_after": 4,
         "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 5:42 AM",
+        "source_file": "20251213_054237.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 400,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 5:52 AM",
+        "source_file": "20251213_055214.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 400,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/13/2025 6:12 AM",
+        "source_file": "20251213_061254.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 500,
+        "rank_before": 5,
+        "rank_after": 6,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:20 AM",
+        "source_file": "20251213_062105.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -15,
+        "xp_total": 485,
+        "rank_before": 6,
+        "rank_after": 5,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:37 AM",
+        "source_file": "20251213_063708.xlsx",
+        "map": "Midship",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": -10,
+        "xp_total": 475,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:45 AM",
+        "source_file": "20251213_064559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -10,
+        "xp_total": 465,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 7:00 AM",
+        "source_file": "20251213_070058.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "MLG 4v4",
+        "xp_change": -10,
+        "xp_total": 455,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "loss"
       }
     ]
   },
@@ -9185,6 +9941,90 @@
         "xp_total": 181,
         "rank_before": 2,
         "rank_after": 2,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 5:42 AM",
+        "source_file": "20251213_054237.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 281,
+        "rank_before": 2,
+        "rank_after": 3,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 5:52 AM",
+        "source_file": "20251213_055214.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 281,
+        "rank_before": 3,
+        "rank_after": 3,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/13/2025 6:12 AM",
+        "source_file": "20251213_061254.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 381,
+        "rank_before": 3,
+        "rank_after": 4,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:20 AM",
+        "source_file": "20251213_062105.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -7,
+        "xp_total": 374,
+        "rank_before": 4,
+        "rank_after": 4,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:37 AM",
+        "source_file": "20251213_063708.xlsx",
+        "map": "Midship",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": -7,
+        "xp_total": 367,
+        "rank_before": 4,
+        "rank_after": 4,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:45 AM",
+        "source_file": "20251213_064559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -7,
+        "xp_total": 360,
+        "rank_before": 4,
+        "rank_after": 4,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 7:00 AM",
+        "source_file": "20251213_070058.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "MLG 4v4",
+        "xp_change": -7,
+        "xp_total": 353,
+        "rank_before": 4,
+        "rank_after": 4,
         "result": "loss"
       }
     ]
@@ -10582,6 +11422,42 @@
         "rank_before": 5,
         "rank_after": 5,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 1:58 AM",
+        "source_file": "20251213_015900.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 556,
+        "rank_before": 5,
+        "rank_after": 6,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 2:09 AM",
+        "source_file": "20251213_020938.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 656,
+        "rank_before": 6,
+        "rank_after": 7,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 2:25 AM",
+        "source_file": "20251213_022556.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 756,
+        "rank_before": 7,
+        "rank_after": 8,
+        "result": "win"
       }
     ]
   },
@@ -10623,6 +11499,90 @@
         "rank_before": 3,
         "rank_after": 4,
         "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 5:42 AM",
+        "source_file": "20251213_054237.xlsx",
+        "map": "Warlock",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 400,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 5:52 AM",
+        "source_file": "20251213_055214.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 0,
+        "xp_total": 400,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/13/2025 6:12 AM",
+        "source_file": "20251213_061254.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "playlist": "MLG 4v4",
+        "xp_change": 100,
+        "xp_total": 500,
+        "rank_before": 5,
+        "rank_after": 6,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/13/2025 6:20 AM",
+        "source_file": "20251213_062105.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -15,
+        "xp_total": 485,
+        "rank_before": 6,
+        "rank_after": 5,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:37 AM",
+        "source_file": "20251213_063708.xlsx",
+        "map": "Midship",
+        "gametype": "Oddball",
+        "playlist": "MLG 4v4",
+        "xp_change": -10,
+        "xp_total": 475,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 6:45 AM",
+        "source_file": "20251213_064559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "MLG 4v4",
+        "xp_change": -10,
+        "xp_total": 465,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/13/2025 7:00 AM",
+        "source_file": "20251213_070058.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "MLG 4v4",
+        "xp_change": -10,
+        "xp_total": 455,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "loss"
       }
     ]
   }

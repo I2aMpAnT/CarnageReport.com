@@ -433,14 +433,35 @@
           "gametype": "Team Slayer",
           "winner": "Red",
           "source_file": "20251213_014303.xlsx"
+        },
+        {
+          "timestamp": "12/13/2025 1:43 AM",
+          "map": "Sanctuary",
+          "gametype": "Capture the Flag",
+          "winner": "Blue",
+          "source_file": "20251213_015900.xlsx"
+        },
+        {
+          "timestamp": "12/13/2025 1:59 AM",
+          "map": "Lockout",
+          "gametype": "Team Slayer",
+          "winner": "Blue",
+          "source_file": "20251213_020938.xlsx"
+        },
+        {
+          "timestamp": "12/13/2025 2:10 AM",
+          "map": "Warlock",
+          "gametype": "Capture the Flag",
+          "winner": "Blue",
+          "source_file": "20251213_022556.xlsx"
         }
       ],
       "red_wins": 3,
-      "blue_wins": 1,
+      "blue_wins": 4,
       "start_time": "12/13/2025 1:03 AM",
-      "end_time": "12/13/2025 1:37 AM",
-      "winner": "Red",
-      "series_type": "Bo5"
+      "end_time": "12/13/2025 2:10 AM",
+      "winner": "Blue",
+      "series_type": "Bo7"
     },
     {
       "series_id": "series_11",
@@ -491,6 +512,79 @@
       "series_id": "series_12",
       "playlist": "MLG 4v4",
       "red_team": [
+        "Hammie",
+        "fluhd",
+        "gravemindh2",
+        "virulentgrunt"
+      ],
+      "blue_team": [
+        "Hyrax",
+        "cOn",
+        "roasted",
+        "sneakybeav3r"
+      ],
+      "games": [
+        {
+          "timestamp": "12/13/2025 5:22 AM",
+          "map": "Warlock",
+          "gametype": "Capture the Flag",
+          "winner": "Red",
+          "source_file": "20251213_054237.xlsx"
+        },
+        {
+          "timestamp": "12/13/2025 5:51 AM",
+          "map": "Sanctuary",
+          "gametype": "Capture the Flag",
+          "winner": null,
+          "source_file": "20251213_055214.xlsx"
+        },
+        {
+          "timestamp": "12/13/2025 5:52 AM",
+          "map": "Sanctuary",
+          "gametype": "Capture the Flag",
+          "winner": "Red",
+          "source_file": "20251213_061254.xlsx"
+        },
+        {
+          "timestamp": "12/13/2025 6:14 AM",
+          "map": "Beaver Creek",
+          "gametype": "Team Slayer",
+          "winner": "Blue",
+          "source_file": "20251213_062105.xlsx"
+        },
+        {
+          "timestamp": "12/13/2025 6:23 AM",
+          "map": "Midship",
+          "gametype": "Oddball",
+          "winner": "Blue",
+          "source_file": "20251213_063708.xlsx"
+        },
+        {
+          "timestamp": "12/13/2025 6:39 AM",
+          "map": "Lockout",
+          "gametype": "Team Slayer",
+          "winner": "Blue",
+          "source_file": "20251213_064559.xlsx"
+        },
+        {
+          "timestamp": "12/13/2025 6:48 AM",
+          "map": "Midship",
+          "gametype": "Assault",
+          "winner": "Blue",
+          "source_file": "20251213_070058.xlsx"
+        }
+      ],
+      "red_wins": 2,
+      "blue_wins": 4,
+      "start_time": "12/13/2025 5:22 AM",
+      "end_time": "12/13/2025 6:48 AM",
+      "winner": "Blue",
+      "series_type": "Bo7"
+    },
+    {
+      "series_id": "series_13",
+      "playlist": "MLG 4v4",
+      "red_team": [
         "M15F1T",
         "Rinser",
         "Rocky",
@@ -533,7 +627,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_13",
+      "series_id": "series_14",
       "playlist": "MLG 4v4",
       "red_team": [
         "AfroMaN",
@@ -564,7 +658,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_14",
+      "series_id": "series_15",
       "playlist": "MLG 4v4",
       "red_team": [
         "AfroMaN",
@@ -616,7 +710,7 @@
       "series_type": "Bo5"
     },
     {
-      "series_id": "series_15",
+      "series_id": "series_16",
       "playlist": "MLG 4v4",
       "red_team": [
         "AfroMaN",
@@ -675,7 +769,7 @@
       "series_type": "Bo5"
     },
     {
-      "series_id": "series_16",
+      "series_id": "series_17",
       "playlist": "MLG 4v4",
       "red_team": [
         "James | The Frenetic",
@@ -741,7 +835,7 @@
       "series_type": "Bo7"
     },
     {
-      "series_id": "series_17",
+      "series_id": "series_18",
       "playlist": "MLG 4v4",
       "red_team": [
         "Hammie",
@@ -814,7 +908,7 @@
       "series_type": "Bo7"
     },
     {
-      "series_id": "series_18",
+      "series_id": "series_19",
       "playlist": "MLG 4v4",
       "red_team": [
         "Jay2",
@@ -880,7 +974,7 @@
       "series_type": "Bo7"
     },
     {
-      "series_id": "series_19",
+      "series_id": "series_20",
       "playlist": "MLG 4v4",
       "red_team": [
         "Nark",
@@ -925,7 +1019,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_20",
+      "series_id": "series_21",
       "playlist": "MLG 4v4",
       "red_team": [
         "Hammie",
@@ -956,7 +1050,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_21",
+      "series_id": "series_22",
       "playlist": "MLG 4v4",
       "red_team": [
         "AfroMaN",
@@ -987,7 +1081,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_22",
+      "series_id": "series_23",
       "playlist": "MLG 4v4",
       "red_team": [
         "Hammie",
@@ -1025,7 +1119,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_23",
+      "series_id": "series_24",
       "playlist": "MLG 4v4",
       "red_team": [
         "AfroMaN",
@@ -1063,7 +1157,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_24",
+      "series_id": "series_25",
       "playlist": "MLG 4v4",
       "red_team": [
         "Hammie",
@@ -1101,7 +1195,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_25",
+      "series_id": "series_26",
       "playlist": "MLG 4v4",
       "red_team": [
         "Nark",
@@ -1146,7 +1240,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_26",
+      "series_id": "series_27",
       "playlist": "MLG 4v4",
       "red_team": [
         "EpiiiC",
@@ -1184,7 +1278,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_27",
+      "series_id": "series_28",
       "playlist": "MLG 4v4",
       "red_team": [
         "EpiiiC",
@@ -1229,7 +1323,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_28",
+      "series_id": "series_29",
       "playlist": "MLG 4v4",
       "red_team": [
         "AfroMaN",
@@ -1260,7 +1354,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_29",
+      "series_id": "series_30",
       "playlist": "MLG 4v4",
       "red_team": [
         "James | The Frenetic",
@@ -1319,7 +1413,7 @@
       "series_type": "Bo5"
     },
     {
-      "series_id": "series_30",
+      "series_id": "series_31",
       "playlist": "MLG 4v4",
       "red_team": [
         "Hyrax",
@@ -1385,7 +1479,7 @@
       "series_type": "Bo7"
     },
     {
-      "series_id": "series_31",
+      "series_id": "series_32",
       "playlist": "MLG 4v4",
       "red_team": [
         "Josiah",
@@ -1416,7 +1510,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_32",
+      "series_id": "series_33",
       "playlist": "MLG 4v4",
       "red_team": [
         "Josiah",
@@ -1461,7 +1555,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_33",
+      "series_id": "series_34",
       "playlist": "MLG 4v4",
       "red_team": [
         "EpiiiC",
@@ -1520,7 +1614,7 @@
       "series_type": "Bo5"
     },
     {
-      "series_id": "series_34",
+      "series_id": "series_35",
       "playlist": "MLG 4v4",
       "red_team": [
         "Bigstack",
@@ -1551,7 +1645,7 @@
       "series_type": "Bo3"
     },
     {
-      "series_id": "series_35",
+      "series_id": "series_36",
       "playlist": "MLG 4v4",
       "red_team": [
         "Bigstack",
@@ -1621,20 +1715,20 @@
       "series_losses": 0
     },
     "269681242335739905": {
-      "series_wins": 11,
-      "series_losses": 8
+      "series_wins": 12,
+      "series_losses": 7
     },
     "426757496557010948": {
       "series_wins": 6,
       "series_losses": 7
     },
     "334212655613214721": {
-      "series_wins": 13,
-      "series_losses": 12
+      "series_wins": 12,
+      "series_losses": 14
     },
     "136324687926919168": {
       "series_wins": 11,
-      "series_losses": 9
+      "series_losses": 10
     },
     "260603669924413441": {
       "series_wins": 2,
@@ -1645,31 +1739,31 @@
       "series_losses": 7
     },
     "284010072504270849": {
-      "series_wins": 2,
-      "series_losses": 5
+      "series_wins": 3,
+      "series_losses": 4
     },
     "210187331066396672": {
       "series_wins": 8,
       "series_losses": 9
     },
     "359216128959971329": {
-      "series_wins": 4,
-      "series_losses": 3
+      "series_wins": 5,
+      "series_losses": 2
     },
     "859153194839965718": {
-      "series_wins": 2,
-      "series_losses": 3
+      "series_wins": 3,
+      "series_losses": 2
     },
     "1136095104663306240": {
       "series_wins": 10,
-      "series_losses": 2
+      "series_losses": 3
     },
     "274372368686776321": {
       "series_wins": 8,
-      "series_losses": 6
+      "series_losses": 7
     },
     "390747330631958528": {
-      "series_wins": 4,
+      "series_wins": 5,
       "series_losses": 3
     },
     "168151188741685248": {
@@ -1682,15 +1776,15 @@
     },
     "132652800378142720": {
       "series_wins": 5,
-      "series_losses": 1
+      "series_losses": 2
     },
     "710585633474740306": {
       "series_wins": 1,
-      "series_losses": 0
+      "series_losses": 1
     },
     "210280313262309376": {
       "series_wins": 0,
-      "series_losses": 2
+      "series_losses": 3
     },
     "1040724126836457624": {
       "series_wins": 2,
@@ -1745,5 +1839,5 @@
       "series_losses": 1
     }
   },
-  "generated_at": "2025-12-13T07:47:49.020107"
+  "generated_at": "2025-12-13T08:39:06.449177"
 }

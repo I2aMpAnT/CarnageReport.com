@@ -120,65 +120,43 @@
     "20251213_012129.xlsx": "MLG 4v4",
     "20251213_013611.xlsx": "MLG 4v4",
     "20251213_014303.xlsx": "MLG 4v4",
-    "20251213_015900.xlsx": null,
-    "20251213_020938.xlsx": null,
-    "20251213_022556.xlsx": null,
+    "20251213_015900.xlsx": "MLG 4v4",
+    "20251213_020938.xlsx": "MLG 4v4",
+    "20251213_022556.xlsx": "MLG 4v4",
     "20251213_041557.xlsx": null,
     "20251213_043909.xlsx": "MLG 4v4",
     "20251213_044617.xlsx": "MLG 4v4",
     "20251213_050029.xlsx": "MLG 4v4",
-    "20251213_054237.xlsx": null,
+    "20251213_054237.xlsx": "MLG 4v4",
     "20251213_054829.xlsx": null,
-    "20251213_055214.xlsx": null,
-    "20251213_061254.xlsx": null,
-    "20251213_062105.xlsx": null,
-    "20251213_063708.xlsx": null,
-    "20251213_064559.xlsx": null,
-    "20251213_070058.xlsx": null
+    "20251213_055214.xlsx": "MLG 4v4",
+    "20251213_061254.xlsx": "MLG 4v4",
+    "20251213_062105.xlsx": "MLG 4v4",
+    "20251213_063708.xlsx": "MLG 4v4",
+    "20251213_064559.xlsx": "MLG 4v4",
+    "20251213_070058.xlsx": "MLG 4v4"
   },
-  "manual_playlists_hash": "fb73b5b7eb631636b8fa1285a456f857",
+  "manual_playlists_hash": "1e465cc50a87da5e17a0150419d9e1f4",
   "player_state": {
-    "710585633474740306": {
-      "xp": 300,
-      "rank": 4,
-      "wins": 3,
-      "losses": 0,
-      "total_games": 3,
-      "kills": 64,
-      "deaths": 62,
-      "assists": 48,
-      "headshots": 49,
-      "highest_rank": 4,
+    "132652800378142720": {
+      "xp": 1620,
+      "rank": 15,
+      "wins": 17,
+      "losses": 9,
+      "total_games": 28,
+      "kills": 521,
+      "deaths": 569,
+      "assists": 337,
+      "headshots": 359,
+      "highest_rank": 15,
       "playlists": {
         "MLG 4v4": {
-          "xp": 300,
-          "rank": 4,
-          "highest_rank": 4,
-          "wins": 3,
-          "losses": 0,
-          "games": 3
-        }
-      }
-    },
-    "284010072504270849": {
-      "xp": 338,
-      "rank": 4,
-      "wins": 4,
-      "losses": 15,
-      "total_games": 20,
-      "kills": 243,
-      "deaths": 372,
-      "assists": 202,
-      "headshots": 157,
-      "highest_rank": 4,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 338,
-          "rank": 4,
-          "highest_rank": 4,
-          "wins": 4,
-          "losses": 15,
-          "games": 20
+          "xp": 1620,
+          "rank": 15,
+          "highest_rank": 8,
+          "wins": 17,
+          "losses": 9,
+          "games": 28
         }
       }
     },
@@ -204,311 +182,69 @@
         }
       }
     },
-    "390747330631958528": {
-      "xp": 1607,
-      "rank": 15,
-      "wins": 19,
-      "losses": 11,
-      "total_games": 30,
-      "kills": 660,
-      "deaths": 559,
-      "assists": 457,
-      "headshots": 411,
-      "highest_rank": 15,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 1607,
-          "rank": 15,
-          "highest_rank": 15,
-          "wins": 19,
-          "losses": 11,
-          "games": 30
-        }
-      }
-    },
-    "132652800378142720": {
-      "xp": 1465,
-      "rank": 14,
-      "wins": 15,
-      "losses": 5,
-      "total_games": 21,
-      "kills": 409,
-      "deaths": 419,
-      "assists": 257,
-      "headshots": 277,
-      "highest_rank": 14,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 1465,
-          "rank": 14,
-          "highest_rank": 8,
-          "wins": 15,
-          "losses": 5,
-          "games": 21
-        }
-      }
-    },
-    "694412691015598140": {
-      "xp": 419,
-      "rank": 5,
-      "wins": 5,
-      "losses": 20,
-      "total_games": 26,
-      "kills": 328,
-      "deaths": 570,
-      "assists": 294,
-      "headshots": 222,
-      "highest_rank": 5,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 419,
-          "rank": 5,
-          "highest_rank": 3,
-          "wins": 5,
-          "losses": 20,
-          "games": 26
-        }
-      }
-    },
-    "385632391089356810": {
-      "xp": 1231,
-      "rank": 13,
-      "wins": 14,
-      "losses": 7,
-      "total_games": 21,
-      "kills": 426,
-      "deaths": 390,
-      "assists": 271,
-      "headshots": 260,
-      "highest_rank": 13,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 1231,
-          "rank": 13,
-          "highest_rank": 10,
-          "wins": 14,
-          "losses": 7,
-          "games": 21
-        }
-      }
-    },
-    "309502376052523018": {
-      "xp": 400,
-      "rank": 5,
-      "wins": 4,
-      "losses": 1,
+    "652998057087991838": {
+      "xp": 296,
+      "rank": 4,
+      "wins": 3,
+      "losses": 2,
       "total_games": 5,
-      "kills": 68,
-      "deaths": 86,
-      "assists": 68,
-      "headshots": 44,
-      "highest_rank": 5,
+      "kills": 74,
+      "deaths": 102,
+      "assists": 57,
+      "headshots": 50,
+      "highest_rank": 4,
       "playlists": {
         "MLG 4v4": {
-          "xp": 400,
-          "rank": 5,
-          "highest_rank": 5,
-          "wins": 4,
-          "losses": 1,
+          "xp": 296,
+          "rank": 4,
+          "highest_rank": 4,
+          "wins": 3,
+          "losses": 2,
           "games": 5
         }
       }
     },
-    "210187331066396672": {
-      "xp": 1278,
-      "rank": 13,
-      "wins": 21,
-      "losses": 23,
-      "total_games": 45,
-      "kills": 736,
-      "deaths": 855,
-      "assists": 459,
-      "headshots": 494,
-      "highest_rank": 13,
+    "390747330631958528": {
+      "xp": 1895,
+      "rank": 16,
+      "wins": 23,
+      "losses": 13,
+      "total_games": 37,
+      "kills": 843,
+      "deaths": 682,
+      "assists": 567,
+      "headshots": 521,
+      "highest_rank": 16,
       "playlists": {
         "MLG 4v4": {
-          "xp": 1278,
-          "rank": 13,
-          "highest_rank": 13,
-          "wins": 21,
-          "losses": 23,
-          "games": 45
+          "xp": 1895,
+          "rank": 16,
+          "highest_rank": 16,
+          "wins": 23,
+          "losses": 13,
+          "games": 37
         }
       }
     },
-    "260603669924413441": {
-      "xp": 773,
-      "rank": 8,
-      "wins": 8,
-      "losses": 16,
-      "total_games": 24,
-      "kills": 356,
-      "deaths": 504,
-      "assists": 305,
-      "headshots": 208,
-      "highest_rank": 8,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 773,
-          "rank": 8,
-          "highest_rank": 6,
-          "wins": 8,
-          "losses": 16,
-          "games": 24
-        }
-      }
-    },
-    "859153194839965718": {
-      "xp": 536,
-      "rank": 6,
-      "wins": 6,
-      "losses": 8,
-      "total_games": 15,
-      "kills": 260,
-      "deaths": 204,
-      "assists": 187,
-      "headshots": 175,
-      "highest_rank": 6,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 536,
-          "rank": 6,
-          "highest_rank": 6,
-          "wins": 6,
-          "losses": 8,
-          "games": 15
-        }
-      }
-    },
-    "165626999891689474": {
-      "xp": 949,
-      "rank": 10,
-      "wins": 10,
+    "359216128959971329": {
+      "xp": 1447,
+      "rank": 14,
+      "wins": 15,
       "losses": 11,
-      "total_games": 21,
-      "kills": 471,
-      "deaths": 384,
-      "assists": 249,
-      "headshots": 280,
-      "highest_rank": 10,
+      "total_games": 26,
+      "kills": 620,
+      "deaths": 429,
+      "assists": 326,
+      "headshots": 462,
+      "highest_rank": 14,
       "playlists": {
         "MLG 4v4": {
-          "xp": 949,
-          "rank": 10,
-          "highest_rank": 10,
-          "wins": 10,
+          "xp": 1447,
+          "rank": 14,
+          "highest_rank": 8,
+          "wins": 15,
           "losses": 11,
-          "games": 21
-        }
-      }
-    },
-    "237407163822112769": {
-      "xp": 291,
-      "rank": 4,
-      "wins": 3,
-      "losses": 6,
-      "total_games": 9,
-      "kills": 159,
-      "deaths": 117,
-      "assists": 129,
-      "headshots": 112,
-      "highest_rank": 4,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 291,
-          "rank": 4,
-          "highest_rank": 4,
-          "wins": 3,
-          "losses": 6,
-          "games": 9
-        }
-      }
-    },
-    "175060415833833472": {
-      "xp": 956,
-      "rank": 10,
-      "wins": 10,
-      "losses": 4,
-      "total_games": 14,
-      "kills": 310,
-      "deaths": 237,
-      "assists": 184,
-      "headshots": 215,
-      "highest_rank": 10,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 956,
-          "rank": 10,
-          "highest_rank": 10,
-          "wins": 10,
-          "losses": 4,
-          "games": 14
-        }
-      }
-    },
-    "797210177786347530": {
-      "xp": 282,
-      "rank": 3,
-      "wins": 3,
-      "losses": 7,
-      "total_games": 12,
-      "kills": 215,
-      "deaths": 184,
-      "assists": 149,
-      "headshots": 126,
-      "highest_rank": 3,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 282,
-          "rank": 3,
-          "highest_rank": 4,
-          "wins": 3,
-          "losses": 7,
-          "games": 12
-        }
-      }
-    },
-    "1040724126836457624": {
-      "xp": 693,
-      "rank": 8,
-      "wins": 7,
-      "losses": 1,
-      "total_games": 9,
-      "kills": 134,
-      "deaths": 166,
-      "assists": 96,
-      "headshots": 102,
-      "highest_rank": 8,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 693,
-          "rank": 8,
-          "highest_rank": 5,
-          "wins": 7,
-          "losses": 1,
-          "games": 9
-        }
-      }
-    },
-    "269681242335739905": {
-      "xp": 2620,
-      "rank": 19,
-      "wins": 33,
-      "losses": 31,
-      "total_games": 66,
-      "kills": 1103,
-      "deaths": 1291,
-      "assists": 862,
-      "headshots": 734,
-      "highest_rank": 19,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 2620,
-          "rank": 19,
-          "highest_rank": 19,
-          "wins": 33,
-          "losses": 31,
-          "games": 66
+          "games": 26
         }
       }
     },
@@ -534,311 +270,47 @@
         }
       }
     },
-    "177913649728323584": {
-      "xp": 92,
-      "rank": 2,
-      "wins": 1,
-      "losses": 4,
-      "total_games": 5,
-      "kills": 155,
-      "deaths": 92,
-      "assists": 61,
-      "headshots": 100,
-      "highest_rank": 2,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 92,
-          "rank": 2,
-          "highest_rank": 2,
-          "wins": 1,
-          "losses": 4,
-          "games": 5
-        }
-      }
-    },
-    "274372368686776321": {
-      "xp": 1533,
-      "rank": 14,
-      "wins": 23,
-      "losses": 20,
-      "total_games": 46,
-      "kills": 1030,
-      "deaths": 753,
-      "assists": 518,
-      "headshots": 713,
-      "highest_rank": 14,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 1533,
-          "rank": 14,
-          "highest_rank": 15,
-          "wins": 23,
-          "losses": 20,
-          "games": 46
-        }
-      }
-    },
-    "283293015135748097": {
-      "xp": 0,
-      "rank": 1,
-      "wins": 0,
-      "losses": 3,
-      "total_games": 3,
-      "kills": 45,
-      "deaths": 66,
-      "assists": 40,
-      "headshots": 28,
-      "highest_rank": 1,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 0,
-          "rank": 1,
-          "highest_rank": 1,
-          "wins": 0,
-          "losses": 3,
-          "games": 3
-        }
-      }
-    },
-    "1136095104663306240": {
-      "xp": 2800,
-      "rank": 20,
-      "wins": 34,
-      "losses": 15,
-      "total_games": 52,
-      "kills": 793,
-      "deaths": 875,
-      "assists": 534,
-      "headshots": 543,
-      "highest_rank": 20,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 2800,
-          "rank": 20,
-          "highest_rank": 20,
-          "wins": 34,
-          "losses": 15,
-          "games": 52
-        }
-      }
-    },
-    "314217230390919174": {
-      "xp": 660,
-      "rank": 7,
-      "wins": 7,
-      "losses": 10,
-      "total_games": 18,
-      "kills": 258,
-      "deaths": 252,
-      "assists": 196,
-      "headshots": 148,
-      "highest_rank": 7,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 660,
-          "rank": 7,
-          "highest_rank": 6,
-          "wins": 7,
-          "losses": 10,
-          "games": 18
-        }
-      }
-    },
-    "136324687926919168": {
-      "xp": 2495,
-      "rank": 19,
-      "wins": 34,
-      "losses": 22,
-      "total_games": 56,
-      "kills": 800,
-      "deaths": 1186,
-      "assists": 648,
-      "headshots": 521,
-      "highest_rank": 19,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 2495,
-          "rank": 19,
-          "highest_rank": 19,
-          "wins": 34,
-          "losses": 22,
-          "games": 56
-        }
-      }
-    },
-    "426757496557010948": {
-      "xp": 974,
-      "rank": 10,
-      "wins": 15,
+    "210187331066396672": {
+      "xp": 1278,
+      "rank": 13,
+      "wins": 21,
       "losses": 23,
-      "total_games": 38,
-      "kills": 860,
-      "deaths": 736,
-      "assists": 448,
-      "headshots": 567,
-      "highest_rank": 10,
+      "total_games": 45,
+      "kills": 736,
+      "deaths": 855,
+      "assists": 459,
+      "headshots": 494,
+      "highest_rank": 13,
       "playlists": {
         "MLG 4v4": {
-          "xp": 974,
-          "rank": 10,
-          "highest_rank": 12,
-          "wins": 15,
+          "xp": 1278,
+          "rank": 13,
+          "highest_rank": 13,
+          "wins": 21,
           "losses": 23,
-          "games": 38
+          "games": 45
         }
       }
     },
-    "359216128959971329": {
-      "xp": 1147,
-      "rank": 12,
-      "wins": 12,
-      "losses": 11,
-      "total_games": 23,
-      "kills": 540,
-      "deaths": 371,
-      "assists": 273,
-      "headshots": 404,
-      "highest_rank": 12,
+    "385632391089356810": {
+      "xp": 1231,
+      "rank": 13,
+      "wins": 14,
+      "losses": 7,
+      "total_games": 21,
+      "kills": 426,
+      "deaths": 390,
+      "assists": 271,
+      "headshots": 260,
+      "highest_rank": 13,
       "playlists": {
         "MLG 4v4": {
-          "xp": 1147,
-          "rank": 12,
-          "highest_rank": 5,
-          "wins": 12,
-          "losses": 11,
-          "games": 23
-        }
-      }
-    },
-    "652998057087991838": {
-      "xp": 296,
-      "rank": 4,
-      "wins": 3,
-      "losses": 2,
-      "total_games": 5,
-      "kills": 74,
-      "deaths": 102,
-      "assists": 57,
-      "headshots": 50,
-      "highest_rank": 4,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 296,
-          "rank": 4,
-          "highest_rank": 4,
-          "wins": 3,
-          "losses": 2,
-          "games": 5
-        }
-      }
-    },
-    "168151188741685248": {
-      "xp": 815,
-      "rank": 9,
-      "wins": 11,
-      "losses": 20,
-      "total_games": 32,
-      "kills": 655,
-      "deaths": 532,
-      "assists": 359,
-      "headshots": 427,
-      "highest_rank": 9,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 815,
-          "rank": 9,
-          "highest_rank": 9,
-          "wins": 11,
-          "losses": 20,
-          "games": 32
-        }
-      }
-    },
-    "884896715432411178": {
-      "xp": 860,
-      "rank": 9,
-      "wins": 12,
-      "losses": 17,
-      "total_games": 29,
-      "kills": 490,
-      "deaths": 592,
-      "assists": 322,
-      "headshots": 304,
-      "highest_rank": 9,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 860,
-          "rank": 9,
+          "xp": 1231,
+          "rank": 13,
           "highest_rank": 10,
-          "wins": 12,
-          "losses": 17,
-          "games": 29
-        }
-      }
-    },
-    "111190770756657152": {
-      "xp": 1610,
-      "rank": 15,
-      "wins": 19,
-      "losses": 14,
-      "total_games": 33,
-      "kills": 744,
-      "deaths": 628,
-      "assists": 468,
-      "headshots": 513,
-      "highest_rank": 15,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 1610,
-          "rank": 15,
-          "highest_rank": 15,
-          "wins": 19,
-          "losses": 14,
-          "games": 33
-        }
-      }
-    },
-    "164725201907613696": {
-      "xp": 1005,
-      "rank": 11,
-      "wins": 11,
-      "losses": 14,
-      "total_games": 25,
-      "kills": 584,
-      "deaths": 547,
-      "assists": 343,
-      "headshots": 393,
-      "highest_rank": 11,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 1005,
-          "rank": 11,
-          "highest_rank": 11,
-          "wins": 11,
-          "losses": 14,
-          "games": 25
-        }
-      }
-    },
-    "210280313262309376": {
-      "xp": 181,
-      "rank": 2,
-      "wins": 2,
-      "losses": 6,
-      "total_games": 9,
-      "kills": 131,
-      "deaths": 192,
-      "assists": 107,
-      "headshots": 82,
-      "highest_rank": 2,
-      "playlists": {
-        "MLG 4v4": {
-          "xp": 181,
-          "rank": 2,
-          "highest_rank": 3,
-          "wins": 2,
-          "losses": 6,
-          "games": 9
+          "wins": 14,
+          "losses": 7,
+          "games": 21
         }
       }
     },
@@ -864,6 +336,358 @@
         }
       }
     },
+    "175060415833833472": {
+      "xp": 956,
+      "rank": 10,
+      "wins": 10,
+      "losses": 4,
+      "total_games": 14,
+      "kills": 310,
+      "deaths": 237,
+      "assists": 184,
+      "headshots": 215,
+      "highest_rank": 10,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 956,
+          "rank": 10,
+          "highest_rank": 10,
+          "wins": 10,
+          "losses": 4,
+          "games": 14
+        }
+      }
+    },
+    "426757496557010948": {
+      "xp": 974,
+      "rank": 10,
+      "wins": 15,
+      "losses": 23,
+      "total_games": 38,
+      "kills": 860,
+      "deaths": 736,
+      "assists": 448,
+      "headshots": 567,
+      "highest_rank": 10,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 974,
+          "rank": 10,
+          "highest_rank": 12,
+          "wins": 15,
+          "losses": 23,
+          "games": 38
+        }
+      }
+    },
+    "283293015135748097": {
+      "xp": 0,
+      "rank": 1,
+      "wins": 0,
+      "losses": 3,
+      "total_games": 3,
+      "kills": 45,
+      "deaths": 66,
+      "assists": 40,
+      "headshots": 28,
+      "highest_rank": 1,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 0,
+          "rank": 1,
+          "highest_rank": 1,
+          "wins": 0,
+          "losses": 3,
+          "games": 3
+        }
+      }
+    },
+    "136324687926919168": {
+      "xp": 2571,
+      "rank": 19,
+      "wins": 38,
+      "losses": 27,
+      "total_games": 66,
+      "kills": 941,
+      "deaths": 1404,
+      "assists": 776,
+      "headshots": 613,
+      "highest_rank": 19,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 2571,
+          "rank": 19,
+          "highest_rank": 19,
+          "wins": 38,
+          "losses": 27,
+          "games": 66
+        }
+      }
+    },
+    "274372368686776321": {
+      "xp": 1664,
+      "rank": 15,
+      "wins": 27,
+      "losses": 25,
+      "total_games": 56,
+      "kills": 1274,
+      "deaths": 939,
+      "assists": 633,
+      "headshots": 870,
+      "highest_rank": 15,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 1664,
+          "rank": 15,
+          "highest_rank": 15,
+          "wins": 27,
+          "losses": 25,
+          "games": 56
+        }
+      }
+    },
+    "314217230390919174": {
+      "xp": 660,
+      "rank": 7,
+      "wins": 7,
+      "losses": 10,
+      "total_games": 18,
+      "kills": 258,
+      "deaths": 252,
+      "assists": 196,
+      "headshots": 148,
+      "highest_rank": 7,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 660,
+          "rank": 7,
+          "highest_rank": 6,
+          "wins": 7,
+          "losses": 10,
+          "games": 18
+        }
+      }
+    },
+    "884896715432411178": {
+      "xp": 860,
+      "rank": 9,
+      "wins": 12,
+      "losses": 17,
+      "total_games": 29,
+      "kills": 490,
+      "deaths": 592,
+      "assists": 322,
+      "headshots": 304,
+      "highest_rank": 9,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 860,
+          "rank": 9,
+          "highest_rank": 10,
+          "wins": 12,
+          "losses": 17,
+          "games": 29
+        }
+      }
+    },
+    "260603669924413441": {
+      "xp": 773,
+      "rank": 8,
+      "wins": 8,
+      "losses": 16,
+      "total_games": 24,
+      "kills": 356,
+      "deaths": 504,
+      "assists": 305,
+      "headshots": 208,
+      "highest_rank": 8,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 773,
+          "rank": 8,
+          "highest_rank": 6,
+          "wins": 8,
+          "losses": 16,
+          "games": 24
+        }
+      }
+    },
+    "284010072504270849": {
+      "xp": 638,
+      "rank": 7,
+      "wins": 7,
+      "losses": 15,
+      "total_games": 23,
+      "kills": 290,
+      "deaths": 433,
+      "assists": 256,
+      "headshots": 188,
+      "highest_rank": 7,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 638,
+          "rank": 7,
+          "highest_rank": 7,
+          "wins": 7,
+          "losses": 15,
+          "games": 23
+        }
+      }
+    },
+    "694412691015598140": {
+      "xp": 419,
+      "rank": 5,
+      "wins": 5,
+      "losses": 20,
+      "total_games": 26,
+      "kills": 328,
+      "deaths": 570,
+      "assists": 294,
+      "headshots": 222,
+      "highest_rank": 5,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 419,
+          "rank": 5,
+          "highest_rank": 3,
+          "wins": 5,
+          "losses": 20,
+          "games": 26
+        }
+      }
+    },
+    "210280313262309376": {
+      "xp": 353,
+      "rank": 4,
+      "wins": 4,
+      "losses": 10,
+      "total_games": 16,
+      "kills": 235,
+      "deaths": 340,
+      "assists": 179,
+      "headshots": 139,
+      "highest_rank": 4,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 353,
+          "rank": 4,
+          "highest_rank": 4,
+          "wins": 4,
+          "losses": 10,
+          "games": 16
+        }
+      }
+    },
+    "237407163822112769": {
+      "xp": 291,
+      "rank": 4,
+      "wins": 3,
+      "losses": 6,
+      "total_games": 9,
+      "kills": 159,
+      "deaths": 117,
+      "assists": 129,
+      "headshots": 112,
+      "highest_rank": 4,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 291,
+          "rank": 4,
+          "highest_rank": 4,
+          "wins": 3,
+          "losses": 6,
+          "games": 9
+        }
+      }
+    },
+    "1136095104663306240": {
+      "xp": 2869,
+      "rank": 20,
+      "wins": 38,
+      "losses": 20,
+      "total_games": 62,
+      "kills": 967,
+      "deaths": 1064,
+      "assists": 653,
+      "headshots": 672,
+      "highest_rank": 20,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 2869,
+          "rank": 20,
+          "highest_rank": 20,
+          "wins": 38,
+          "losses": 20,
+          "games": 62
+        }
+      }
+    },
+    "1040724126836457624": {
+      "xp": 693,
+      "rank": 8,
+      "wins": 7,
+      "losses": 1,
+      "total_games": 9,
+      "kills": 134,
+      "deaths": 166,
+      "assists": 96,
+      "headshots": 102,
+      "highest_rank": 8,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 693,
+          "rank": 8,
+          "highest_rank": 5,
+          "wins": 7,
+          "losses": 1,
+          "games": 9
+        }
+      }
+    },
+    "797210177786347530": {
+      "xp": 282,
+      "rank": 3,
+      "wins": 3,
+      "losses": 7,
+      "total_games": 12,
+      "kills": 215,
+      "deaths": 184,
+      "assists": 149,
+      "headshots": 126,
+      "highest_rank": 3,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 282,
+          "rank": 3,
+          "highest_rank": 4,
+          "wins": 3,
+          "losses": 7,
+          "games": 12
+        }
+      }
+    },
+    "165626999891689474": {
+      "xp": 949,
+      "rank": 10,
+      "wins": 10,
+      "losses": 11,
+      "total_games": 21,
+      "kills": 471,
+      "deaths": 384,
+      "assists": 249,
+      "headshots": 280,
+      "highest_rank": 10,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 949,
+          "rank": 10,
+          "highest_rank": 10,
+          "wins": 10,
+          "losses": 11,
+          "games": 21
+        }
+      }
+    },
     "161726300304834560": {
       "xp": 651,
       "rank": 7,
@@ -886,25 +710,201 @@
         }
       }
     },
-    "334212655613214721": {
-      "xp": 2180,
-      "rank": 17,
-      "wins": 41,
-      "losses": 37,
-      "total_games": 81,
-      "kills": 1815,
-      "deaths": 1463,
-      "assists": 953,
-      "headshots": 1167,
-      "highest_rank": 17,
+    "269681242335739905": {
+      "xp": 2920,
+      "rank": 20,
+      "wins": 36,
+      "losses": 31,
+      "total_games": 69,
+      "kills": 1153,
+      "deaths": 1353,
+      "assists": 917,
+      "headshots": 771,
+      "highest_rank": 20,
       "playlists": {
         "MLG 4v4": {
-          "xp": 2180,
-          "rank": 17,
+          "xp": 2920,
+          "rank": 20,
+          "highest_rank": 19,
+          "wins": 36,
+          "losses": 31,
+          "games": 69
+        }
+      }
+    },
+    "111190770756657152": {
+      "xp": 1610,
+      "rank": 15,
+      "wins": 19,
+      "losses": 14,
+      "total_games": 33,
+      "kills": 744,
+      "deaths": 628,
+      "assists": 468,
+      "headshots": 513,
+      "highest_rank": 15,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 1610,
+          "rank": 15,
+          "highest_rank": 15,
+          "wins": 19,
+          "losses": 14,
+          "games": 33
+        }
+      }
+    },
+    "168151188741685248": {
+      "xp": 815,
+      "rank": 9,
+      "wins": 11,
+      "losses": 20,
+      "total_games": 32,
+      "kills": 655,
+      "deaths": 532,
+      "assists": 359,
+      "headshots": 427,
+      "highest_rank": 9,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 815,
+          "rank": 9,
+          "highest_rank": 9,
+          "wins": 11,
+          "losses": 20,
+          "games": 32
+        }
+      }
+    },
+    "859153194839965718": {
+      "xp": 836,
+      "rank": 9,
+      "wins": 9,
+      "losses": 8,
+      "total_games": 18,
+      "kills": 342,
+      "deaths": 265,
+      "assists": 231,
+      "headshots": 225,
+      "highest_rank": 9,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 836,
+          "rank": 9,
+          "highest_rank": 9,
+          "wins": 9,
+          "losses": 8,
+          "games": 18
+        }
+      }
+    },
+    "164725201907613696": {
+      "xp": 1005,
+      "rank": 11,
+      "wins": 11,
+      "losses": 14,
+      "total_games": 25,
+      "kills": 584,
+      "deaths": 547,
+      "assists": 343,
+      "headshots": 393,
+      "highest_rank": 11,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 1005,
+          "rank": 11,
+          "highest_rank": 11,
+          "wins": 11,
+          "losses": 14,
+          "games": 25
+        }
+      }
+    },
+    "309502376052523018": {
+      "xp": 400,
+      "rank": 5,
+      "wins": 4,
+      "losses": 1,
+      "total_games": 5,
+      "kills": 68,
+      "deaths": 86,
+      "assists": 68,
+      "headshots": 44,
+      "highest_rank": 5,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 400,
+          "rank": 5,
+          "highest_rank": 5,
+          "wins": 4,
+          "losses": 1,
+          "games": 5
+        }
+      }
+    },
+    "334212655613214721": {
+      "xp": 1946,
+      "rank": 16,
+      "wins": 43,
+      "losses": 44,
+      "total_games": 91,
+      "kills": 2071,
+      "deaths": 1662,
+      "assists": 1073,
+      "headshots": 1312,
+      "highest_rank": 16,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 1946,
+          "rank": 16,
           "highest_rank": 18,
-          "wins": 41,
-          "losses": 37,
-          "games": 81
+          "wins": 43,
+          "losses": 44,
+          "games": 91
+        }
+      }
+    },
+    "710585633474740306": {
+      "xp": 455,
+      "rank": 5,
+      "wins": 5,
+      "losses": 4,
+      "total_games": 10,
+      "kills": 191,
+      "deaths": 211,
+      "assists": 137,
+      "headshots": 135,
+      "highest_rank": 5,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 455,
+          "rank": 5,
+          "highest_rank": 6,
+          "wins": 5,
+          "losses": 4,
+          "games": 10
+        }
+      }
+    },
+    "177913649728323584": {
+      "xp": 92,
+      "rank": 2,
+      "wins": 1,
+      "losses": 4,
+      "total_games": 5,
+      "kills": 155,
+      "deaths": 92,
+      "assists": 61,
+      "headshots": 100,
+      "highest_rank": 2,
+      "playlists": {
+        "MLG 4v4": {
+          "xp": 92,
+          "rank": 2,
+          "highest_rank": 2,
+          "wins": 1,
+          "losses": 4,
+          "games": 5
         }
       }
     }
