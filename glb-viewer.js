@@ -1206,10 +1206,12 @@ async function createPlayerMarkers() {
         const emblemImage = emblemImages[player.name];
         const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage);
         const labelTexture = new THREE.CanvasTexture(waypointCanvas);
+        labelTexture.colorSpace = THREE.SRGBColorSpace;
         const labelMaterial = new THREE.SpriteMaterial({
             map: labelTexture,
             transparent: true,
-            depthTest: false
+            depthTest: false,
+            toneMapped: false  // Prevent tone mapping from washing out colors
         });
         const label = new THREE.Sprite(labelMaterial);
         label.scale.set(2.5, 3.125, 1); // Aspect ratio 128:160
