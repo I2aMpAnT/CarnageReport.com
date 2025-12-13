@@ -1015,8 +1015,8 @@ body {
 
 /* Controls Hint Panel - Collapsible */
 .controls-hint {
-    position: absolute;
-    bottom: 150px;
+    position: fixed;
+    bottom: 100px;
     right: 20px;
     background: rgba(15, 15, 25, 0.9);
     border: 1px solid rgba(0, 200, 255, 0.3);
@@ -1027,6 +1027,8 @@ body {
     backdrop-filter: blur(8px);
     overflow: hidden;
     min-width: 160px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
 }
 
 .controls-header {
@@ -1682,8 +1684,8 @@ body {
 
 /* Rotation Calibration Panel */
 .rotation-calibration {
-    position: absolute;
-    bottom: 150px;
+    position: fixed;
+    bottom: 100px;
     left: 20px;
     background: rgba(15, 15, 25, 0.95);
     border: 1px solid rgba(255, 150, 0, 0.5);
