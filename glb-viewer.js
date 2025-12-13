@@ -83,29 +83,16 @@ function getWeaponIcon(weaponName) {
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
-    'sanctuary': 'sanctuary',
-    'warlock': 'warlock',
     'beaver creek': 'beavercreek',
     'ascension': 'ascension',
     'coagulation': 'coagulation',
     'zanzibar': 'zanzibar',
-    'ivory tower': 'ivory_tower',
+    'ivory tower': 'cyclotron',
     'burial mounds': 'burial_mounds',
     'colossus': 'colossus',
     'headlong': 'headlong',
     'waterworks': 'waterworks',
-    'foundation': 'foundation',
-    'backwash': 'backwash',
-    'containment': 'containment',
-    'desolation': 'desolation',
-    'district': 'district',
-    'elongation': 'elongation',
-    'gemini': 'gemini',
-    'relic': 'relic',
-    'terminal': 'terminal',
-    'tombstone': 'tombstone',
-    'turf': 'turf',
-    'uplift': 'uplift'
+    'foundation': 'foundation'
 };
 
 function mapNameToGlbFilename(mapName) {
@@ -146,6 +133,11 @@ let gameInfo = {};
 // Timeline dragging
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
+
+// Death heatmap
+let deathPositions = [];
+let deathMarkers = [];
+let showDeathHeatmap = true;
 
 // Map center for camera positioning
 let mapCenter = { x: 0, y: 0, z: 0 };
@@ -682,11 +674,12 @@ async function loadMapAndTelemetry() {
         }
 
         await createPlayerMarkers();
+        createDeathHeatmap();
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
 
-        // Set initial view mode to top-down over player area
-        setViewMode('top');
+        // Set initial view mode to free look
+        setViewMode('free');
 
     } catch (error) {
         console.error('Error loading:', error);
@@ -766,6 +759,7 @@ function parseTelemetryCSV(csvText) {
             facingPitch: parseFloat(values[columnIndex['FacingPitch']]) || 0,
             isCrouching: values[columnIndex['IsCrouching']] === 'True',
             isAirborne: values[columnIndex['IsAirborne']] === 'True',
+            isDead: values[columnIndex['IsDead']] === 'True',
             currentWeapon: values[columnIndex['CurrentWeapon']] || 'Unknown',
             // Emblem data
             emblemForeground: parseInt(values[columnIndex['EmblemForeground']]) || 0,
@@ -804,6 +798,28 @@ function parseTelemetryCSV(csvText) {
             };
         }
     });
+
+    // Extract death positions (when a player transitions from alive to dead)
+    deathPositions = [];
+    const playerLastAliveState = {};
+    telemetryData.forEach(row => {
+        const wasAlive = playerLastAliveState[row.playerName] !== undefined && !playerLastAliveState[row.playerName];
+        const isNowDead = row.isDead;
+
+        // Detect death transition (was alive, now dead)
+        if (playerLastAliveState[row.playerName] === false && isNowDead) {
+            deathPositions.push({
+                playerName: row.playerName,
+                team: row.team,
+                x: row.x,
+                y: row.y,
+                z: row.z,
+                gameTimeMs: row.gameTimeMs
+            });
+        }
+        playerLastAliveState[row.playerName] = isNowDead;
+    });
+    console.log(`Found ${deathPositions.length} deaths in telemetry`);
 
     let ffaColorIndex = 0;
     playerSet.forEach((name) => {
@@ -947,6 +963,62 @@ async function createPlayerMarkers() {
         scene.add(group);
         playerMarkers[player.name] = { group, body, head, arrow, label, player, emblemImage };
     });
+}
+
+// ===== Death Heatmap =====
+function createDeathHeatmap() {
+    // Clear existing death markers
+    deathMarkers.forEach(marker => scene.remove(marker));
+    deathMarkers = [];
+
+    if (!showDeathHeatmap || deathPositions.length === 0) return;
+
+    // Create death markers for each death position
+    deathPositions.forEach(death => {
+        // Create skull/X marker for death location
+        const group = new THREE.Group();
+
+        // Red glow sphere for death location
+        const glowGeometry = new THREE.SphereGeometry(0.8, 16, 16);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 0.4
+        });
+        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        group.add(glow);
+
+        // X marker for death
+        const xSize = 0.5;
+        const xGeometry = new THREE.BufferGeometry();
+        const xVertices = new Float32Array([
+            -xSize, 0, -xSize, xSize, 0, xSize,  // First line
+            -xSize, 0, xSize, xSize, 0, -xSize   // Second line
+        ]);
+        xGeometry.setAttribute('position', new THREE.BufferAttribute(xVertices, 3));
+        const xMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3 });
+        const xMarker = new THREE.LineSegments(xGeometry, xMaterial);
+        xMarker.position.y = 0.5;
+        group.add(xMarker);
+
+        // Position in Three.js coordinates (convert from Halo coords)
+        group.position.set(death.x, death.z, -death.y);
+
+        scene.add(group);
+        deathMarkers.push(group);
+    });
+
+    console.log(`Created ${deathMarkers.length} death markers`);
+}
+
+function toggleDeathHeatmap() {
+    showDeathHeatmap = !showDeathHeatmap;
+    createDeathHeatmap();
+    const btn = document.getElementById('heatmapBtn');
+    if (btn) {
+        btn.textContent = showDeathHeatmap ? 'Hide Deaths' : 'Show Deaths';
+        btn.classList.toggle('active', showDeathHeatmap);
+    }
 }
 
 function createLabelCanvas(text, color) {
@@ -1413,6 +1485,9 @@ window.retryLoad = async function() {
     document.getElementById('loading-overlay').style.display = 'flex';
     await loadMapAndTelemetry();
 };
+
+// ===== Death Heatmap Toggle =====
+window.toggleDeathHeatmap = toggleDeathHeatmap;
 
 // ===== Initialize =====
 init();
