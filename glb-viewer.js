@@ -28,13 +28,6 @@ const CONFIG = {
     gamepadLookSensitivity: 0.05,
     gamepadMoveSpeed: 40,
 
-    // Map alignment settings (can be adjusted per-map if needed)
-    mapScale: 1.0,            // Scale factor for map mesh
-    mapOffsetX: 0,            // Offset to apply to map position
-    mapOffsetY: 0,
-    mapOffsetZ: 0,
-    coordinateScale: 1.0,     // Scale factor for player coordinates
-
     teamColors: {
         '_game_team_blue': 0x0066ff,
         '_game_team_red': 0xff3333,
@@ -49,71 +42,33 @@ const CONFIG = {
     ]
 };
 
-// Weapon icons mapping
-const WEAPON_ICONS = {
-    'battle rifle': 'assets/weapons/BattleRifle.png',
-    'br': 'assets/weapons/BattleRifle.png',
-    'magnum': 'assets/weapons/Magnum.png',
-    'pistol': 'assets/weapons/Magnum.png',
-    'shotgun': 'assets/weapons/Shotgun.png',
-    'smg': 'assets/weapons/SmG.png',
-    'sniper rifle': 'assets/weapons/SniperRifle.png',
-    'rocket launcher': 'assets/weapons/RocketLauncher.png',
-    'rockets': 'assets/weapons/RocketLauncher.png',
-    'plasma pistol': 'assets/weapons/PlasmaPistol.png',
-    'plasma rifle': 'assets/weapons/PlasmaRifle.png',
-    'brute plasma rifle': 'assets/weapons/BrutePlasmaRifle.png',
-    'carbine': 'assets/weapons/Carbine.png',
-    'needler': 'assets/weapons/Needler.png',
-    'beam rifle': 'assets/weapons/BeamRifle.png',
-    'brute shot': 'assets/weapons/BruteShot.png',
-    'energy sword': 'assets/weapons/EnergySword.png',
-    'sword': 'assets/weapons/EnergySword.png',
-    'fuel rod': 'assets/weapons/FuelRod.png',
-    'flag': 'assets/weapons/Flag.png',
-    'oddball': 'assets/weapons/OddBall.png',
-    'ball': 'assets/weapons/OddBall.png',
-    'bomb': 'assets/weapons/AssaultBomb.png',
-    'frag grenade': 'assets/weapons/FragGrenadeHUD.png',
-    'plasma grenade': 'assets/weapons/PlasmaGrenadeHUD.png',
-    'sentinel beam': 'assets/weapons/SentinelBeam.png',
-    'melee': 'assets/weapons/MeleeKill.png'
-};
-
-function getWeaponIcon(weaponName) {
-    if (!weaponName) return null;
-    const key = weaponName.toLowerCase().trim();
-    return WEAPON_ICONS[key] || null;
-}
-
 // Map name to GLB filename mapping
 const MAP_NAME_TO_GLB = {
-    'ascension': 'ascension',
+    'midship': 'midship',
+    'lockout': 'lockout',
+    'sanctuary': 'sanctuary',
+    'warlock': 'warlock',
     'beaver creek': 'beavercreek',
-    'burial mounds': 'burial_mounds',
+    'ascension': 'ascension',
     'coagulation': 'coagulation',
+    'zanzibar': 'zanzibar',
+    'ivory tower': 'ivory_tower',
+    'burial mounds': 'burial_mounds',
     'colossus': 'colossus',
     'headlong': 'headlong',
-    'ivory tower': 'cyclotron',
-    'lockout': 'lockout',
-    'midship': 'midship',
     'waterworks': 'waterworks',
-    'zanzibar': 'zanzibar',
     'foundation': 'foundation',
-    'containment': 'containment',
-    'warlock': 'warlock',
-    'sanctuary': 'deltatap',
-    'turf': 'turf',
     'backwash': 'backwash',
+    'containment': 'containment',
+    'desolation': 'desolation',
+    'district': 'district',
     'elongation': 'elongation',
     'gemini': 'gemini',
-    'relic': 'dune',
-    'terminal': 'triplicate',
-    'district': 'street_sweeper',
-    'uplift': 'needle',
-    'example': 'example',
-    'desolation': 'derelict',
-    'tombstone': 'highplains'
+    'relic': 'relic',
+    'terminal': 'terminal',
+    'tombstone': 'tombstone',
+    'turf': 'turf',
+    'uplift': 'uplift'
 };
 
 function mapNameToGlbFilename(mapName) {
@@ -155,20 +110,6 @@ let gameInfo = {};
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
-// Death heatmap
-let deathPositions = [];
-let showDeathHeatmap = true;
-
-// Map center for camera positioning
-let mapCenter = { x: 0, y: 0, z: 0 };
-let mapSize = 50;
-
-// Debug mode - can be toggled
-let debugMode = true;
-
-// Player display name mappings (from main site)
-let playerDisplayNames = {};
-
 // ===== Initialization =====
 async function init() {
     parseUrlParams();
@@ -186,27 +127,12 @@ function parseUrlParams() {
     gameInfo = {
         map: mapName,
         gameType: params.get('gametype') || '',
-        date: params.get('date') || ''
+        date: params.get('date') || '',
+        variant: params.get('variant') || ''
     };
-
-    // Parse player display name mappings
-    const playersParam = params.get('players');
-    if (playersParam) {
-        try {
-            playerDisplayNames = JSON.parse(playersParam);
-        } catch (e) {
-            console.warn('Failed to parse player names:', e);
-        }
-    }
-
     document.getElementById('mapName').textContent = mapName;
-    document.getElementById('gameType').textContent = gameInfo.gameType;
+    document.getElementById('gameType').textContent = gameInfo.variant || gameInfo.gameType;
     document.getElementById('gameDate').textContent = gameInfo.date;
-}
-
-// Get display name for a player (uses mapping or falls back to in-game name)
-function getPlayerDisplayName(inGameName) {
-    return playerDisplayNames[inGameName] || inGameName;
 }
 
 function setupScene() {
@@ -218,7 +144,9 @@ function setupScene() {
     scene.fog = new THREE.Fog(0x0a0a12, 50, 200);
 
     camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
-    camera.position.set(0, CONFIG.defaultCameraHeight, 0);
+    // Set Z as up direction (Halo uses Z-up coordinate system)
+    camera.up.set(0, 0, 1);
+    camera.position.set(0, -CONFIG.defaultCameraHeight, CONFIG.defaultCameraHeight);
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -240,31 +168,13 @@ function setupScene() {
     controls.enabled = false; // Start with WASD mode
 
     setupLighting();
-    setupDebugHelpers();
 
     const gridHelper = new THREE.GridHelper(100, 100, 0x00c8ff, 0x1a1a2e);
+    gridHelper.rotation.x = Math.PI / 2; // Rotate to XY plane (Z-up)
     gridHelper.name = 'gridHelper';
     scene.add(gridHelper);
 
     window.addEventListener('resize', onWindowResize);
-}
-
-function setupDebugHelpers() {
-    if (!debugMode) return;
-
-    // Axes helper - Red=X, Green=Y (up), Blue=Z
-    const axesHelper = new THREE.AxesHelper(20);
-    axesHelper.name = 'axesHelper';
-    scene.add(axesHelper);
-
-    // Origin sphere marker
-    const originGeometry = new THREE.SphereGeometry(0.5, 16, 16);
-    const originMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const originMarker = new THREE.Mesh(originGeometry, originMaterial);
-    originMarker.name = 'originMarker';
-    scene.add(originMarker);
-
-    console.log('Debug helpers added - Yellow sphere = origin, Axes: Red=X, Green=Y(up), Blue=Z');
 }
 
 function setupLighting() {
@@ -390,58 +300,36 @@ function handleGamepadInput(deltaTime) {
     const rightX = applyDeadzone(gamepad.axes[2] || 0);
     const rightY = applyDeadzone(gamepad.axes[3] || 0);
 
-    // Movement (left stick) - works in free and top modes
-    if ((leftX !== 0 || leftY !== 0)) {
+    // Movement (left stick) - only in free mode (Z-up)
+    if (viewMode === 'free' && (leftX !== 0 || leftY !== 0)) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
+        const direction = new THREE.Vector3();
 
-        if (viewMode === 'free') {
-            const direction = new THREE.Vector3();
-            const forward = new THREE.Vector3();
-            camera.getWorldDirection(forward);
-            forward.y = 0;
-            forward.normalize();
+        // Get camera forward/right vectors (ignore Z for ground movement since Z is up)
+        const forward = new THREE.Vector3();
+        camera.getWorldDirection(forward);
+        forward.z = 0;
+        forward.normalize();
 
-            const right = new THREE.Vector3();
-            right.crossVectors(forward, camera.up).normalize();
+        const right = new THREE.Vector3();
+        right.crossVectors(forward, camera.up).normalize();
 
-            direction.addScaledVector(right, leftX);
-            direction.addScaledVector(forward, -leftY);
+        direction.addScaledVector(right, leftX);
+        direction.addScaledVector(forward, -leftY);
 
-            camera.position.addScaledVector(direction, speed);
-        } else if (viewMode === 'top') {
-            // Pan camera in X/Z plane for top-down view
-            camera.position.x += leftX * speed;
-            camera.position.z += leftY * speed;
-            controls.target.x += leftX * speed;
-            controls.target.z += leftY * speed;
-        } else if (viewMode === 'orbit') {
-            // Move orbit target
-            controls.target.x += leftX * speed * 0.5;
-            controls.target.z += leftY * speed * 0.5;
-        }
+        camera.position.addScaledVector(direction, speed);
     }
 
-    // Look (right stick) - free: look around, orbit: rotate around, top: zoom
-    if (rightX !== 0 || rightY !== 0) {
-        if (viewMode === 'free') {
-            const euler = new THREE.Euler(0, 0, 0, 'YXZ');
-            euler.setFromQuaternion(camera.quaternion);
+    // Look (right stick) - only in free mode (Z-up)
+    if (viewMode === 'free' && (rightX !== 0 || rightY !== 0)) {
+        const euler = new THREE.Euler(0, 0, 0, 'ZYX'); // Z-up rotation order
+        euler.setFromQuaternion(camera.quaternion);
 
-            euler.y -= rightX * CONFIG.gamepadLookSensitivity;
-            euler.x -= rightY * CONFIG.gamepadLookSensitivity;
-            euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+        euler.z -= rightX * CONFIG.gamepadLookSensitivity; // Yaw around Z
+        euler.y -= rightY * CONFIG.gamepadLookSensitivity; // Pitch
+        euler.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.y));
 
-            camera.quaternion.setFromEuler(euler);
-        } else if (viewMode === 'orbit') {
-            // Rotate orbit camera
-            const rotateSpeed = 0.03;
-            controls.rotateLeft(rightX * rotateSpeed);
-            controls.rotateUp(rightY * rotateSpeed);
-        } else if (viewMode === 'top') {
-            // Zoom with right stick Y in top-down view
-            const zoomSpeed = 2;
-            camera.position.y = Math.max(20, Math.min(300, camera.position.y + rightY * zoomSpeed));
-        }
+        camera.quaternion.setFromEuler(euler);
     }
 
     // Timeline control (bumpers LB/RB)
@@ -575,24 +463,7 @@ function onKeyDown(e) {
                 document.exitPointerLock();
             }
             break;
-        case 'KeyH':
-            // Toggle debug helpers
-            toggleDebugMode();
-            break;
     }
-}
-
-function toggleDebugMode() {
-    debugMode = !debugMode;
-    const axesHelper = scene.getObjectByName('axesHelper');
-    const originMarker = scene.getObjectByName('originMarker');
-    if (debugMode) {
-        if (!axesHelper) setupDebugHelpers();
-    } else {
-        if (axesHelper) scene.remove(axesHelper);
-        if (originMarker) scene.remove(originMarker);
-    }
-    console.log('Debug mode:', debugMode ? 'ON' : 'OFF');
 }
 
 function onKeyUp(e) {
@@ -619,14 +490,15 @@ function onMouseMove(e) {
     const movementX = e.movementX || 0;
     const movementY = e.movementY || 0;
 
-    const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+    // Z-up rotation: yaw around Z axis, pitch around local X
+    const euler = new THREE.Euler(0, 0, 0, 'ZYX');
     euler.setFromQuaternion(camera.quaternion);
 
-    euler.y -= movementX * CONFIG.lookSensitivity;
-    euler.x -= movementY * CONFIG.lookSensitivity;
+    euler.z -= movementX * CONFIG.lookSensitivity; // Yaw around Z
+    euler.y -= movementY * CONFIG.lookSensitivity; // Pitch
 
     // Clamp vertical look
-    euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+    euler.y = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.y));
 
     camera.quaternion.setFromEuler(euler);
 }
@@ -662,9 +534,9 @@ function handleKeyboardMovement(deltaTime) {
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement
-    if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
-    if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
+    // Vertical movement (Z is up)
+    if (keys['KeyQ'] || keys['PageDown']) direction.z -= 1;
+    if (keys['KeyE'] || keys['PageUp']) direction.z += 1;
 
     if (direction.length() > 0) {
         direction.normalize();
@@ -752,11 +624,10 @@ async function loadMapAndTelemetry() {
         }
 
         await createPlayerMarkers();
-        createDeathHeatmap();
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
 
-        // Set initial view mode to free look
+        // Set initial view mode
         setViewMode('free');
 
     } catch (error) {
@@ -778,33 +649,12 @@ async function loadGLB(path, onProgress) {
             path,
             (gltf) => {
                 mapModel = gltf.scene;
-
-                // Rotate map from Z-up to Y-up coordinate system
-                // GLB files from Halo/Blender may use Z-up
-                mapModel.rotation.x = -Math.PI / 2;
-
-                // Apply scale and offset from config
-                mapModel.scale.setScalar(CONFIG.mapScale);
-                mapModel.position.set(CONFIG.mapOffsetX, CONFIG.mapOffsetY, CONFIG.mapOffsetZ);
-
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
                     }
                 });
-
-                // Log map bounding box for debugging
-                const box = new THREE.Box3().setFromObject(mapModel);
-                const size = new THREE.Vector3();
-                const center = new THREE.Vector3();
-                box.getSize(size);
-                box.getCenter(center);
-                console.log(`Map bounding box after transform:`);
-                console.log(`  Size: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`);
-                console.log(`  Center: (${center.x.toFixed(2)}, ${center.y.toFixed(2)}, ${center.z.toFixed(2)})`);
-                console.log(`  Min: (${box.min.x.toFixed(2)}, ${box.min.y.toFixed(2)}, ${box.min.z.toFixed(2)})`);
-                console.log(`  Max: (${box.max.x.toFixed(2)}, ${box.max.y.toFixed(2)}, ${box.max.z.toFixed(2)})`);
 
                 const gridHelper = scene.getObjectByName('gridHelper');
                 if (gridHelper) scene.remove(gridHelper);
@@ -858,7 +708,6 @@ function parseTelemetryCSV(csvText) {
             facingPitch: parseFloat(values[columnIndex['FacingPitch']]) || 0,
             isCrouching: values[columnIndex['IsCrouching']] === 'True',
             isAirborne: values[columnIndex['IsAirborne']] === 'True',
-            isDead: values[columnIndex['IsDead']] === 'True',
             currentWeapon: values[columnIndex['CurrentWeapon']] || 'Unknown',
             // Emblem data
             emblemForeground: parseInt(values[columnIndex['EmblemForeground']]) || 0,
@@ -898,28 +747,6 @@ function parseTelemetryCSV(csvText) {
         }
     });
 
-    // Extract death positions (when a player transitions from alive to dead)
-    deathPositions = [];
-    const playerLastAliveState = {};
-    telemetryData.forEach(row => {
-        const wasAlive = playerLastAliveState[row.playerName] !== undefined && !playerLastAliveState[row.playerName];
-        const isNowDead = row.isDead;
-
-        // Detect death transition (was alive, now dead)
-        if (playerLastAliveState[row.playerName] === false && isNowDead) {
-            deathPositions.push({
-                playerName: row.playerName,
-                team: row.team,
-                x: row.x,
-                y: row.y,
-                z: row.z,
-                gameTimeMs: row.gameTimeMs
-            });
-        }
-        playerLastAliveState[row.playerName] = isNowDead;
-    });
-    console.log(`Found ${deathPositions.length} deaths in telemetry`);
-
     let ffaColorIndex = 0;
     playerSet.forEach((name) => {
         const team = playerTeams[name] || 'none';
@@ -930,9 +757,8 @@ function parseTelemetryCSV(csvText) {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
         const emblem = playerEmblemData[name] || {};
-        // Generate emblem URL using local emblem service (proxied through nginx for HTTPS)
-        const emblemUrl = `/emblems/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
-        console.log(`Player ${name} emblem data:`, emblem, `URL: ${emblemUrl}`);
+        // Generate emblem URL
+        const emblemUrl = `https://www.halo2pc.com/test-pages/CartoStat/Emblem/emblem.php?P=${emblem.primaryColor || 0}&S=${emblem.secondaryColor || 0}&EP=${emblem.tertiaryColor || 0}&ES=${emblem.quaternaryColor || 0}&EF=${emblem.emblemForeground || 0}&EB=${emblem.emblemBackground || 0}&ET=0`;
         players.push({ name, team, color, emblem, emblemUrl });
     });
 
@@ -946,27 +772,6 @@ function parseTelemetryCSV(csvText) {
 
     updatePlayerLegend();
     updateFollowSelect();
-
-    // Log coordinate bounds for debugging
-    let minX = Infinity, maxX = -Infinity;
-    let minY = Infinity, maxY = -Infinity;
-    let minZ = Infinity, maxZ = -Infinity;
-    telemetryData.forEach(row => {
-        minX = Math.min(minX, row.x);
-        maxX = Math.max(maxX, row.x);
-        minY = Math.min(minY, row.y);
-        maxY = Math.max(maxY, row.y);
-        minZ = Math.min(minZ, row.z);
-        maxZ = Math.max(maxZ, row.z);
-    });
-    console.log(`Telemetry coordinate ranges (Halo coords):`);
-    console.log(`  X: ${minX.toFixed(2)} to ${maxX.toFixed(2)}`);
-    console.log(`  Y: ${minY.toFixed(2)} to ${maxY.toFixed(2)}`);
-    console.log(`  Z (height): ${minZ.toFixed(2)} to ${maxZ.toFixed(2)}`);
-    console.log(`After conversion to Three.js (X, Y=up, Z):`);
-    console.log(`  X: ${minX.toFixed(2)} to ${maxX.toFixed(2)}`);
-    console.log(`  Y (up): ${minZ.toFixed(2)} to ${maxZ.toFixed(2)}`);
-    console.log(`  Z: ${(-maxY).toFixed(2)} to ${(-minY).toFixed(2)}`);
 
     console.log(`Loaded ${telemetryData.length} telemetry points for ${players.length} players`);
 }
@@ -1035,7 +840,8 @@ async function createPlayerMarkers() {
             emissiveIntensity: 0.2
         });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.y = CONFIG.playerMarkerHeight * 0.35;
+        body.position.z = CONFIG.playerMarkerHeight * 0.35; // Z is up
+        body.rotation.x = Math.PI / 2; // Rotate cylinder to stand upright
         body.castShadow = true;
         group.add(body);
 
@@ -1048,7 +854,7 @@ async function createPlayerMarkers() {
             emissiveIntensity: 0.2
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.y = CONFIG.playerMarkerHeight * 0.8;
+        head.position.z = CONFIG.playerMarkerHeight * 0.8; // Z is up
         head.castShadow = true;
         group.add(head);
 
@@ -1059,14 +865,13 @@ async function createPlayerMarkers() {
             emissiveIntensity: 0.5
         });
         const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-        arrow.rotation.x = Math.PI / 2;
-        arrow.position.set(0, CONFIG.playerMarkerHeight * 0.5, CONFIG.playerMarkerSize * 0.6);
+        arrow.rotation.y = -Math.PI / 2; // Point forward in X direction
+        arrow.position.set(CONFIG.playerMarkerSize * 0.6, 0, CONFIG.playerMarkerHeight * 0.5); // Z is up
         group.add(arrow);
 
         // Use waypoint canvas with emblem if available
         const emblemImage = emblemImages[player.name];
-        const displayName = getPlayerDisplayName(player.name);
-        const waypointCanvas = createWaypointCanvas(displayName, player.color, emblemImage);
+        const waypointCanvas = createWaypointCanvas(player.name, player.color, emblemImage);
         const labelTexture = new THREE.CanvasTexture(waypointCanvas);
         const labelMaterial = new THREE.SpriteMaterial({
             map: labelTexture,
@@ -1075,177 +880,16 @@ async function createPlayerMarkers() {
         });
         const label = new THREE.Sprite(labelMaterial);
         label.scale.set(2.5, 3.125, 1); // Aspect ratio 128:160
-        label.position.y = CONFIG.playerMarkerHeight + 2;
+        label.position.z = CONFIG.playerMarkerHeight + 2; // Z is up
         group.add(label);
 
         const glow = new THREE.PointLight(player.color, 0.5, 3);
-        glow.position.y = CONFIG.playerMarkerHeight * 0.5;
+        glow.position.z = CONFIG.playerMarkerHeight * 0.5; // Z is up
         group.add(glow);
 
         scene.add(group);
         playerMarkers[player.name] = { group, body, head, arrow, label, player, emblemImage };
     });
-}
-
-// ===== Death Heatmap =====
-let heatmapMesh = null;
-
-function createDeathHeatmap() {
-    // Clear existing heatmap
-    if (heatmapMesh) {
-        scene.remove(heatmapMesh);
-        if (heatmapMesh.geometry) heatmapMesh.geometry.dispose();
-        if (heatmapMesh.material) {
-            if (heatmapMesh.material.map) heatmapMesh.material.map.dispose();
-            heatmapMesh.material.dispose();
-        }
-        heatmapMesh = null;
-    }
-
-    if (!showDeathHeatmap || deathPositions.length === 0) return;
-
-    // Calculate bounds from death positions (in Halo coords)
-    let minX = Infinity, maxX = -Infinity;
-    let minY = Infinity, maxY = -Infinity;
-
-    deathPositions.forEach(death => {
-        minX = Math.min(minX, death.x);
-        maxX = Math.max(maxX, death.x);
-        minY = Math.min(minY, death.y);
-        maxY = Math.max(maxY, death.y);
-    });
-
-    // Add padding
-    const padding = 15;
-    minX -= padding;
-    maxX += padding;
-    minY -= padding;
-    maxY += padding;
-
-    const width = maxX - minX;
-    const height = maxY - minY;
-
-    // Create heatmap canvas
-    const resolution = 512;
-    const canvas = document.createElement('canvas');
-    canvas.width = resolution;
-    canvas.height = resolution;
-    const ctx = canvas.getContext('2d');
-
-    // Clear with transparent
-    ctx.clearRect(0, 0, resolution, resolution);
-
-    // Draw gaussian blobs for each death (accumulate intensity)
-    const radius = resolution * 0.1; // Blob radius
-    deathPositions.forEach(death => {
-        // Convert to canvas coordinates
-        const canvasX = ((death.x - minX) / width) * resolution;
-        const canvasY = ((death.y - minY) / height) * resolution;
-
-        // Draw radial gradient (gaussian-like blob)
-        const gradient = ctx.createRadialGradient(canvasX, canvasY, 0, canvasX, canvasY, radius);
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
-        gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(canvasX, canvasY, radius, 0, Math.PI * 2);
-        ctx.fill();
-    });
-
-    // Get the intensity data and apply color gradient
-    const imageData = ctx.getImageData(0, 0, resolution, resolution);
-    const data = imageData.data;
-
-    // Apply heatmap color gradient based on intensity
-    for (let i = 0; i < data.length; i += 4) {
-        const intensity = data[i + 3] / 255; // Use alpha as intensity
-
-        if (intensity > 0.02) {
-            // Color gradient: blue -> cyan -> green -> yellow -> red
-            const color = getHeatmapColor(Math.min(1, intensity * 2));
-            data[i] = color.r;
-            data[i + 1] = color.g;
-            data[i + 2] = color.b;
-            data[i + 3] = Math.min(220, intensity * 500); // Boost visibility
-        } else {
-            data[i + 3] = 0; // Fully transparent for very low intensity
-        }
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-
-    // Create Three.js texture and plane
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.needsUpdate = true;
-
-    const planeGeometry = new THREE.PlaneGeometry(width, height);
-    const planeMaterial = new THREE.MeshBasicMaterial({
-        map: texture,
-        transparent: true,
-        opacity: 0.85,
-        side: THREE.DoubleSide,
-        depthWrite: false,
-        blending: THREE.NormalBlending
-    });
-
-    heatmapMesh = new THREE.Mesh(planeGeometry, planeMaterial);
-
-    // Position the plane (convert Halo coords to Three.js with scale)
-    const scale = CONFIG.coordinateScale;
-    const centerX = ((minX + maxX) / 2) * scale;
-    const centerY = ((minY + maxY) / 2) * scale;
-    heatmapMesh.position.set(centerX, 0.3, -centerY); // Slightly above ground
-    heatmapMesh.scale.set(scale, scale, 1); // Apply scale to heatmap
-    heatmapMesh.rotation.x = -Math.PI / 2; // Lay flat
-    heatmapMesh.rotation.z = Math.PI; // Correct orientation
-
-    scene.add(heatmapMesh);
-    console.log(`Created heatmap with ${deathPositions.length} death positions`);
-}
-
-function getHeatmapColor(intensity) {
-    // Color stops: blue (cold) -> cyan -> green -> yellow -> red (hot)
-    const stops = [
-        { pos: 0, r: 0, g: 0, b: 255 },       // Blue
-        { pos: 0.25, r: 0, g: 255, b: 255 },  // Cyan
-        { pos: 0.5, r: 0, g: 255, b: 0 },     // Green
-        { pos: 0.75, r: 255, g: 255, b: 0 },  // Yellow
-        { pos: 1, r: 255, g: 0, b: 0 }        // Red
-    ];
-
-    // Clamp and find color stops
-    intensity = Math.max(0, Math.min(1, intensity));
-
-    let lower = stops[0], upper = stops[stops.length - 1];
-    for (let i = 0; i < stops.length - 1; i++) {
-        if (intensity >= stops[i].pos && intensity <= stops[i + 1].pos) {
-            lower = stops[i];
-            upper = stops[i + 1];
-            break;
-        }
-    }
-
-    // Interpolate between color stops
-    const range = upper.pos - lower.pos;
-    const t = range > 0 ? (intensity - lower.pos) / range : 0;
-
-    return {
-        r: Math.round(lower.r + (upper.r - lower.r) * t),
-        g: Math.round(lower.g + (upper.g - lower.g) * t),
-        b: Math.round(lower.b + (upper.b - lower.b) * t)
-    };
-}
-
-function toggleDeathHeatmap() {
-    showDeathHeatmap = !showDeathHeatmap;
-    createDeathHeatmap();
-    const btn = document.getElementById('heatmapBtn');
-    if (btn) {
-        btn.textContent = showDeathHeatmap ? 'Hide Deaths' : 'Show Deaths';
-        btn.classList.toggle('active', showDeathHeatmap);
-    }
 }
 
 function createLabelCanvas(text, color) {
@@ -1315,8 +959,8 @@ function createWaypointCanvas(text, color, emblemImage = null) {
     ctx.lineWidth = 1;
     ctx.strokeRect(boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
 
-    // Draw emblem if available and loaded successfully (naturalWidth > 0 means loaded)
-    if (emblemImage && emblemImage.complete && emblemImage.naturalWidth > 0) {
+    // Draw emblem if available
+    if (emblemImage && emblemImage.complete) {
         ctx.drawImage(emblemImage, boxX + 10, boxY + 10, boxSize - 20, boxSize - 20);
     } else {
         // Draw player initial as fallback
@@ -1341,14 +985,9 @@ function createWaypointCanvas(text, color, emblemImage = null) {
 function loadEmblemImage(url) {
     return new Promise((resolve) => {
         const img = new Image();
-        img.onload = () => {
-            console.log('Emblem loaded:', url);
-            resolve(img);
-        };
-        img.onerror = (e) => {
-            console.warn('Emblem failed to load:', url, e);
-            resolve(null);
-        };
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
         img.src = url;
     });
 }
@@ -1383,32 +1022,27 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Convert Halo coords to Three.js with scale factor
-            // Halo: X, Y (horizontal), Z (up) → Three.js: X, Y (up), Z
-            const scale = CONFIG.coordinateScale;
-            marker.group.position.set(pos.x * scale, pos.z * scale, -pos.y * scale);
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
+            // Direct 1:1 mapping - Z-up coordinate system
+            marker.group.position.set(pos.x, pos.y, pos.z);
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.z = -pos.facingYaw;
 
             if (pos.isCrouching) {
-                marker.body.scale.y = 0.7;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
+                marker.body.scale.z = 0.7; // Z-up: scale on Z axis
+                marker.head.position.z = CONFIG.playerMarkerHeight * 0.6;
             } else {
-                marker.body.scale.y = 1;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
+                marker.body.scale.z = 1;
+                marker.head.position.z = CONFIG.playerMarkerHeight * 0.8;
             }
 
             marker.group.visible = true;
 
             if (liveStatsBody) {
-                const weaponIcon = getWeaponIcon(pos.currentWeapon);
-                const weaponDisplay = weaponIcon
-                    ? `<img src="${weaponIcon}" alt="${pos.currentWeapon}" class="weapon-icon" style="height: 20px; width: auto; filter: brightness(0) invert(1);">`
-                    : pos.currentWeapon || '';
+                const state = pos.isCrouching ? 'Crouching' : (pos.isAirborne ? 'Airborne' : 'Standing');
                 const row = document.createElement('tr');
-                const displayName = getPlayerDisplayName(player.name);
                 row.innerHTML = `
-                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${displayName}</span></td>
-                    <td>${weaponDisplay}</td>
+                    <td><span style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span></td>
+                    <td>${pos.currentWeapon}</td>
+                    <td>${state}</td>
                 `;
                 liveStatsBody.appendChild(row);
             }
@@ -1417,15 +1051,15 @@ function updatePlayerPositions() {
         }
     }
 
-    // Follow camera
+    // Follow camera (Z-up)
     if (viewMode === 'follow' && followPlayer) {
         const marker = playerMarkers[followPlayer];
         if (marker && marker.group.visible) {
             const targetPos = marker.group.position.clone();
-            targetPos.y += CONFIG.followCameraHeight;
+            targetPos.z += CONFIG.followCameraHeight; // Z is up
 
-            const offset = new THREE.Vector3(0, 0, CONFIG.followCameraDistance);
-            offset.applyQuaternion(marker.group.quaternion);
+            const offset = new THREE.Vector3(-CONFIG.followCameraDistance, 0, CONFIG.followCameraHeight);
+            offset.applyAxisAngle(new THREE.Vector3(0, 0, 1), marker.group.rotation.z);
 
             camera.position.lerp(targetPos.clone().add(offset), 0.1);
             controls.target.lerp(marker.group.position, 0.1);
@@ -1490,43 +1124,36 @@ function setViewMode(mode) {
     // Update controls hint
     updateControlsHint();
 
+    // All modes use Z-up coordinate system
+    camera.up.set(0, 0, 1);
+
     if (mode === 'top') {
         controls.enabled = false;
-        const cameraHeight = mapSize * 1.2;
-        camera.position.set(mapCenter.x, mapCenter.y + cameraHeight, mapCenter.z);
+        // Position camera above looking down (Z is up, so high Z value)
+        const height = mapSize * 1.5;
+        camera.position.set(mapCenter.x, mapCenter.y, mapCenter.z + height);
         camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
-        camera.up.set(0, 0, -1); // Orient so "forward" in game is "up" on screen
     } else if (mode === 'free') {
         controls.enabled = false;
-        camera.up.set(0, 1, 0);
-        // Position camera at first player's position if available
+        // Start at first player position if available
         if (telemetryData.length > 0) {
             const firstPos = telemetryData[0];
-            // Convert Halo coords to Three.js: X stays, Z becomes Y (height), -Y becomes Z
-            const scale = CONFIG.coordinateScale;
             const eyeHeight = 2;
-            const camX = firstPos.x * scale;
-            const camY = firstPos.z * scale + eyeHeight;
-            const camZ = -firstPos.y * scale;
-            camera.position.set(camX, camY, camZ);
-            // Look forward in the direction the player is facing
-            const lookDistance = 10;
+            camera.position.set(firstPos.x, firstPos.y, firstPos.z + eyeHeight);
+            // Look in player's facing direction
             const yaw = firstPos.facingYaw || 0;
-            const lookX = camX + Math.sin(-yaw) * lookDistance;
-            const lookZ = camZ + Math.cos(-yaw) * lookDistance;
-            camera.lookAt(lookX, camY, lookZ);
-            console.log(`Free camera at player position: Halo(${firstPos.x.toFixed(2)}, ${firstPos.y.toFixed(2)}, ${firstPos.z.toFixed(2)}) → Three.js(${camX.toFixed(2)}, ${camY.toFixed(2)}, ${camZ.toFixed(2)})`);
-        } else {
-            camera.position.set(mapCenter.x, mapCenter.y + 2, mapCenter.z + 10);
-            camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
+            const lookDist = 10;
+            camera.lookAt(
+                firstPos.x + Math.cos(yaw) * lookDist,
+                firstPos.y + Math.sin(yaw) * lookDist,
+                firstPos.z + eyeHeight
+            );
         }
     } else if (mode === 'orbit') {
         controls.enabled = true;
-        camera.up.set(0, 1, 0);
         controls.target.set(mapCenter.x, mapCenter.y, mapCenter.z);
     } else if (mode === 'follow') {
         controls.enabled = true;
-        camera.up.set(0, 1, 0);
     }
 }
 
@@ -1546,119 +1173,65 @@ function positionCameraToFit() {
         maxZ = Math.max(maxZ, row.z);
     });
 
-    // Calculate center of player activity (in Halo coords: X=forward, Y=left, Z=up)
-    const scale = CONFIG.coordinateScale;
-    const centerX = ((minX + maxX) / 2) * scale;
-    const centerY = ((minY + maxY) / 2) * scale;
-    const centerZ = ((minZ + maxZ) / 2) * scale;
-    const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ) * scale;
+    // Store map center and size for view switching (direct Z-up coords)
+    mapCenter = {
+        x: (minX + maxX) / 2,
+        y: (minY + maxY) / 2,
+        z: (minZ + maxZ) / 2
+    };
+    mapSize = Math.max(maxX - minX, maxY - minY, 30);
 
-    // Store map center for view switching (convert to Three.js coords)
-    // Halo: X=forward, Y=left, Z=up -> Three.js: X=right, Y=up, Z=forward
-    mapCenter = { x: centerX, y: centerZ, z: -centerY };
-    mapSize = Math.max(maxRange, 30); // Minimum size of 30 units
-
-    // Set up top-down view centered on player activity
-    const cameraHeight = mapSize * 1.2; // Height based on play area size
-    camera.position.set(mapCenter.x, mapCenter.y + cameraHeight, mapCenter.z);
+    // Position camera above the play area looking down
+    const height = mapSize * 1.2;
+    camera.position.set(mapCenter.x, mapCenter.y, mapCenter.z + height);
     camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
-    camera.up.set(0, 0, -1); // Orient so "forward" in game is "up" on screen
 
     controls.target.set(mapCenter.x, mapCenter.y, mapCenter.z);
     controls.update();
+
+    console.log(`Map center: (${mapCenter.x.toFixed(1)}, ${mapCenter.y.toFixed(1)}, ${mapCenter.z.toFixed(1)}), size: ${mapSize.toFixed(1)}`);
 }
 
 // ===== UI Updates =====
-function updatePOVSelector() {
-    const container = document.getElementById('pov-list');
+function updatePlayerLegend() {
+    const container = document.getElementById('player-list');
     if (!container) return;
     container.innerHTML = '';
 
-    // Add Free Camera option first
-    const freeCamItem = document.createElement('div');
-    freeCamItem.className = 'pov-item free-camera';
-    freeCamItem.dataset.pov = 'free';
-    if (viewMode === 'free') freeCamItem.classList.add('selected');
-    freeCamItem.onclick = () => selectPOV('free');
-
-    const freeCamIcon = document.createElement('div');
-    freeCamIcon.className = 'pov-emblem-fallback';
-    freeCamIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>';
-
-    const freeCamName = document.createElement('span');
-    freeCamName.className = 'pov-name';
-    freeCamName.textContent = 'Free Camera';
-
-    freeCamItem.appendChild(freeCamIcon);
-    freeCamItem.appendChild(freeCamName);
-    container.appendChild(freeCamItem);
-
-    // Add player items
     players.forEach(player => {
         const item = document.createElement('div');
-        item.className = 'pov-item';
-        item.dataset.pov = player.name;
-
-        // Add team class for color stripe
-        if (player.team.includes('blue')) {
-            item.classList.add('team-blue');
-        } else if (player.team.includes('red')) {
-            item.classList.add('team-red');
-        }
-
-        // Check if this player is currently selected
-        if (viewMode === 'follow' && followPlayer === player.name) {
-            item.classList.add('selected');
-        }
-
-        item.onclick = () => selectPOV(player.name);
-
-        // Emblem image
-        const emblem = document.createElement('img');
-        emblem.className = 'pov-emblem';
-        emblem.src = player.emblemUrl;
-        emblem.alt = player.name;
-        emblem.onerror = () => {
-            // Replace with fallback on error
-            const fallback = document.createElement('div');
-            fallback.className = 'pov-emblem-fallback';
-            fallback.style.color = `#${player.color.toString(16).padStart(6, '0')}`;
-            fallback.textContent = player.name.charAt(0).toUpperCase();
-            emblem.replaceWith(fallback);
+        item.className = 'player-item';
+        item.onclick = () => {
+            followPlayer = player.name;
+            setViewMode('follow');
         };
 
-        // Player name
-        const name = document.createElement('span');
-        name.className = 'pov-name';
-        name.textContent = getPlayerDisplayName(player.name);
+        const color = document.createElement('div');
+        color.className = 'player-color';
+        color.style.backgroundColor = `#${player.color.toString(16).padStart(6, '0')}`;
 
-        item.appendChild(emblem);
+        const name = document.createElement('span');
+        name.className = 'player-name';
+        name.textContent = player.name;
+
+        const team = document.createElement('span');
+        team.className = 'player-team';
+        if (player.team.includes('blue')) {
+            team.classList.add('blue');
+            team.textContent = 'Blue';
+        } else if (player.team.includes('red')) {
+            team.classList.add('red');
+            team.textContent = 'Red';
+        } else {
+            team.classList.add('ffa');
+            team.textContent = 'FFA';
+        }
+
+        item.appendChild(color);
         item.appendChild(name);
+        item.appendChild(team);
         container.appendChild(item);
     });
-}
-
-function selectPOV(pov) {
-    // Update selection in UI
-    document.querySelectorAll('.pov-item').forEach(item => {
-        item.classList.remove('selected');
-        if (item.dataset.pov === pov) {
-            item.classList.add('selected');
-        }
-    });
-
-    if (pov === 'free') {
-        setViewMode('free');
-        followPlayer = null;
-    } else {
-        followPlayer = pov;
-        setViewMode('follow');
-    }
-}
-
-// Legacy function name for compatibility
-function updatePlayerLegend() {
-    updatePOVSelector();
 }
 
 function updateFollowSelect() {
@@ -1668,8 +1241,8 @@ function updateFollowSelect() {
 
     players.forEach(player => {
         const option = document.createElement('option');
-        option.value = player.name; // Keep raw name for internal use
-        option.textContent = getPlayerDisplayName(player.name);
+        option.value = player.name;
+        option.textContent = player.name;
         select.appendChild(option);
     });
 }
@@ -1780,54 +1353,6 @@ window.retryLoad = async function() {
     document.getElementById('loading-overlay').style.display = 'flex';
     await loadMapAndTelemetry();
 };
-
-// ===== Death Heatmap Toggle =====
-window.toggleDeathHeatmap = toggleDeathHeatmap;
-
-// ===== Debug Functions (callable from console) =====
-window.setMapScale = function(scale) {
-    CONFIG.mapScale = scale;
-    if (mapModel) {
-        mapModel.scale.setScalar(scale);
-        console.log('Map scale set to:', scale);
-    }
-};
-
-window.setMapOffset = function(x, y, z) {
-    CONFIG.mapOffsetX = x;
-    CONFIG.mapOffsetY = y;
-    CONFIG.mapOffsetZ = z;
-    if (mapModel) {
-        mapModel.position.set(x, y, z);
-        console.log('Map offset set to:', x, y, z);
-    }
-};
-
-window.setCoordinateScale = function(scale) {
-    CONFIG.coordinateScale = scale;
-    updatePlayerPositions();
-    createDeathHeatmap();
-    console.log('Coordinate scale set to:', scale);
-};
-
-window.printDebugInfo = function() {
-    console.log('=== Debug Info ===');
-    console.log('Map scale:', CONFIG.mapScale);
-    console.log('Map offset:', CONFIG.mapOffsetX, CONFIG.mapOffsetY, CONFIG.mapOffsetZ);
-    console.log('Coordinate scale:', CONFIG.coordinateScale);
-    console.log('Map center:', mapCenter);
-    console.log('Map size:', mapSize);
-    if (mapModel) {
-        const box = new THREE.Box3().setFromObject(mapModel);
-        console.log('Map bounding box:', box.min, box.max);
-    }
-    if (telemetryData.length > 0) {
-        console.log('First player position (Halo):', telemetryData[0].x, telemetryData[0].y, telemetryData[0].z);
-    }
-    console.log('Camera position:', camera.position);
-};
-
-window.toggleDebugMode = toggleDebugMode;
 
 // ===== Initialize =====
 init();
