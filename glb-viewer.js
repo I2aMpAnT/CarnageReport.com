@@ -674,6 +674,10 @@ async function loadGLB(path, onProgress) {
             path,
             (gltf) => {
                 mapModel = gltf.scene;
+
+                // Rotate map -90° on X to convert from Y-up (GLB export) to Z-up (Halo native)
+                mapModel.rotation.x = -Math.PI / 2;
+
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
@@ -1046,8 +1050,9 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            marker.group.position.set(pos.x, pos.z, -pos.y);
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
+            // Direct coordinate mapping (map is rotated to Z-up)
+            marker.group.position.set(pos.x, pos.y, pos.z);
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.z = pos.facingYaw;
 
             if (pos.isCrouching) {
                 marker.body.scale.y = 0.7;
