@@ -436,6 +436,12 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[2]._lastState = gamepad.buttons[2]?.pressed;
 
+    // B button (1) for trails toggle
+    if (gamepad.buttons[1]?.pressed && !gamepad.buttons[1]._lastState) {
+        toggleTrails();
+    }
+    gamepad.buttons[1]._lastState = gamepad.buttons[1]?.pressed;
+
     // View mode (Y button cycles views)
     if (gamepad.buttons[3]?.pressed && !gamepad.buttons[3]._lastState) {
         cycleViewMode();
