@@ -1313,6 +1313,9 @@ function animate() {
         controls.update();
     }
 
+    // Update debug info
+    updateDebugInfo();
+
     renderer.render(scene, camera);
 }
 
@@ -1323,5 +1326,122 @@ window.retryLoad = async function() {
     await loadMapAndTelemetry();
 };
 
+// ===== Debug Functions =====
+function setupDebugControls() {
+    // Toggle collapse
+    const toggle = document.getElementById('debug-toggle');
+    const content = document.getElementById('debug-content');
+    if (toggle && content) {
+        toggle.addEventListener('click', () => {
+            content.classList.toggle('collapsed');
+            toggle.textContent = content.classList.contains('collapsed') ? '+' : '−';
+        });
+    }
+
+    // Map rotation sliders
+    const rotX = document.getElementById('map-rot-x');
+    const rotY = document.getElementById('map-rot-y');
+    const rotZ = document.getElementById('map-rot-z');
+
+    if (rotX) rotX.addEventListener('input', updateMapRotation);
+    if (rotY) rotY.addEventListener('input', updateMapRotation);
+    if (rotZ) rotZ.addEventListener('input', updateMapRotation);
+
+    // Reset button
+    const resetBtn = document.getElementById('reset-map-rot');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            if (rotX) rotX.value = 0;
+            if (rotY) rotY.value = 0;
+            if (rotZ) rotZ.value = 0;
+            updateMapRotation();
+        });
+    }
+
+    // Quick rotation buttons
+    document.getElementById('apply-rot-90x')?.addEventListener('click', () => {
+        if (rotX) rotX.value = (parseInt(rotX.value) + 90) % 360;
+        if (rotX.value > 180) rotX.value -= 360;
+        updateMapRotation();
+    });
+    document.getElementById('apply-rot-90y')?.addEventListener('click', () => {
+        if (rotY) rotY.value = (parseInt(rotY.value) + 90) % 360;
+        if (rotY.value > 180) rotY.value -= 360;
+        updateMapRotation();
+    });
+    document.getElementById('apply-rot-90z')?.addEventListener('click', () => {
+        if (rotZ) rotZ.value = (parseInt(rotZ.value) + 90) % 360;
+        if (rotZ.value > 180) rotZ.value -= 360;
+        updateMapRotation();
+    });
+}
+
+function updateMapRotation() {
+    if (!mapModel) return;
+
+    const rotX = document.getElementById('map-rot-x');
+    const rotY = document.getElementById('map-rot-y');
+    const rotZ = document.getElementById('map-rot-z');
+
+    const x = (parseInt(rotX?.value) || 0) * Math.PI / 180;
+    const y = (parseInt(rotY?.value) || 0) * Math.PI / 180;
+    const z = (parseInt(rotZ?.value) || 0) * Math.PI / 180;
+
+    mapModel.rotation.set(x, y, z);
+
+    // Update display values
+    document.getElementById('map-rot-x-val').textContent = `${rotX?.value || 0}°`;
+    document.getElementById('map-rot-y-val').textContent = `${rotY?.value || 0}°`;
+    document.getElementById('map-rot-z-val').textContent = `${rotZ?.value || 0}°`;
+}
+
+function updateDebugInfo() {
+    // Camera position
+    const camPosEl = document.getElementById('debug-cam-pos');
+    if (camPosEl && camera) {
+        camPosEl.textContent = `X: ${camera.position.x.toFixed(2)} Y: ${camera.position.y.toFixed(2)} Z: ${camera.position.z.toFixed(2)}`;
+    }
+
+    // Camera rotation (in degrees)
+    const camRotEl = document.getElementById('debug-cam-rot');
+    if (camRotEl && camera) {
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'XYZ');
+        camRotEl.textContent = `X: ${(euler.x * 180 / Math.PI).toFixed(1)} Y: ${(euler.y * 180 / Math.PI).toFixed(1)} Z: ${(euler.z * 180 / Math.PI).toFixed(1)}`;
+    }
+
+    // Camera up vector
+    const camUpEl = document.getElementById('debug-cam-up');
+    if (camUpEl && camera) {
+        camUpEl.textContent = `X: ${camera.up.x.toFixed(2)} Y: ${camera.up.y.toFixed(2)} Z: ${camera.up.z.toFixed(2)}`;
+    }
+
+    // Map model rotation
+    const mapRotEl = document.getElementById('debug-map-rot');
+    if (mapRotEl && mapModel) {
+        mapRotEl.textContent = `X: ${(mapModel.rotation.x * 180 / Math.PI).toFixed(1)} Y: ${(mapModel.rotation.y * 180 / Math.PI).toFixed(1)} Z: ${(mapModel.rotation.z * 180 / Math.PI).toFixed(1)}`;
+    } else if (mapRotEl) {
+        mapRotEl.textContent = 'No map loaded';
+    }
+
+    // Map bounds
+    const mapBoundsEl = document.getElementById('debug-map-bounds');
+    if (mapBoundsEl && mapModel) {
+        const box = new THREE.Box3().setFromObject(mapModel);
+        mapBoundsEl.innerHTML = `Min: (${box.min.x.toFixed(1)}, ${box.min.y.toFixed(1)}, ${box.min.z.toFixed(1)})<br>Max: (${box.max.x.toFixed(1)}, ${box.max.y.toFixed(1)}, ${box.max.z.toFixed(1)})`;
+    }
+
+    // First player position
+    const playerPosEl = document.getElementById('debug-player-pos');
+    if (playerPosEl && players.length > 0) {
+        const firstPlayer = players[0];
+        const marker = playerMarkers[firstPlayer.name];
+        if (marker && marker.group) {
+            const pos = marker.group.position;
+            playerPosEl.textContent = `X: ${pos.x.toFixed(2)} Y: ${pos.y.toFixed(2)} Z: ${pos.z.toFixed(2)}`;
+        }
+    }
+}
+
 // ===== Initialize =====
 init();
+setupDebugControls();
