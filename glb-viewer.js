@@ -815,7 +815,7 @@ function parseTelemetryCSV(csvText) {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
         const emblem = playerEmblemData[name] || {};
-        // Generate emblem URL using emblem service (proxied through nginx for HTTPS)
+        // Generate emblem URL using local emblem service (proxied through nginx for HTTPS)
         const emblemUrl = `/emblems/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
         players.push({ name, team, color, emblem, emblemUrl });
     });
@@ -1252,9 +1252,23 @@ function updatePlayerLegend() {
             setViewMode('follow');
         };
 
-        const color = document.createElement('div');
-        color.className = 'player-color';
-        color.style.backgroundColor = `#${player.color.toString(16).padStart(6, '0')}`;
+        // Emblem image instead of color box
+        const emblem = document.createElement('img');
+        emblem.className = 'player-emblem';
+        emblem.src = player.emblemUrl;
+        emblem.alt = player.name;
+        emblem.style.width = '32px';
+        emblem.style.height = '32px';
+        emblem.style.borderRadius = '4px';
+        emblem.style.marginRight = '8px';
+        emblem.onerror = () => {
+            // Fallback to color box if emblem fails to load
+            emblem.style.display = 'none';
+            const colorBox = document.createElement('div');
+            colorBox.className = 'player-color';
+            colorBox.style.backgroundColor = `#${player.color.toString(16).padStart(6, '0')}`;
+            item.insertBefore(colorBox, item.firstChild);
+        };
 
         const name = document.createElement('span');
         name.className = 'player-name';
@@ -1273,7 +1287,7 @@ function updatePlayerLegend() {
             team.textContent = 'FFA';
         }
 
-        item.appendChild(color);
+        item.appendChild(emblem);
         item.appendChild(name);
         item.appendChild(team);
         container.appendChild(item);
