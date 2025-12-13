@@ -1744,8 +1744,7 @@ async function toggleCustomGames(show) {
                 details: {
                     'Start Time': match.timestamp,
                     'Map Name': match.map,
-                    'Game Type': match.gametype,
-                    'Variant Name': match.variant || match.gametype
+                    'Game Type': match.gametype
                 },
                 players: convertMatchToPlayers(match, { is_team: true }),
                 playlist: null,  // Unranked
@@ -1823,7 +1822,6 @@ async function loadGamesData() {
                                     'Start Time': match.timestamp,
                                     'Map Name': match.map,
                                     'Game Type': match.gametype,
-                                    'Variant Name': match.variant_name || match.gametype,
                                     'Duration': match.duration || '0:00'
                                 },
                                 players: convertMatchToPlayers(match, playlist),
@@ -1878,7 +1876,6 @@ async function loadGamesData() {
                     'Start Time': match.timestamp,
                     'Map Name': match.map,
                     'Game Type': match.gametype,
-                    'Variant Name': match.variant || match.variant_name || match.gametype,
                     'Duration': match.duration || '0:00'
                 },
                 players: convertMatchToPlayers(match, { is_team: true }),

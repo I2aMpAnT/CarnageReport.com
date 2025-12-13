@@ -272,7 +272,6 @@ def detect_series(games, get_display_name_func):
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
                 'gametype': get_base_gametype(game['details'].get('Game Type', '')),
-                'variant_name': game['details'].get('Variant Name', ''),
                 'winner': game_winner,
                 'source_file': game.get('source_file', '')
             })
@@ -302,7 +301,6 @@ def detect_series(games, get_display_name_func):
                     'timestamp': game['details'].get('Start Time', ''),
                     'map': game['details'].get('Map Name', 'Unknown'),
                     'gametype': get_base_gametype(game['details'].get('Game Type', '')),
-                    'variant_name': game['details'].get('Variant Name', ''),
                     'winner': game_winner,
                     'source_file': game.get('source_file', '')
                 }],
@@ -1267,7 +1265,6 @@ def parse_excel_file(file_path):
         row = game_details_df.iloc[0]
         details = {
             'Game Type': str(row.get('Game Type', 'Unknown')),
-            'Variant Name': str(row.get('Variant Name', 'Unknown')),
             'Map Name': str(row.get('Map Name', 'Unknown')),
             'Start Time': str(row.get('Start Time', '')),
             'End Time': str(row.get('End Time', '')),
@@ -1610,7 +1607,7 @@ def main():
         all_games.append(game)
 
         map_name = game['details'].get('Map Name', 'Unknown')
-        gametype = game['details'].get('Variant Name', 'Unknown')
+        gametype = get_base_gametype(game['details'].get('Game Type', 'Unknown'))
 
         if playlist:
             if playlist not in games_by_playlist:
@@ -1840,7 +1837,7 @@ def main():
         print(f"\n  Processing {len(games_to_process_for_stats)} ranked games for stats...")
 
     for game_num, game in enumerate(games_to_process_for_stats, 1):
-        game_name = game['details'].get('Variant Name', 'Unknown')
+        game_name = get_base_gametype(game['details'].get('Game Type', 'Unknown'))
         playlist = game.get('playlist')
         playlist_tag = f"[{playlist}]" if playlist else "[UNRANKED]"
 
@@ -1875,7 +1872,7 @@ def main():
 
     for game_num, game in enumerate(games_to_process_for_xp, 1):
         winners, losers = determine_winners_losers(game)
-        game_name = game['details'].get('Variant Name', 'Unknown')
+        game_name = get_base_gametype(game['details'].get('Game Type', 'Unknown'))
         playlist = game.get('playlist')
 
         if not playlist:
@@ -2301,7 +2298,6 @@ def main():
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
                 'gametype': get_base_gametype(game['details'].get('Game Type', '')),
-                'variant_name': game['details'].get('Variant Name', ''),
                 'duration': game['details'].get('Duration', '0:00'),
                 'red_score': red_score,
                 'blue_score': blue_score,
@@ -2455,7 +2451,6 @@ def main():
                 'timestamp': game['details'].get('Start Time', ''),
                 'map': game['details'].get('Map Name', 'Unknown'),
                 'gametype': get_base_gametype(game['details'].get('Game Type', '')),
-                'variant_name': game['details'].get('Variant Name', 'Unknown'),
                 'duration': game['details'].get('Duration', '0:00'),
                 'red_score': red_score,
                 'blue_score': blue_score,
