@@ -486,6 +486,9 @@ function onKeyDown(e) {
         case 'Backquote':
             toggleDebugVisibility();
             break;
+        case 'KeyP':
+            togglePOVPanel();
+            break;
     }
 }
 
@@ -1441,12 +1444,13 @@ function updateDebugInfo() {
     const camY = camera?.position.y.toFixed(1) || '0';
     const camZ = camera?.position.z.toFixed(1) || '0';
 
-    // Map rotation (in degrees)
-    let mapRotX = '0', mapRotY = '0', mapRotZ = '0';
-    if (mapModel) {
-        mapRotX = (mapModel.rotation.x * 180 / Math.PI).toFixed(0);
-        mapRotY = (mapModel.rotation.y * 180 / Math.PI).toFixed(0);
-        mapRotZ = (mapModel.rotation.z * 180 / Math.PI).toFixed(0);
+    // Camera rotation (in degrees)
+    let camRotX = '0', camRotY = '0', camRotZ = '0';
+    if (camera) {
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+        camRotX = (euler.x * 180 / Math.PI).toFixed(0);
+        camRotY = (euler.y * 180 / Math.PI).toFixed(0);
+        camRotZ = (euler.z * 180 / Math.PI).toFixed(0);
     }
 
     // First player position (3D scene position)
@@ -1461,7 +1465,14 @@ function updateDebugInfo() {
         }
     }
 
-    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | Map: ${mapRotX}° ${mapRotY}° ${mapRotZ}° | Player: (${playerX}, ${playerY}, ${playerZ})`;
+    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | Rot: ${camRotX}° ${camRotY}° ${camRotZ}° | Player: (${playerX}, ${playerY}, ${playerZ})`;
+}
+
+function togglePOVPanel() {
+    const povPanel = document.getElementById('pov-selector');
+    if (povPanel) {
+        povPanel.style.display = povPanel.style.display === 'none' ? 'block' : 'none';
+    }
 }
 
 function toggleDebugVisibility() {
