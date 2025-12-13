@@ -1122,8 +1122,9 @@ function parseTelemetryCSV(csvText) {
             color = CONFIG.teamColors[team] || CONFIG.teamColors.default;
         }
         const emblem = playerEmblemData[name] || {};
-        // Simplified emblem URL: fg_bg_p_s_ep_es.png
-        const emblemUrl = `/emblems/${emblem.emblemForeground || 0}_${emblem.emblemBackground || 0}_${emblem.primaryColor || 0}_${emblem.secondaryColor || 0}_${emblem.tertiaryColor || 0}_${emblem.quaternaryColor || 0}.png`;
+        // Generate emblem URL - use relative path if on same domain, otherwise use emblem server
+        // Note: For HTTPS pages, emblem server must also be HTTPS or use a proxy
+        const emblemUrl = `/emblems/P${emblem.primaryColor || 0}-S${emblem.secondaryColor || 0}-EP${emblem.tertiaryColor || 0}-ES${emblem.quaternaryColor || 0}-EF${emblem.emblemForeground || 0}-EB${emblem.emblemBackground || 0}-ET0.png`;
         players.push({ name, team, color, emblem, emblemUrl });
     });
 
