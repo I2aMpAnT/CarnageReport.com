@@ -46,7 +46,7 @@ const CONFIG = {
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
-    'sanctuary': 'sanctuary',
+    'sanctuary': 'deltatap',
     'warlock': 'warlock',
     'beaver creek': 'beavercreek',
     'ascension': 'ascension',
