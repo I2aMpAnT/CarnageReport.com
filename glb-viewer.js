@@ -43,16 +43,17 @@ const CONFIG = {
 };
 
 // Map name to GLB filename mapping
+// Halo 2 map display names to internal GLB filenames
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
-    'sanctuary': 'sanctuary',
+    'sanctuary': 'deltatap',
     'warlock': 'warlock',
     'beaver creek': 'beavercreek',
     'ascension': 'ascension',
     'coagulation': 'coagulation',
     'zanzibar': 'zanzibar',
-    'ivory tower': 'ivory_tower',
+    'ivory tower': 'cyclotron',
     'burial mounds': 'burial_mounds',
     'colossus': 'colossus',
     'headlong': 'headlong',
@@ -674,6 +675,12 @@ async function loadGLB(path, onProgress) {
             path,
             (gltf) => {
                 mapModel = gltf.scene;
+
+                // Rotate map to align with Halo coordinate system
+                // -90° X (Y-up to Z-up) and -180° Y (flip orientation)
+                mapModel.rotation.x = -Math.PI / 2;
+                mapModel.rotation.y = -Math.PI;
+
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
@@ -822,13 +829,14 @@ function parseCSVLine(line) {
 
 function showFallbackMessage() {
     const container = document.getElementById('canvas-container');
+    const glbFilename = mapNameToGlbFilename(mapName);
     const message = document.createElement('div');
     message.className = 'no-glb-message';
     message.innerHTML = `
         <h2>No 3D Map Available</h2>
         <p>The GLB file for <strong>${mapName}</strong> hasn't been added yet.</p>
         <p>To add it, place the GLB file at:</p>
-        <code>maps/${mapName}.glb</code>
+        <code>${CONFIG.mapsPath}${glbFilename}.glb</code>
         <p>Player positions will still be displayed on the grid.</p>
     `;
     container.appendChild(message);
@@ -1046,8 +1054,9 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            marker.group.position.set(pos.x, pos.z, -pos.y);
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
+            // Direct coordinate mapping (map is rotated to Z-up)
+            marker.group.position.set(pos.x, pos.y, pos.z);
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.z = pos.facingYaw;
 
             if (pos.isCrouching) {
                 marker.body.scale.y = 0.7;
