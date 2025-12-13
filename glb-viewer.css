@@ -1563,6 +1563,15 @@ body {
     filter: brightness(0) invert(1);
 }
 
+.player-weapon-icon {
+    height: 22px;
+    width: auto;
+    max-width: 80px;
+    filter: brightness(0) invert(1) opacity(0.9);
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
 /* Killfeed */
 .killfeed {
     position: absolute;
