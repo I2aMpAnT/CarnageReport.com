@@ -9,7 +9,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 // ===== Configuration =====
 const CONFIG = {
     mapsPath: '/maps3D/',
-    telemetryPath: '/stats/',
+    telemetryPath: '/stats/theater/',
     playerMarkerSize: 0.5,
     playerMarkerHeight: 1.8,
     defaultCameraHeight: 50,
@@ -201,13 +201,16 @@ function setupScene() {
 }
 
 function setupLighting() {
-    const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+    // Strong ambient for interior visibility - key for seeing inside structures
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362e24, 0.6);
+    // Hemisphere light - softer sky/ground blend
+    const hemiLight = new THREE.HemisphereLight(0xaaccff, 0x444422, 0.4);
     scene.add(hemiLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    // Main directional light (sun) - reduced to not overpower
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
     dirLight.position.set(50, 100, 50);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
@@ -220,9 +223,18 @@ function setupLighting() {
     dirLight.shadow.camera.bottom = -100;
     scene.add(dirLight);
 
-    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
-    fillLight.position.set(-50, 50, -50);
-    scene.add(fillLight);
+    // Fill lights from multiple angles to illuminate interiors
+    const fillLight1 = new THREE.DirectionalLight(0xffffee, 0.4);
+    fillLight1.position.set(-50, 20, -50);
+    scene.add(fillLight1);
+
+    const fillLight2 = new THREE.DirectionalLight(0xeeeeff, 0.4);
+    fillLight2.position.set(50, 20, -50);
+    scene.add(fillLight2);
+
+    const fillLight3 = new THREE.DirectionalLight(0xffeedd, 0.3);
+    fillLight3.position.set(0, -30, 0);  // Light from below for under-ramps/platforms
+    scene.add(fillLight3);
 }
 
 function setupEventListeners() {
@@ -322,15 +334,17 @@ function handleGamepadInput(deltaTime) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward/right vectors (ignore Y for ground movement)
+        // Get camera forward direction, flatten to horizontal plane
         const forward = new THREE.Vector3();
         camera.getWorldDirection(forward);
         forward.y = 0;
         forward.normalize();
 
+        // Right vector perpendicular to forward on horizontal plane
         const right = new THREE.Vector3();
-        right.crossVectors(forward, camera.up).normalize();
+        right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
 
+        // Left stick: X = strafe, Y = forward/back (inverted)
         direction.addScaledVector(right, leftX);
         direction.addScaledVector(forward, -leftY);
 
@@ -538,19 +552,24 @@ function handleKeyboardMovement(deltaTime) {
     const speed = CONFIG.moveSpeed * deltaTime * (keys['ShiftLeft'] || keys['ShiftRight'] ? CONFIG.sprintMultiplier : 1);
 
     const direction = new THREE.Vector3();
+
+    // Get camera forward direction, flatten to horizontal plane for ground movement
     const forward = new THREE.Vector3();
     camera.getWorldDirection(forward);
+    forward.y = 0;  // Keep movement horizontal - W/S don't go up/down
+    forward.normalize();
 
+    // Right vector perpendicular to forward on horizontal plane
     const right = new THREE.Vector3();
-    right.crossVectors(forward, camera.up).normalize();
+    right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
 
-    // WASD movement
+    // WASD movement - always horizontal in the direction camera is facing
     if (keys['KeyW'] || keys['ArrowUp']) direction.add(forward);
     if (keys['KeyS'] || keys['ArrowDown']) direction.sub(forward);
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement
+    // Vertical movement (separate from WASD)
     if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
     if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
 

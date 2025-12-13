@@ -97,6 +97,38 @@ def normalize_playlist_name(playlist):
         return None
     return PLAYLIST_ALIASES.get(playlist, playlist)
 
+def parse_game_timestamp(ts):
+    """Parse game timestamp (start time) for chronological sorting.
+    Handles multiple formats found in game data."""
+    if not ts:
+        return datetime.min
+    # Strip trailing AM/PM from 24-hour times (data bug: "18:23 PM")
+    ts_clean = ts
+    if ' PM' in ts or ' AM' in ts:
+        parts = ts.rsplit(' ', 1)
+        if len(parts) == 2 and ':' in parts[0]:
+            time_part = parts[0].split(' ')[-1]
+            try:
+                hour = int(time_part.split(':')[0])
+                if hour > 12:  # 24-hour time with erroneous AM/PM
+                    ts_clean = parts[0]
+            except:
+                pass
+    # Try multiple formats
+    formats = [
+        '%m/%d/%Y %H:%M',      # 11/28/2025 20:03
+        '%m/%d/%Y %I:%M %p',   # 12/5/2025 1:45 AM
+        '%m/%d/%Y %I:%M%p',    # 12/5/2025 1:45AM
+        '%Y-%m-%d %H:%M:%S',   # 2025-12-09 19:05:00 (ISO)
+        '%Y-%m-%d %H:%M',      # 2025-12-09 19:05
+    ]
+    for fmt in formats:
+        try:
+            return datetime.strptime(ts_clean, fmt)
+        except ValueError:
+            continue
+    return datetime.min
+
 def time_to_seconds(time_str):
     """Convert time string like '1:53' or '0:56' or ':56' to total seconds.
 
@@ -208,6 +240,7 @@ def generate_game_index():
     """
     Generate gameindex.json for theater mode - maps game numbers to map/theater file.
     Game 1 = oldest game, sorted chronologically.
+    Also includes player info for name resolution and emblems.
     """
     all_games = []
 
@@ -219,7 +252,7 @@ def generate_game_index():
         print("  Warning: Could not load playlists.json for game index")
         return
 
-    # Load matches from each playlist
+    # Load matches from each playlist (with full player data)
     for playlist in playlists_config.get('playlists', []):
         matches_file = playlist.get('matches_file')
         if matches_file and os.path.exists(matches_file):
@@ -227,11 +260,7 @@ def generate_game_index():
                 with open(matches_file, 'r') as f:
                     data = json.load(f)
                 for match in data.get('matches', []):
-                    all_games.append({
-                        'map': match.get('map'),
-                        'timestamp': match.get('timestamp'),
-                        'source_file': match.get('source_file')
-                    })
+                    all_games.append(match)  # Keep full match data
             except Exception as e:
                 print(f"  Warning: Could not load {matches_file}: {e}")
 
@@ -242,51 +271,16 @@ def generate_game_index():
             with open(custom_file, 'r') as f:
                 data = json.load(f)
             for match in data.get('matches', []):
-                all_games.append({
-                    'map': match.get('map'),
-                    'timestamp': match.get('timestamp'),
-                    'source_file': match.get('source_file')
-                })
+                all_games.append(match)  # Keep full match data
         except Exception as e:
             print(f"  Warning: Could not load {custom_file}: {e}")
 
-    # Parse timestamp field (start time) for sorting
-    def parse_ts(ts):
-        if not ts:
-            return datetime.min
-        # Strip trailing AM/PM from 24-hour times (data bug: "18:23 PM")
-        ts_clean = ts
-        if ' PM' in ts or ' AM' in ts:
-            parts = ts.rsplit(' ', 1)
-            if len(parts) == 2 and ':' in parts[0]:
-                time_part = parts[0].split(' ')[-1]
-                try:
-                    hour = int(time_part.split(':')[0])
-                    if hour > 12:  # 24-hour time with erroneous AM/PM
-                        ts_clean = parts[0]
-                except:
-                    pass
-        # Try multiple formats
-        formats = [
-            '%m/%d/%Y %H:%M',      # 11/28/2025 20:03
-            '%m/%d/%Y %I:%M %p',   # 12/5/2025 1:45 AM
-            '%m/%d/%Y %I:%M%p',    # 12/5/2025 1:45AM
-            '%Y-%m-%d %H:%M:%S',   # 2025-12-09 19:05:00 (ISO)
-            '%Y-%m-%d %H:%M',      # 2025-12-09 19:05
-        ]
-        for fmt in formats:
-            try:
-                return datetime.strptime(ts_clean, fmt)
-            except ValueError:
-                continue
-        return datetime.min
-
     # Sort chronologically by start time (oldest first = Game 1)
-    all_games.sort(key=lambda g: parse_ts(g.get('timestamp')))
+    all_games.sort(key=lambda g: parse_game_timestamp(g.get('timestamp')))
 
     # Build index - all games get numbered, check if theater file exists
-    web_stats_dir = '/home/carnagereport/stats'
-    can_check_files = os.path.exists(web_stats_dir)
+    # Theater CSV files are in STATS_THEATER_DIR (/home/carnagereport/stats/theater/)
+    can_check_files = os.path.exists(STATS_THEATER_DIR)
     index = {}
     theater_count = 0
     for i, game in enumerate(all_games):
@@ -295,16 +289,36 @@ def generate_game_index():
         theater_file = source.replace('.xlsx', '_theater.csv') if source else None
         # Only check file existence if stats dir exists (on VPS)
         if theater_file and can_check_files:
-            theater_path = os.path.join(web_stats_dir, theater_file)
+            theater_path = os.path.join(STATS_THEATER_DIR, theater_file)
             if not os.path.exists(theater_path):
                 theater_file = None  # File doesn't exist
             else:
                 theater_count += 1
         elif theater_file:
             theater_count += 1  # Assume exists for local dev
+
+        # Build player info for theater mode (name resolution + emblems)
+        players = {}
+        for p in game.get('player_stats', []):
+            player_name = p.get('name', '')
+            players[player_name] = {
+                'team': p.get('team', ''),
+                'rank': p.get('pre_game_rank', 1)
+            }
+        # Add emblem URLs from detailed_stats
+        for ds in game.get('detailed_stats', []):
+            player_name = ds.get('player', '')
+            if player_name in players:
+                players[player_name]['emblem'] = ds.get('emblem_url', '')
+
         index[str(game_num)] = {
             'map': game.get('map'),
-            'theater': theater_file
+            'theater': theater_file,
+            'gametype': game.get('gametype', ''),
+            'timestamp': game.get('timestamp', ''),
+            'red_score': game.get('red_score', 0),
+            'blue_score': game.get('blue_score', 0),
+            'players': players
         }
     if can_check_files:
         print(f"  {theater_count} games have theater files, {len(index) - theater_count} do not")
@@ -1750,9 +1764,9 @@ def main():
     ranked_games.extend(games_by_playlist.get(PLAYLIST_DOUBLE_TEAM, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_HEAD_TO_HEAD, []))
 
-    # Sort ranked games chronologically by timestamp (source_file is timestamp-based)
-    # This ensures ranks are calculated in the correct order
-    ranked_games.sort(key=lambda g: g.get('source_file', ''))
+    # Sort ranked games chronologically by START TIME (not end time from filename)
+    # This ensures ranks are calculated in the correct order based on when games began
+    ranked_games.sort(key=lambda g: parse_game_timestamp(g.get('details', {}).get('Start Time', '')))
 
     print(f"\nTotal ranked games (for XP/rank): {len(ranked_games)}")
     print(f"Total games (for stats): {len(all_games)}")
