@@ -8,8 +8,8 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 // ===== Configuration =====
 const CONFIG = {
-    mapsPath: 'maps3D/',
-    telemetryPath: 'stats/',
+    mapsPath: '/maps3D/',
+    telemetryPath: '/stats/',
     playerMarkerSize: 0.5,
     playerMarkerHeight: 1.8,
     defaultCameraHeight: 50,
@@ -115,6 +115,8 @@ let wasPlayingBeforeDrag = false;
 // Scoreboard state
 let scoreboardVisible = false;
 let playerStats = {}; // Track kills/deaths per player
+let scoreboardSortColumn = 'score'; // 'kills', 'deaths', 'score'
+let scoreboardSortAscending = false; // false = descending (highest first)
 
 // Killfeed state
 let killfeedVisible = true;
@@ -127,6 +129,16 @@ let showKeyboardControls = true; // true = keyboard, false = controller
 // Selected player index for cycling
 let selectedPlayerIndex = 0;
 
+// Rotation calibration offsets (radians)
+let rotationOffsetX = 0;
+let rotationOffsetY = Math.PI;  // Start with 180° offset
+let rotationOffsetZ = 0;
+
+// Player trails
+let showTrails = false;
+let playerTrails = {};  // name -> array of positions
+const TRAIL_MAX_POINTS = 500;  // Max trail points per player
+
 // Player name visibility (default off)
 let showPlayerNames = false;
 
@@ -138,7 +150,7 @@ let dynamicSpeedMultiplier = 1;
 
 // ===== Initialization =====
 async function init() {
-    parseUrlParams();
+    await parseUrlParams();
     setupScene();
     setupEventListeners();
     setupGamepad();
@@ -146,16 +158,119 @@ async function init() {
     animate();
 }
 
-function parseUrlParams() {
+// Helper to parse datetime strings (same logic as script.js)
+function parseGameDateTime(dateStr) {
+    if (!dateStr) return null;
+    try {
+        let year, month, day, hours = 0, minutes = 0;
+        // ISO format with T: 2025-12-09T07:45:00
+        const isoTMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{2})/);
+        if (isoTMatch) {
+            [, year, month, day, hours, minutes] = isoTMatch.map(v => parseInt(v) || 0);
+        }
+        // ISO format with space: 2025-12-09 07:45:00
+        if (!year) {
+            const isoSpaceMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{2})/);
+            if (isoSpaceMatch) {
+                [, year, month, day, hours, minutes] = isoSpaceMatch.map(v => parseInt(v) || 0);
+            }
+        }
+        // US format: 12/9/2025 7:45
+        if (!year) {
+            const usMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+            if (usMatch) {
+                [, month, day, year, hours, minutes] = usMatch.map(v => parseInt(v) || 0);
+            }
+        }
+        if (year) {
+            return new Date(year, month - 1, day, hours, minutes);
+        }
+    } catch (e) {}
+    return null;
+}
+
+// Load games data from playlist files (mirrors script.js loading)
+async function loadGamesData() {
+    const games = [];
+    try {
+        // Fetch playlists config
+        const playlistsResponse = await fetch('/playlists.json');
+        if (!playlistsResponse.ok) return games;
+        const playlistsConfig = await playlistsResponse.json();
+
+        // Load matches from each playlist
+        for (const playlist of playlistsConfig.playlists || []) {
+            try {
+                const matchesResponse = await fetch(`/${playlist.matches_file}`);
+                if (matchesResponse.ok) {
+                    const matchesData = await matchesResponse.json();
+                    for (const match of matchesData.matches || []) {
+                        games.push({
+                            map: match.map,
+                            gametype: match.gametype,
+                            timestamp: match.timestamp,
+                            source_file: match.source_file,
+                            playlist: playlist.name
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn(`Failed to load ${playlist.matches_file}:`, e);
+            }
+        }
+
+        // Sort chronologically (oldest first = game #1)
+        games.sort((a, b) => {
+            const timeA = parseGameDateTime(a.timestamp) || new Date(0);
+            const timeB = parseGameDateTime(b.timestamp) || new Date(0);
+            return timeA - timeB;
+        });
+    } catch (e) {
+        console.error('Failed to load playlists:', e);
+    }
+    return games;
+}
+
+async function parseUrlParams() {
     const params = new URLSearchParams(window.location.search);
-    mapName = params.get('map') || 'Midship';
-    telemetryFile = params.get('telemetry') || '';
-    gameInfo = {
-        map: mapName,
-        gameType: params.get('gametype') || '',
-        date: params.get('date') || '',
-        variant: params.get('variant') || ''
-    };
+
+    // Support path-based URL: /theater/{gameNumber}
+    const pathMatch = window.location.pathname.match(/\/theater\/(\d+)/);
+    if (pathMatch) {
+        const gameNumber = parseInt(pathMatch[1]);
+        // Load games data from playlist files
+        try {
+            const games = await loadGamesData();
+            if (gameNumber >= 1 && gameNumber <= games.length) {
+                const game = games[gameNumber - 1]; // 1-indexed for users
+                // Derive telemetry filename from source_file
+                if (game.source_file) {
+                    telemetryFile = game.source_file.replace('.xlsx', '_theater.csv');
+                }
+                mapName = game.map || 'Unknown';
+                gameInfo = {
+                    map: mapName,
+                    gameType: game.gametype || '',
+                    date: game.timestamp || '',
+                    variant: game.gametype || ''
+                };
+            } else {
+                console.error(`Game #${gameNumber} not found (${games.length} games available)`);
+            }
+        } catch (e) {
+            console.error('Failed to load games:', e);
+        }
+    } else {
+        telemetryFile = params.get('telemetry') || '';
+        mapName = params.get('map') || 'Midship';
+        gameInfo = {
+            map: mapName,
+            gameType: params.get('gametype') || '',
+            date: params.get('date') || '',
+            variant: params.get('variant') || ''
+        };
+    }
+
     document.getElementById('mapName').textContent = mapName;
     document.getElementById('gameType').textContent = gameInfo.variant || gameInfo.gameType;
     document.getElementById('gameDate').textContent = gameInfo.date;
@@ -277,6 +392,9 @@ function setupEventListeners() {
     // Controls panel toggle
     document.getElementById('controlsCollapseBtn')?.addEventListener('click', toggleControlsPanel);
     document.getElementById('inputToggleBtn')?.addEventListener('click', toggleInputType);
+
+    // Rotation calibration sliders
+    setupCalibrationPanel();
 
     // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
@@ -423,6 +541,12 @@ function handleGamepadInput(deltaTime) {
     }
     gamepad.buttons[2]._lastState = gamepad.buttons[2]?.pressed;
 
+    // B button (1) for trails toggle
+    if (gamepad.buttons[1]?.pressed && !gamepad.buttons[1]._lastState) {
+        toggleTrails();
+    }
+    gamepad.buttons[1]._lastState = gamepad.buttons[1]?.pressed;
+
     // View mode (Y button cycles views)
     if (gamepad.buttons[3]?.pressed && !gamepad.buttons[3]._lastState) {
         cycleViewMode();
@@ -557,6 +681,69 @@ function toggleInputType() {
     }
 }
 
+// Setup rotation calibration panel
+function setupCalibrationPanel() {
+    const rotXSlider = document.getElementById('rotationX');
+    const rotYSlider = document.getElementById('rotationY');
+    const rotZSlider = document.getElementById('rotationZ');
+    const rotXValue = document.getElementById('rotXValue');
+    const rotYValue = document.getElementById('rotYValue');
+    const rotZValue = document.getElementById('rotZValue');
+    const resetBtn = document.getElementById('resetRotation');
+    const toggleBtn = document.getElementById('calibrationToggle');
+    const content = document.getElementById('calibrationContent');
+
+    if (rotXSlider) {
+        rotXSlider.addEventListener('input', (e) => {
+            const deg = parseInt(e.target.value);
+            rotationOffsetX = deg * Math.PI / 180;
+            if (rotXValue) rotXValue.textContent = `${deg}°`;
+            updatePlayerPositions();
+        });
+    }
+
+    if (rotYSlider) {
+        rotYSlider.addEventListener('input', (e) => {
+            const deg = parseInt(e.target.value);
+            rotationOffsetY = deg * Math.PI / 180;
+            if (rotYValue) rotYValue.textContent = `${deg}°`;
+            updatePlayerPositions();
+        });
+    }
+
+    if (rotZSlider) {
+        rotZSlider.addEventListener('input', (e) => {
+            const deg = parseInt(e.target.value);
+            rotationOffsetZ = deg * Math.PI / 180;
+            if (rotZValue) rotZValue.textContent = `${deg}°`;
+            updatePlayerPositions();
+        });
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            rotationOffsetX = 0;
+            rotationOffsetY = Math.PI;
+            rotationOffsetZ = 0;
+            if (rotXSlider) rotXSlider.value = 0;
+            if (rotYSlider) rotYSlider.value = 180;
+            if (rotZSlider) rotZSlider.value = 0;
+            if (rotXValue) rotXValue.textContent = '0°';
+            if (rotYValue) rotYValue.textContent = '180°';
+            if (rotZValue) rotZValue.textContent = '0°';
+            updatePlayerPositions();
+            showGamepadNotification('Rotation Reset');
+        });
+    }
+
+    if (toggleBtn && content) {
+        toggleBtn.addEventListener('click', () => {
+            content.classList.toggle('collapsed');
+            toggleBtn.textContent = content.classList.contains('collapsed') ? '+' : '−';
+        });
+    }
+}
+
 // Toggle player names visibility on waypoints
 function togglePlayerNames() {
     showPlayerNames = !showPlayerNames;
@@ -598,11 +785,14 @@ async function recreateWaypoints() {
 }
 
 function showGamepadNotification(message) {
+    // Remove any existing notifications first to prevent stacking
+    document.querySelectorAll('.gamepad-notification').forEach(n => n.remove());
+
     const notification = document.createElement('div');
     notification.className = 'gamepad-notification';
     notification.textContent = message;
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
+    setTimeout(() => notification.remove(), 2000);
 }
 
 function updateSpeedDisplay() {
@@ -681,6 +871,9 @@ function onKeyDown(e) {
             break;
         case 'KeyP':
             togglePlayerNames();
+            break;
+        case 'KeyL':
+            toggleTrails();
             break;
         case 'KeyZ':
             // Z key for speed boost - handled in animation loop via keys state
@@ -846,7 +1039,7 @@ async function loadHelmetModel() {
         loader.setDRACOLoader(dracoLoader);
 
         loader.load(
-            'maps3D/MasterChief.glb',
+            '/maps3D/MasterChief.glb',
             (gltf) => {
                 helmetModel = gltf.scene;
                 // Center the model if needed
@@ -1183,7 +1376,25 @@ async function createPlayerMarkers() {
         group.add(glow);
 
         scene.add(group);
-        playerMarkers[player.name] = { group, helmet, helmetPivot, label, player, emblemImage, helmetColor };
+
+        // Create trail line for this player
+        const trailGeometry = new THREE.BufferGeometry();
+        const trailPositions = new Float32Array(TRAIL_MAX_POINTS * 3);
+        trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+        trailGeometry.setDrawRange(0, 0);
+        const trailMaterial = new THREE.LineBasicMaterial({
+            color: helmetColor,
+            transparent: true,
+            opacity: 0.6
+        });
+        const trailLine = new THREE.Line(trailGeometry, trailMaterial);
+        trailLine.visible = showTrails;
+        scene.add(trailLine);
+
+        // Initialize trail array for this player
+        playerTrails[player.name] = [];
+
+        playerMarkers[player.name] = { group, helmet, helmetPivot, label, player, emblemImage, helmetColor, trailLine };
     });
 }
 
@@ -1402,9 +1613,27 @@ function updatePlayerPositions() {
             };
 
             // Convert from Halo coords (Z-up) to Three.js (Y-up): X stays, Z becomes Y, Y becomes -Z
-            marker.group.position.set(pos.x, pos.z, -pos.y);
-            // Apply facing direction (yaw) to the group
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = pos.facingYaw + Math.PI;  // +180° rotation fix
+            const threePos = { x: pos.x, y: pos.z, z: -pos.y };
+            marker.group.position.set(threePos.x, threePos.y, threePos.z);
+            // Apply facing direction (yaw) to the group with calibration offsets
+            if (!isNaN(pos.facingYaw)) {
+                marker.group.rotation.set(rotationOffsetX, pos.facingYaw + rotationOffsetY, rotationOffsetZ);
+            }
+
+            // Update trail
+            if (showTrails && marker.trailLine) {
+                const trail = playerTrails[player.name];
+                const lastTrailPos = trail.length > 0 ? trail[trail.length - 1] : null;
+                // Only add point if moved enough distance
+                if (!lastTrailPos ||
+                    Math.abs(threePos.x - lastTrailPos.x) > 0.1 ||
+                    Math.abs(threePos.y - lastTrailPos.y) > 0.1 ||
+                    Math.abs(threePos.z - lastTrailPos.z) > 0.1) {
+                    trail.push({ x: threePos.x, y: threePos.y, z: threePos.z });
+                    if (trail.length > TRAIL_MAX_POINTS) trail.shift();
+                    updateTrailGeometry(marker.trailLine, trail);
+                }
+            }
 
             // Apply pitch to the helmet pivot (looking up/down)
             if (marker.helmetPivot && !isNaN(pos.facingPitch)) {
@@ -1430,7 +1659,9 @@ function updatePlayerPositions() {
             // Player is dead - keep at last known position
             const lastPos = lastKnownPositions[player.name];
             marker.group.position.set(lastPos.x, lastPos.z, -lastPos.y);
-            if (!isNaN(lastPos.facingYaw)) marker.group.rotation.y = lastPos.facingYaw + Math.PI;  // +180° rotation fix
+            if (!isNaN(lastPos.facingYaw)) {
+                marker.group.rotation.set(rotationOffsetX, lastPos.facingYaw + rotationOffsetY, rotationOffsetZ);
+            }
 
             marker.group.visible = true;
             marker.isDead = true;
@@ -1640,6 +1871,38 @@ function updateFollowSelect() {
     });
 }
 
+// ===== Player Trails =====
+function updateTrailGeometry(trailLine, trail) {
+    const positions = trailLine.geometry.attributes.position.array;
+    for (let i = 0; i < trail.length; i++) {
+        positions[i * 3] = trail[i].x;
+        positions[i * 3 + 1] = trail[i].y;
+        positions[i * 3 + 2] = trail[i].z;
+    }
+    trailLine.geometry.attributes.position.needsUpdate = true;
+    trailLine.geometry.setDrawRange(0, trail.length);
+}
+
+function toggleTrails() {
+    showTrails = !showTrails;
+    // Update trail visibility for all players
+    Object.values(playerMarkers).forEach(marker => {
+        if (marker.trailLine) {
+            marker.trailLine.visible = showTrails;
+        }
+    });
+    // Clear trails when turning off
+    if (!showTrails) {
+        Object.keys(playerTrails).forEach(name => {
+            playerTrails[name] = [];
+            const marker = playerMarkers[name];
+            if (marker && marker.trailLine) {
+                marker.trailLine.geometry.setDrawRange(0, 0);
+            }
+        });
+    }
+    showGamepadNotification(`Trails: ${showTrails ? 'ON' : 'OFF'}`);
+}
 
 // ===== Scoreboard =====
 function toggleScoreboard() {
@@ -1683,9 +1946,14 @@ function updateScoreboard() {
         }
     });
 
-    // Sort by score (highest first)
-    redPlayers.sort((a, b) => b.score - a.score);
-    bluePlayers.sort((a, b) => b.score - a.score);
+    // Sort by selected column
+    const sortFn = (a, b) => {
+        const aVal = a[scoreboardSortColumn] || 0;
+        const bVal = b[scoreboardSortColumn] || 0;
+        return scoreboardSortAscending ? aVal - bVal : bVal - aVal;
+    };
+    redPlayers.sort(sortFn);
+    bluePlayers.sort(sortFn);
 
     // Calculate team totals
     const redScore = redPlayers.reduce((sum, p) => sum + p.score, 0);
@@ -1694,9 +1962,43 @@ function updateScoreboard() {
     document.getElementById('red-team-score').textContent = redScore;
     document.getElementById('blue-team-score').textContent = blueScore;
 
-    // Render players
-    redContainer.innerHTML = redPlayers.map(p => renderScoreboardPlayer(p)).join('');
-    blueContainer.innerHTML = bluePlayers.map(p => renderScoreboardPlayer(p)).join('');
+    // Render sortable header and players
+    const headerHtml = renderScoreboardHeader();
+    redContainer.innerHTML = headerHtml + redPlayers.map(p => renderScoreboardPlayer(p)).join('');
+    blueContainer.innerHTML = headerHtml + bluePlayers.map(p => renderScoreboardPlayer(p)).join('');
+
+    // Add click handlers to headers
+    document.querySelectorAll('.scoreboard-sort').forEach(el => {
+        el.onclick = () => sortScoreboard(el.dataset.sort);
+    });
+}
+
+function renderScoreboardHeader() {
+    const arrow = (col) => {
+        if (scoreboardSortColumn !== col) return '';
+        return scoreboardSortAscending ? ' ▲' : ' ▼';
+    };
+    return `
+        <div class="scoreboard-header-row">
+            <span class="header-spacer"></span>
+            <span class="header-name">Player</span>
+            <div class="header-stats">
+                <span class="scoreboard-sort" data-sort="kills">K${arrow('kills')}</span>
+                <span class="scoreboard-sort" data-sort="deaths">D${arrow('deaths')}</span>
+            </div>
+        </div>
+    `;
+}
+
+function sortScoreboard(column) {
+    if (scoreboardSortColumn === column) {
+        // Toggle direction
+        scoreboardSortAscending = !scoreboardSortAscending;
+    } else {
+        scoreboardSortColumn = column;
+        scoreboardSortAscending = false; // Default to descending
+    }
+    updateScoreboard();
 }
 
 function renderScoreboardPlayer(player) {

@@ -7517,42 +7517,11 @@ function open3DReplay(gameIndex) {
         return;
     }
 
-    const mapName = game.details?.['Map Name'] || 'Unknown';
-    const rawGameType = game.details?.['Game Type'] || '';
-    const gameType = getBaseGametype(rawGameType, game.playlist, game);
-    const startTime = game.details?.['Start Time'] || '';
+    // Game number is 1-indexed (oldest game = 1)
+    const gameNumber = gameIndex + 1;
 
-    // Find telemetry file
-    const telemetryFile = findTelemetryFileForGame(game);
-
-    // Build player display name mappings for this game
-    const playerNames = {};
-    game.players.forEach(player => {
-        const displayName = getDisplayNameForProfile(player.name);
-        // Only include if different from in-game name and not "No MAC Linked"
-        if (displayName && displayName !== 'No MAC Linked') {
-            playerNames[player.name] = displayName;
-        }
-    });
-
-    // Build viewer URL with parameters (base game type, not variant)
-    const params = new URLSearchParams({
-        map: mapName,
-        gametype: gameType,
-        date: startTime
-    });
-
-    if (telemetryFile) {
-        params.set('telemetry', telemetryFile);
-    }
-
-    // Pass player name mappings as JSON
-    if (Object.keys(playerNames).length > 0) {
-        params.set('players', JSON.stringify(playerNames));
-    }
-
-    // Open viewer in new tab
-    window.open(`glb-viewer.html?${params.toString()}`, '_blank');
+    // Open theater mode with simple game number URL
+    window.open(`/theater/${gameNumber}`, '_blank');
 }
 
 // Check if a game has telemetry available
