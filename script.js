@@ -7488,23 +7488,37 @@ function open3DReplay(gameIndex) {
     }
 
     const mapName = game.details?.['Map Name'] || 'Unknown';
-    const gameType = game.details?.['Game Type'] || '';
-    const variantName = game.details?.['Variant Name'] || '';
+    const rawGameType = game.details?.['Game Type'] || '';
+    const gameType = getBaseGametype(rawGameType, game.playlist, game);
     const startTime = game.details?.['Start Time'] || '';
 
     // Find telemetry file
     const telemetryFile = findTelemetryFileForGame(game);
 
-    // Build viewer URL with parameters
+    // Build player display name mappings for this game
+    const playerNames = {};
+    game.players.forEach(player => {
+        const displayName = getDisplayNameForProfile(player.name);
+        // Only include if different from in-game name and not "No MAC Linked"
+        if (displayName && displayName !== 'No MAC Linked') {
+            playerNames[player.name] = displayName;
+        }
+    });
+
+    // Build viewer URL with parameters (base game type, not variant)
     const params = new URLSearchParams({
         map: mapName,
         gametype: gameType,
-        variant: variantName,
         date: startTime
     });
 
     if (telemetryFile) {
         params.set('telemetry', telemetryFile);
+    }
+
+    // Pass player name mappings as JSON
+    if (Object.keys(playerNames).length > 0) {
+        params.set('players', JSON.stringify(playerNames));
     }
 
     // Open viewer in new tab

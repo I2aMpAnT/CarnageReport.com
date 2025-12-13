@@ -20,7 +20,7 @@
             </a>
             <div class="viewer-title">
                 <img src="H2CRFinal.png" alt="Logo" class="viewer-logo">
-                <span id="mapName">3D Game Replay</span>
+                <span id="mapName">Theater Mode</span>
             </div>
             <div class="game-info">
                 <span id="gameType"></span>
@@ -117,6 +117,10 @@
                 <select id="followPlayerSelect" class="follow-select" style="display: none;">
                     <option value="">Select Player...</option>
                 </select>
+                <button class="view-btn active" id="heatmapBtn" title="Toggle Death Heatmap" onclick="toggleDeathHeatmap()">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    Deaths
+                </button>
             </div>
         </div>
 
@@ -132,7 +136,6 @@
                         <tr>
                             <th>Player</th>
                             <th>Weapon</th>
-                            <th>State</th>
                         </tr>
                     </thead>
                     <tbody id="live-stats-body">
