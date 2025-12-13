@@ -43,17 +43,16 @@ const CONFIG = {
 };
 
 // Map name to GLB filename mapping
-// Halo 2 map display names to internal GLB filenames
 const MAP_NAME_TO_GLB = {
     'midship': 'midship',
     'lockout': 'lockout',
-    'sanctuary': 'deltatap',
+    'sanctuary': 'sanctuary',
     'warlock': 'warlock',
     'beaver creek': 'beavercreek',
     'ascension': 'ascension',
     'coagulation': 'coagulation',
     'zanzibar': 'zanzibar',
-    'ivory tower': 'cyclotron',
+    'ivory tower': 'ivory_tower',
     'burial mounds': 'burial_mounds',
     'colossus': 'colossus',
     'headlong': 'headlong',
@@ -111,9 +110,6 @@ let gameInfo = {};
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
-// Debug visibility
-let debugVisible = true;
-
 // ===== Initialization =====
 async function init() {
     parseUrlParams();
@@ -148,9 +144,8 @@ function setupScene() {
     scene.fog = new THREE.Fog(0x0a0a12, 50, 200);
 
     camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 1000);
-    // Set Z as up direction (Halo uses Z-up coordinate system)
-    camera.up.set(0, 0, 1);
-    camera.position.set(0, 0, 50); // Above the map looking down
+    camera.position.set(0, 0, CONFIG.defaultCameraHeight);
+    camera.up.set(0, 0, 1); // Z-up
     camera.lookAt(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -162,37 +157,18 @@ function setupScene() {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0;
 
-    // OrbitControls for orbit mode - must set up after camera.up
+    // OrbitControls for orbit mode
     controls = new OrbitControls(camera, renderer.domElement);
-    controls.screenSpacePanning = true;
-    controls.target.set(0, 0, 0);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
+    controls.screenSpacePanning = true;
     controls.minDistance = 5;
     controls.maxDistance = 200;
     controls.enabled = false; // Start with WASD mode
-    controls.update();
 
     setupLighting();
 
-    // Add axes helper: Red = X, Green = Y, Blue = Z
-    const axesHelper = new THREE.AxesHelper(50);
-    axesHelper.name = 'axesHelper';
-    scene.add(axesHelper);
-
-    // Add test marker at a known CSV position (red sphere)
-    // Scene is Z-up matching Halo, direct coords
-    // From CSV: Halo X=-8.8194, Y=-4.4711, Z=-9.8421
-    const testGeom = new THREE.SphereGeometry(0.5);
-    const testMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const testMarker = new THREE.Mesh(testGeom, testMat);
-    testMarker.position.set(-8.8194, -4.4711, -9.8421);
-    testMarker.name = 'testMarker';
-    scene.add(testMarker);
-
-    // Grid on XY plane (horizontal for Z-up)
     const gridHelper = new THREE.GridHelper(100, 100, 0x00c8ff, 0x1a1a2e);
-    gridHelper.rotation.x = Math.PI / 2; // Rotate to XY plane
     gridHelper.name = 'gridHelper';
     scene.add(gridHelper);
 
@@ -200,18 +176,14 @@ function setupScene() {
 }
 
 function setupLighting() {
-    // Ambient fill
-    const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
+    const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
     scene.add(ambientLight);
 
-    // Hemisphere: bright from above (Z+), darker from below (Z-)
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
-    hemiLight.position.set(0, 0, 200);
+    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362e24, 0.6);
     scene.add(hemiLight);
 
-    // Main light - directly from above (top-down, Z+)
     const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.position.set(0, 0, 200);
+    dirLight.position.set(50, 100, 50);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
@@ -223,9 +195,8 @@ function setupLighting() {
     dirLight.shadow.camera.bottom = -100;
     scene.add(dirLight);
 
-    // Subtle fill from side
-    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.2);
-    fillLight.position.set(50, 50, 100);
+    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.3);
+    fillLight.position.set(-50, 50, -50);
     scene.add(fillLight);
 }
 
@@ -332,14 +303,12 @@ function handleGamepadInput(deltaTime) {
         const speed = CONFIG.gamepadMoveSpeed * deltaTime;
         const direction = new THREE.Vector3();
 
-        // Get camera forward/right vectors (ignore Y for ground movement)
-        const forward = new THREE.Vector3();
-        camera.getWorldDirection(forward);
-        forward.y = 0;
-        forward.normalize();
+        // Get camera yaw for XY plane movement (Z-up)
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
+        const yaw = euler.z;
 
-        const right = new THREE.Vector3();
-        right.crossVectors(forward, camera.up).normalize();
+        const forward = new THREE.Vector3(-Math.sin(yaw), Math.cos(yaw), 0);
+        const right = new THREE.Vector3(Math.cos(yaw), Math.sin(yaw), 0);
 
         direction.addScaledVector(right, leftX);
         direction.addScaledVector(forward, -leftY);
@@ -347,13 +316,13 @@ function handleGamepadInput(deltaTime) {
         camera.position.addScaledVector(direction, speed);
     }
 
-    // Look (right stick) - only in free mode
+    // Look (right stick) - only in free mode (Z-up)
     if (viewMode === 'free' && (rightX !== 0 || rightY !== 0)) {
-        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        const euler = new THREE.Euler(0, 0, 0, 'ZXY');
         euler.setFromQuaternion(camera.quaternion);
 
-        euler.y -= rightX * CONFIG.gamepadLookSensitivity;
-        euler.x -= rightY * CONFIG.gamepadLookSensitivity;
+        euler.z -= rightX * CONFIG.gamepadLookSensitivity; // Yaw around Z
+        euler.x -= rightY * CONFIG.gamepadLookSensitivity; // Pitch
         euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
 
         camera.quaternion.setFromEuler(euler);
@@ -490,12 +459,6 @@ function onKeyDown(e) {
                 document.exitPointerLock();
             }
             break;
-        case 'Backquote':
-            toggleDebugVisibility();
-            break;
-        case 'KeyP':
-            togglePOVPanel();
-            break;
     }
 }
 
@@ -523,11 +486,12 @@ function onMouseMove(e) {
     const movementX = e.movementX || 0;
     const movementY = e.movementY || 0;
 
-    const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+    // Z-up: yaw around Z, pitch around X
+    const euler = new THREE.Euler(0, 0, 0, 'ZXY');
     euler.setFromQuaternion(camera.quaternion);
 
-    euler.y -= movementX * CONFIG.lookSensitivity;
-    euler.x -= movementY * CONFIG.lookSensitivity;
+    euler.z -= movementX * CONFIG.lookSensitivity; // Yaw
+    euler.x -= movementY * CONFIG.lookSensitivity; // Pitch
 
     // Clamp vertical look
     euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
@@ -554,21 +518,24 @@ function handleKeyboardMovement(deltaTime) {
     const speed = CONFIG.moveSpeed * deltaTime * (keys['ShiftLeft'] || keys['ShiftRight'] ? CONFIG.sprintMultiplier : 1);
 
     const direction = new THREE.Vector3();
-    const forward = new THREE.Vector3();
-    camera.getWorldDirection(forward);
 
-    const right = new THREE.Vector3();
-    right.crossVectors(forward, camera.up).normalize();
+    // Get camera yaw from quaternion (rotation around Z for Z-up)
+    const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
+    const yaw = euler.z;
 
-    // WASD movement
+    // Forward/back on XY plane based on camera yaw
+    const forward = new THREE.Vector3(-Math.sin(yaw), Math.cos(yaw), 0);
+    const right = new THREE.Vector3(Math.cos(yaw), Math.sin(yaw), 0);
+
+    // WASD movement on XY plane
     if (keys['KeyW'] || keys['ArrowUp']) direction.add(forward);
     if (keys['KeyS'] || keys['ArrowDown']) direction.sub(forward);
     if (keys['KeyA']) direction.sub(right);
     if (keys['KeyD']) direction.add(right);
 
-    // Vertical movement
-    if (keys['KeyQ'] || keys['PageDown']) direction.y -= 1;
-    if (keys['KeyE'] || keys['PageUp']) direction.y += 1;
+    // Vertical movement (Z-up)
+    if (keys['KeyQ'] || keys['PageDown']) direction.z -= 1;
+    if (keys['KeyE'] || keys['PageUp']) direction.z += 1;
 
     if (direction.length() > 0) {
         direction.normalize();
@@ -681,10 +648,6 @@ async function loadGLB(path, onProgress) {
             path,
             (gltf) => {
                 mapModel = gltf.scene;
-
-                // GLB is Y-up (standard), Three.js is Y-up - no rotation needed
-                // Player coords will be transformed from Halo Z-up to Three.js Y-up
-
                 mapModel.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
@@ -833,14 +796,13 @@ function parseCSVLine(line) {
 
 function showFallbackMessage() {
     const container = document.getElementById('canvas-container');
-    const glbFilename = mapNameToGlbFilename(mapName);
     const message = document.createElement('div');
     message.className = 'no-glb-message';
     message.innerHTML = `
         <h2>No 3D Map Available</h2>
         <p>The GLB file for <strong>${mapName}</strong> hasn't been added yet.</p>
         <p>To add it, place the GLB file at:</p>
-        <code>${CONFIG.mapsPath}${glbFilename}.glb</code>
+        <code>maps/${mapName}.glb</code>
         <p>Player positions will still be displayed on the grid.</p>
     `;
     container.appendChild(message);
@@ -1058,17 +1020,15 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Scene is Z-up (matching Halo), direct coordinate mapping
-            marker.group.position.set(pos.x, pos.y, pos.z);
-            // Yaw rotates around Z axis (up)
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.z = pos.facingYaw;
+            marker.group.position.set(pos.x, pos.z, -pos.y);
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
 
             if (pos.isCrouching) {
-                marker.body.scale.z = 0.7;
-                marker.head.position.z = CONFIG.playerMarkerHeight * 0.6;
+                marker.body.scale.y = 0.7;
+                marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
             } else {
-                marker.body.scale.z = 1;
-                marker.head.position.z = CONFIG.playerMarkerHeight * 0.8;
+                marker.body.scale.y = 1;
+                marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
             }
 
             marker.group.visible = true;
@@ -1088,15 +1048,15 @@ function updatePlayerPositions() {
         }
     }
 
-    // Follow camera
+    // Follow camera (Z-up)
     if (viewMode === 'follow' && followPlayer) {
         const marker = playerMarkers[followPlayer];
         if (marker && marker.group.visible) {
             const targetPos = marker.group.position.clone();
-            targetPos.y += CONFIG.followCameraHeight;
+            targetPos.z += CONFIG.followCameraHeight; // Z-up
 
-            const offset = new THREE.Vector3(0, 0, CONFIG.followCameraDistance);
-            offset.applyQuaternion(marker.group.quaternion);
+            const offset = new THREE.Vector3(0, -CONFIG.followCameraDistance, 0); // Behind in Y
+            offset.applyAxisAngle(new THREE.Vector3(0, 0, 1), marker.group.rotation.z);
 
             camera.position.lerp(targetPos.clone().add(offset), 0.1);
             controls.target.lerp(marker.group.position, 0.1);
@@ -1161,20 +1121,19 @@ function setViewMode(mode) {
     // Update controls hint
     updateControlsHint();
 
+    // All modes use Z-up
+    camera.up.set(0, 0, 1);
+
     if (mode === 'top') {
         controls.enabled = false;
-        camera.position.set(0, CONFIG.defaultCameraHeight, 0);
+        camera.position.set(0, 0, CONFIG.defaultCameraHeight);
         camera.lookAt(0, 0, 0);
-        camera.up.set(0, 0, -1);
     } else if (mode === 'free') {
         controls.enabled = false;
-        camera.up.set(0, 1, 0);
     } else if (mode === 'orbit') {
         controls.enabled = true;
-        camera.up.set(0, 1, 0);
     } else if (mode === 'follow') {
         controls.enabled = true;
-        camera.up.set(0, 1, 0);
     }
 }
 
@@ -1199,8 +1158,9 @@ function positionCameraToFit() {
     const centerZ = (minZ + maxZ) / 2;
     const maxRange = Math.max(maxX - minX, maxY - minY, maxZ - minZ);
 
-    camera.position.set(centerX, maxZ + maxRange * 0.8, -centerY);
-    controls.target.set(centerX, centerZ, -centerY);
+    // Z-up: camera above looking down at center
+    camera.position.set(centerX, centerY, maxZ + maxRange * 0.8);
+    controls.target.set(centerX, centerY, centerZ);
     controls.update();
 }
 
@@ -1356,9 +1316,6 @@ function animate() {
         controls.update();
     }
 
-    // Update debug info every frame
-    updateDebugInfo();
-
     renderer.render(scene, camera);
 }
 
@@ -1369,150 +1326,5 @@ window.retryLoad = async function() {
     await loadMapAndTelemetry();
 };
 
-// ===== Debug Functions =====
-function setupDebugControls() {
-    // Toggle collapse
-    const toggle = document.getElementById('debug-toggle');
-    const content = document.getElementById('debug-content');
-    if (toggle && content) {
-        toggle.addEventListener('click', () => {
-            content.classList.toggle('collapsed');
-            toggle.textContent = content.classList.contains('collapsed') ? '+' : '−';
-        });
-    }
-
-    // Map rotation sliders
-    const rotX = document.getElementById('map-rot-x');
-    const rotY = document.getElementById('map-rot-y');
-    const rotZ = document.getElementById('map-rot-z');
-
-    if (rotX) rotX.addEventListener('input', updateMapRotation);
-    if (rotY) rotY.addEventListener('input', updateMapRotation);
-    if (rotZ) rotZ.addEventListener('input', updateMapRotation);
-
-    // Reset button
-    document.getElementById('reset-map-rot')?.addEventListener('click', () => {
-        if (rotX) rotX.value = 0;
-        if (rotY) rotY.value = 0;
-        if (rotZ) rotZ.value = 0;
-        updateMapRotation();
-    });
-
-    // Quick rotation buttons
-    document.getElementById('apply-rot-90x')?.addEventListener('click', () => {
-        if (rotX) {
-            rotX.value = (parseInt(rotX.value) + 90) % 360;
-            if (parseInt(rotX.value) > 180) rotX.value = parseInt(rotX.value) - 360;
-        }
-        updateMapRotation();
-    });
-    document.getElementById('apply-rot-90y')?.addEventListener('click', () => {
-        if (rotY) {
-            rotY.value = (parseInt(rotY.value) + 90) % 360;
-            if (parseInt(rotY.value) > 180) rotY.value = parseInt(rotY.value) - 360;
-        }
-        updateMapRotation();
-    });
-    document.getElementById('apply-rot-90z')?.addEventListener('click', () => {
-        if (rotZ) {
-            rotZ.value = (parseInt(rotZ.value) + 90) % 360;
-            if (parseInt(rotZ.value) > 180) rotZ.value = parseInt(rotZ.value) - 360;
-        }
-        updateMapRotation();
-    });
-}
-
-function updateMapRotation() {
-    if (!mapModel) {
-        console.log('No map model loaded yet');
-        return;
-    }
-
-    const rotX = document.getElementById('map-rot-x');
-    const rotY = document.getElementById('map-rot-y');
-    const rotZ = document.getElementById('map-rot-z');
-
-    const x = (parseInt(rotX?.value) || 0) * Math.PI / 180;
-    const y = (parseInt(rotY?.value) || 0) * Math.PI / 180;
-    const z = (parseInt(rotZ?.value) || 0) * Math.PI / 180;
-
-    mapModel.rotation.set(x, y, z);
-
-    // Update display values
-    const xVal = document.getElementById('map-rot-x-val');
-    const yVal = document.getElementById('map-rot-y-val');
-    const zVal = document.getElementById('map-rot-z-val');
-    if (xVal) xVal.textContent = `${rotX?.value || 0}°`;
-    if (yVal) yVal.textContent = `${rotY?.value || 0}°`;
-    if (zVal) zVal.textContent = `${rotZ?.value || 0}°`;
-
-    console.log(`Map rotation set to: X=${rotX?.value}° Y=${rotY?.value}° Z=${rotZ?.value}°`);
-}
-
-function updateDebugInfo() {
-    const debugText = document.getElementById('debug-text');
-    if (!debugText) return;
-
-    // Camera position
-    const camX = camera?.position.x.toFixed(1) || '0';
-    const camY = camera?.position.y.toFixed(1) || '0';
-    const camZ = camera?.position.z.toFixed(1) || '0';
-
-    // Camera rotation (Z-up scene, normalized to 0° = top-down)
-    let pitch = '0', yaw = '0';
-    if (camera) {
-        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'ZXY');
-        // Pitch: 0° = looking straight down (-Z), positive = tilting up
-        pitch = ((euler.x * 180 / Math.PI) + 90).toFixed(0);
-        // Yaw: rotation around Z axis
-        yaw = (euler.z * 180 / Math.PI).toFixed(0);
-    }
-
-    // First player position and rotation (3D scene position)
-    let playerX = '0', playerY = '0', playerZ = '0', playerRotZ = '0';
-    if (players.length > 0) {
-        const firstPlayer = players[0];
-        const marker = playerMarkers[firstPlayer.name];
-        if (marker && marker.group) {
-            playerX = marker.group.position.x.toFixed(1);
-            playerY = marker.group.position.y.toFixed(1);
-            playerZ = marker.group.position.z.toFixed(1);
-            playerRotZ = (marker.group.rotation.z * 180 / Math.PI).toFixed(0);
-        }
-    }
-
-    debugText.textContent = `Cam: (${camX}, ${camY}, ${camZ}) | Pitch: ${pitch}° Yaw: ${yaw}° | Player: (${playerX}, ${playerY}, ${playerZ}) Facing: ${playerRotZ}°`;
-}
-
-function togglePOVPanel() {
-    const povPanel = document.getElementById('pov-selector');
-    if (povPanel) {
-        povPanel.style.display = povPanel.style.display === 'none' ? 'block' : 'none';
-    }
-}
-
-function toggleDebugVisibility() {
-    debugVisible = !debugVisible;
-
-    // Toggle axes helper
-    const axesHelper = scene.getObjectByName('axesHelper');
-    if (axesHelper) axesHelper.visible = debugVisible;
-
-    // Toggle test marker
-    const testMarker = scene.getObjectByName('testMarker');
-    if (testMarker) testMarker.visible = debugVisible;
-
-    // Toggle grid helper
-    const gridHelper = scene.getObjectByName('gridHelper');
-    if (gridHelper) gridHelper.visible = debugVisible;
-
-    // Toggle debug text
-    const debugText = document.getElementById('debug-text');
-    if (debugText) debugText.style.display = debugVisible ? 'block' : 'none';
-
-    console.log(`Debug visibility: ${debugVisible ? 'ON' : 'OFF'} (press \` to toggle)`);
-}
-
 // ===== Initialize =====
 init();
-setupDebugControls();
