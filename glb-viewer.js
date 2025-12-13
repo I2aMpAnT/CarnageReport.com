@@ -159,9 +159,6 @@ let gameInfo = {};
 let isDraggingTimeline = false;
 let wasPlayingBeforeDrag = false;
 
-// Axis inversion state
-let axisInvert = { x: 1, y: 1, z: 1 };  // 1 = normal, -1 = inverted
-
 // FPS tracking
 let fpsFrames = 0;
 let fpsLastTime = performance.now();
@@ -340,56 +337,6 @@ function setupEventListeners() {
 
     // Pointer lock
     document.addEventListener('pointerlockchange', onPointerLockChange);
-
-    // Axis invert buttons
-    const invertXBtn = document.getElementById('invertX');
-    const invertYBtn = document.getElementById('invertY');
-    const invertZBtn = document.getElementById('invertZ');
-    const resetInvertBtn = document.getElementById('resetInvert');
-    const calibrationToggle = document.getElementById('calibrationToggle');
-    const calibrationContent = document.getElementById('calibrationContent');
-
-    function updateInvertButtonStyles() {
-        if (invertXBtn) invertXBtn.classList.toggle('active', axisInvert.x === -1);
-        if (invertYBtn) invertYBtn.classList.toggle('active', axisInvert.y === -1);
-        if (invertZBtn) invertZBtn.classList.toggle('active', axisInvert.z === -1);
-    }
-
-    if (invertXBtn) {
-        invertXBtn.addEventListener('click', () => {
-            axisInvert.x *= -1;
-            updateInvertButtonStyles();
-            updatePlayerPositions();
-        });
-    }
-    if (invertYBtn) {
-        invertYBtn.addEventListener('click', () => {
-            axisInvert.y *= -1;
-            updateInvertButtonStyles();
-            updatePlayerPositions();
-        });
-    }
-    if (invertZBtn) {
-        invertZBtn.addEventListener('click', () => {
-            axisInvert.z *= -1;
-            updateInvertButtonStyles();
-            updatePlayerPositions();
-        });
-    }
-    if (resetInvertBtn) {
-        resetInvertBtn.addEventListener('click', () => {
-            axisInvert = { x: 1, y: 1, z: 1 };
-            updateInvertButtonStyles();
-            updatePlayerPositions();
-        });
-    }
-    if (calibrationToggle && calibrationContent) {
-        calibrationToggle.addEventListener('click', () => {
-            const isHidden = calibrationContent.style.display === 'none';
-            calibrationContent.style.display = isHidden ? 'block' : 'none';
-            calibrationToggle.textContent = isHidden ? '−' : '+';
-        });
-    }
 }
 
 // ===== Gamepad Support =====
@@ -723,9 +670,124 @@ function togglePlayerNames() {
 }
 
 let showTrails = false;
+let playerTrails = {};  // Trail line objects for each player
+
 function toggleTrails() {
     showTrails = !showTrails;
-    // Trail toggle - implementation depends on trail system
+
+    // Show/hide all trail lines
+    Object.values(playerTrails).forEach(trail => {
+        if (trail.line) {
+            trail.line.visible = showTrails;
+        }
+    });
+
+    // If enabling trails, rebuild them up to current time
+    if (showTrails) {
+        rebuildTrails();
+    }
+}
+
+function initializeTrails() {
+    // Create trail line for each player
+    players.forEach(player => {
+        const color = player.team === 'none' || player.team === '' ? 0xffffff : player.color;
+        const material = new THREE.LineBasicMaterial({
+            color: color,
+            linewidth: 2,
+            transparent: true,
+            opacity: 0.6
+        });
+
+        const geometry = new THREE.BufferGeometry();
+        const line = new THREE.Line(geometry, material);
+        line.frustumCulled = false;
+        line.visible = showTrails;
+        scene.add(line);
+
+        playerTrails[player.name] = {
+            line,
+            geometry,
+            material,
+            positions: []
+        };
+    });
+}
+
+function rebuildTrails() {
+    // Clear existing trail data
+    Object.values(playerTrails).forEach(trail => {
+        trail.positions = [];
+    });
+
+    // Build trails from telemetry data up to current time
+    const lastPositions = {};
+
+    for (const row of telemetryData) {
+        if (row.gameTimeMs > currentTimeMs) break;
+
+        const trail = playerTrails[row.playerName];
+        if (!trail) continue;
+
+        // Invert X was done at parse time, so use pos.x directly
+        // Halo X->Three X, Halo Z->Three Y, Halo Y->Three Z
+        const newPos = { x: row.x, y: row.z, z: row.y };
+
+        const lastPos = lastPositions[row.playerName];
+
+        // Only add point if position changed significantly (reduces clutter)
+        if (!lastPos ||
+            Math.abs(newPos.x - lastPos.x) > 0.1 ||
+            Math.abs(newPos.y - lastPos.y) > 0.1 ||
+            Math.abs(newPos.z - lastPos.z) > 0.1) {
+            trail.positions.push(newPos.x, newPos.y, newPos.z);
+            lastPositions[row.playerName] = newPos;
+        }
+    }
+
+    // Update trail geometries
+    Object.values(playerTrails).forEach(trail => {
+        if (trail.positions.length >= 6) {  // Need at least 2 points (6 values)
+            trail.geometry.setAttribute('position',
+                new THREE.Float32BufferAttribute(trail.positions, 3));
+            trail.geometry.attributes.position.needsUpdate = true;
+        }
+    });
+}
+
+function updateTrails() {
+    if (!showTrails) return;
+
+    // Update trail for each player with their current position
+    for (const player of players) {
+        const trail = playerTrails[player.name];
+        const marker = playerMarkers[player.name];
+        if (!trail || !marker || !marker.group.visible) continue;
+
+        const pos = marker.group.position;
+        const len = trail.positions.length;
+
+        // Check if position changed
+        if (len >= 3) {
+            const lastX = trail.positions[len - 3];
+            const lastY = trail.positions[len - 2];
+            const lastZ = trail.positions[len - 1];
+
+            if (Math.abs(pos.x - lastX) < 0.1 &&
+                Math.abs(pos.y - lastY) < 0.1 &&
+                Math.abs(pos.z - lastZ) < 0.1) {
+                continue;  // No significant movement
+            }
+        }
+
+        // Add new position
+        trail.positions.push(pos.x, pos.y, pos.z);
+
+        // Update geometry
+        trail.geometry.setAttribute('position',
+            new THREE.Float32BufferAttribute(trail.positions, 3));
+        trail.geometry.attributes.position.needsUpdate = true;
+    }
 }
 
 function cyclePreviousPlayer() {
@@ -843,6 +905,7 @@ function onTimelineInput(e) {
     currentTimeMs = startTimeMs + value;
     updateTimeDisplay();
     updatePlayerPositions();
+    if (showTrails) rebuildTrails();
 }
 
 function onTimelineChange(e) {
@@ -851,6 +914,7 @@ function onTimelineChange(e) {
     currentTimeMs = startTimeMs + value;
     updateTimeDisplay();
     updatePlayerPositions();
+    if (showTrails) rebuildTrails();
 
     // Resume playing if it was playing before
     if (wasPlayingBeforeDrag && !isPlaying) {
@@ -868,6 +932,7 @@ function onTimelineClick(e) {
     timeline.value = currentTimeMs - startTimeMs;
     updateTimeDisplay();
     updatePlayerPositions();
+    if (showTrails) rebuildTrails();
 }
 
 function onWindowResize() {
@@ -914,6 +979,7 @@ async function loadMapAndTelemetry() {
         }
 
         await createPlayerMarkers();
+        initializeTrails();
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
 
@@ -1017,7 +1083,7 @@ function parseTelemetryCSV(csvText) {
             playerName: values[columnIndex['PlayerName']],
             team: values[columnIndex['Team']] || 'none',
             gameTimeMs: parseInt(values[columnIndex['GameTimeMs']]) || 0,
-            x: parseFloat(values[columnIndex['X']]) || 0,
+            x: -(parseFloat(values[columnIndex['X']]) || 0),  // Invert X axis for correct positioning
             y: parseFloat(values[columnIndex['Y']]) || 0,
             z: parseFloat(values[columnIndex['Z']]) || 0,
             facingYaw: parseFloat(values[columnIndex['FacingYaw']]) || 0,
@@ -1164,8 +1230,11 @@ async function createPlayerMarkers() {
             });
 
             // Scale and position the model appropriately
-            spartanClone.scale.set(0.8, 0.8, 0.8);  // Adjust scale as needed
+            spartanClone.scale.set(1.5, 1.5, 1.5);  // Scale up for visibility
+            spartanClone.position.y = 0;  // Ensure model is at ground level
             modelContainer.add(spartanClone);
+
+            console.log('Added Spartan model for player:', player.name);
         } else {
             // Fallback geometry if model failed to load
             const bodyGeometry = new THREE.CylinderGeometry(
@@ -1349,12 +1418,8 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
-            // Position with axis inversion: Halo X->Three X, Halo Z->Three Y (height), Halo Y->Three Z
-            marker.group.position.set(
-                pos.x * axisInvert.x,
-                pos.z * axisInvert.z,
-                pos.y * axisInvert.y
-            );
+            // Position: Halo X->Three X (inverted at parse), Halo Z->Three Y (height), Halo Y->Three Z
+            marker.group.position.set(pos.x, pos.z, pos.y);
 
             // Apply yaw (horizontal rotation)
             if (!isNaN(pos.facingYaw)) {
@@ -1404,6 +1469,16 @@ function updatePlayerPositions() {
 
             camera.position.lerp(targetPos.clone().add(offset), 0.1);
             controls.target.lerp(marker.group.position, 0.1);
+        }
+    }
+
+    // Update scoreboard with current weapons (throttled)
+    if (!updatePlayerPositions.lastScoreboardUpdate ||
+        currentTimeMs - updatePlayerPositions.lastScoreboardUpdate > 500) {
+        updatePlayerPositions.lastScoreboardUpdate = currentTimeMs;
+        const scoreboard = document.getElementById('scoreboard');
+        if (scoreboard && scoreboard.style.display !== 'none') {
+            populateScoreboard();
         }
     }
 }
@@ -1660,10 +1735,17 @@ function animate() {
 
         if (currentTimeMs >= startTimeMs + totalDurationMs) {
             currentTimeMs = startTimeMs; // Loop
+            // Reset trails when looping
+            if (showTrails) {
+                Object.values(playerTrails).forEach(trail => {
+                    trail.positions = [];
+                });
+            }
         }
 
         updateTimeDisplay();
         updatePlayerPositions();
+        updateTrails();
     }
 
     // Update orbit controls
