@@ -1017,8 +1017,10 @@ function updatePlayerPositions() {
 
         const pos = playerPositions[player.name];
         if (pos) {
+            // Convert from Halo coords (Z-up) to Three.js (Y-up): X stays, Z becomes Y, Y becomes -Z
             marker.group.position.set(pos.x, pos.z, -pos.y);
-            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = -pos.facingYaw;
+            // Apply facing direction
+            if (!isNaN(pos.facingYaw)) marker.group.rotation.y = pos.facingYaw;
 
             if (pos.isCrouching) {
                 marker.body.scale.y = 0.7;
