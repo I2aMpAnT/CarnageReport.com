@@ -7494,6 +7494,16 @@ function open3DReplay(gameIndex) {
     // Find telemetry file
     const telemetryFile = findTelemetryFileForGame(game);
 
+    // Build player display name mappings for this game
+    const playerNames = {};
+    game.players.forEach(player => {
+        const displayName = getDisplayNameForProfile(player.name);
+        // Only include if different from in-game name and not "No MAC Linked"
+        if (displayName && displayName !== 'No MAC Linked') {
+            playerNames[player.name] = displayName;
+        }
+    });
+
     // Build viewer URL with parameters (only base game type, no variant)
     const params = new URLSearchParams({
         map: mapName,
@@ -7503,6 +7513,11 @@ function open3DReplay(gameIndex) {
 
     if (telemetryFile) {
         params.set('telemetry', telemetryFile);
+    }
+
+    // Pass player name mappings as JSON
+    if (Object.keys(playerNames).length > 0) {
+        params.set('players', JSON.stringify(playerNames));
     }
 
     // Open viewer in new tab
