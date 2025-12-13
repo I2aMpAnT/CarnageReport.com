@@ -1250,9 +1250,14 @@ function createWaypointCanvas(text, color, emblemImage = null) {
 function loadEmblemImage(url) {
     return new Promise((resolve) => {
         const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => resolve(img);
-        img.onerror = () => resolve(null);
+        img.onload = () => {
+            console.log('Emblem loaded:', url);
+            resolve(img);
+        };
+        img.onerror = (e) => {
+            console.warn('Emblem failed to load:', url, e);
+            resolve(null);
+        };
         img.src = url;
     });
 }
@@ -1400,11 +1405,17 @@ function setViewMode(mode) {
     } else if (mode === 'free') {
         controls.enabled = false;
         camera.up.set(0, 1, 0);
-        // Position camera at eye level looking at map center
-        const eyeHeight = 2;
-        const distance = mapSize * 0.5;
-        camera.position.set(mapCenter.x - distance, mapCenter.y + eyeHeight, mapCenter.z);
-        camera.lookAt(mapCenter.x, mapCenter.y + eyeHeight, mapCenter.z);
+        // Position camera at first player's position if available
+        if (telemetryData.length > 0) {
+            const firstPos = telemetryData[0];
+            // Convert Halo coords to Three.js: X stays, Z becomes Y (height), -Y becomes Z
+            const eyeHeight = 2;
+            camera.position.set(firstPos.x, firstPos.z + eyeHeight, -firstPos.y);
+            camera.lookAt(mapCenter.x, mapCenter.y + eyeHeight, mapCenter.z);
+        } else {
+            camera.position.set(mapCenter.x, mapCenter.y + 2, mapCenter.z + 10);
+            camera.lookAt(mapCenter.x, mapCenter.y, mapCenter.z);
+        }
     } else if (mode === 'orbit') {
         controls.enabled = true;
         camera.up.set(0, 1, 0);
