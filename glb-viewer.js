@@ -79,6 +79,7 @@ function mapNameToGlbFilename(mapName) {
 // ===== State =====
 let scene, camera, renderer, controls;
 let mapModel = null;
+let helmetModel = null;  // Master Chief helmet template
 let playerMarkers = {};
 let telemetryData = [];
 let players = [];
@@ -835,6 +836,36 @@ function onWindowResize() {
 }
 
 // ===== Loading =====
+
+// Load Master Chief helmet model for player markers
+async function loadHelmetModel() {
+    return new Promise((resolve) => {
+        const loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+        loader.setDRACOLoader(dracoLoader);
+
+        loader.load(
+            'maps3D/MasterChief.glb',
+            (gltf) => {
+                helmetModel = gltf.scene;
+                // Center the model if needed
+                const box = new THREE.Box3().setFromObject(helmetModel);
+                const center = box.getCenter(new THREE.Vector3());
+                helmetModel.position.sub(center);
+                console.log('Master Chief helmet model loaded');
+                resolve();
+            },
+            undefined,
+            (error) => {
+                console.warn('Failed to load MasterChief.glb, using fallback markers:', error);
+                helmetModel = null;
+                resolve();
+            }
+        );
+    });
+}
+
 async function loadMapAndTelemetry() {
     const loadingOverlay = document.getElementById('loading-overlay');
     const loadingText = document.querySelector('.loading-text');
@@ -864,6 +895,10 @@ async function loadMapAndTelemetry() {
             console.warn('GLB not found, using fallback view:', glbError);
             showFallbackMessage();
         }
+
+        // Load helmet model for player markers
+        loadingText.textContent = 'Loading player models...';
+        await loadHelmetModel();
 
         await createPlayerMarkers();
         loadingOverlay.style.display = 'none';
@@ -1065,51 +1100,66 @@ async function createPlayerMarkers() {
         }
     }));
 
+    // Detect FFA: more than 2 unique teams means FFA (use white helmets)
+    const uniqueTeams = new Set(players.map(p => p.team).filter(t => t && t !== 'none' && t !== ''));
+    const isFFA = uniqueTeams.size > 2 || uniqueTeams.size === 0;
+
     players.forEach(player => {
         const group = new THREE.Group();
         group.name = `player_${player.name}`;
 
-        const bodyGeometry = new THREE.CylinderGeometry(
-            CONFIG.playerMarkerSize * 0.4,
-            CONFIG.playerMarkerSize * 0.5,
-            CONFIG.playerMarkerHeight * 0.7,
-            16
-        );
-        const bodyMaterial = new THREE.MeshStandardMaterial({
-            color: player.color,
-            metalness: 0.3,
-            roughness: 0.7,
-            emissive: player.color,
-            emissiveIntensity: 0.2
-        });
-        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.y = CONFIG.playerMarkerHeight * 0.35;
-        body.castShadow = true;
-        group.add(body);
+        // Helmet container for pitch rotation
+        const helmetPivot = new THREE.Group();
+        let helmet = null;
 
-        const headGeometry = new THREE.SphereGeometry(CONFIG.playerMarkerSize * 0.35, 16, 16);
-        const headMaterial = new THREE.MeshStandardMaterial({
-            color: player.color,
-            metalness: 0.3,
-            roughness: 0.7,
-            emissive: player.color,
-            emissiveIntensity: 0.2
-        });
-        const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.y = CONFIG.playerMarkerHeight * 0.8;
-        head.castShadow = true;
-        group.add(head);
+        // Determine helmet color: white for FFA, red/blue for teams
+        let helmetColor;
+        if (isFFA) {
+            helmetColor = 0xffffff; // White for FFA
+        } else if (player.team.includes('red') || player.team === '_game_team_red') {
+            helmetColor = 0xff3333; // Red team
+        } else if (player.team.includes('blue') || player.team === '_game_team_blue') {
+            helmetColor = 0x3399ff; // Blue team
+        } else {
+            helmetColor = 0xffffff; // Default white
+        }
 
-        const arrowGeometry = new THREE.ConeGeometry(0.15, 0.4, 8);
-        const arrowMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            emissive: 0xffffff,
-            emissiveIntensity: 0.5
-        });
-        const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-        arrow.rotation.x = Math.PI / 2;
-        arrow.position.set(0, CONFIG.playerMarkerHeight * 0.5, CONFIG.playerMarkerSize * 0.6);
-        group.add(arrow);
+        if (helmetModel) {
+            // Clone the helmet model
+            helmet = helmetModel.clone();
+
+            // Apply team color to all meshes in the helmet
+            helmet.traverse((child) => {
+                if (child.isMesh) {
+                    child.material = child.material.clone();
+                    child.material.color.setHex(helmetColor);
+                    child.material.emissive = new THREE.Color(helmetColor);
+                    child.material.emissiveIntensity = 0.15;
+                    child.castShadow = true;
+                }
+            });
+
+            // Scale helmet to appropriate size (adjust based on model)
+            helmet.scale.set(0.8, 0.8, 0.8);
+            helmetPivot.add(helmet);
+        } else {
+            // Fallback: sphere head if helmet not loaded
+            const headGeometry = new THREE.SphereGeometry(CONFIG.playerMarkerSize * 0.4, 16, 16);
+            const headMaterial = new THREE.MeshStandardMaterial({
+                color: helmetColor,
+                metalness: 0.5,
+                roughness: 0.5,
+                emissive: helmetColor,
+                emissiveIntensity: 0.15
+            });
+            helmet = new THREE.Mesh(headGeometry, headMaterial);
+            helmet.castShadow = true;
+            helmetPivot.add(helmet);
+        }
+
+        // Position helmet at head height
+        helmetPivot.position.y = CONFIG.playerMarkerHeight * 0.8;
+        group.add(helmetPivot);
 
         // Use waypoint canvas with emblem if available
         const emblemImage = emblemImages[player.name];
@@ -1124,16 +1174,16 @@ async function createPlayerMarkers() {
             depthTest: false
         });
         const label = new THREE.Sprite(labelMaterial);
-        label.scale.set(2.5, 3.5, 1); // Aspect ratio 128:180
+        label.scale.set(2.5, 3.5, 1);
         label.position.y = CONFIG.playerMarkerHeight + 2.5;
         group.add(label);
 
-        const glow = new THREE.PointLight(player.color, 0.5, 3);
+        const glow = new THREE.PointLight(helmetColor, 0.5, 3);
         glow.position.y = CONFIG.playerMarkerHeight * 0.5;
         group.add(glow);
 
         scene.add(group);
-        playerMarkers[player.name] = { group, body, head, arrow, label, player, emblemImage };
+        playerMarkers[player.name] = { group, helmet, helmetPivot, label, player, emblemImage, helmetColor };
     });
 }
 
@@ -1347,29 +1397,34 @@ function updatePlayerPositions() {
             lastKnownPositions[player.name] = {
                 x: pos.x, y: pos.y, z: pos.z,
                 facingYaw: pos.facingYaw,
+                facingPitch: pos.facingPitch,
                 isCrouching: pos.isCrouching
             };
 
             // Convert from Halo coords (Z-up) to Three.js (Y-up): X stays, Z becomes Y, Y becomes -Z
             marker.group.position.set(pos.x, pos.z, -pos.y);
-            // Apply facing direction
+            // Apply facing direction (yaw) to the group
             if (!isNaN(pos.facingYaw)) marker.group.rotation.y = pos.facingYaw + Math.PI;  // +180° rotation fix
 
-            if (pos.isCrouching) {
-                marker.body.scale.y = 0.7;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.6;
-            } else {
-                marker.body.scale.y = 1;
-                marker.head.position.y = CONFIG.playerMarkerHeight * 0.8;
+            // Apply pitch to the helmet pivot (looking up/down)
+            if (marker.helmetPivot && !isNaN(pos.facingPitch)) {
+                marker.helmetPivot.rotation.x = -pos.facingPitch; // Negative for proper direction
+            }
+
+            // Handle crouch - lower helmet position
+            if (marker.helmetPivot) {
+                if (pos.isCrouching) {
+                    marker.helmetPivot.position.y = CONFIG.playerMarkerHeight * 0.5; // Lower when crouching
+                } else {
+                    marker.helmetPivot.position.y = CONFIG.playerMarkerHeight * 0.8; // Normal height
+                }
             }
 
             marker.group.visible = true;
             marker.isDead = false;
 
-            // Show normal marker
-            if (marker.body) marker.body.visible = true;
-            if (marker.head) marker.head.visible = true;
-            if (marker.arrow) marker.arrow.visible = true;
+            // Show helmet
+            if (marker.helmet) marker.helmet.visible = true;
 
         } else if (lastKnownPositions[player.name]) {
             // Player is dead - keep at last known position
@@ -1380,10 +1435,8 @@ function updatePlayerPositions() {
             marker.group.visible = true;
             marker.isDead = true;
 
-            // Hide body/head, show death state
-            if (marker.body) marker.body.visible = false;
-            if (marker.head) marker.head.visible = false;
-            if (marker.arrow) marker.arrow.visible = false;
+            // Hide helmet when dead
+            if (marker.helmet) marker.helmet.visible = false;
 
         } else {
             // No position data ever - hide completely
