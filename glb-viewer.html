@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Halo 2 Theater Mode - CarnageReport.com</title>
     <link rel="icon" type="image/x-icon" href="H2CRFinal.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Highway+Gothic:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="glb-viewer.css">
+    <style>
+        @font-face {
+            font-family: 'Highway Gothic';
+            src: local('Highway Gothic'), local('Interstate'), local('Clearview Highway');
+            font-weight: 400;
+        }
+    </style>
 </head>
 <body>
     <div class="viewer-container">
@@ -53,6 +60,33 @@
             <!-- Debug Text (top of canvas) -->
             <div id="debug-text" class="debug-text">
                 Cam: (0, 0, 0) | Map: 0° 0° 0° | Player: (0, 0, 0)
+            </div>
+
+            <!-- Scoreboard (Tab to toggle) -->
+            <div id="scoreboard" class="scoreboard" style="display: none;">
+                <div class="scoreboard-team red-team">
+                    <div class="team-header">
+                        <span class="team-name">Red Team</span>
+                        <span class="team-score" id="red-team-score">0</span>
+                    </div>
+                    <div class="team-players" id="red-team-players">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <div class="scoreboard-team blue-team">
+                    <div class="team-header">
+                        <span class="team-name">Blue Team</span>
+                        <span class="team-score" id="blue-team-score">0</span>
+                    </div>
+                    <div class="team-players" id="blue-team-players">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Killfeed (K to toggle) -->
+            <div id="killfeed" class="killfeed">
+                <!-- Kill entries populated by JS -->
             </div>
         </div>
 
