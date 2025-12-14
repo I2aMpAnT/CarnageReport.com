@@ -12,6 +12,7 @@ import json
 import os
 import requests
 import subprocess
+import pytz
 from datetime import datetime
 
 # File paths - VPS stats directories (the only source for game files)
@@ -481,13 +482,11 @@ def detect_series(games, get_display_name_func):
         - playlist: playlist name
         - red_team: list of player names
         - blue_team: list of player names
-        - games: list of game entries in the series
-        - red_wins: number of games won by red team
-        - blue_wins: number of games won by blue team
-        - winner: 'Red', 'Blue', or 'Ongoing'
-        - series_type: 'Bo3', 'Bo5', 'Bo7', or 'Custom'
+        - games: list of game entries (winner, map, gametype, source_file)
         - start_time: timestamp of first game
         - end_time: timestamp of last game
+
+    Note: Series winner determination is handled by the bot, not here.
     """
     if not games:
         return []
@@ -532,17 +531,10 @@ def detect_series(games, get_display_name_func):
                 'source_file': game.get('source_file', '')
             })
             current_series['end_time'] = game['details'].get('Start Time', '')
-
-            if game_winner == 'Red':
-                current_series['red_wins'] += 1
-            elif game_winner == 'Blue':
-                current_series['blue_wins'] += 1
         else:
             # Different composition - close previous series if exists
             if current_series:
-                # Finalize and add to list
                 del current_series['_team_sig']
-                _finalize_series(current_series)
                 series_list.append(current_series)
 
             # Start new series
@@ -560,55 +552,16 @@ def detect_series(games, get_display_name_func):
                     'winner': game_winner,
                     'source_file': game.get('source_file', '')
                 }],
-                'red_wins': 1 if game_winner == 'Red' else 0,
-                'blue_wins': 1 if game_winner == 'Blue' else 0,
                 'start_time': game['details'].get('Start Time', ''),
-                'end_time': game['details'].get('Start Time', ''),
-                'winner': 'Ongoing',
-                'series_type': 'Custom'
+                'end_time': game['details'].get('Start Time', '')
             }
 
     # Don't forget the last series
     if current_series:
         del current_series['_team_sig']
-        _finalize_series(current_series)
         series_list.append(current_series)
 
     return series_list
-
-def _finalize_series(series):
-    """
-    Finalize a series by determining the winner and series type.
-    """
-    red_wins = series['red_wins']
-    blue_wins = series['blue_wins']
-    total_games = len(series['games'])
-
-    # Determine series type based on games played
-    if total_games <= 3:
-        series['series_type'] = 'Bo3'
-        wins_needed = 2
-    elif total_games <= 5:
-        series['series_type'] = 'Bo5'
-        wins_needed = 3
-    elif total_games <= 7:
-        series['series_type'] = 'Bo7'
-        wins_needed = 4
-    else:
-        series['series_type'] = 'Custom'
-        wins_needed = (total_games // 2) + 1
-
-    # Determine winner
-    if red_wins >= wins_needed:
-        series['winner'] = 'Red'
-    elif blue_wins >= wins_needed:
-        series['winner'] = 'Blue'
-    elif red_wins > blue_wins:
-        series['winner'] = 'Red'  # Series ended with red ahead
-    elif blue_wins > red_wins:
-        series['winner'] = 'Blue'  # Series ended with blue ahead
-    else:
-        series['winner'] = 'Tie'  # Equal wins when series ended
 
 def get_loss_factor(rank, loss_factors):
     """Get the loss factor for a given rank. Lower ranks lose less XP."""
@@ -1003,13 +956,15 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
             continue
 
         try:
-            # Bot timestamps are UTC - convert to local time for comparison
+            # Bot timestamps include timezone offset (e.g., -05:00 for EST)
+            # Parse and convert to naive local time for comparison with game timestamps
+            from datetime import timedelta
             start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
             if start_dt.tzinfo is not None:
-                start_dt = start_dt.replace(tzinfo=None)
-            # Subtract 5 hours for EST (UTC-5) - bot stores UTC, games are local EST
-            from datetime import timedelta
-            start_dt = start_dt - timedelta(hours=5)
+                # Convert to UTC first, then to EST (UTC-5)
+                utc_dt = start_dt.astimezone(pytz.UTC)
+                est = pytz.timezone('US/Eastern')
+                start_dt = utc_dt.astimezone(est).replace(tzinfo=None)
             # Add 5-minute buffer before start to account for timestamp differences
             start_dt_with_buffer = start_dt - timedelta(minutes=5)
         except:
@@ -1028,9 +983,10 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
             try:
                 end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
                 if end_dt.tzinfo is not None:
-                    end_dt = end_dt.replace(tzinfo=None)
-                # Convert UTC to EST
-                end_dt = end_dt - timedelta(hours=5)
+                    # Convert to UTC first, then to EST (UTC-5)
+                    utc_dt = end_dt.astimezone(pytz.UTC)
+                    est = pytz.timezone('US/Eastern')
+                    end_dt = utc_dt.astimezone(est).replace(tzinfo=None)
                 # Add 5-minute buffer after end to account for timestamp differences
                 end_dt_with_buffer = end_dt + timedelta(minutes=5)
                 if debug:
@@ -2168,12 +2124,34 @@ def main():
 
             # Initialize playlist tracking if needed
             if playlist not in player_playlist_xp[player_name]:
-                player_playlist_xp[player_name][playlist] = 0
-                player_playlist_wins[player_name][playlist] = 0
-                player_playlist_losses[player_name][playlist] = 0
-                player_playlist_games[player_name][playlist] = 0
-                player_playlist_rank[player_name][playlist] = 1
-                player_playlist_highest_rank[player_name][playlist] = 1
+                # Check if this user has existing stats from another alias
+                existing_xp = 0
+                existing_wins = 0
+                existing_losses = 0
+                existing_games = 0
+                existing_rank = 1
+                existing_highest = 1
+
+                if user_id:
+                    # Look for any other player names that map to the same user_id
+                    for other_name, other_id in player_to_id.items():
+                        if other_id == user_id and other_name != player_name:
+                            if other_name in player_playlist_xp and playlist in player_playlist_xp[other_name]:
+                                # Found existing stats from another alias - use them
+                                existing_xp = player_playlist_xp[other_name][playlist]
+                                existing_wins = player_playlist_wins[other_name].get(playlist, 0)
+                                existing_losses = player_playlist_losses[other_name].get(playlist, 0)
+                                existing_games = player_playlist_games[other_name].get(playlist, 0)
+                                existing_rank = player_playlist_rank[other_name].get(playlist, 1)
+                                existing_highest = player_playlist_highest_rank[other_name].get(playlist, 1)
+                                break
+
+                player_playlist_xp[player_name][playlist] = existing_xp
+                player_playlist_wins[player_name][playlist] = existing_wins
+                player_playlist_losses[player_name][playlist] = existing_losses
+                player_playlist_games[player_name][playlist] = existing_games
+                player_playlist_rank[player_name][playlist] = existing_rank
+                player_playlist_highest_rank[player_name][playlist] = existing_highest
 
             # Get current XP and rank for this playlist (this is rank_before)
             old_xp = player_playlist_xp[player_name][playlist]
@@ -2257,10 +2235,13 @@ def main():
     for user_id, player_names in user_id_to_names.items():
         # Ensure user exists in rankstats
         if user_id not in rankstats:
-            # Get discord_name from players.json or use first player name
-            discord_name = players.get(user_id, {}).get('discord_name', player_names[0])
+            # Get player data from players.json
+            player_data = players.get(user_id, {})
+            discord_name = player_data.get('discord_name', player_names[0])
             rankstats[user_id] = {
                 'discord_name': discord_name,
+                'twitch_name': player_data.get('twitch_name', ''),
+                'twitch_url': player_data.get('twitch_url', ''),
                 'total_games': 0,
                 'kills': 0,
                 'deaths': 0,
@@ -2272,6 +2253,12 @@ def main():
                 'series_wins': 0,
                 'series_losses': 0,
             }
+        else:
+            # User already exists - update twitch info from players.json if not set
+            player_data = players.get(user_id, {})
+            if not rankstats[user_id].get('twitch_name') and player_data.get('twitch_name'):
+                rankstats[user_id]['twitch_name'] = player_data.get('twitch_name', '')
+                rankstats[user_id]['twitch_url'] = player_data.get('twitch_url', '')
 
         # Consolidate stats from all aliases for this user
         total_games = 0
@@ -2775,9 +2762,9 @@ def main():
     print(f"  Saved {RANKHISTORY_FILE} ({len(rankhistory)} players with history)")
 
     # Detect and save series data (for manual playlists)
+    # Note: Series winner determination is handled by the bot, not here
     print("\n  Detecting series from ranked games...")
     all_series = []
-    series_player_stats = {}  # Track series wins/losses per player
 
     for playlist_name in all_playlists:
         playlist_games = games_by_playlist.get(playlist_name, [])
@@ -2791,59 +2778,10 @@ def main():
         for series in playlist_series:
             all_series.append(series)
 
-            # Track series wins/losses for players
-            winning_team = series['winner']
-            if winning_team in ['Red', 'Blue']:
-                # Get player discord IDs for each team
-                for player_name in series['red_team']:
-                    # Find discord ID from in-game name
-                    for ingame_name, discord_id in player_to_id.items():
-                        display = get_display_name(ingame_name)
-                        if display == player_name:
-                            if discord_id not in series_player_stats:
-                                series_player_stats[discord_id] = {'series_wins': 0, 'series_losses': 0}
-                            if winning_team == 'Red':
-                                series_player_stats[discord_id]['series_wins'] += 1
-                            else:
-                                series_player_stats[discord_id]['series_losses'] += 1
-                            break
-
-                for player_name in series['blue_team']:
-                    for ingame_name, discord_id in player_to_id.items():
-                        display = get_display_name(ingame_name)
-                        if display == player_name:
-                            if discord_id not in series_player_stats:
-                                series_player_stats[discord_id] = {'series_wins': 0, 'series_losses': 0}
-                            if winning_team == 'Blue':
-                                series_player_stats[discord_id]['series_wins'] += 1
-                            else:
-                                series_player_stats[discord_id]['series_losses'] += 1
-                            break
-
-    # Update rankstats with series wins/losses
-    for discord_id, stats in series_player_stats.items():
-        if discord_id in rankstats:
-            rankstats[discord_id]['series_wins'] = stats['series_wins']
-            rankstats[discord_id]['series_losses'] = stats['series_losses']
-
-    # Save series data for bot
-    series_data = {
-        'series': all_series,
-        'player_series_stats': series_player_stats,
-        'generated_at': datetime.now().isoformat()
-    }
+    # Save series data as flat list for bot (bot handles winner determination)
     with open(SERIES_FILE, 'w') as f:
-        json.dump(series_data, f, indent=2)
-    print(f"  Saved {SERIES_FILE} ({len(all_series)} series, {len(series_player_stats)} players)")
-
-    # Re-save ranks.json with series data
-    for user_id in ranks_data:
-        if user_id in series_player_stats:
-            ranks_data[user_id]['series_wins'] = series_player_stats[user_id]['series_wins']
-            ranks_data[user_id]['series_losses'] = series_player_stats[user_id]['series_losses']
-    with open(RANKS_FILE, 'w') as f:
-        json.dump(ranks_data, f, indent=2)
-    print(f"  Updated {RANKS_FILE} with series stats")
+        json.dump(all_series, f, indent=2)
+    print(f"  Saved {SERIES_FILE} ({len(all_series)} series)")
 
     # Print summary
     print("\n" + "=" * 50)

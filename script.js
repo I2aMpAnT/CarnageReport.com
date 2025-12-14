@@ -167,7 +167,7 @@ let twitchHubLoaded = false;
 let twitchHubVods = [];
 let twitchHubClips = [];
 
-// Get all game time ranges from gamesData, including player names
+// Get all game time ranges from gamesData, including player discord IDs
 function getGameTimeRanges() {
     const ranges = [];
     gamesData.forEach(game => {
@@ -191,9 +191,11 @@ function getGameTimeRanges() {
                     endDate = new Date(startDate.getTime() + 15 * 60 * 1000);
                 }
                 if (endDate) {
-                    // Get all player names in this game
-                    const playerNames = (game.players || []).map(p => p.name).filter(Boolean);
-                    ranges.push({ start: startDate, end: endDate, players: playerNames });
+                    // Get all player discord IDs in this game (for VOD matching)
+                    const playerDiscordIds = (game.players || [])
+                        .map(p => p.discord_id)
+                        .filter(Boolean);
+                    ranges.push({ start: startDate, end: endDate, playerDiscordIds });
                 }
             }
         }
@@ -373,17 +375,13 @@ function getInGameNamesForDiscordId(discordId) {
 function vodOverlapsWithGames(vod, gameRanges) {
     const vodStart = new Date(vod.createdAt);
     const vodEnd = new Date(vodStart.getTime() + (vod.lengthSeconds * 1000));
-
-    // Get in-game names for this streamer
-    const streamerInGameNames = getInGameNamesForDiscordId(vod.user.discordId);
+    const streamerDiscordId = vod.user.discordId;
 
     for (const range of gameRanges) {
         // Check if VOD time range overlaps with game time range
         if (vodStart <= range.end && vodEnd >= range.start) {
-            // Also check if streamer was in this game
-            const gamePlayerNames = range.players.map(n => n.toLowerCase());
-            const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
-            if (wasInGame) {
+            // Check if streamer was in this game by discord ID
+            if (range.playerDiscordIds && range.playerDiscordIds.includes(streamerDiscordId)) {
                 return true;
             }
         }
@@ -396,7 +394,7 @@ function vodOverlapsWithGames(vod, gameRanges) {
 function findGamesForVod(vod) {
     const vodStart = new Date(vod.createdAt);
     const vodEnd = new Date(vodStart.getTime() + (vod.lengthSeconds * 1000));
-    const streamerInGameNames = getInGameNamesForDiscordId(vod.user.discordId);
+    const streamerDiscordId = vod.user.discordId;
     const matchingGames = [];
 
     gamesData.forEach((game, index) => {
@@ -423,13 +421,11 @@ function findGamesForVod(vod) {
 
         // Check time overlap
         if (vodStart <= endDate && vodEnd >= startDate) {
-            // Check if streamer was in this game
-            const gamePlayerNames = (game.players || []).map(p => (p.name || '').toLowerCase());
-            const wasInGame = streamerInGameNames.some(name => gamePlayerNames.includes(name));
-            if (wasInGame) {
+            // Check if streamer was in this game by discord ID
+            const gamePlayerDiscordIds = (game.players || []).map(p => p.discord_id).filter(Boolean);
+            if (gamePlayerDiscordIds.includes(streamerDiscordId)) {
                 // Calculate timestamp offset from VOD start to game start
                 const offsetSeconds = Math.max(0, Math.floor((startDate - vodStart) / 1000));
-                const players = (game.players || []).map(p => p.name).filter(Boolean);
 
                 const rawType = game.details['Game Type'] || 'Unknown';
                 const baseGameType = getBaseGametype(rawType, game.playlist, game);
@@ -440,8 +436,7 @@ function findGamesForVod(vod) {
                     gameType: baseGameType,
                     startTime: game.details['Start Time'],
                     timestampSeconds: offsetSeconds,
-                    timestampFormatted: formatVodTimestamp(offsetSeconds),
-                    players: players
+                    timestampFormatted: formatVodTimestamp(offsetSeconds)
                 });
             }
         }
