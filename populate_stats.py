@@ -2011,12 +2011,34 @@ def main():
 
             # Initialize playlist tracking if needed
             if playlist not in player_playlist_xp[player_name]:
-                player_playlist_xp[player_name][playlist] = 0
-                player_playlist_wins[player_name][playlist] = 0
-                player_playlist_losses[player_name][playlist] = 0
-                player_playlist_games[player_name][playlist] = 0
-                player_playlist_rank[player_name][playlist] = 1
-                player_playlist_highest_rank[player_name][playlist] = 1
+                # Check if this user has existing stats from another alias
+                existing_xp = 0
+                existing_wins = 0
+                existing_losses = 0
+                existing_games = 0
+                existing_rank = 1
+                existing_highest = 1
+
+                if user_id:
+                    # Look for any other player names that map to the same user_id
+                    for other_name, other_id in player_to_id.items():
+                        if other_id == user_id and other_name != player_name:
+                            if other_name in player_playlist_xp and playlist in player_playlist_xp[other_name]:
+                                # Found existing stats from another alias - use them
+                                existing_xp = player_playlist_xp[other_name][playlist]
+                                existing_wins = player_playlist_wins[other_name].get(playlist, 0)
+                                existing_losses = player_playlist_losses[other_name].get(playlist, 0)
+                                existing_games = player_playlist_games[other_name].get(playlist, 0)
+                                existing_rank = player_playlist_rank[other_name].get(playlist, 1)
+                                existing_highest = player_playlist_highest_rank[other_name].get(playlist, 1)
+                                break
+
+                player_playlist_xp[player_name][playlist] = existing_xp
+                player_playlist_wins[player_name][playlist] = existing_wins
+                player_playlist_losses[player_name][playlist] = existing_losses
+                player_playlist_games[player_name][playlist] = existing_games
+                player_playlist_rank[player_name][playlist] = existing_rank
+                player_playlist_highest_rank[player_name][playlist] = existing_highest
 
             # Get current XP and rank for this playlist (this is rank_before)
             old_xp = player_playlist_xp[player_name][playlist]
@@ -2100,10 +2122,13 @@ def main():
     for user_id, player_names in user_id_to_names.items():
         # Ensure user exists in rankstats
         if user_id not in rankstats:
-            # Get discord_name from players.json or use first player name
-            discord_name = players.get(user_id, {}).get('discord_name', player_names[0])
+            # Get player data from players.json
+            player_data = players.get(user_id, {})
+            discord_name = player_data.get('discord_name', player_names[0])
             rankstats[user_id] = {
                 'discord_name': discord_name,
+                'twitch_name': player_data.get('twitch_name', ''),
+                'twitch_url': player_data.get('twitch_url', ''),
                 'total_games': 0,
                 'kills': 0,
                 'deaths': 0,
@@ -2115,6 +2140,12 @@ def main():
                 'series_wins': 0,
                 'series_losses': 0,
             }
+        else:
+            # User already exists - update twitch info from players.json if not set
+            player_data = players.get(user_id, {})
+            if not rankstats[user_id].get('twitch_name') and player_data.get('twitch_name'):
+                rankstats[user_id]['twitch_name'] = player_data.get('twitch_name', '')
+                rankstats[user_id]['twitch_url'] = player_data.get('twitch_url', '')
 
         # Consolidate stats from all aliases for this user
         total_games = 0
