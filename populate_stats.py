@@ -2311,6 +2311,11 @@ def main():
                 'games': pl_data.get('games', 0)
             }
 
+        # Add in-game names for this user (for VOD/clip matching on frontend)
+        in_game_names = [name for name, uid in player_to_id.items() if uid == user_id]
+        if in_game_names:
+            ranks_data[user_id]['in_game_names'] = in_game_names
+
     with open(RANKS_FILE, 'w') as f:
         json.dump(ranks_data, f, indent=2)
     print(f"  Saved {RANKS_FILE} ({len(ranks_data)} players)")
