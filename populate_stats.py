@@ -2638,9 +2638,9 @@ def main():
     print(f"  Saved {RANKHISTORY_FILE} ({len(rankhistory)} players with history)")
 
     # Detect and save series data (for manual playlists)
+    # Note: Series winner determination is handled by the bot, not here
     print("\n  Detecting series from ranked games...")
     all_series = []
-    series_player_stats = {}  # Track series wins/losses per player
 
     for playlist_name in all_playlists:
         playlist_games = games_by_playlist.get(playlist_name, [])
@@ -2654,59 +2654,10 @@ def main():
         for series in playlist_series:
             all_series.append(series)
 
-            # Track series wins/losses for players
-            winning_team = series['winner']
-            if winning_team in ['Red', 'Blue']:
-                # Get player discord IDs for each team
-                for player_name in series['red_team']:
-                    # Find discord ID from in-game name
-                    for ingame_name, discord_id in player_to_id.items():
-                        display = get_display_name(ingame_name)
-                        if display == player_name:
-                            if discord_id not in series_player_stats:
-                                series_player_stats[discord_id] = {'series_wins': 0, 'series_losses': 0}
-                            if winning_team == 'Red':
-                                series_player_stats[discord_id]['series_wins'] += 1
-                            else:
-                                series_player_stats[discord_id]['series_losses'] += 1
-                            break
-
-                for player_name in series['blue_team']:
-                    for ingame_name, discord_id in player_to_id.items():
-                        display = get_display_name(ingame_name)
-                        if display == player_name:
-                            if discord_id not in series_player_stats:
-                                series_player_stats[discord_id] = {'series_wins': 0, 'series_losses': 0}
-                            if winning_team == 'Blue':
-                                series_player_stats[discord_id]['series_wins'] += 1
-                            else:
-                                series_player_stats[discord_id]['series_losses'] += 1
-                            break
-
-    # Update rankstats with series wins/losses
-    for discord_id, stats in series_player_stats.items():
-        if discord_id in rankstats:
-            rankstats[discord_id]['series_wins'] = stats['series_wins']
-            rankstats[discord_id]['series_losses'] = stats['series_losses']
-
-    # Save series data for bot
-    series_data = {
-        'series': all_series,
-        'player_series_stats': series_player_stats,
-        'generated_at': datetime.now().isoformat()
-    }
+    # Save series data as flat list for bot (bot handles winner determination)
     with open(SERIES_FILE, 'w') as f:
-        json.dump(series_data, f, indent=2)
-    print(f"  Saved {SERIES_FILE} ({len(all_series)} series, {len(series_player_stats)} players)")
-
-    # Re-save ranks.json with series data
-    for user_id in ranks_data:
-        if user_id in series_player_stats:
-            ranks_data[user_id]['series_wins'] = series_player_stats[user_id]['series_wins']
-            ranks_data[user_id]['series_losses'] = series_player_stats[user_id]['series_losses']
-    with open(RANKS_FILE, 'w') as f:
-        json.dump(ranks_data, f, indent=2)
-    print(f"  Updated {RANKS_FILE} with series stats")
+        json.dump(all_series, f, indent=2)
+    print(f"  Saved {SERIES_FILE} ({len(all_series)} series)")
 
     # Print summary
     print("\n" + "=" * 50)
