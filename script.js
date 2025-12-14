@@ -348,6 +348,29 @@ function formatDateTimeLocal(date) {
     return `${month} ${day}${getOrdinal(day)} ${year}, ${displayHours}:${String(minutes).padStart(2, '0')} ${ampm}`;
 }
 
+// Get in-game names for a Discord ID (from in_game_names array + display_name/discord_name as fallbacks)
+function getInGameNamesForDiscordId(discordId) {
+    const data = rankstatsData[discordId];
+    if (!data) return [];
+
+    const names = new Set();
+
+    // Primary: in_game_names from MAC matching
+    if (data.in_game_names && Array.isArray(data.in_game_names)) {
+        data.in_game_names.forEach(n => names.add(n.toLowerCase()));
+    }
+
+    // Fallback: display_name and discord_name (players often use these as in-game names)
+    if (data.display_name) {
+        names.add(data.display_name.toLowerCase());
+    }
+    if (data.discord_name) {
+        names.add(data.discord_name.toLowerCase());
+    }
+
+    return Array.from(names);
+}
+
 // Check if a VOD overlaps with any game where the streamer was a participant
 function vodOverlapsWithGames(vod, gameRanges) {
     const vodStart = new Date(vod.createdAt);
@@ -977,7 +1000,8 @@ function formatDateTime(startTime) {
 function getBaseGametype(variantName, playlist = '', game = null) {
     if (!variantName) return 'Unknown';
     const name = variantName.toLowerCase();
-    const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore';
+    // MLG playlists use "Bomb" for assault, others use "Assault"
+    const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore' || playlist === 'Tournament';
 
     let baseType = '';
 
@@ -993,9 +1017,9 @@ function getBaseGametype(variantName, playlist = '', game = null) {
     else if (name.includes('king') || name.includes('koth') || name.includes('hill')) {
         baseType = 'King of the Hill';
     }
-    // Assault variants
+    // Assault variants - "Bomb" for MLG playlists, "Assault" for others
     else if (name.includes('assault') || name.includes('bomb')) {
-        baseType = 'Bomb';
+        baseType = isMLG ? 'Bomb' : 'Assault';
     }
     // Territories variants
     else if (name.includes('territor')) {

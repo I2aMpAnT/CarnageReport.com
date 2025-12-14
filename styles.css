@@ -2590,8 +2590,8 @@ header {
 
 .twitch-vods-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
     margin-top: 15px;
 }
 
