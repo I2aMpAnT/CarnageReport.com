@@ -992,7 +992,8 @@ function formatDateTime(startTime) {
 function getBaseGametype(variantName, playlist = '', game = null) {
     if (!variantName) return 'Unknown';
     const name = variantName.toLowerCase();
-    const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore';
+    // MLG playlists use "Bomb" for assault, others use "Assault"
+    const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore' || playlist === 'Tournament';
 
     let baseType = '';
 
@@ -1008,9 +1009,9 @@ function getBaseGametype(variantName, playlist = '', game = null) {
     else if (name.includes('king') || name.includes('koth') || name.includes('hill')) {
         baseType = 'King of the Hill';
     }
-    // Assault variants
+    // Assault variants - "Bomb" for MLG playlists, "Assault" for others
     else if (name.includes('assault') || name.includes('bomb')) {
-        baseType = 'Bomb';
+        baseType = isMLG ? 'Bomb' : 'Assault';
     }
     // Territories variants
     else if (name.includes('territor')) {
