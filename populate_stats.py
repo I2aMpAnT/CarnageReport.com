@@ -2868,7 +2868,7 @@ def main():
     print(f"  Total series detected: {len(all_series)}")
     series_by_type = {}
     for s in all_series:
-        st = s['series_type']
+        st = s.get('series_type', 'Unknown')
         series_by_type[st] = series_by_type.get(st, 0) + 1
     for st, count in sorted(series_by_type.items()):
         print(f"  {st}: {count} series")
