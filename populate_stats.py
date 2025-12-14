@@ -370,13 +370,11 @@ def detect_series(games, get_display_name_func):
         - playlist: playlist name
         - red_team: list of player names
         - blue_team: list of player names
-        - games: list of game entries in the series
-        - red_wins: number of games won by red team
-        - blue_wins: number of games won by blue team
-        - winner: 'Red', 'Blue', or 'Ongoing'
-        - series_type: 'Bo3', 'Bo5', 'Bo7', or 'Custom'
+        - games: list of game entries (winner, map, gametype, source_file)
         - start_time: timestamp of first game
         - end_time: timestamp of last game
+
+    Note: Series winner determination is handled by the bot, not here.
     """
     if not games:
         return []
@@ -421,17 +419,10 @@ def detect_series(games, get_display_name_func):
                 'source_file': game.get('source_file', '')
             })
             current_series['end_time'] = game['details'].get('Start Time', '')
-
-            if game_winner == 'Red':
-                current_series['red_wins'] += 1
-            elif game_winner == 'Blue':
-                current_series['blue_wins'] += 1
         else:
             # Different composition - close previous series if exists
             if current_series:
-                # Finalize and add to list
                 del current_series['_team_sig']
-                _finalize_series(current_series)
                 series_list.append(current_series)
 
             # Start new series
@@ -449,55 +440,16 @@ def detect_series(games, get_display_name_func):
                     'winner': game_winner,
                     'source_file': game.get('source_file', '')
                 }],
-                'red_wins': 1 if game_winner == 'Red' else 0,
-                'blue_wins': 1 if game_winner == 'Blue' else 0,
                 'start_time': game['details'].get('Start Time', ''),
-                'end_time': game['details'].get('Start Time', ''),
-                'winner': 'Ongoing',
-                'series_type': 'Custom'
+                'end_time': game['details'].get('Start Time', '')
             }
 
     # Don't forget the last series
     if current_series:
         del current_series['_team_sig']
-        _finalize_series(current_series)
         series_list.append(current_series)
 
     return series_list
-
-def _finalize_series(series):
-    """
-    Finalize a series by determining the winner and series type.
-    """
-    red_wins = series['red_wins']
-    blue_wins = series['blue_wins']
-    total_games = len(series['games'])
-
-    # Determine series type based on games played
-    if total_games <= 3:
-        series['series_type'] = 'Bo3'
-        wins_needed = 2
-    elif total_games <= 5:
-        series['series_type'] = 'Bo5'
-        wins_needed = 3
-    elif total_games <= 7:
-        series['series_type'] = 'Bo7'
-        wins_needed = 4
-    else:
-        series['series_type'] = 'Custom'
-        wins_needed = (total_games // 2) + 1
-
-    # Determine winner
-    if red_wins >= wins_needed:
-        series['winner'] = 'Red'
-    elif blue_wins >= wins_needed:
-        series['winner'] = 'Blue'
-    elif red_wins > blue_wins:
-        series['winner'] = 'Red'  # Series ended with red ahead
-    elif blue_wins > red_wins:
-        series['winner'] = 'Blue'  # Series ended with blue ahead
-    else:
-        series['winner'] = 'Tie'  # Equal wins when series ended
 
 def get_loss_factor(rank, loss_factors):
     """Get the loss factor for a given rank. Lower ranks lose less XP."""
