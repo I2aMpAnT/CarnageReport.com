@@ -175,30 +175,70 @@ async function init() {
 }
 
 async function parseUrlParams() {
-    // Check for /theater/{gameNumber} URL
-    const pathMatch = window.location.pathname.match(/\/theater\/(\d+)/);
+    // Check for /theater/{identifier} URL - can be game number or filename prefix
+    const pathMatch = window.location.pathname.match(/\/theater\/([^\/]+)/);
 
     if (pathMatch) {
-        const gameNumber = pathMatch[1];
+        const identifier = pathMatch[1];
+
         try {
             const response = await fetch('/gameindex.json');
             const gameIndex = await response.json();
-            const game = gameIndex[gameNumber];
 
-            if (game) {
-                mapName = game.map || 'Unknown';
-                telemetryFile = game.theater || '';
+            // Check if identifier is a game number (all digits)
+            if (/^\d+$/.test(identifier)) {
+                const game = gameIndex[identifier];
+                if (game) {
+                    mapName = game.map || 'Unknown';
+                    telemetryFile = game.theater || '';
+                    gameInfo = {
+                        map: mapName,
+                        gameType: game.gametype || '',
+                        date: game.timestamp || '',
+                        variant: game.gametype || ''
+                    };
+                } else {
+                    console.error(`Game #${identifier} not found`);
+                    mapName = 'Unknown';
+                    telemetryFile = '';
+                    gameInfo = {};
+                }
             } else {
-                console.error(`Game #${gameNumber} not found`);
-                mapName = 'Unknown';
-                telemetryFile = '';
+                // Identifier is a filename prefix (e.g., 20251202_203858)
+                // Search gameindex for matching theater file
+                const searchFilename = `${identifier}_theater.csv`;
+                let foundGame = null;
+
+                for (const [gameNum, game] of Object.entries(gameIndex)) {
+                    if (game.theater === searchFilename) {
+                        foundGame = game;
+                        break;
+                    }
+                }
+
+                if (foundGame) {
+                    mapName = foundGame.map || 'Unknown';
+                    telemetryFile = foundGame.theater || '';
+                    gameInfo = {
+                        map: mapName,
+                        gameType: foundGame.gametype || '',
+                        date: foundGame.timestamp || '',
+                        variant: foundGame.gametype || ''
+                    };
+                } else {
+                    // No match in gameindex - try loading the file directly
+                    console.warn(`No gameindex entry for ${identifier}, attempting direct load`);
+                    mapName = 'Unknown';
+                    telemetryFile = searchFilename;
+                    gameInfo = { map: mapName, gameType: '', date: '', variant: '' };
+                }
             }
         } catch (e) {
             console.error('Failed to load gameindex.json:', e);
             mapName = 'Unknown';
             telemetryFile = '';
+            gameInfo = {};
         }
-        gameInfo = { map: mapName, gameType: '', date: '', variant: '' };
     } else {
         // Fallback to query params
         const params = new URLSearchParams(window.location.search);
@@ -1066,10 +1106,62 @@ function parseTelemetryCSV(csvText) {
     const columnIndex = {};
     header.forEach((col, i) => { columnIndex[col.trim()] = i; });
 
-    const requiredCols = ['PlayerName', 'GameTimeMs', 'X', 'Y', 'Z'];
-    for (const col of requiredCols) {
-        if (columnIndex[col] === undefined) throw new Error(`Missing required column: ${col}`);
-    }
+    // Helper to get column index with fallback names (preferred name first)
+    const getCol = (...names) => {
+        for (const name of names) {
+            if (columnIndex[name] !== undefined) return columnIndex[name];
+        }
+        return undefined;
+    };
+
+    // Map columns with fallbacks for new/legacy formats
+    const cols = {
+        playerName: getCol('PlayerName'),
+        team: getCol('Team'),
+        gameTimeMs: getCol('GameTimeMs'),
+        // Position: new format uses PosX/PosY/PosZ, legacy uses X/Y/Z
+        x: getCol('PosX', 'X'),
+        y: getCol('PosY', 'Y'),
+        z: getCol('PosZ', 'Z'),
+        // Facing: new format has Yaw/Pitch (radians) and YawDeg/PitchDeg (degrees)
+        yaw: getCol('Yaw', 'FacingYaw'),
+        pitch: getCol('Pitch', 'FacingPitch'),
+        yawDeg: getCol('YawDeg'),
+        pitchDeg: getCol('PitchDeg'),
+        // Status
+        isCrouching: getCol('IsCrouching'),
+        isAirborne: getCol('IsAirborne'),
+        isDead: getCol('IsDead'),
+        health: getCol('Health'),
+        shield: getCol('Shield'),
+        // Weapons
+        currentWeapon: getCol('CurrentWeapon'),
+        // Emblem: new format uses EmblemFg/EmblemBg, legacy uses EmblemForeground/EmblemBackground
+        emblemFg: getCol('EmblemFg', 'EmblemForeground'),
+        emblemBg: getCol('EmblemBg', 'EmblemBackground'),
+        // Colors: new format uses ColorPrimary, legacy uses PrimaryColor
+        colorPrimary: getCol('ColorPrimary', 'PrimaryColor'),
+        colorSecondary: getCol('ColorSecondary', 'SecondaryColor'),
+        colorTertiary: getCol('ColorTertiary', 'TertiaryColor'),
+        colorQuaternary: getCol('ColorQuaternary', 'QuaternaryColor'),
+        // Combat stats
+        kills: getCol('Kills'),
+        deaths: getCol('Deaths'),
+        assists: getCol('Assists'),
+        // Objective stats
+        score: getCol('Score'),
+        redTeamScore: getCol('RedTeamScore'),
+        blueTeamScore: getCol('BlueTeamScore'),
+        // Events
+        event: getCol('Event')
+    };
+
+    // Validate required columns exist (check both formats)
+    if (cols.playerName === undefined) throw new Error('Missing required column: PlayerName');
+    if (cols.gameTimeMs === undefined) throw new Error('Missing required column: GameTimeMs');
+    if (cols.x === undefined) throw new Error('Missing required column: PosX or X');
+    if (cols.y === undefined) throw new Error('Missing required column: PosY or Y');
+    if (cols.z === undefined) throw new Error('Missing required column: PosZ or Z');
 
     telemetryData = [];
     const playerSet = new Set();
@@ -1079,25 +1171,45 @@ function parseTelemetryCSV(csvText) {
         const values = parseCSVLine(lines[i]);
         if (values.length < header.length) continue;
 
+        // Get facing angles - prefer degrees if available, otherwise use radians
+        let facingYaw = 0, facingPitch = 0;
+        if (cols.yawDeg !== undefined) {
+            // Convert degrees to radians
+            facingYaw = (parseFloat(values[cols.yawDeg]) || 0) * Math.PI / 180;
+            facingPitch = (parseFloat(values[cols.pitchDeg]) || 0) * Math.PI / 180;
+        } else if (cols.yaw !== undefined) {
+            facingYaw = parseFloat(values[cols.yaw]) || 0;
+            facingPitch = parseFloat(values[cols.pitch]) || 0;
+        }
+
         const row = {
-            playerName: values[columnIndex['PlayerName']],
-            team: values[columnIndex['Team']] || 'none',
-            gameTimeMs: parseInt(values[columnIndex['GameTimeMs']]) || 0,
-            x: -(parseFloat(values[columnIndex['X']]) || 0),  // Invert X axis for correct positioning
-            y: parseFloat(values[columnIndex['Y']]) || 0,
-            z: parseFloat(values[columnIndex['Z']]) || 0,
-            facingYaw: parseFloat(values[columnIndex['FacingYaw']]) || 0,
-            facingPitch: parseFloat(values[columnIndex['FacingPitch']]) || 0,
-            isCrouching: values[columnIndex['IsCrouching']] === 'True',
-            isAirborne: values[columnIndex['IsAirborne']] === 'True',
-            currentWeapon: values[columnIndex['CurrentWeapon']] || 'Unknown',
+            playerName: values[cols.playerName],
+            team: cols.team !== undefined ? (values[cols.team] || 'none') : 'none',
+            gameTimeMs: parseInt(values[cols.gameTimeMs]) || 0,
+            x: -(parseFloat(values[cols.x]) || 0),  // Invert X axis for correct positioning
+            y: parseFloat(values[cols.y]) || 0,
+            z: parseFloat(values[cols.z]) || 0,
+            facingYaw: facingYaw,
+            facingPitch: facingPitch,
+            isCrouching: cols.isCrouching !== undefined ? values[cols.isCrouching] === 'True' : false,
+            isAirborne: cols.isAirborne !== undefined ? values[cols.isAirborne] === 'True' : false,
+            isDead: cols.isDead !== undefined ? values[cols.isDead] === 'True' : false,
+            health: cols.health !== undefined ? parseFloat(values[cols.health]) || 1 : 1,
+            shield: cols.shield !== undefined ? parseFloat(values[cols.shield]) || 1 : 1,
+            currentWeapon: cols.currentWeapon !== undefined ? (values[cols.currentWeapon] || 'Unknown') : 'Unknown',
             // Emblem data
-            emblemForeground: parseInt(values[columnIndex['EmblemForeground']]) || 0,
-            emblemBackground: parseInt(values[columnIndex['EmblemBackground']]) || 0,
-            primaryColor: parseInt(values[columnIndex['PrimaryColor']]) || 0,
-            secondaryColor: parseInt(values[columnIndex['SecondaryColor']]) || 0,
-            tertiaryColor: parseInt(values[columnIndex['TertiaryColor']]) || 0,
-            quaternaryColor: parseInt(values[columnIndex['QuaternaryColor']]) || 0
+            emblemForeground: cols.emblemFg !== undefined ? (parseInt(values[cols.emblemFg]) || 0) : 0,
+            emblemBackground: cols.emblemBg !== undefined ? (parseInt(values[cols.emblemBg]) || 0) : 0,
+            primaryColor: cols.colorPrimary !== undefined ? (parseInt(values[cols.colorPrimary]) || 0) : 0,
+            secondaryColor: cols.colorSecondary !== undefined ? (parseInt(values[cols.colorSecondary]) || 0) : 0,
+            tertiaryColor: cols.colorTertiary !== undefined ? (parseInt(values[cols.colorTertiary]) || 0) : 0,
+            quaternaryColor: cols.colorQuaternary !== undefined ? (parseInt(values[cols.colorQuaternary]) || 0) : 0,
+            // Combat stats
+            kills: cols.kills !== undefined ? (parseInt(values[cols.kills]) || 0) : 0,
+            deaths: cols.deaths !== undefined ? (parseInt(values[cols.deaths]) || 0) : 0,
+            assists: cols.assists !== undefined ? (parseInt(values[cols.assists]) || 0) : 0,
+            // Events
+            event: cols.event !== undefined ? values[cols.event] : ''
         };
 
         telemetryData.push(row);
