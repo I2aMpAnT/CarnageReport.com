@@ -203,11 +203,11 @@ def get_base_gametype(game_type_field):
     return mapping.get(gt, game_type_field)
 
 def get_playlist_files(playlist_name):
-    """Get the matches, stats, and games filenames for a playlist."""
+    """Get the matches, stats, and embeds filenames for a playlist."""
     return {
         'matches': f'{playlist_name}_matches.json',
         'stats': f'{playlist_name}_stats.json',
-        'games': f'{playlist_name}_games.json'
+        'embeds': f'{playlist_name}_embeds.json'
     }
 
 def load_playlist_matches(playlist_name):
@@ -253,11 +253,11 @@ def save_custom_games(data):
     with open(CUSTOMGAMES_FILE, 'w') as f:
         json.dump(data, f, indent=2)
 
-def save_playlist_games(playlist_name, games_data):
-    """Save games JSON for a playlist (for Discord embeds)."""
+def save_playlist_embeds(playlist_name, embeds_data):
+    """Save embeds JSON for a playlist (for Discord embeds)."""
     files = get_playlist_files(playlist_name)
-    with open(files['games'], 'w') as f:
-        json.dump(games_data, f, indent=2)
+    with open(files['embeds'], 'w') as f:
+        json.dump(embeds_data, f, indent=2)
 
 def build_game_entry_for_embed(game, get_display_name_func, ingame_to_discord_id):
     """
@@ -2613,15 +2613,15 @@ def main():
         playlist_files_saved.append(get_playlist_files(playlist_name)['stats'])
         print(f"    Saved {get_playlist_files(playlist_name)['stats']} ({len(stats_data['players'])} players)")
 
-        # Build games JSON for Discord embeds (simplified per-game format)
-        games_json = {'playlist': playlist_name, 'games': []}
+        # Build embeds JSON for Discord (array of per-game entries)
+        embeds_data = []
         for game in playlist_games:
             game_entry = build_game_entry_for_embed(game, get_display_name, ingame_to_discord_id)
-            games_json['games'].append(game_entry)
+            embeds_data.append(game_entry)
 
-        save_playlist_games(playlist_name, games_json)
-        playlist_files_saved.append(get_playlist_files(playlist_name)['games'])
-        print(f"    Saved {get_playlist_files(playlist_name)['games']} ({len(games_json['games'])} games)")
+        save_playlist_embeds(playlist_name, embeds_data)
+        playlist_files_saved.append(get_playlist_files(playlist_name)['embeds'])
+        print(f"    Saved {get_playlist_files(playlist_name)['embeds']} ({len(embeds_data)} games)")
 
     # Save unranked games to customgames.json
     if untagged_games:
