@@ -2122,10 +2122,13 @@ def main():
     for user_id, player_names in user_id_to_names.items():
         # Ensure user exists in rankstats
         if user_id not in rankstats:
-            # Get discord_name from players.json or use first player name
-            discord_name = players.get(user_id, {}).get('discord_name', player_names[0])
+            # Get player data from players.json
+            player_data = players.get(user_id, {})
+            discord_name = player_data.get('discord_name', player_names[0])
             rankstats[user_id] = {
                 'discord_name': discord_name,
+                'twitch_name': player_data.get('twitch_name', ''),
+                'twitch_url': player_data.get('twitch_url', ''),
                 'total_games': 0,
                 'kills': 0,
                 'deaths': 0,
@@ -2137,6 +2140,12 @@ def main():
                 'series_wins': 0,
                 'series_losses': 0,
             }
+        else:
+            # User already exists - update twitch info from players.json if not set
+            player_data = players.get(user_id, {})
+            if not rankstats[user_id].get('twitch_name') and player_data.get('twitch_name'):
+                rankstats[user_id]['twitch_name'] = player_data.get('twitch_name', '')
+                rankstats[user_id]['twitch_url'] = player_data.get('twitch_url', '')
 
         # Consolidate stats from all aliases for this user
         total_games = 0
