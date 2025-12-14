@@ -307,10 +307,10 @@ def build_game_entry_for_embed(game, get_display_name_func, ingame_to_discord_id
     is_oddball = 'oddball' in game_type_lower
 
     if is_ctf and game.get('detailed_stats'):
-        # For CTF, use flag captures
-        detailed = {s['player']: s for s in game.get('detailed_stats', [])}
-        red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in red_players)
-        blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in blue_players)
+        # For CTF, use flag captures (case-insensitive name matching)
+        detailed = {s['player'].lower(): s for s in game.get('detailed_stats', [])}
+        red_score = sum(detailed.get(p['name'].lower(), {}).get('ctf_scores', 0) for p in red_players)
+        blue_score = sum(detailed.get(p['name'].lower(), {}).get('ctf_scores', 0) for p in blue_players)
     elif is_oddball:
         # For Oddball, convert time scores to seconds (but display as integer)
         red_score = sum(time_to_seconds(p.get('score', '0')) for p in red_players)
@@ -1637,7 +1637,8 @@ def determine_winners_losers(game):
     # Build detailed stats lookup for CTF
     detailed = {}
     if is_ctf and game.get('detailed_stats'):
-        detailed = {s['player']: s for s in game.get('detailed_stats', [])}
+        # Case-insensitive name matching
+        detailed = {s['player'].lower(): s for s in game.get('detailed_stats', [])}
 
     teams = {}
     for player in players:
@@ -1647,7 +1648,7 @@ def determine_winners_losers(game):
                 teams[team] = {'score': 0, 'players': []}
             # For CTF, use flag captures; for Oddball, convert time to seconds; otherwise use score_numeric
             if is_ctf and detailed:
-                teams[team]['score'] += detailed.get(player['name'], {}).get('ctf_scores', 0)
+                teams[team]['score'] += detailed.get(player['name'].lower(), {}).get('ctf_scores', 0)
             elif is_oddball:
                 teams[team]['score'] += time_to_seconds(player.get('score', '0'))
             else:
@@ -2472,10 +2473,10 @@ def main():
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
-                # For CTF, use flag captures from detailed stats
-                detailed = {s['player']: s for s in game.get('detailed_stats', [])}
-                red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
-                blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
+                # For CTF, use flag captures from detailed stats (case-insensitive name matching)
+                detailed = {s['player'].lower(): s for s in game.get('detailed_stats', [])}
+                red_score = sum(detailed.get(p['name'].lower(), {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
+                blue_score = sum(detailed.get(p['name'].lower(), {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
             elif is_oddball:
                 # For Oddball, convert time scores to seconds
                 red_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Red')
@@ -2640,9 +2641,10 @@ def main():
 
             # Calculate team scores
             if is_ctf and game.get('detailed_stats'):
-                detailed = {s['player']: s for s in game.get('detailed_stats', [])}
-                red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
-                blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
+                # Case-insensitive name matching
+                detailed = {s['player'].lower(): s for s in game.get('detailed_stats', [])}
+                red_score = sum(detailed.get(p['name'].lower(), {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Red')
+                blue_score = sum(detailed.get(p['name'].lower(), {}).get('ctf_scores', 0) for p in game['players'] if p.get('team') == 'Blue')
             elif is_oddball:
                 # For Oddball, convert time scores to seconds
                 red_score = sum(time_to_seconds(p.get('score', '0')) for p in game['players'] if p.get('team') == 'Red')
