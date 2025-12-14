@@ -12,6 +12,7 @@ import json
 import os
 import requests
 import subprocess
+import pytz
 from datetime import datetime
 
 # File paths - VPS stats directories (the only source for game files)
@@ -891,13 +892,15 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
             continue
 
         try:
-            # Bot timestamps are UTC - convert to local time for comparison
+            # Bot timestamps include timezone offset (e.g., -05:00 for EST)
+            # Parse and convert to naive local time for comparison with game timestamps
+            from datetime import timedelta
             start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
             if start_dt.tzinfo is not None:
-                start_dt = start_dt.replace(tzinfo=None)
-            # Subtract 5 hours for EST (UTC-5) - bot stores UTC, games are local EST
-            from datetime import timedelta
-            start_dt = start_dt - timedelta(hours=5)
+                # Convert to UTC first, then to EST (UTC-5)
+                utc_dt = start_dt.astimezone(pytz.UTC)
+                est = pytz.timezone('US/Eastern')
+                start_dt = utc_dt.astimezone(est).replace(tzinfo=None)
             # Add 5-minute buffer before start to account for timestamp differences
             start_dt_with_buffer = start_dt - timedelta(minutes=5)
         except:
@@ -916,9 +919,10 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
             try:
                 end_dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
                 if end_dt.tzinfo is not None:
-                    end_dt = end_dt.replace(tzinfo=None)
-                # Convert UTC to EST
-                end_dt = end_dt - timedelta(hours=5)
+                    # Convert to UTC first, then to EST (UTC-5)
+                    utc_dt = end_dt.astimezone(pytz.UTC)
+                    est = pytz.timezone('US/Eastern')
+                    end_dt = utc_dt.astimezone(est).replace(tzinfo=None)
                 # Add 5-minute buffer after end to account for timestamp differences
                 end_dt_with_buffer = end_dt + timedelta(minutes=5)
                 if debug:
