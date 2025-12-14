@@ -203,10 +203,11 @@ def get_base_gametype(game_type_field):
     return mapping.get(gt, game_type_field)
 
 def get_playlist_files(playlist_name):
-    """Get the matches and stats filenames for a playlist."""
+    """Get the matches, stats, and games filenames for a playlist."""
     return {
         'matches': f'{playlist_name}_matches.json',
-        'stats': f'{playlist_name}_stats.json'
+        'stats': f'{playlist_name}_stats.json',
+        'games': f'{playlist_name}_games.json'
     }
 
 def load_playlist_matches(playlist_name):
@@ -251,6 +252,117 @@ def save_custom_games(data):
     """Save custom games."""
     with open(CUSTOMGAMES_FILE, 'w') as f:
         json.dump(data, f, indent=2)
+
+def save_playlist_games(playlist_name, games_data):
+    """Save games JSON for a playlist (for Discord embeds)."""
+    files = get_playlist_files(playlist_name)
+    with open(files['games'], 'w') as f:
+        json.dump(games_data, f, indent=2)
+
+def build_game_entry_for_embed(game, get_display_name_func, ingame_to_discord_id):
+    """
+    Build a game entry in the format needed for Discord embeds.
+
+    Returns dict with:
+    - filename: xlsx filename (unique ID)
+    - timestamp: ISO format timestamp
+    - map: Map name
+    - gametype: Gametype
+    - score: Final score as "X-X"
+    - winner: "RED" or "BLUE"
+    - red_team: {player_names, player_ids, player_ranks}
+    - blue_team: {player_names, player_ids, player_ranks}
+    """
+    details = game.get('details', {})
+    players = game.get('players', [])
+
+    # Parse timestamp to ISO format
+    start_time = details.get('Start Time', '')
+    try:
+        # Try common formats: "12/14/2024 19:30" or "2024-12-14 19:30:00"
+        for fmt in ['%m/%d/%Y %H:%M', '%Y-%m-%d %H:%M:%S', '%m/%d/%Y %H:%M:%S']:
+            try:
+                dt = datetime.strptime(start_time, fmt)
+                timestamp_iso = dt.strftime('%Y-%m-%dT%H:%M:%S')
+                break
+            except ValueError:
+                continue
+        else:
+            timestamp_iso = start_time  # Fall back to original
+    except Exception:
+        timestamp_iso = start_time
+
+    # Get map and gametype
+    map_name = details.get('Map Name', 'Unknown')
+    game_type = details.get('Game Type', 'Unknown')
+    gametype_display = get_base_gametype(game_type)
+
+    # Separate players by team
+    red_players = [p for p in players if p.get('team') == 'Red']
+    blue_players = [p for p in players if p.get('team') == 'Blue']
+
+    # Calculate scores based on gametype
+    game_type_lower = game_type.lower()
+    is_ctf = 'ctf' in game_type_lower or 'capture' in game_type_lower
+    is_oddball = 'oddball' in game_type_lower
+
+    if is_ctf and game.get('detailed_stats'):
+        # For CTF, use flag captures
+        detailed = {s['player']: s for s in game.get('detailed_stats', [])}
+        red_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in red_players)
+        blue_score = sum(detailed.get(p['name'], {}).get('ctf_scores', 0) for p in blue_players)
+    elif is_oddball:
+        # For Oddball, convert time scores to seconds (but display as integer)
+        red_score = sum(time_to_seconds(p.get('score', '0')) for p in red_players)
+        blue_score = sum(time_to_seconds(p.get('score', '0')) for p in blue_players)
+    else:
+        # For other games, use score_numeric
+        red_score = sum(p.get('score_numeric', 0) for p in red_players)
+        blue_score = sum(p.get('score_numeric', 0) for p in blue_players)
+
+    # Determine winner
+    if red_score > blue_score:
+        winner = "RED"
+    elif blue_score > red_score:
+        winner = "BLUE"
+    else:
+        winner = "TIE"
+
+    # Build team data with Discord IDs and ranks
+    def build_team_data(team_players):
+        names = []
+        discord_ids = []
+        ranks = []
+        for p in team_players:
+            player_name = p.get('name', '')
+            display_name = get_display_name_func(player_name)
+            names.append(display_name)
+
+            # Look up Discord ID
+            player_lower = player_name.lower()
+            discord_id = ingame_to_discord_id.get(player_lower)
+            discord_ids.append(int(discord_id) if discord_id else None)
+
+            # Get pre-game rank
+            rank = p.get('pre_game_rank', 1)
+            ranks.append(rank)
+
+        return {
+            'player_names': names,
+            'player_ids': discord_ids,
+            'player_ranks': ranks
+        }
+
+    return {
+        'filename': game.get('source_file', ''),
+        'timestamp': timestamp_iso,
+        'map': map_name,
+        'gametype': gametype_display,
+        'score': f"{red_score}-{blue_score}",
+        'winner': winner,
+        'red_team': build_team_data(red_players),
+        'blue_team': build_team_data(blue_players)
+    }
 
 def generate_game_index():
     """
@@ -2500,6 +2612,16 @@ def main():
         save_playlist_stats(playlist_name, stats_data)
         playlist_files_saved.append(get_playlist_files(playlist_name)['stats'])
         print(f"    Saved {get_playlist_files(playlist_name)['stats']} ({len(stats_data['players'])} players)")
+
+        # Build games JSON for Discord embeds (simplified per-game format)
+        games_json = {'playlist': playlist_name, 'games': []}
+        for game in playlist_games:
+            game_entry = build_game_entry_for_embed(game, get_display_name, ingame_to_discord_id)
+            games_json['games'].append(game_entry)
+
+        save_playlist_games(playlist_name, games_json)
+        playlist_files_saved.append(get_playlist_files(playlist_name)['games'])
+        print(f"    Saved {get_playlist_files(playlist_name)['games']} ({len(games_json['games'])} games)")
 
     # Save unranked games to customgames.json
     if untagged_games:
