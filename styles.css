@@ -5604,3 +5604,11 @@ header {
     transform: translateX(5px);
     color: var(--unsc-blue);
 }
+
+/* Tournament winner label */
+.tournament-winner {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    color: #fbbf24;
+    margin-top: 5px;
+}

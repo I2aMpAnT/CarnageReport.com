@@ -368,6 +368,124 @@
         .negative { color: #f87171; }
         .neutral { color: #fbbf24; }
 
+        /* Game details content */
+        .game-details-header {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .map-image-container {
+            position: relative;
+            width: 200px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+        .map-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: 2px solid rgba(168, 212, 255, 0.3);
+        }
+        .map-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            padding: 10px;
+        }
+        .map-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+        .game-info-panel {
+            flex: 1;
+        }
+        .game-type-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--unsc-blue);
+            margin-bottom: 10px;
+        }
+        .game-meta-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+        .game-final-score {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .final-score-team {
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+        }
+        .final-score-team.team-red {
+            background: rgba(239, 68, 68, 0.3);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+        .final-score-team.team-blue {
+            background: rgba(59, 130, 246, 0.3);
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+        }
+        .final-score-team.winner {
+            font-weight: bold;
+        }
+        .score-separator {
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Scoreboard table */
+        .scoreboard {
+            margin-top: 15px;
+        }
+        .scoreboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .scoreboard-table th {
+            background: rgba(168, 212, 255, 0.1);
+            color: var(--unsc-blue);
+            padding: 10px 15px;
+            text-align: left;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        .scoreboard-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(168, 212, 255, 0.1);
+            color: rgba(255,255,255,0.9);
+        }
+        .scoreboard-table tr.team-red {
+            background: rgba(239, 68, 68, 0.15);
+        }
+        .scoreboard-table tr.team-blue {
+            background: rgba(59, 130, 246, 0.15);
+        }
+        .scoreboard-table .player-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .scoreboard-table .player-name {
+            color: var(--unsc-blue);
+            cursor: pointer;
+        }
+        .scoreboard-table .player-name:hover {
+            text-decoration: underline;
+        }
+
         /* Playlist link in game details */
         .playlist-link {
             color: var(--unsc-blue);
@@ -884,11 +1002,12 @@
             const sorted = [...playersData].sort((a, b) => {
                 const aVal = getSortValue(a, currentSort.column);
                 const bVal = getSortValue(b, currentSort.column);
-                const modifier = currentSort.direction === 'asc' ? 1 : -1;
+                // desc = highest first, asc = lowest first
                 if (typeof aVal === 'string') {
-                    return aVal.localeCompare(bVal) * modifier;
+                    const cmp = aVal.localeCompare(bVal);
+                    return currentSort.direction === 'desc' ? -cmp : cmp;
                 }
-                return (bVal - aVal) * modifier;
+                return currentSort.direction === 'desc' ? (bVal - aVal) : (aVal - bVal);
             });
 
             const tbody = document.getElementById('tableBody');

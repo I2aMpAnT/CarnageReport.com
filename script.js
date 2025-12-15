@@ -7619,11 +7619,22 @@ async function loadTournaments() {
             const teamsCount = tournament.bracket?.teams?.length || 0;
             const tournamentDate = tournament.date || '';
 
+            // Find the winner from grand finals
+            let winnerName = '';
+            const grandFinals = tournament.bracket?.series?.find(s => s.round === 'grand_finals');
+            if (grandFinals && grandFinals.winner_seed) {
+                const winnerTeam = tournament.bracket.teams?.find(t => t.seed === grandFinals.winner_seed);
+                if (winnerTeam) {
+                    winnerName = `Team ${winnerTeam.captain}`;
+                }
+            }
+
             html += `
                 <a href="/playlist.html?name=${encodeURIComponent(tournament.name)}" class="tournament-card">
                     <div class="tournament-info">
                         <div class="tournament-name">${tournament.name}</div>
                         <div class="tournament-date">${tournamentDate}</div>
+                        ${winnerName ? `<div class="tournament-winner">Winner: ${winnerName}</div>` : ''}
                     </div>
                     <div class="tournament-stats">
                         <div class="tournament-stat">
