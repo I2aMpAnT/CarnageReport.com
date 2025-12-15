@@ -2134,6 +2134,28 @@ async function selectMap(selectedMapName) {
     if (redPlayers) redPlayers.innerHTML = '';
     if (bluePlayers) bluePlayers.innerHTML = '';
 
+    // Hide scoreboard, killfeed, game timer, and playback controls in free look mode
+    const scoreboard = document.getElementById('scoreboard');
+    const killfeed = document.getElementById('killfeed');
+    const gameTimer = document.getElementById('game-timer');
+    const playbackControls = document.querySelector('.playback-controls');
+    const redScore = document.getElementById('red-team-score');
+    const blueScore = document.getElementById('blue-team-score');
+
+    if (scoreboard) scoreboard.style.display = 'none';
+    if (killfeed) killfeed.style.display = 'none';
+    if (gameTimer) gameTimer.style.display = 'none';
+    if (playbackControls) playbackControls.style.display = 'none';
+    if (redScore) redScore.textContent = '0';
+    if (blueScore) blueScore.textContent = '0';
+
+    // Clear trails
+    Object.values(playerTrails).forEach(trail => {
+        if (trail.line) scene.remove(trail.line);
+    });
+    playerTrails = {};
+    selectedTrailPlayers.clear();
+
     // Remove existing map model
     if (mapModel) {
         scene.remove(mapModel);
