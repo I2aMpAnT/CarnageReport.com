@@ -213,27 +213,28 @@
 
         /* Vertical connector from losers to winners */
         .losers-to-winners-connector {
-            position: relative;
-            display: flex;
-            justify-content: flex-end;
-            padding-right: 60px;
-            margin-top: -20px;
+            position: absolute;
+            right: 330px;
+            top: -30px;
         }
         .vertical-tick {
             width: 2px;
-            height: 40px;
-            background: rgba(168, 212, 255, 0.3);
+            height: 50px;
+            background: rgba(168, 212, 255, 0.4);
         }
-        .vertical-tick::after {
+        .vertical-tick::before {
             content: '';
             position: absolute;
             top: 0;
-            right: 58px;
+            left: -5px;
             width: 0;
             height: 0;
             border-left: 6px solid transparent;
             border-right: 6px solid transparent;
-            border-bottom: 8px solid rgba(168, 212, 255, 0.3);
+            border-bottom: 8px solid rgba(168, 212, 255, 0.4);
+        }
+        .bracket-section.losers-section {
+            position: relative;
         }
 
         /* Games dropdown for series */
@@ -647,14 +648,14 @@
             html += '</div>'; // bracket-rounds
             html += '</div>'; // bracket-section
 
-            // Vertical connector from losers to winners
-            html += '<div class="losers-to-winners-connector"><div class="vertical-tick"></div></div>';
-
             // Losers Bracket Section
             const losersR1 = series.filter(s => s.round === 'losers_r1');
             const losersR2 = series.filter(s => s.round === 'losers_r2');
 
-            html += '<div class="bracket-section">';
+            html += '<div class="bracket-section losers-section">';
+
+            // Vertical connector from losers to winners (inside losers section for positioning)
+            html += '<div class="losers-to-winners-connector"><div class="vertical-tick"></div></div>';
 
             // Losers bracket matches
             html += '<div class="bracket-rounds">';
