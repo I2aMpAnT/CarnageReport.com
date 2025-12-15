@@ -1151,10 +1151,31 @@
         "gametype": "Team Slayer",
         "winner": "Red",
         "source_file": "20251214_195351.xlsx"
+      },
+      {
+        "timestamp": "12/14/2025 7:54 PM",
+        "map": "Midship",
+        "gametype": "Assault",
+        "winner": "Blue",
+        "source_file": "20251214_200916.xlsx"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "winner": "Blue",
+        "source_file": "20251214_201559.xlsx"
+      },
+      {
+        "timestamp": "12/14/2025 8:16 PM",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "winner": "Blue",
+        "source_file": "20251214_202718.xlsx"
       }
     ],
     "start_time": "12/14/2025 7:24 PM",
-    "end_time": "12/14/2025 7:48 PM"
+    "end_time": "12/14/2025 8:16 PM"
   },
   {
     "series_id": "series_32",
@@ -2576,9 +2597,30 @@
         "gametype": "Team Slayer",
         "winner": "Red",
         "source_file": "20251214_195351.xlsx"
+      },
+      {
+        "timestamp": "12/14/2025 7:54 PM",
+        "map": "Midship",
+        "gametype": "Assault",
+        "winner": "Blue",
+        "source_file": "20251214_200916.xlsx"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "winner": "Blue",
+        "source_file": "20251214_201559.xlsx"
+      },
+      {
+        "timestamp": "12/14/2025 8:16 PM",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "winner": "Blue",
+        "source_file": "20251214_202718.xlsx"
       }
     ],
     "start_time": "12/14/2025 7:24 PM",
-    "end_time": "12/14/2025 7:48 PM"
+    "end_time": "12/14/2025 8:16 PM"
   }
 ]

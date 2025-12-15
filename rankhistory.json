@@ -1343,6 +1343,42 @@
         "rank_before": 4,
         "rank_after": 4,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "source_file": "20251214_200916.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 462,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:15 PM",
+        "source_file": "20251214_201559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 562,
+        "rank_before": 5,
+        "rank_after": 6,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:27 PM",
+        "source_file": "20251214_202718.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 662,
+        "rank_before": 6,
+        "rank_after": 7,
+        "result": "win"
       }
     ]
   },
@@ -2181,6 +2217,42 @@
         "rank_before": 7,
         "rank_after": 8,
         "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "source_file": "20251214_200916.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": -27,
+        "xp_total": 663,
+        "rank_before": 8,
+        "rank_after": 7,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:15 PM",
+        "source_file": "20251214_201559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -20,
+        "xp_total": 643,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:27 PM",
+        "source_file": "20251214_202718.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": -20,
+        "xp_total": 623,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "loss"
       }
     ]
   },
@@ -6190,6 +6262,42 @@
         "rank_before": 7,
         "rank_after": 8,
         "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "source_file": "20251214_200916.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": -27,
+        "xp_total": 663,
+        "rank_before": 8,
+        "rank_after": 7,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:15 PM",
+        "source_file": "20251214_201559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -20,
+        "xp_total": 643,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:27 PM",
+        "source_file": "20251214_202718.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": -20,
+        "xp_total": 623,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "loss"
       }
     ]
   },
@@ -6997,6 +7105,42 @@
         "rank_before": 7,
         "rank_after": 8,
         "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "source_file": "20251214_200916.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": -27,
+        "xp_total": 663,
+        "rank_before": 8,
+        "rank_after": 7,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:15 PM",
+        "source_file": "20251214_201559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -20,
+        "xp_total": 643,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:27 PM",
+        "source_file": "20251214_202718.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": -20,
+        "xp_total": 623,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "loss"
       }
     ]
   },
@@ -10584,6 +10728,42 @@
         "rank_before": 7,
         "rank_after": 8,
         "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "source_file": "20251214_200916.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": -27,
+        "xp_total": 663,
+        "rank_before": 8,
+        "rank_after": 7,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:15 PM",
+        "source_file": "20251214_201559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -20,
+        "xp_total": 643,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:27 PM",
+        "source_file": "20251214_202718.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": -20,
+        "xp_total": 623,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "loss"
       }
     ]
   },
@@ -11153,6 +11333,42 @@
         "rank_before": 4,
         "rank_after": 4,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "source_file": "20251214_200916.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 462,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:15 PM",
+        "source_file": "20251214_201559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 562,
+        "rank_before": 5,
+        "rank_after": 6,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:27 PM",
+        "source_file": "20251214_202718.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 662,
+        "rank_before": 6,
+        "rank_after": 7,
+        "result": "win"
       }
     ]
   },
@@ -12743,6 +12959,42 @@
         "rank_before": 4,
         "rank_after": 4,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "source_file": "20251214_200916.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 462,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:15 PM",
+        "source_file": "20251214_201559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 562,
+        "rank_before": 5,
+        "rank_after": 6,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:27 PM",
+        "source_file": "20251214_202718.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 662,
+        "rank_before": 6,
+        "rank_after": 7,
+        "result": "win"
       }
     ]
   },
@@ -13120,6 +13372,42 @@
         "rank_before": 4,
         "rank_after": 4,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/14/2025 8:09 PM",
+        "source_file": "20251214_200916.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 462,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:15 PM",
+        "source_file": "20251214_201559.xlsx",
+        "map": "Lockout",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 562,
+        "rank_before": 5,
+        "rank_after": 6,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/14/2025 8:27 PM",
+        "source_file": "20251214_202718.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 662,
+        "rank_before": 6,
+        "rank_after": 7,
+        "result": "win"
       }
     ]
   },
