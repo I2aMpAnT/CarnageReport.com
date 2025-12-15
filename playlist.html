@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist Stats - CarnageReport.com</title>
+    <link rel="icon" type="image/x-icon" href="H2CRFinal.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .playlist-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .playlist-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .playlist-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--unsc-blue);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        .playlist-summary {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .summary-stat {
+            text-align: center;
+            padding: 15px 25px;
+            background: rgba(168, 212, 255, 0.05);
+            border: 1px solid rgba(168, 212, 255, 0.2);
+            border-radius: 8px;
+        }
+        .summary-stat .value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: var(--unsc-blue);
+        }
+        .summary-stat .label {
+            font-size: 0.85rem;
+            color: rgba(168, 212, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stats-table-container {
+            overflow-x: auto;
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        .stats-table th {
+            background: linear-gradient(180deg, rgba(168, 212, 255, 0.15) 0%, rgba(168, 212, 255, 0.05) 100%);
+            color: var(--unsc-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 2px solid rgba(168, 212, 255, 0.3);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .stats-table th:hover {
+            background: linear-gradient(180deg, rgba(168, 212, 255, 0.25) 0%, rgba(168, 212, 255, 0.1) 100%);
+        }
+        .stats-table th.sorted-asc::after {
+            content: ' \u25B2';
+            font-size: 0.7em;
+        }
+        .stats-table th.sorted-desc::after {
+            content: ' \u25BC';
+            font-size: 0.7em;
+        }
+        .stats-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(168, 212, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .stats-table tr:hover td {
+            background: rgba(168, 212, 255, 0.08);
+        }
+        .stats-table .player-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stats-table .player-emblem {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+        }
+        .stats-table .player-name {
+            color: var(--unsc-blue);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .stats-table .player-name:hover {
+            text-decoration: underline;
+        }
+        .stats-table .rank-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stats-table .rank-icon {
+            width: 28px;
+            height: 28px;
+        }
+        .stats-table .positive {
+            color: #4ade80;
+        }
+        .stats-table .negative {
+            color: #f87171;
+        }
+        .stats-table .neutral {
+            color: #fbbf24;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--unsc-blue);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover {
+            opacity: 1;
+        }
+        .error-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #f87171;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .error-message h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--unsc-blue);
+            font-family: 'Orbitron', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header id="mainHeader">
+            <div class="header-icons">
+                <a href="https://discord.gg/carnagereport" target="_blank" rel="noopener noreferrer" class="header-icon" title="Join Discord">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36" fill="currentColor">
+                        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                    </svg>
+                </a>
+            </div>
+            <a href="/">
+                <img src="HaloCarnageReport Logo.png" alt="Carnage Report Logo" class="logo" style="cursor: pointer;">
+            </a>
+        </header>
+
+        <div class="playlist-page">
+            <a href="/" class="back-link">&larr; Back to Main</a>
+
+            <div id="loadingArea" class="loading">
+                [ LOADING PLAYLIST STATS ]
+            </div>
+
+            <div id="errorArea" class="error-message" style="display: none;">
+                <h2>Playlist Not Found</h2>
+                <p id="errorText">The requested playlist could not be found.</p>
+            </div>
+
+            <div id="contentArea" style="display: none;">
+                <div class="playlist-header">
+                    <h1 class="playlist-title" id="playlistName"></h1>
+                </div>
+
+                <div class="playlist-summary" id="playlistSummary"></div>
+
+                <div class="stats-table-container">
+                    <table class="stats-table">
+                        <thead>
+                            <tr id="tableHeader"></tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get playlist name from URL path
+        function getPlaylistName() {
+            const path = window.location.pathname;
+            // Handle /playlist/Name or /Name patterns
+            let name = path.replace(/^\/playlist\//, '').replace(/^\//, '').replace(/\/$/, '');
+            // Decode URL encoding
+            name = decodeURIComponent(name);
+            // Handle playlist.html?name=X fallback
+            if (!name || name === 'playlist.html') {
+                const params = new URLSearchParams(window.location.search);
+                name = params.get('name') || params.get('playlist') || '';
+            }
+            return name;
+        }
+
+        // Rank icon mapping
+        function getRankIcon(rank) {
+            if (rank >= 1 && rank <= 50) {
+                return `assets/ranks/${rank}.webp`;
+            }
+            return null;
+        }
+
+        // Sort state
+        let currentSort = { column: 'rank', direction: 'desc' };
+        let playersData = [];
+        let emblemsData = {};
+
+        // Column definitions
+        const columns = [
+            { key: 'rank', label: 'Rank', sortable: true },
+            { key: 'player', label: 'Player', sortable: true },
+            { key: 'record', label: 'Record', sortable: true, sortKey: 'wins' },
+            { key: 'winRate', label: 'Win %', sortable: true },
+            { key: 'kills', label: 'Kills', sortable: true },
+            { key: 'deaths', label: 'Deaths', sortable: true },
+            { key: 'kd', label: 'K/D', sortable: true },
+            { key: 'assists', label: 'Assists', sortable: true },
+            { key: 'headshots', label: 'Headshots', sortable: true },
+            { key: 'xp', label: 'XP', sortable: true }
+        ];
+
+        function renderHeader() {
+            const headerRow = document.getElementById('tableHeader');
+            headerRow.innerHTML = columns.map(col => {
+                const sortClass = currentSort.column === col.key ?
+                    (currentSort.direction === 'asc' ? 'sorted-asc' : 'sorted-desc') : '';
+                return `<th class="${sortClass}" onclick="sortBy('${col.key}')">${col.label}</th>`;
+            }).join('');
+        }
+
+        function sortBy(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'desc';
+            }
+            renderTable();
+        }
+
+        function getSortValue(player, column) {
+            switch (column) {
+                case 'rank': return player.rank || 0;
+                case 'player': return player.discord_name.toLowerCase();
+                case 'record':
+                case 'wins': return player.wins || 0;
+                case 'winRate': return player.wins / Math.max(1, player.wins + player.losses);
+                case 'kills': return player.kills || 0;
+                case 'deaths': return player.deaths || 0;
+                case 'kd': return player.kills / Math.max(1, player.deaths);
+                case 'assists': return player.assists || 0;
+                case 'headshots': return player.headshots || 0;
+                case 'xp': return player.xp || 0;
+                default: return 0;
+            }
+        }
+
+        function renderTable() {
+            renderHeader();
+
+            const sorted = [...playersData].sort((a, b) => {
+                const aVal = getSortValue(a, currentSort.column);
+                const bVal = getSortValue(b, currentSort.column);
+                const modifier = currentSort.direction === 'asc' ? 1 : -1;
+                if (typeof aVal === 'string') {
+                    return aVal.localeCompare(bVal) * modifier;
+                }
+                return (bVal - aVal) * modifier;
+            });
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = sorted.map(player => {
+                const emblem = emblemsData[player.discord_id]?.emblem_url || '';
+                const rankIcon = getRankIcon(player.rank);
+                const kd = (player.kills / Math.max(1, player.deaths)).toFixed(2);
+                const winRate = ((player.wins / Math.max(1, player.wins + player.losses)) * 100).toFixed(1);
+                const kdClass = kd >= 1.2 ? 'positive' : kd < 0.8 ? 'negative' : 'neutral';
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="rank-cell">
+                                ${rankIcon ? `<img src="${rankIcon}" class="rank-icon" alt="Rank ${player.rank}">` : ''}
+                                <span>${player.rank || '-'}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="player-cell">
+                                ${emblem ? `<img src="${emblem}" class="player-emblem" alt="">` : ''}
+                                <span class="player-name" onclick="goToPlayer('${player.discord_name}')">${player.discord_name}</span>
+                            </div>
+                        </td>
+                        <td>${player.wins}-${player.losses}</td>
+                        <td>${winRate}%</td>
+                        <td>${player.kills || 0}</td>
+                        <td>${player.deaths || 0}</td>
+                        <td class="${kdClass}">${kd}</td>
+                        <td>${player.assists || 0}</td>
+                        <td>${player.headshots || 0}</td>
+                        <td>${player.xp || 0}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderSummary(stats) {
+            const totalGames = playersData.reduce((sum, p) => sum + (p.wins || 0) + (p.losses || 0), 0) / 2;
+            const totalKills = playersData.reduce((sum, p) => sum + (p.kills || 0), 0);
+            const totalDeaths = playersData.reduce((sum, p) => sum + (p.deaths || 0), 0);
+            const avgKd = (totalKills / Math.max(1, totalDeaths)).toFixed(2);
+
+            const summary = document.getElementById('playlistSummary');
+            summary.innerHTML = `
+                <div class="summary-stat">
+                    <div class="value">${playersData.length}</div>
+                    <div class="label">Players</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="value">${Math.round(totalGames)}</div>
+                    <div class="label">Games Played</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="value">${totalKills.toLocaleString()}</div>
+                    <div class="label">Total Kills</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="value">${avgKd}</div>
+                    <div class="label">Avg K/D</div>
+                </div>
+            `;
+        }
+
+        function goToPlayer(playerName) {
+            window.location.href = `/?player=${encodeURIComponent(playerName)}`;
+        }
+
+        async function loadPlaylistStats() {
+            const playlistName = getPlaylistName();
+
+            if (!playlistName) {
+                showError('No playlist specified in URL.');
+                return;
+            }
+
+            document.title = `${playlistName} - CarnageReport.com`;
+
+            try {
+                // Load playlist stats
+                const statsResponse = await fetch(`${encodeURIComponent(playlistName)}_stats.json`);
+                if (!statsResponse.ok) {
+                    throw new Error(`Playlist "${playlistName}" not found`);
+                }
+                const statsData = await statsResponse.json();
+
+                // Load emblems
+                try {
+                    const emblemsResponse = await fetch('emblems.json');
+                    if (emblemsResponse.ok) {
+                        emblemsData = await emblemsResponse.json();
+                    }
+                } catch (e) {
+                    console.warn('Could not load emblems:', e);
+                }
+
+                // Convert players object to array
+                playersData = Object.entries(statsData.players || {}).map(([discordId, data]) => ({
+                    discord_id: discordId,
+                    ...data
+                }));
+
+                // Show content
+                document.getElementById('loadingArea').style.display = 'none';
+                document.getElementById('contentArea').style.display = 'block';
+                document.getElementById('playlistName').textContent = playlistName;
+
+                renderSummary(statsData);
+                renderTable();
+
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loadingArea').style.display = 'none';
+            document.getElementById('errorArea').style.display = 'block';
+            document.getElementById('errorText').textContent = message;
+        }
+
+        // Load on page ready
+        document.addEventListener('DOMContentLoaded', loadPlaylistStats);
+    </script>
+</body>
+</html>

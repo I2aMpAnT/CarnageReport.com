@@ -31,6 +31,14 @@
       "ranked": true,
       "matches_file": "Head to Head_matches.json",
       "stats_file": "Head to Head_stats.json"
+    },
+    {
+      "name": "Tournament 1",
+      "team_size": 4,
+      "is_team": true,
+      "ranked": true,
+      "matches_file": "Tournament 1_matches.json",
+      "stats_file": "Tournament 1_stats.json"
     }
   ],
   "custom_games": {
