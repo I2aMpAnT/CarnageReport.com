@@ -2225,9 +2225,23 @@
         "gametype": "Team Slayer",
         "winner": "Red",
         "source_file": "20251214_210320.xlsx"
+      },
+      {
+        "timestamp": "12/14/2025 9:04 PM",
+        "map": "Sanctuary",
+        "gametype": "Capture the Flag",
+        "winner": "Blue",
+        "source_file": "20251214_211718.xlsx"
+      },
+      {
+        "timestamp": "12/14/2025 9:21 PM",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "winner": "Blue",
+        "source_file": "20251214_212841.xlsx"
       }
     ],
     "start_time": "12/14/2025 8:41 PM",
-    "end_time": "12/14/2025 8:57 PM"
+    "end_time": "12/14/2025 9:21 PM"
   }
 ]
