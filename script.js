@@ -4134,9 +4134,11 @@ function openSearchResultsPage(type, name) {
     const searchResultsTitle = document.getElementById('searchResultsTitle');
     const searchResultsContent = document.getElementById('searchResultsContent');
     const statsArea = document.getElementById('statsArea');
-    
-    // Hide main stats area and show search results
+    const playerProfilePage = document.getElementById('playerProfilePage');
+
+    // Hide all other pages first
     statsArea.style.display = 'none';
+    if (playerProfilePage) playerProfilePage.style.display = 'none';
     searchResultsPage.style.display = 'block';
     
     // Scroll to top
