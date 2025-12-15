@@ -62,7 +62,8 @@ function getGametypeWithPrefix(gameType, playlist) {
     if (!playlist) return gameType;
 
     const playlistLower = playlist.toLowerCase();
-    if (playlistLower === 'mlg 4v4' || playlistLower === 'team hardcore') {
+    if (playlistLower === 'mlg 4v4' || playlistLower === 'team hardcore' ||
+        playlistLower.includes('tournament')) {
         return 'MLG ' + gameType;
     } else if (playlistLower === 'double team') {
         return '2v2 ' + gameType;
@@ -1001,7 +1002,8 @@ function getBaseGametype(variantName, playlist = '', game = null) {
     if (!variantName) return 'Unknown';
     const name = variantName.toLowerCase();
     // MLG playlists use "Bomb" for assault, others use "Assault"
-    const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore' || playlist === 'Tournament';
+    const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore' ||
+                  (playlist && playlist.toLowerCase().includes('tournament'));
 
     let baseType = '';
 

@@ -6,6 +6,7 @@
     <title>Playlist Stats - CarnageReport.com</title>
     <link rel="icon" type="image/x-icon" href="H2CRFinal.ico">
     <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     <style>
         .playlist-page {
@@ -23,6 +24,12 @@
             color: var(--unsc-blue);
             text-transform: uppercase;
             letter-spacing: 3px;
+            margin-bottom: 5px;
+        }
+        .playlist-date {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            color: rgba(168, 212, 255, 0.7);
             margin-bottom: 10px;
         }
         .playlist-summary {
@@ -50,6 +57,98 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+
+        /* Tab Navigation */
+        .playlist-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .playlist-tab-btn {
+            background: rgba(168, 212, 255, 0.1);
+            border: 1px solid rgba(168, 212, 255, 0.3);
+            color: var(--unsc-blue);
+            padding: 12px 24px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .playlist-tab-btn:hover {
+            background: rgba(168, 212, 255, 0.2);
+        }
+        .playlist-tab-btn.active {
+            background: rgba(168, 212, 255, 0.25);
+            border-color: var(--unsc-blue);
+        }
+        .playlist-tab-content {
+            display: none;
+        }
+        .playlist-tab-content.active {
+            display: block;
+        }
+
+        /* Teams Table */
+        .teams-table-container {
+            overflow-x: auto;
+        }
+        .teams-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+        .teams-table th {
+            background: linear-gradient(180deg, rgba(168, 212, 255, 0.15) 0%, rgba(168, 212, 255, 0.05) 100%);
+            color: var(--unsc-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 2px solid rgba(168, 212, 255, 0.3);
+        }
+        .teams-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(168, 212, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .teams-table tr:hover td {
+            background: rgba(168, 212, 255, 0.08);
+        }
+        .teams-table .placement-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .teams-table .placement-icon {
+            width: 32px;
+            height: 32px;
+        }
+        .teams-table .team-name {
+            color: var(--unsc-blue);
+            font-weight: 600;
+        }
+        .teams-table .team-players {
+            font-size: 0.85rem;
+            color: rgba(168, 212, 255, 0.7);
+        }
+        .teams-table .team-players .player-link {
+            color: rgba(168, 212, 255, 0.7);
+            cursor: pointer;
+        }
+        .teams-table .team-players .player-link:hover {
+            color: var(--unsc-blue);
+            text-decoration: underline;
+        }
+        .positive { color: #4ade80; }
+        .negative { color: #f87171; }
+        .neutral { color: #fbbf24; }
+
+        /* Stats Table */
         .stats-table-container {
             overflow-x: auto;
         }
@@ -118,15 +217,13 @@
             width: 28px;
             height: 28px;
         }
-        .stats-table .positive {
-            color: #4ade80;
+
+        /* Games List - mirrors main page */
+        .games-list-container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        .stats-table .negative {
-            color: #f87171;
-        }
-        .stats-table .neutral {
-            color: #fbbf24;
-        }
+
         .back-link {
             display: inline-flex;
             align-items: center;
@@ -190,31 +287,92 @@
             <div id="contentArea" style="display: none;">
                 <div class="playlist-header">
                     <h1 class="playlist-title" id="playlistName"></h1>
+                    <div class="playlist-date" id="playlistDate"></div>
                 </div>
 
                 <div class="playlist-summary" id="playlistSummary"></div>
 
-                <div class="stats-table-container">
-                    <table class="stats-table">
-                        <thead>
-                            <tr id="tableHeader"></tr>
-                        </thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
+                <div class="playlist-tabs" id="playlistTabs">
+                    <button class="playlist-tab-btn active" onclick="switchPlaylistTab('teams')">Team Placement</button>
+                    <button class="playlist-tab-btn" onclick="switchPlaylistTab('games')">Games List</button>
+                    <button class="playlist-tab-btn" onclick="switchPlaylistTab('players')">Player Stats</button>
+                </div>
+
+                <!-- Team Placement Tab -->
+                <div id="tab-teams" class="playlist-tab-content active">
+                    <div class="teams-table-container">
+                        <table class="teams-table">
+                            <thead>
+                                <tr>
+                                    <th>Place</th>
+                                    <th>Team</th>
+                                    <th>Record</th>
+                                    <th>Win %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teamsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Games List Tab -->
+                <div id="tab-games" class="playlist-tab-content">
+                    <div class="games-list-container">
+                        <div class="game-list" id="playlistGamesList"></div>
+                    </div>
+                </div>
+
+                <!-- Player Stats Tab -->
+                <div id="tab-players" class="playlist-tab-content">
+                    <div class="stats-table-container">
+                        <table class="stats-table">
+                            <thead>
+                                <tr id="tableHeader"></tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Map images for game cards
+        const mapImages = {
+            'Ascension': '/assets/maps/ascension.webp',
+            'Beaver Creek': '/assets/maps/beavercreek.webp',
+            'Burial Mounds': '/assets/maps/burialmounds.webp',
+            'Coagulation': '/assets/maps/coagulation.webp',
+            'Colossus': '/assets/maps/colossus.webp',
+            'Foundation': '/assets/maps/foundation.webp',
+            'Headlong': '/assets/maps/headlong.webp',
+            'Ivory Tower': '/assets/maps/ivorytower.webp',
+            'Lockout': '/assets/maps/lockout.webp',
+            'Midship': '/assets/maps/midship.webp',
+            'Sanctuary': '/assets/maps/sanctuary.webp',
+            'Turf': '/assets/maps/turf.webp',
+            'Warlock': '/assets/maps/warlock.webp',
+            'Waterworks': '/assets/maps/waterworks.webp',
+            'Zanzibar': '/assets/maps/zanzibar.webp',
+            'Containment': '/assets/maps/containment.webp',
+            'Elongation': '/assets/maps/elongation.webp',
+            'Gemini': '/assets/maps/gemini.webp',
+            'Relic': '/assets/maps/relic.webp',
+            'Terminal': '/assets/maps/terminal.webp',
+            'Backwash': '/assets/maps/backwash.webp',
+            'Desolation': '/assets/maps/desolation.webp',
+            'Tombstone': '/assets/maps/tombstone.webp',
+            'District': '/assets/maps/district.webp',
+            'Uplift': '/assets/maps/uplift.webp'
+        };
+        const defaultMapImage = '/assets/maps/default.webp';
+
         // Get playlist name from URL path
         function getPlaylistName() {
             const path = window.location.pathname;
-            // Handle /playlist/Name or /Name patterns
             let name = path.replace(/^\/playlist\//, '').replace(/^\//, '').replace(/\/$/, '');
-            // Decode URL encoding
             name = decodeURIComponent(name);
-            // Handle playlist.html?name=X fallback
             if (!name || name === 'playlist.html') {
                 const params = new URLSearchParams(window.location.search);
                 name = params.get('name') || params.get('playlist') || '';
@@ -222,7 +380,7 @@
             return name;
         }
 
-        // Rank icon mapping
+        // Rank icon mapping (1-3 for team placement, 1-50 for player rank)
         function getRankIcon(rank) {
             if (rank >= 1 && rank <= 50) {
                 return `/assets/ranks/${rank}.webp`;
@@ -230,14 +388,17 @@
             return null;
         }
 
-        // Sort state
-        let currentSort = { column: 'rank', direction: 'desc' };
+        // Data storage
         let playersData = [];
+        let matchesData = [];
+        let teamsData = [];
         let emblemsData = {};
+        let mmrData = {};
+        let playlistConfig = null;
+        let currentSort = { column: 'wins', direction: 'desc' };
 
-        // Column definitions
+        // Player stats columns (no XP)
         const columns = [
-            { key: 'rank', label: 'Rank', sortable: true },
             { key: 'player', label: 'Player', sortable: true },
             { key: 'record', label: 'Record', sortable: true, sortKey: 'wins' },
             { key: 'winRate', label: 'Win %', sortable: true },
@@ -245,9 +406,124 @@
             { key: 'deaths', label: 'Deaths', sortable: true },
             { key: 'kd', label: 'K/D', sortable: true },
             { key: 'assists', label: 'Assists', sortable: true },
-            { key: 'headshots', label: 'Headshots', sortable: true },
-            { key: 'xp', label: 'XP', sortable: true }
+            { key: 'headshots', label: 'Headshots', sortable: true }
         ];
+
+        function switchPlaylistTab(tabName) {
+            document.querySelectorAll('.playlist-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.playlist-tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // Team detection - find teams based on same 4 players playing together
+        function detectTeams(matches) {
+            const teamMap = {}; // key: sorted player names, value: { players, wins, losses, games }
+
+            for (const match of matches) {
+                const redTeam = match.red_team || [];
+                const blueTeam = match.blue_team || [];
+                const winner = match.winner;
+
+                // Process red team
+                if (redTeam.length === 4) {
+                    const teamKey = [...redTeam].sort().join('|');
+                    if (!teamMap[teamKey]) {
+                        teamMap[teamKey] = { players: redTeam, wins: 0, losses: 0, games: [] };
+                    }
+                    if (winner === 'Red') {
+                        teamMap[teamKey].wins++;
+                    } else {
+                        teamMap[teamKey].losses++;
+                    }
+                    teamMap[teamKey].games.push(match);
+                }
+
+                // Process blue team
+                if (blueTeam.length === 4) {
+                    const teamKey = [...blueTeam].sort().join('|');
+                    if (!teamMap[teamKey]) {
+                        teamMap[teamKey] = { players: blueTeam, wins: 0, losses: 0, games: [] };
+                    }
+                    if (winner === 'Blue') {
+                        teamMap[teamKey].wins++;
+                    } else {
+                        teamMap[teamKey].losses++;
+                    }
+                    teamMap[teamKey].games.push(match);
+                }
+            }
+
+            // Convert to array and determine team names (captain = highest MMR)
+            const teams = Object.values(teamMap).map(team => {
+                // Find captain (highest MMR)
+                let captain = team.players[0];
+                let highestMMR = 0;
+
+                for (const player of team.players) {
+                    const playerMMR = getPlayerMMR(player);
+                    if (playerMMR > highestMMR) {
+                        highestMMR = playerMMR;
+                        captain = player;
+                    }
+                }
+
+                return {
+                    name: `Team ${captain}`,
+                    captain: captain,
+                    players: team.players,
+                    wins: team.wins,
+                    losses: team.losses,
+                    games: team.games
+                };
+            });
+
+            // Sort by wins descending
+            teams.sort((a, b) => b.wins - a.wins || a.losses - b.losses);
+
+            return teams;
+        }
+
+        function getPlayerMMR(playerName) {
+            // Search MMR data by discord_name
+            for (const [id, data] of Object.entries(mmrData)) {
+                if (data.discord_name && data.discord_name.toLowerCase() === playerName.toLowerCase()) {
+                    return data.mmr || 0;
+                }
+            }
+            return 0;
+        }
+
+        function renderTeamsTable() {
+            const tbody = document.getElementById('teamsTableBody');
+            tbody.innerHTML = teamsData.map((team, index) => {
+                const placement = index + 1;
+                const rankIcon = placement <= 3 ? getRankIcon(placement) : null;
+                const winRate = ((team.wins / Math.max(1, team.wins + team.losses)) * 100).toFixed(1);
+
+                const playersHtml = team.players.map(p =>
+                    `<span class="player-link" onclick="goToPlayer('${p}')">${p}</span>`
+                ).join(', ');
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="placement-cell">
+                                ${rankIcon ? `<img src="${rankIcon}" class="placement-icon" alt="Place ${placement}">` : ''}
+                                <span>${placement}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="team-name">${team.name}</div>
+                            <div class="team-players">${playersHtml}</div>
+                        </td>
+                        <td>${team.wins}-${team.losses}</td>
+                        <td>${winRate}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
 
         function renderHeader() {
             const headerRow = document.getElementById('tableHeader');
@@ -265,12 +541,11 @@
                 currentSort.column = column;
                 currentSort.direction = 'desc';
             }
-            renderTable();
+            renderPlayersTable();
         }
 
         function getSortValue(player, column) {
             switch (column) {
-                case 'rank': return player.rank || 0;
                 case 'player': return player.discord_name.toLowerCase();
                 case 'record':
                 case 'wins': return player.wins || 0;
@@ -280,12 +555,11 @@
                 case 'kd': return player.kills / Math.max(1, player.deaths);
                 case 'assists': return player.assists || 0;
                 case 'headshots': return player.headshots || 0;
-                case 'xp': return player.xp || 0;
                 default: return 0;
             }
         }
 
-        function renderTable() {
+        function renderPlayersTable() {
             renderHeader();
 
             const sorted = [...playersData].sort((a, b) => {
@@ -301,19 +575,12 @@
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = sorted.map(player => {
                 const emblem = emblemsData[player.discord_id]?.emblem_url || '';
-                const rankIcon = getRankIcon(player.rank);
                 const kd = (player.kills / Math.max(1, player.deaths)).toFixed(2);
                 const winRate = ((player.wins / Math.max(1, player.wins + player.losses)) * 100).toFixed(1);
                 const kdClass = kd >= 1.2 ? 'positive' : kd < 0.8 ? 'negative' : 'neutral';
 
                 return `
                     <tr>
-                        <td>
-                            <div class="rank-cell">
-                                ${rankIcon ? `<img src="${rankIcon}" class="rank-icon" alt="Rank ${player.rank}">` : ''}
-                                <span>${player.rank || '-'}</span>
-                            </div>
-                        </td>
                         <td>
                             <div class="player-cell">
                                 ${emblem ? `<img src="${emblem}" class="player-emblem" alt="">` : ''}
@@ -327,14 +594,13 @@
                         <td class="${kdClass}">${kd}</td>
                         <td>${player.assists || 0}</td>
                         <td>${player.headshots || 0}</td>
-                        <td>${player.xp || 0}</td>
                     </tr>
                 `;
             }).join('');
         }
 
-        function renderSummary(stats) {
-            const totalGames = playersData.reduce((sum, p) => sum + (p.wins || 0) + (p.losses || 0), 0) / 2;
+        function renderSummary() {
+            const totalGames = matchesData.length;
             const totalKills = playersData.reduce((sum, p) => sum + (p.kills || 0), 0);
             const totalDeaths = playersData.reduce((sum, p) => sum + (p.deaths || 0), 0);
             const avgKd = (totalKills / Math.max(1, totalDeaths)).toFixed(2);
@@ -342,22 +608,358 @@
             const summary = document.getElementById('playlistSummary');
             summary.innerHTML = `
                 <div class="summary-stat">
+                    <div class="value">${teamsData.length}</div>
+                    <div class="label">Teams</div>
+                </div>
+                <div class="summary-stat">
                     <div class="value">${playersData.length}</div>
                     <div class="label">Players</div>
                 </div>
                 <div class="summary-stat">
-                    <div class="value">${Math.round(totalGames)}</div>
+                    <div class="value">${totalGames}</div>
                     <div class="label">Games Played</div>
                 </div>
                 <div class="summary-stat">
                     <div class="value">${totalKills.toLocaleString()}</div>
                     <div class="label">Total Kills</div>
                 </div>
-                <div class="summary-stat">
-                    <div class="value">${avgKd}</div>
-                    <div class="label">Avg K/D</div>
+            `;
+        }
+
+        // Format duration
+        function formatDuration(duration) {
+            if (!duration) return '0:00';
+            return duration;
+        }
+
+        // Format date/time
+        function formatDateTime(startTime) {
+            if (!startTime) return '';
+            try {
+                const date = new Date(startTime);
+                if (isNaN(date.getTime())) return startTime;
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                });
+            } catch (e) {
+                return startTime;
+            }
+        }
+
+        // Get base gametype name (matches MLG 4v4/Team Hardcore naming conventions)
+        function getBaseGametype(variantName, playlist = '') {
+            if (!variantName) return 'Unknown';
+            const name = variantName.toLowerCase();
+            // MLG/Tournament playlists use "Bomb" for assault
+            const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore' ||
+                          playlist.toLowerCase().includes('tournament');
+
+            // CTF variants
+            if (name.includes('flag') || name.includes('ctf')) {
+                return 'Capture the Flag';
+            }
+            // Oddball variants
+            if (name.includes('oddball') || name.includes('ball') || name.includes('bawl')) {
+                return 'Oddball';
+            }
+            // King of the Hill variants
+            if (name.includes('king') || name.includes('koth') || name.includes('hill')) {
+                return 'King of the Hill';
+            }
+            // Assault variants - "Bomb" for MLG/Tournament, "Assault" for others
+            if (name.includes('assault') || name.includes('bomb')) {
+                return isMLG ? 'Bomb' : 'Assault';
+            }
+            // Territories variants
+            if (name.includes('territor')) {
+                return 'Territories';
+            }
+            // FFA / Slayer variants
+            if (name.includes('ffa') || name.includes('free for all') || name.includes('rumble')) {
+                return 'Free For All';
+            }
+            // Slayer
+            if (name.includes('slayer') || name.includes(' ts') || name === 'ts' || name.endsWith('ts')) {
+                return 'Team Slayer';
+            }
+            // Default: return original
+            return variantName;
+        }
+
+        // Get gametype with playlist prefix (MLG, 2v2, 1v1)
+        function getGametypeWithPrefix(gameType, playlist) {
+            if (!playlist) return gameType;
+
+            const playlistLower = playlist.toLowerCase();
+            if (playlistLower === 'mlg 4v4' || playlistLower === 'team hardcore' ||
+                playlistLower.includes('tournament')) {
+                return 'MLG ' + gameType;
+            } else if (playlistLower === 'double team') {
+                return '2v2 ' + gameType;
+            } else if (playlistLower === 'head to head') {
+                return '1v1 ' + gameType;
+            }
+            return gameType;
+        }
+
+        // Get full display gametype (base + prefix)
+        function getDisplayGametype(variantName, playlist) {
+            const baseType = getBaseGametype(variantName, playlist);
+            return getGametypeWithPrefix(baseType, playlist);
+        }
+
+        // Render games list (mirrors main page)
+        function renderGamesList() {
+            const gamesList = document.getElementById('playlistGamesList');
+            if (!gamesList || matchesData.length === 0) {
+                if (gamesList) gamesList.innerHTML = '<div class="loading-message">No games to display</div>';
+                return;
+            }
+
+            gamesList.innerHTML = '';
+
+            // Sort by timestamp (newest first)
+            const sortedMatches = [...matchesData].sort((a, b) => {
+                const dateA = new Date(a.timestamp || 0);
+                const dateB = new Date(b.timestamp || 0);
+                return dateB - dateA;
+            });
+
+            sortedMatches.forEach((match, index) => {
+                const gameItem = createGameItem(match, index);
+                gamesList.appendChild(gameItem);
+            });
+        }
+
+        function createGameItem(match, gameIndex) {
+            const gameDiv = document.createElement('div');
+            gameDiv.className = 'game-item';
+            gameDiv.id = `playlist-game-${gameIndex}`;
+            gameDiv.setAttribute('data-game-index', gameIndex);
+
+            const mapName = match.map || 'Unknown Map';
+            const rawGametype = match.gametype || 'Unknown';
+            const gametype = getDisplayGametype(rawGametype, playlistConfig?.name || '');
+            const duration = formatDuration(match.duration);
+            const dateDisplay = formatDateTime(match.timestamp);
+            const mapImage = mapImages[mapName] || defaultMapImage;
+
+            // Determine winner and score display
+            let winnerClass = '';
+            let scoreTagClass = '';
+            let teamScoreDisplay = '';
+
+            if (match.red_score !== undefined && match.blue_score !== undefined) {
+                if (match.winner === 'Red') {
+                    winnerClass = 'winner-red';
+                    scoreTagClass = 'score-tag-red';
+                } else if (match.winner === 'Blue') {
+                    winnerClass = 'winner-blue';
+                    scoreTagClass = 'score-tag-blue';
+                }
+                teamScoreDisplay = `<span class="game-meta-tag ${scoreTagClass}">Red: ${match.red_score} - Blue: ${match.blue_score}</span>`;
+            }
+
+            gameDiv.innerHTML = `
+                <div class="game-header-bar ${winnerClass}" onclick="toggleGameDetails(${gameIndex})">
+                    <div class="game-header-left">
+                        <div class="game-info">
+                            <span class="game-type-title">${gametype}</span>
+                            <span class="game-meta-tag">${mapName}</span>
+                            ${teamScoreDisplay}
+                        </div>
+                    </div>
+                    <div class="game-header-right">
+                        ${dateDisplay ? `<span class="game-meta-tag date-tag">${dateDisplay}</span>` : ''}
+                        <div class="expand-icon">▶</div>
+                    </div>
+                </div>
+                <div class="game-details">
+                    <div class="game-details-content">
+                        <div id="playlist-game-content-${gameIndex}"></div>
+                    </div>
                 </div>
             `;
+
+            return gameDiv;
+        }
+
+        function toggleGameDetails(gameIndex) {
+            const gameItem = document.getElementById(`playlist-game-${gameIndex}`);
+            const gameContent = document.getElementById(`playlist-game-content-${gameIndex}`);
+
+            if (!gameItem) return;
+
+            const isExpanded = gameItem.classList.contains('expanded');
+
+            if (isExpanded) {
+                gameItem.classList.remove('expanded');
+            } else {
+                gameItem.classList.add('expanded');
+
+                if (!gameContent.innerHTML) {
+                    const match = matchesData.find((m, i) => {
+                        // Find match by sorted order
+                        const sortedMatches = [...matchesData].sort((a, b) => {
+                            const dateA = new Date(a.timestamp || 0);
+                            const dateB = new Date(b.timestamp || 0);
+                            return dateB - dateA;
+                        });
+                        return sortedMatches[gameIndex] === m;
+                    }) || matchesData[gameIndex];
+
+                    if (match) {
+                        gameContent.innerHTML = renderGameContent(match, gameIndex);
+                    }
+                }
+            }
+        }
+
+        function renderGameContent(match, gameIndex) {
+            const mapName = match.map || 'Unknown';
+            const mapImage = mapImages[mapName] || defaultMapImage;
+            const rawGametype = match.gametype || 'Unknown';
+            const gametype = getDisplayGametype(rawGametype, playlistConfig?.name || '');
+            const duration = formatDuration(match.duration);
+            const formattedTime = formatDateTime(match.timestamp);
+
+            // Team scores
+            let teamScoreHtml = '';
+            if (match.red_score !== undefined && match.blue_score !== undefined) {
+                const redWinner = match.winner === 'Red';
+                const blueWinner = match.winner === 'Blue';
+                teamScoreHtml = '<div class="game-final-score">';
+                teamScoreHtml += `<span class="final-score-team team-red${redWinner ? ' winner' : ''}">Red: ${match.red_score}</span>`;
+                teamScoreHtml += '<span class="score-separator">vs</span>';
+                teamScoreHtml += `<span class="final-score-team team-blue${blueWinner ? ' winner' : ''}">Blue: ${match.blue_score}</span>`;
+                teamScoreHtml += '</div>';
+            }
+
+            let html = '<div class="game-details-header">';
+            html += `<div class="map-image-container">`;
+            html += `<img src="${mapImage}" alt="${mapName}" class="map-image" onerror="this.src='${defaultMapImage}'">`;
+            html += `<div class="map-overlay">`;
+            html += `<div class="map-name">${mapName}</div>`;
+            html += `</div>`;
+            html += `</div>`;
+            html += `<div class="game-info-panel">`;
+            html += `<div class="game-type-title">${gametype}</div>`;
+            html += `<div class="game-meta-info">`;
+            html += `<span><i class="icon-clock"></i> ${duration}</span>`;
+            html += `<span><i class="icon-calendar"></i> ${formattedTime}</span>`;
+            html += `</div>`;
+            html += teamScoreHtml;
+            html += `</div>`;
+
+            // Theater and download buttons
+            html += '<div class="game-actions">';
+            if (match.theater_url) {
+                html += `<button class="replay-3d-btn" onclick="event.stopPropagation(); openTheater('${match.theater_url}');" title="Halo 2 Theater Mode">`;
+                html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>';
+                html += '<span>Halo 2 Theater Mode</span>';
+                html += '</button>';
+            }
+
+            html += '<div class="game-download-dropdown">';
+            html += '<button class="download-icon-btn" onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle(\'show\');" title="Download game files">';
+            html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
+            html += '</button>';
+            html += '<div class="download-menu">';
+            if (match.public_url) {
+                const statsFilename = match.public_url.split('/').pop();
+                html += `<a href="${match.public_url}" class="download-menu-item" download="${statsFilename}" onclick="event.stopPropagation();">Stats</a>`;
+            } else {
+                html += '<span class="download-menu-item disabled" onclick="event.stopPropagation();">Stats N/A</span>';
+            }
+            if (match.theater_url) {
+                const telemetryFilename = match.theater_url.split('/').pop();
+                html += `<a href="${match.theater_url}" class="download-menu-item" download="${telemetryFilename}" onclick="event.stopPropagation();">Telemetry</a>`;
+            } else {
+                html += '<span class="download-menu-item disabled" onclick="event.stopPropagation();">Telemetry N/A</span>';
+            }
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
+
+            html += '</div>';
+
+            // Scoreboard
+            html += '<div class="tab-navigation">';
+            html += `<button class="tab-btn active" onclick="switchGameTab(this, 'scoreboard', ${gameIndex})">Scoreboard</button>`;
+            html += '</div>';
+
+            html += '<div class="tab-content active">';
+            html += renderScoreboard(match);
+            html += '</div>';
+
+            return html;
+        }
+
+        function switchGameTab(btn, tabName, gameIndex) {
+            const parent = btn.closest('.game-details-content');
+            const tabs = parent.querySelectorAll('.tab-content');
+            const buttons = parent.querySelectorAll('.tab-btn');
+
+            buttons.forEach(b => b.classList.remove('active'));
+            tabs.forEach(t => t.classList.remove('active'));
+
+            btn.classList.add('active');
+            const tabIndex = Array.from(buttons).indexOf(btn);
+            tabs[tabIndex].classList.add('active');
+        }
+
+        function renderScoreboard(match) {
+            const players = match.player_stats || [];
+
+            // Sort: Red team first, then Blue
+            const sortedPlayers = [...players].sort((a, b) => {
+                const teamOrder = { 'Red': 0, 'Blue': 1 };
+                const teamA = teamOrder[a.team] !== undefined ? teamOrder[a.team] : 2;
+                const teamB = teamOrder[b.team] !== undefined ? teamOrder[b.team] : 2;
+                return teamA - teamB;
+            });
+
+            let html = '<div class="scoreboard">';
+            html += '<table class="scoreboard-table">';
+            html += '<thead><tr>';
+            html += '<th>Player</th>';
+            html += '<th>K</th>';
+            html += '<th>D</th>';
+            html += '<th>A</th>';
+            html += '<th>Score</th>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+
+            sortedPlayers.forEach(player => {
+                const teamClass = player.team ? `team-${player.team.toLowerCase()}` : '';
+                const emblemUrl = emblemsData[player.discord_id]?.emblem_url || '';
+
+                html += `<tr class="${teamClass}">`;
+                html += `<td class="player-cell">`;
+                if (emblemUrl) {
+                    html += `<img src="${emblemUrl}" class="player-emblem scoreboard-emblem" alt="">`;
+                }
+                html += `<span class="player-name clickable-player" onclick="goToPlayer('${player.name}')">${player.name}</span>`;
+                html += `</td>`;
+                html += `<td>${player.kills || 0}</td>`;
+                html += `<td>${player.deaths || 0}</td>`;
+                html += `<td>${player.assists || 0}</td>`;
+                html += `<td>${player.score || 0}</td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            html += '</div>';
+
+            return html;
+        }
+
+        function openTheater(url) {
+            // Open theater view - could be integrated with main site's theater
+            window.open(url, '_blank');
         }
 
         function goToPlayer(playerName) {
@@ -365,10 +967,10 @@
         }
 
         // Calculate stats from matches data
-        function calculateStatsFromMatches(matchesData) {
+        function calculateStatsFromMatches(matchesArray) {
             const playerStats = {};
 
-            for (const match of matchesData.matches || []) {
+            for (const match of matchesArray) {
                 const winner = match.winner;
 
                 for (const playerStat of match.player_stats || []) {
@@ -381,9 +983,7 @@
                             kills: 0,
                             deaths: 0,
                             assists: 0,
-                            headshots: 0,
-                            rank: 0,
-                            xp: 0
+                            headshots: 0
                         };
                     }
 
@@ -415,7 +1015,7 @@
             document.title = `${playlistName} - CarnageReport.com`;
 
             try {
-                // Load playlists config to get the correct filename
+                // Load playlists config
                 const playlistsResponse = await fetch('playlists.json');
                 if (!playlistsResponse.ok) {
                     throw new Error('Could not load playlists config');
@@ -423,29 +1023,37 @@
                 const playlistsConfig = await playlistsResponse.json();
 
                 // Find the playlist by name (case-insensitive)
-                const playlist = playlistsConfig.playlists.find(p =>
+                playlistConfig = playlistsConfig.playlists.find(p =>
                     p.name.toLowerCase() === playlistName.toLowerCase()
                 );
 
-                if (!playlist) {
+                if (!playlistConfig) {
                     throw new Error(`Playlist "${playlistName}" not found`);
                 }
 
-                let statsData;
-
-                // Try stats file first, fall back to matches file
-                const statsResponse = await fetch(playlist.stats_file);
-                if (statsResponse.ok) {
-                    statsData = await statsResponse.json();
-                } else {
-                    // Load matches file and calculate stats
-                    const matchesResponse = await fetch(playlist.matches_file);
-                    if (!matchesResponse.ok) {
-                        throw new Error(`Data for "${playlistName}" not found`);
+                // Load MMR data for team captain detection
+                try {
+                    const mmrResponse = await fetch('MMR.json');
+                    if (mmrResponse.ok) {
+                        mmrData = await mmrResponse.json();
                     }
-                    const matchesData = await matchesResponse.json();
-                    statsData = calculateStatsFromMatches(matchesData);
+                } catch (e) {
+                    console.warn('Could not load MMR data:', e);
                 }
+
+                // Load matches data
+                const matchesResponse = await fetch(playlistConfig.matches_file);
+                if (!matchesResponse.ok) {
+                    throw new Error(`Matches data for "${playlistName}" not found`);
+                }
+                const matchesJson = await matchesResponse.json();
+                matchesData = matchesJson.matches || [];
+
+                // Calculate player stats from matches
+                const statsData = calculateStatsFromMatches(matchesData);
+
+                // Detect teams
+                teamsData = detectTeams(matchesData);
 
                 // Load emblems
                 try {
@@ -468,8 +1076,22 @@
                 document.getElementById('contentArea').style.display = 'block';
                 document.getElementById('playlistName').textContent = playlistName;
 
-                renderSummary(statsData);
-                renderTable();
+                // Show date if available
+                if (playlistConfig.date) {
+                    document.getElementById('playlistDate').textContent = playlistConfig.date;
+                }
+
+                // Hide tabs for non-tournament playlists (no team detection needed)
+                if (!playlistName.toLowerCase().includes('tournament')) {
+                    document.getElementById('playlistTabs').style.display = 'none';
+                    document.getElementById('tab-players').classList.add('active');
+                    document.getElementById('tab-teams').classList.remove('active');
+                }
+
+                renderSummary();
+                renderTeamsTable();
+                renderPlayersTable();
+                renderGamesList();
 
             } catch (error) {
                 showError(error.message);
@@ -481,6 +1103,15 @@
             document.getElementById('errorArea').style.display = 'block';
             document.getElementById('errorText').textContent = message;
         }
+
+        // Close download menus when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.game-download-dropdown')) {
+                document.querySelectorAll('.download-menu.show').forEach(m => {
+                    m.classList.remove('show');
+                });
+            }
+        });
 
         // Load on page ready
         document.addEventListener('DOMContentLoaded', loadPlaylistStats);
