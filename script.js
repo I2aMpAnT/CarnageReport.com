@@ -4709,13 +4709,13 @@ function renderWeaponSearchResults(weaponName) {
     // Tabbed leaderboard
     html += '<div class="weapon-leaderboard-tabs">';
     html += '<div class="accuracy-tabs">';
-    html += '<button class="accuracy-tab-btn active" onclick="switchWeaponLeaderboardTab(\'kills\')">Kills With</button>';
-    html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(\'deaths\')">Killed By</button>';
+    html += '<button class="accuracy-tab-btn active" onclick="switchWeaponLeaderboardTab(this, \'kills\')">Kills With</button>';
+    html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(this, \'deaths\')">Killed By</button>';
     if (!isMeleeSearch) {
-        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(\'accuracy\')">Accuracy</button>';
+        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(this, \'accuracy\')">Accuracy</button>';
     }
     if (isPrecisionWeapon) {
-        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(\'headshots\')">Headshot %</button>';
+        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(this, \'headshots\')">Headshot %</button>';
     }
     html += '</div>';
 
@@ -4842,12 +4842,12 @@ function renderWeaponSearchResults(weaponName) {
 }
 
 // Switch weapon leaderboard tabs
-window.switchWeaponLeaderboardTab = function(tabName) {
+window.switchWeaponLeaderboardTab = function(btn, tabName) {
     // Update tab buttons
-    document.querySelectorAll('.weapon-leaderboard-tabs .accuracy-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
+    document.querySelectorAll('.weapon-leaderboard-tabs .accuracy-tab-btn').forEach(b => {
+        b.classList.remove('active');
     });
-    event.target.classList.add('active');
+    btn.classList.add('active');
 
     // Update tab content
     document.querySelectorAll('.weapon-tab-content').forEach(content => {
