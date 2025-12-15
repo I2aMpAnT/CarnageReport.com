@@ -752,433 +752,6 @@
   },
   {
     "series_id": "series_18",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "Jay2",
-      "Rinser",
-      "Rocky",
-      "cOn"
-    ],
-    "blue_team": [
-      "Hyrax",
-      "benforrrd",
-      "fluhd",
-      "squattingxbear"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 4:45 PM",
-        "map": "Warlock",
-        "gametype": "Capture the Flag",
-        "winner": "Blue",
-        "source_file": "20251214_170353.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 4:45 PM",
-    "end_time": "12/14/2025 4:45 PM"
-  },
-  {
-    "series_id": "series_19",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "EpiiiC",
-      "Hammie",
-      "Tech",
-      "show5topper"
-    ],
-    "blue_team": [
-      "Josiah",
-      "KidMode",
-      "roasted",
-      "sneakybeav3r"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 4:48 PM",
-        "map": "Warlock",
-        "gametype": "Capture the Flag",
-        "winner": "Red",
-        "source_file": "20251214_170401.xlsx"
-      },
-      {
-        "timestamp": "12/14/2025 5:04 PM",
-        "map": "Lockout",
-        "gametype": "Team Slayer",
-        "winner": "Red",
-        "source_file": "20251214_171212.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 4:48 PM",
-    "end_time": "12/14/2025 5:04 PM"
-  },
-  {
-    "series_id": "series_20",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "Jay2",
-      "Rinser",
-      "Rocky",
-      "cOn"
-    ],
-    "blue_team": [
-      "Hyrax",
-      "benforrrd",
-      "fluhd",
-      "squattingxbear"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 5:05 PM",
-        "map": "Lockout",
-        "gametype": "Team Slayer",
-        "winner": "Red",
-        "source_file": "20251214_171210.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 5:05 PM",
-    "end_time": "12/14/2025 5:05 PM"
-  },
-  {
-    "series_id": "series_21",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "EpiiiC",
-      "Hammie",
-      "Tech",
-      "show5topper"
-    ],
-    "blue_team": [
-      "Josiah",
-      "KidMode",
-      "roasted",
-      "sneakybeav3r"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 5:12 PM",
-        "map": "Midship",
-        "gametype": "Oddball",
-        "winner": "Blue",
-        "source_file": "20251214_172623.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 5:12 PM",
-    "end_time": "12/14/2025 5:12 PM"
-  },
-  {
-    "series_id": "series_22",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "Jay2",
-      "Rinser",
-      "Rocky",
-      "cOn"
-    ],
-    "blue_team": [
-      "Hyrax",
-      "benforrrd",
-      "fluhd",
-      "squattingxbear"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 5:12 PM",
-        "map": "Midship",
-        "gametype": "Oddball",
-        "winner": "Red",
-        "source_file": "20251214_172732.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 5:12 PM",
-    "end_time": "12/14/2025 5:12 PM"
-  },
-  {
-    "series_id": "series_23",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "EpiiiC",
-      "Hammie",
-      "Tech",
-      "show5topper"
-    ],
-    "blue_team": [
-      "Josiah",
-      "KidMode",
-      "roasted",
-      "sneakybeav3r"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 5:27 PM",
-        "map": "Beaver Creek",
-        "gametype": "Team Slayer",
-        "winner": "Red",
-        "source_file": "20251214_173309.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 5:27 PM",
-    "end_time": "12/14/2025 5:27 PM"
-  },
-  {
-    "series_id": "series_24",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "Jay2",
-      "Rinser",
-      "Rocky",
-      "cOn"
-    ],
-    "blue_team": [
-      "Hyrax",
-      "benforrrd",
-      "fluhd",
-      "squattingxbear"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 5:29 PM",
-        "map": "Beaver Creek",
-        "gametype": "Team Slayer",
-        "winner": "Blue",
-        "source_file": "20251214_173457.xlsx"
-      },
-      {
-        "timestamp": "12/14/2025 5:55 PM",
-        "map": "Sanctuary",
-        "gametype": "Capture the Flag",
-        "winner": "Blue",
-        "source_file": "20251214_181036.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 5:29 PM",
-    "end_time": "12/14/2025 5:55 PM"
-  },
-  {
-    "series_id": "series_25",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "Jay2",
-      "Rinser",
-      "Rocky",
-      "cOn"
-    ],
-    "blue_team": [
-      "Josiah",
-      "KidMode",
-      "roasted",
-      "sneakybeav3r"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 6:27 PM",
-        "map": "Lockout",
-        "gametype": "Oddball",
-        "winner": "Red",
-        "source_file": "20251214_184126.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 6:27 PM",
-    "end_time": "12/14/2025 6:27 PM"
-  },
-  {
-    "series_id": "series_26",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "EpiiiC",
-      "Hammie",
-      "Tech",
-      "show5topper"
-    ],
-    "blue_team": [
-      "Hyrax",
-      "benforrrd",
-      "fluhd",
-      "squattingxbear"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 6:27 PM",
-        "map": "Midship",
-        "gametype": "Capture the Flag",
-        "winner": "Blue",
-        "source_file": "20251214_184402.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 6:27 PM",
-    "end_time": "12/14/2025 6:27 PM"
-  },
-  {
-    "series_id": "series_27",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "Jay2",
-      "Rinser",
-      "Rocky",
-      "cOn"
-    ],
-    "blue_team": [
-      "Josiah",
-      "KidMode",
-      "roasted",
-      "sneakybeav3r"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 6:44 PM",
-        "map": "Warlock",
-        "gametype": "Team Slayer",
-        "winner": "Red",
-        "source_file": "20251214_184933.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 6:44 PM",
-    "end_time": "12/14/2025 6:44 PM"
-  },
-  {
-    "series_id": "series_28",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "EpiiiC",
-      "Hammie",
-      "Tech",
-      "show5topper"
-    ],
-    "blue_team": [
-      "Hyrax",
-      "benforrrd",
-      "fluhd",
-      "squattingxbear"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 6:44 PM",
-        "map": "Midship",
-        "gametype": "Team Slayer",
-        "winner": "Blue",
-        "source_file": "20251214_184938.xlsx"
-      },
-      {
-        "timestamp": "12/14/2025 6:50 PM",
-        "map": "Lockout",
-        "gametype": "Oddball",
-        "winner": "Red",
-        "source_file": "20251214_190517.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 6:44 PM",
-    "end_time": "12/14/2025 6:50 PM"
-  },
-  {
-    "series_id": "series_29",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "Jay2",
-      "Rinser",
-      "Rocky",
-      "cOn"
-    ],
-    "blue_team": [
-      "Josiah",
-      "KidMode",
-      "roasted",
-      "sneakybeav3r"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 6:50 PM",
-        "map": "Midship",
-        "gametype": "Capture the Flag",
-        "winner": "Red",
-        "source_file": "20251214_190645.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 6:50 PM",
-    "end_time": "12/14/2025 6:50 PM"
-  },
-  {
-    "series_id": "series_30",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "EpiiiC",
-      "Hammie",
-      "Tech",
-      "show5topper"
-    ],
-    "blue_team": [
-      "Hyrax",
-      "benforrrd",
-      "fluhd",
-      "squattingxbear"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 7:05 PM",
-        "map": "Sanctuary",
-        "gametype": "Team Slayer",
-        "winner": "Blue",
-        "source_file": "20251214_191206.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 7:05 PM",
-    "end_time": "12/14/2025 7:05 PM"
-  },
-  {
-    "series_id": "series_31",
-    "playlist": "Tournament 1",
-    "red_team": [
-      "Jay2",
-      "Rinser",
-      "Rocky",
-      "cOn"
-    ],
-    "blue_team": [
-      "EpiiiC",
-      "Hammie",
-      "Tech",
-      "show5topper"
-    ],
-    "games": [
-      {
-        "timestamp": "12/14/2025 7:24 PM",
-        "map": "Sanctuary",
-        "gametype": "Capture the Flag",
-        "winner": "Red",
-        "source_file": "20251214_193938.xlsx"
-      },
-      {
-        "timestamp": "12/14/2025 7:48 PM",
-        "map": "Beaver Creek",
-        "gametype": "Team Slayer",
-        "winner": "Red",
-        "source_file": "20251214_195351.xlsx"
-      },
-      {
-        "timestamp": "12/14/2025 7:54 PM",
-        "map": "Midship",
-        "gametype": "Assault",
-        "winner": "Blue",
-        "source_file": "20251214_200916.xlsx"
-      },
-      {
-        "timestamp": "12/14/2025 8:09 PM",
-        "map": "Lockout",
-        "gametype": "Team Slayer",
-        "winner": "Blue",
-        "source_file": "20251214_201559.xlsx"
-      },
-      {
-        "timestamp": "12/14/2025 8:16 PM",
-        "map": "Midship",
-        "gametype": "Capture the Flag",
-        "winner": "Blue",
-        "source_file": "20251214_202718.xlsx"
-      }
-    ],
-    "start_time": "12/14/2025 7:24 PM",
-    "end_time": "12/14/2025 8:16 PM"
-  },
-  {
-    "series_id": "series_32",
     "playlist": "MLG 4v4",
     "red_team": [
       "M15F1T",
@@ -1219,7 +792,7 @@
     "end_time": "12/2/2025 20:46"
   },
   {
-    "series_id": "series_33",
+    "series_id": "series_19",
     "playlist": "MLG 4v4",
     "red_team": [
       "AfroMaN",
@@ -1246,7 +819,7 @@
     "end_time": "12/5/2025 10:19 PM"
   },
   {
-    "series_id": "series_34",
+    "series_id": "series_20",
     "playlist": "MLG 4v4",
     "red_team": [
       "AfroMaN",
@@ -1294,7 +867,7 @@
     "end_time": "12/5/2025 10:58 PM"
   },
   {
-    "series_id": "series_35",
+    "series_id": "series_21",
     "playlist": "MLG 4v4",
     "red_team": [
       "AfroMaN",
@@ -1349,7 +922,7 @@
     "end_time": "12/5/2025 2:33 AM"
   },
   {
-    "series_id": "series_36",
+    "series_id": "series_22",
     "playlist": "MLG 4v4",
     "red_team": [
       "James | The Frenetic",
@@ -1411,7 +984,7 @@
     "end_time": "12/6/2025 1:24 AM"
   },
   {
-    "series_id": "series_37",
+    "series_id": "series_23",
     "playlist": "MLG 4v4",
     "red_team": [
       "Hammie",
@@ -1480,7 +1053,7 @@
     "end_time": "12/6/2025 3:43 AM"
   },
   {
-    "series_id": "series_38",
+    "series_id": "series_24",
     "playlist": "MLG 4v4",
     "red_team": [
       "Jay2",
@@ -1542,7 +1115,7 @@
     "end_time": "12/6/2025 5:17 AM"
   },
   {
-    "series_id": "series_39",
+    "series_id": "series_25",
     "playlist": "MLG 4v4",
     "red_team": [
       "Nark",
@@ -1583,7 +1156,7 @@
     "end_time": "12/7/2025 19:42"
   },
   {
-    "series_id": "series_40",
+    "series_id": "series_26",
     "playlist": "MLG 4v4",
     "red_team": [
       "Hammie",
@@ -1610,7 +1183,7 @@
     "end_time": "12/7/2025 1:06 PM"
   },
   {
-    "series_id": "series_41",
+    "series_id": "series_27",
     "playlist": "MLG 4v4",
     "red_team": [
       "AfroMaN",
@@ -1637,7 +1210,7 @@
     "end_time": "12/7/2025 1:17"
   },
   {
-    "series_id": "series_42",
+    "series_id": "series_28",
     "playlist": "MLG 4v4",
     "red_team": [
       "Hammie",
@@ -1671,7 +1244,7 @@
     "end_time": "12/7/2025 1:33 PM"
   },
   {
-    "series_id": "series_43",
+    "series_id": "series_29",
     "playlist": "MLG 4v4",
     "red_team": [
       "AfroMaN",
@@ -1705,7 +1278,7 @@
     "end_time": "12/7/2025 1:42"
   },
   {
-    "series_id": "series_44",
+    "series_id": "series_30",
     "playlist": "MLG 4v4",
     "red_team": [
       "Hammie",
@@ -1739,7 +1312,7 @@
     "end_time": "12/7/2025 1:55 PM"
   },
   {
-    "series_id": "series_45",
+    "series_id": "series_31",
     "playlist": "MLG 4v4",
     "red_team": [
       "Nark",
@@ -1780,7 +1353,7 @@
     "end_time": "12/7/2025 20:26"
   },
   {
-    "series_id": "series_46",
+    "series_id": "series_32",
     "playlist": "MLG 4v4",
     "red_team": [
       "EpiiiC",
@@ -1814,7 +1387,7 @@
     "end_time": "12/7/2025 21:01"
   },
   {
-    "series_id": "series_47",
+    "series_id": "series_33",
     "playlist": "MLG 4v4",
     "red_team": [
       "EpiiiC",
@@ -1855,7 +1428,7 @@
     "end_time": "12/7/2025 21:31"
   },
   {
-    "series_id": "series_48",
+    "series_id": "series_34",
     "playlist": "MLG 4v4",
     "red_team": [
       "AfroMaN",
@@ -1882,7 +1455,7 @@
     "end_time": "12/7/2025 2:01"
   },
   {
-    "series_id": "series_49",
+    "series_id": "series_35",
     "playlist": "MLG 4v4",
     "red_team": [
       "James | The Frenetic",
@@ -1937,7 +1510,7 @@
     "end_time": "12/7/2025 3:20 PM"
   },
   {
-    "series_id": "series_50",
+    "series_id": "series_36",
     "playlist": "MLG 4v4",
     "red_team": [
       "Hyrax",
@@ -1999,7 +1572,7 @@
     "end_time": "12/7/2025 4:29"
   },
   {
-    "series_id": "series_51",
+    "series_id": "series_37",
     "playlist": "MLG 4v4",
     "red_team": [
       "Josiah",
@@ -2026,7 +1599,7 @@
     "end_time": "12/7/2025 5:45 PM"
   },
   {
-    "series_id": "series_52",
+    "series_id": "series_38",
     "playlist": "MLG 4v4",
     "red_team": [
       "Josiah",
@@ -2067,7 +1640,7 @@
     "end_time": "12/7/2025 6:29 PM"
   },
   {
-    "series_id": "series_53",
+    "series_id": "series_39",
     "playlist": "MLG 4v4",
     "red_team": [
       "EpiiiC",
@@ -2122,7 +1695,7 @@
     "end_time": "2025-12-09 19:05:00"
   },
   {
-    "series_id": "series_54",
+    "series_id": "series_40",
     "playlist": "MLG 4v4",
     "red_team": [
       "Bigstack",
@@ -2149,7 +1722,7 @@
     "end_time": "2025-12-10 00:00:00"
   },
   {
-    "series_id": "series_55",
+    "series_id": "series_41",
     "playlist": "MLG 4v4",
     "red_team": [
       "Bigstack",
