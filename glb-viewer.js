@@ -483,6 +483,9 @@ function setupEventListeners() {
         }
     });
 
+    // Trails toggle button
+    document.getElementById('trailsToggleBtn')?.addEventListener('click', () => toggleTrails());
+
     // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
@@ -800,18 +803,12 @@ function populateScoreboard() {
             ? `<img src="${weaponIconUrl}" class="player-weapon-icon" alt="${weaponName}" title="${weaponName}" onerror="this.outerHTML='<span class=\\'player-weapon\\'>${weaponName}</span>'" />`
             : `<span class="player-weapon">${weaponName}</span>`;
 
-        // Trail toggle - shows a line icon
-        const trailActive = selectedTrailPlayers.has(player.name) ? 'active' : '';
-
         // Emblem or death X
         const emblemHtml = isDead
             ? `<div class="player-emblem dead-emblem"><span class="dead-x">✕</span></div>`
             : `<img src="${emblemUrl}" class="player-emblem" onerror="this.style.display='none'" />`;
 
         playerDiv.innerHTML = `
-            <button class="trail-toggle ${trailActive}" data-player="${player.name}" onclick="event.stopPropagation(); togglePlayerTrail('${player.name}')" title="Toggle trail for ${player.name}">
-                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M2 12h4l3-9 4 18 3-9h4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
             ${emblemHtml}
             <span class="player-name" style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span>
             <span class="player-kd">${kills} / ${deaths}</span>
@@ -859,6 +856,7 @@ function toggleTrails() {
         // If no specific players selected, enable all
         if (selectedTrailPlayers.size === 0) {
             players.forEach(p => selectedTrailPlayers.add(p.name));
+            syncTrailDropdown();
         }
         // Show trails for selected players
         Object.entries(playerTrails).forEach(([playerName, trail]) => {
@@ -875,15 +873,15 @@ function toggleTrails() {
             }
         });
     }
-    updateTrailToggles();
+    updateTrailsButton();
 }
 
-// Toggle trail for specific player
-window.togglePlayerTrail = function(playerName) {
-    if (selectedTrailPlayers.has(playerName)) {
-        selectedTrailPlayers.delete(playerName);
-    } else {
+// Toggle trail for specific player (called from dropdown)
+function setPlayerTrail(playerName, enabled) {
+    if (enabled) {
         selectedTrailPlayers.add(playerName);
+    } else {
+        selectedTrailPlayers.delete(playerName);
     }
 
     // Update trail visibility
@@ -896,14 +894,59 @@ window.togglePlayerTrail = function(playerName) {
     if (showTrails) {
         rebuildTrails();
     }
-    updateTrailToggles();
 }
 
-// Update trail toggle UI in scoreboard
-function updateTrailToggles() {
-    document.querySelectorAll('.trail-toggle').forEach(toggle => {
-        const playerName = toggle.dataset.player;
-        toggle.classList.toggle('active', selectedTrailPlayers.has(playerName));
+// Update trails button active state
+function updateTrailsButton() {
+    const btn = document.getElementById('trailsToggleBtn');
+    if (btn) {
+        btn.classList.toggle('active', showTrails);
+    }
+}
+
+// Sync dropdown selection with selectedTrailPlayers set
+function syncTrailDropdown() {
+    const select = document.getElementById('trailPlayerSelect');
+    if (!select) return;
+
+    Array.from(select.options).forEach(option => {
+        option.selected = selectedTrailPlayers.has(option.value);
+    });
+}
+
+// Populate the trail player dropdown
+function populateTrailDropdown() {
+    const select = document.getElementById('trailPlayerSelect');
+    if (!select) return;
+
+    select.innerHTML = '';
+
+    players.forEach(player => {
+        const option = document.createElement('option');
+        option.value = player.name;
+        option.textContent = player.name;
+
+        // Add team color class
+        const team = player.team || '';
+        if (team.includes('red') || team === '_game_team_red') {
+            option.className = 'red-player';
+        } else if (team.includes('blue') || team === '_game_team_blue') {
+            option.className = 'blue-player';
+        }
+
+        option.selected = selectedTrailPlayers.has(player.name);
+        select.appendChild(option);
+    });
+
+    // Handle selection changes
+    select.addEventListener('change', () => {
+        const selected = Array.from(select.selectedOptions).map(opt => opt.value);
+
+        // Update selectedTrailPlayers based on dropdown
+        players.forEach(player => {
+            const isSelected = selected.includes(player.name);
+            setPlayerTrail(player.name, isSelected);
+        });
     });
 }
 
@@ -1199,6 +1242,7 @@ async function loadMapAndTelemetry() {
 
         await createPlayerMarkers();
         initializeTrails();
+        populateTrailDropdown();
         createSkybox(mapName);
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
