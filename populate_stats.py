@@ -1845,7 +1845,8 @@ def main():
     print(f"  Total games: {len(all_games)}")
 
     # Ranked games are those with a valid playlist tag
-    ranked_games = games_by_playlist.get(PLAYLIST_MLG_4V4, [])
+    # Use list() to create a COPY - otherwise extend() mutates the original list in games_by_playlist
+    ranked_games = list(games_by_playlist.get(PLAYLIST_MLG_4V4, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_TEAM_HARDCORE, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_DOUBLE_TEAM, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_HEAD_TO_HEAD, []))
