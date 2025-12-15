@@ -200,20 +200,6 @@
             text-shadow: 1px 1px 0 #000;
         }
 
-        /* Series number label */
-        .series-number {
-            position: absolute;
-            top: -10px;
-            right: 10px;
-            font-family: 'Highway Gothic', sans-serif;
-            font-size: 0.75rem;
-            color: #fff;
-            text-shadow: 1px 1px 0 #000;
-        }
-        .series-match {
-            position: relative;
-        }
-
         /* Connector lines */
         .bracket-connector {
             display: flex;
@@ -223,6 +209,31 @@
             width: 30px;
             height: 2px;
             background: rgba(168, 212, 255, 0.3);
+        }
+
+        /* Vertical connector from losers to winners */
+        .losers-to-winners-connector {
+            position: relative;
+            display: flex;
+            justify-content: flex-end;
+            padding-right: 60px;
+            margin-top: -20px;
+        }
+        .vertical-tick {
+            width: 2px;
+            height: 40px;
+            background: rgba(168, 212, 255, 0.3);
+        }
+        .vertical-tick::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 58px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 8px solid rgba(168, 212, 255, 0.3);
         }
 
         /* Games dropdown for series */
@@ -636,11 +647,14 @@
             html += '</div>'; // bracket-rounds
             html += '</div>'; // bracket-section
 
+            // Vertical connector from losers to winners
+            html += '<div class="losers-to-winners-connector"><div class="vertical-tick"></div></div>';
+
             // Losers Bracket Section
             const losersR1 = series.filter(s => s.round === 'losers_r1');
             const losersR2 = series.filter(s => s.round === 'losers_r2');
 
-            html += '<div class="bracket-section" style="margin-top: 20px;">';
+            html += '<div class="bracket-section">';
 
             // Losers bracket matches
             html += '<div class="bracket-rounds">';
@@ -701,7 +715,6 @@
             else if (team2Winner) winnerBorderClass = 'winner-blue';
 
             let html = `<div class="series-match ${winnerBorderClass}" data-series-id="${series.id}">`;
-            html += `<span class="series-number">${series.id}</span>`;
 
             // Team 1 (Red team)
             html += `<div class="series-team team-red">`;
