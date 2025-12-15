@@ -553,6 +553,7 @@
             { key: 'kills', label: 'Kills', sortable: true },
             { key: 'deaths', label: 'Deaths', sortable: true },
             { key: 'kd', label: 'K/D', sortable: true },
+            { key: 'spread', label: '+/-', sortable: true },
             { key: 'assists', label: 'Assists', sortable: true },
             { key: 'headshots', label: 'Headshots', sortable: true }
         ];
@@ -870,6 +871,7 @@
                 case 'kills': return player.kills || 0;
                 case 'deaths': return player.deaths || 0;
                 case 'kd': return player.kills / Math.max(1, player.deaths);
+                case 'spread': return (player.kills || 0) - (player.deaths || 0);
                 case 'assists': return player.assists || 0;
                 case 'headshots': return player.headshots || 0;
                 default: return 0;
@@ -895,6 +897,9 @@
                 const kd = (player.kills / Math.max(1, player.deaths)).toFixed(2);
                 const winRate = ((player.wins / Math.max(1, player.wins + player.losses)) * 100).toFixed(1);
                 const kdClass = kd >= 1.2 ? 'positive' : kd < 0.8 ? 'negative' : 'neutral';
+                const spread = (player.kills || 0) - (player.deaths || 0);
+                const spreadClass = spread > 0 ? 'positive' : spread < 0 ? 'negative' : 'neutral';
+                const spreadDisplay = spread > 0 ? `+${spread}` : spread;
 
                 return `
                     <tr>
@@ -909,6 +914,7 @@
                         <td>${player.kills || 0}</td>
                         <td>${player.deaths || 0}</td>
                         <td class="${kdClass}">${kd}</td>
+                        <td class="${spreadClass}">${spreadDisplay}</td>
                         <td>${player.assists || 0}</td>
                         <td>${player.headshots || 0}</td>
                     </tr>
