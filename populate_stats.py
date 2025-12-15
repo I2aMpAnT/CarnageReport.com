@@ -2576,27 +2576,66 @@ def main():
         playlist_files_saved.append(get_playlist_files(playlist_name)['matches'])
         print(f"    Saved {get_playlist_files(playlist_name)['matches']} ({len(playlist_games)} matches)")
 
-        # Build stats for this playlist
+        # Build stats for this playlist from actual games (not global rankstats)
         stats_data = {'playlist': playlist_name, 'players': {}}
+
+        # First, calculate per-player stats from this playlist's games
+        playlist_player_stats = {}
+        for game in playlist_games:
+            winner = None
+            # Determine winner team
+            winners, losers = determine_winners_losers(game)
+            red_team = [p['name'] for p in game['players'] if p.get('team') == 'Red']
+            if winners and any(w in red_team for w in winners):
+                winner = 'Red'
+            elif winners:
+                winner = 'Blue'
+
+            for p in game['players']:
+                player_name = p['name']
+                # Get discord ID for this player
+                user_id = player_to_id.get(player_name)
+                if not user_id:
+                    continue
+
+                if user_id not in playlist_player_stats:
+                    playlist_player_stats[user_id] = {
+                        'kills': 0, 'deaths': 0, 'assists': 0, 'headshots': 0,
+                        'wins': 0, 'losses': 0
+                    }
+
+                pstats = playlist_player_stats[user_id]
+                pstats['kills'] += p.get('kills', 0)
+                pstats['deaths'] += p.get('deaths', 0)
+                pstats['assists'] += p.get('assists', 0)
+                pstats['headshots'] += p.get('head_shots', 0)
+
+                if p.get('team') == winner:
+                    pstats['wins'] += 1
+                else:
+                    pstats['losses'] += 1
+
+        # Now build the stats_data using playlist-specific stats
         for user_id, data in rankstats.items():
             playlists_info = data.get('playlists', {})
             if playlist_name in playlists_info:
                 pl_data = playlists_info[playlist_name]
+                pstats = playlist_player_stats.get(user_id, {})
                 stats_data['players'][user_id] = {
                     'discord_name': data.get('discord_name', ''),
                     'xp': pl_data.get('xp', 0),
                     'rank': pl_data.get('rank', 1),
-                    'wins': pl_data.get('wins', 0),
-                    'losses': pl_data.get('losses', 0),
+                    'wins': pstats.get('wins', pl_data.get('wins', 0)),
+                    'losses': pstats.get('losses', pl_data.get('losses', 0)),
                     'highest_rank': pl_data.get('highest_rank', 1),
-                    # Include overall stats for K/D display
-                    'kills': data.get('kills', 0),
-                    'deaths': data.get('deaths', 0),
-                    'assists': data.get('assists', 0),
-                    'headshots': data.get('headshots', 0),
+                    # Use playlist-specific stats, not global
+                    'kills': pstats.get('kills', 0),
+                    'deaths': pstats.get('deaths', 0),
+                    'assists': pstats.get('assists', 0),
+                    'headshots': pstats.get('headshots', 0),
                     # Include series stats
-                    'series_wins': data.get('series_wins', 0),
-                    'series_losses': data.get('series_losses', 0)
+                    'series_wins': pl_data.get('series_wins', 0),
+                    'series_losses': pl_data.get('series_losses', 0)
                 }
 
         save_playlist_stats(playlist_name, stats_data)

@@ -99,7 +99,7 @@
         .stats-table .player-emblem {
             width: 32px;
             height: 32px;
-            border-radius: 4px;
+            border: 2px solid white;
         }
         .stats-table .player-name {
             color: var(--unsc-blue);
@@ -225,7 +225,7 @@
         // Rank icon mapping
         function getRankIcon(rank) {
             if (rank >= 1 && rank <= 50) {
-                return `assets/ranks/${rank}.webp`;
+                return `/assets/ranks/${rank}.webp`;
             }
             return null;
         }
