@@ -39,7 +39,95 @@
       "ranked": true,
       "date": "December 14, 2025",
       "matches_file": "Tournament 1_matches.json",
-      "stats_file": "Tournament 1_stats.json"
+      "stats_file": "Tournament 1_stats.json",
+      "bracket": {
+        "type": "double_elimination",
+        "teams": [
+          {"seed": 1, "name": "con", "captain": "Con"},
+          {"seed": 2, "name": "epiiic", "captain": "EpiiiC"},
+          {"seed": 3, "name": "sneaky", "captain": "Sneaky"},
+          {"seed": 4, "name": "flood", "captain": "fluhd"}
+        ],
+        "rounds": {
+          "winners_r1": {
+            "label": "Round 1",
+            "games": ["WARLOCK CTF", "LOCKOUT SLAYER", "MIDSHIP BALL", "BEAVER TS", "SANCTUARY CTF"]
+          },
+          "winners_semis": {
+            "label": "Semifinals",
+            "games": ["MIDSHIP CTF", "MIDSHIP TS", "LOCKOUT BALL", "SANC TS", "WARLOCK CTF"]
+          },
+          "grand_finals": {
+            "label": "Finals",
+            "games": ["MIDSHIP BALL", "WARLOCK TS", "SANC CTF", "BEAVER TS", "MIDSHIP BOMB", "WARLOCK CTF", "WARLOCK TS", "MIDSHIP CTF", "SANC TS", "LOCKOUT BALL"]
+          },
+          "losers_r1": {
+            "label": "Losers Round 1",
+            "games": ["LOCKOUT BALL", "WARLOCK TS", "MIDSHIP CTF", "SANC TS", "WARLOCK CTF"]
+          },
+          "losers_r2": {
+            "label": "Losers Round 2",
+            "games": ["SANC CTF", "BEAVER TS", "MIDSHIP BOMB", "LOCKOUT TS", "MIDSHIP CTF"]
+          }
+        },
+        "series": [
+          {
+            "id": 1,
+            "round": "winners_r1",
+            "team1_seed": 1,
+            "team2_seed": 4,
+            "team1_wins": 2,
+            "team2_wins": 3,
+            "winner_seed": 4
+          },
+          {
+            "id": 2,
+            "round": "winners_r1",
+            "team1_seed": 2,
+            "team2_seed": 3,
+            "team1_wins": 3,
+            "team2_wins": 1,
+            "winner_seed": 2
+          },
+          {
+            "id": 3,
+            "round": "losers_r1",
+            "team1_seed": 1,
+            "team2_seed": 3,
+            "team1_wins": 3,
+            "team2_wins": 0,
+            "winner_seed": 1
+          },
+          {
+            "id": 4,
+            "round": "winners_semis",
+            "team1_seed": 4,
+            "team2_seed": 2,
+            "team1_wins": 3,
+            "team2_wins": 1,
+            "winner_seed": 4
+          },
+          {
+            "id": 5,
+            "round": "losers_r2",
+            "team1_seed": 2,
+            "team2_seed": 1,
+            "team1_wins": 3,
+            "team2_wins": 2,
+            "winner_seed": 2
+          },
+          {
+            "id": 6,
+            "round": "grand_finals",
+            "team1_seed": 4,
+            "team2_seed": 2,
+            "team1_wins": 3,
+            "team2_wins": 1,
+            "winner_seed": 4,
+            "bracket_reset": true
+          }
+        ]
+      }
     }
   ],
   "custom_games": {

@@ -91,62 +91,235 @@
             display: block;
         }
 
-        /* Teams Table */
-        .teams-table-container {
+        /* ==================== BRACKET STYLES ==================== */
+        .bracket-container {
+            padding: 20px;
             overflow-x: auto;
         }
-        .teams-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95rem;
+        .bracket-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            min-width: 1100px;
         }
-        .teams-table th {
-            background: linear-gradient(180deg, rgba(168, 212, 255, 0.15) 0%, rgba(168, 212, 255, 0.05) 100%);
-            color: var(--unsc-blue);
+
+        /* Round labels box */
+        .round-labels-box {
+            background: rgba(100, 100, 100, 0.3);
+            border: 1px solid rgba(168, 212, 255, 0.2);
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+        }
+        .round-label-section {
+            text-align: center;
+        }
+        .round-label-title {
             font-family: 'Orbitron', sans-serif;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 15px 12px;
-            text-align: left;
-            border-bottom: 2px solid rgba(168, 212, 255, 0.3);
+            color: var(--unsc-blue);
+            font-size: 1rem;
+            margin-bottom: 8px;
         }
-        .teams-table td {
-            padding: 12px;
-            border-bottom: 1px solid rgba(168, 212, 255, 0.1);
-            color: rgba(255, 255, 255, 0.9);
+        .round-games-list {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
         }
-        .teams-table tr:hover td {
-            background: rgba(168, 212, 255, 0.08);
-        }
-        .teams-table .placement-cell {
+
+        /* Winners and Losers sections */
+        .bracket-section {
             display: flex;
             align-items: center;
+            gap: 30px;
+        }
+        .bracket-section-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: rgba(168, 212, 255, 0.5);
+            letter-spacing: 2px;
+        }
+
+        /* Bracket rounds */
+        .bracket-rounds {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+        .bracket-round {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Series match box */
+        .series-match {
+            background: rgba(80, 80, 80, 0.6);
+            border: 1px solid rgba(168, 212, 255, 0.2);
+            min-width: 200px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .series-match:hover {
+            border-color: var(--unsc-blue);
+            background: rgba(100, 100, 100, 0.7);
+        }
+        .series-match.expanded {
+            border-color: var(--unsc-blue);
+        }
+
+        /* Team row in series */
+        .series-team {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(168, 212, 255, 0.1);
             gap: 10px;
         }
-        .teams-table .placement-icon {
-            width: 32px;
-            height: 32px;
+        .series-team:last-child {
+            border-bottom: none;
         }
-        .teams-table .team-name {
-            color: var(--unsc-blue);
-            font-weight: 600;
+        .series-team.winner {
+            background: rgba(234, 179, 8, 0.2);
         }
-        .teams-table .team-players {
+        .series-team.winner .series-score {
+            background: #eab308;
+            color: #000;
+        }
+        .team-seed {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: rgba(168, 212, 255, 0.6);
+            width: 20px;
+            text-align: center;
+        }
+        .team-emblem {
+            width: 28px;
+            height: 28px;
+            border: 2px solid white;
+        }
+        .team-name {
+            flex: 1;
+            font-family: 'Overpass', sans-serif;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .series-score {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            padding: 4px 10px;
+            background: rgba(168, 212, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Series number label */
+        .series-number {
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: rgba(168, 212, 255, 0.5);
+        }
+        .series-match {
+            position: relative;
+        }
+
+        /* Connector lines */
+        .bracket-connector {
+            display: flex;
+            align-items: center;
+        }
+        .connector-line {
+            width: 30px;
+            height: 2px;
+            background: rgba(168, 212, 255, 0.3);
+        }
+
+        /* Games dropdown for series */
+        .series-games-dropdown {
+            display: none;
+            background: rgba(40, 40, 40, 0.95);
+            border: 1px solid rgba(168, 212, 255, 0.3);
+            border-top: none;
+            padding: 10px;
+        }
+        .series-match.expanded + .series-games-dropdown,
+        .series-games-dropdown.show {
+            display: block;
+        }
+        .series-game-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid rgba(168, 212, 255, 0.1);
+            gap: 10px;
+        }
+        .series-game-item:last-child {
+            border-bottom: none;
+        }
+        .series-game-item.red-win {
+            border-left: 3px solid #ef4444;
+        }
+        .series-game-item.blue-win {
+            border-left: 3px solid #3b82f6;
+        }
+        .game-map-type {
+            flex: 1;
+            font-family: 'Share Tech Mono', monospace;
             font-size: 0.85rem;
-            color: rgba(168, 212, 255, 0.7);
+            color: rgba(255, 255, 255, 0.9);
         }
-        .teams-table .team-players .player-link {
-            color: rgba(168, 212, 255, 0.7);
-            cursor: pointer;
+        .game-winner-tag {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 2px;
         }
-        .teams-table .team-players .player-link:hover {
+        .game-winner-tag.red {
+            background: rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .game-winner-tag.blue {
+            background: rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+        .reset-divider {
+            text-align: center;
+            padding: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: #eab308;
+            border-top: 1px dashed rgba(234, 179, 8, 0.5);
+            border-bottom: 1px dashed rgba(234, 179, 8, 0.5);
+            margin: 5px 0;
+        }
+
+        /* Losers bracket box */
+        .losers-round-box {
+            background: rgba(100, 100, 100, 0.3);
+            border: 1px solid rgba(168, 212, 255, 0.2);
+            padding: 15px;
+            min-width: 180px;
+        }
+        .losers-round-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
             color: var(--unsc-blue);
-            text-decoration: underline;
+            text-align: center;
+            margin-bottom: 10px;
         }
-        .positive { color: #4ade80; }
-        .negative { color: #f87171; }
-        .neutral { color: #fbbf24; }
+        .losers-games-list {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            line-height: 1.5;
+        }
 
         /* Stats Table */
         .stats-table-container {
@@ -208,17 +381,26 @@
         .stats-table .player-name:hover {
             text-decoration: underline;
         }
-        .stats-table .rank-cell {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .positive { color: #4ade80; }
+        .negative { color: #f87171; }
+        .neutral { color: #fbbf24; }
+
+        /* Playlist link in game details */
+        .playlist-link {
+            color: var(--unsc-blue);
+            text-decoration: none;
+            padding: 4px 10px;
+            background: rgba(168, 212, 255, 0.15);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: background 0.2s;
         }
-        .stats-table .rank-icon {
-            width: 28px;
-            height: 28px;
+        .playlist-link:hover {
+            background: rgba(168, 212, 255, 0.3);
+            text-decoration: none;
         }
 
-        /* Games List - mirrors main page */
+        /* Games List */
         .games-list-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -293,25 +475,15 @@
                 <div class="playlist-summary" id="playlistSummary"></div>
 
                 <div class="playlist-tabs" id="playlistTabs">
-                    <button class="playlist-tab-btn active" onclick="switchPlaylistTab('teams')">Team Placement</button>
-                    <button class="playlist-tab-btn" onclick="switchPlaylistTab('games')">Games List</button>
-                    <button class="playlist-tab-btn" onclick="switchPlaylistTab('players')">Player Stats</button>
+                    <button class="playlist-tab-btn active" data-tab="bracket">Bracket</button>
+                    <button class="playlist-tab-btn" data-tab="games">Games List</button>
+                    <button class="playlist-tab-btn" data-tab="players">Player Stats</button>
                 </div>
 
-                <!-- Team Placement Tab -->
-                <div id="tab-teams" class="playlist-tab-content active">
-                    <div class="teams-table-container">
-                        <table class="teams-table">
-                            <thead>
-                                <tr>
-                                    <th>Place</th>
-                                    <th>Team</th>
-                                    <th>Record</th>
-                                    <th>Win %</th>
-                                </tr>
-                            </thead>
-                            <tbody id="teamsTableBody"></tbody>
-                        </table>
+                <!-- Bracket Tab -->
+                <div id="tab-bracket" class="playlist-tab-content active">
+                    <div class="bracket-container" id="bracketContainer">
+                        <!-- Bracket will be rendered here -->
                     </div>
                 </div>
 
@@ -380,14 +552,6 @@
             return name;
         }
 
-        // Rank icon mapping (1-3 for team placement, 1-50 for player rank)
-        function getRankIcon(rank) {
-            if (rank >= 1 && rank <= 50) {
-                return `/assets/ranks/${rank}.webp`;
-            }
-            return null;
-        }
-
         // Data storage
         let playersData = [];
         let matchesData = [];
@@ -395,6 +559,7 @@
         let emblemsData = {};
         let mmrData = {};
         let playlistConfig = null;
+        let bracketConfig = null;
         let currentSort = { column: 'wins', direction: 'desc' };
 
         // Player stats columns (no XP)
@@ -409,122 +574,304 @@
             { key: 'headshots', label: 'Headshots', sortable: true }
         ];
 
-        function switchPlaylistTab(tabName) {
-            document.querySelectorAll('.playlist-tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.playlist-tab-content').forEach(content => content.classList.remove('active'));
-
-            event.target.classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-        }
-
-        // Team detection - find teams based on same 4 players playing together
-        function detectTeams(matches) {
-            const teamMap = {}; // key: sorted player names, value: { players, wins, losses, games }
-
-            for (const match of matches) {
-                const redTeam = match.red_team || [];
-                const blueTeam = match.blue_team || [];
-                const winner = match.winner;
-
-                // Process red team
-                if (redTeam.length === 4) {
-                    const teamKey = [...redTeam].sort().join('|');
-                    if (!teamMap[teamKey]) {
-                        teamMap[teamKey] = { players: redTeam, wins: 0, losses: 0, games: [] };
-                    }
-                    if (winner === 'Red') {
-                        teamMap[teamKey].wins++;
-                    } else {
-                        teamMap[teamKey].losses++;
-                    }
-                    teamMap[teamKey].games.push(match);
-                }
-
-                // Process blue team
-                if (blueTeam.length === 4) {
-                    const teamKey = [...blueTeam].sort().join('|');
-                    if (!teamMap[teamKey]) {
-                        teamMap[teamKey] = { players: blueTeam, wins: 0, losses: 0, games: [] };
-                    }
-                    if (winner === 'Blue') {
-                        teamMap[teamKey].wins++;
-                    } else {
-                        teamMap[teamKey].losses++;
-                    }
-                    teamMap[teamKey].games.push(match);
-                }
-            }
-
-            // Convert to array and determine team names (captain = highest MMR)
-            const teams = Object.values(teamMap).map(team => {
-                // Find captain (highest MMR)
-                let captain = team.players[0];
-                let highestMMR = 0;
-
-                for (const player of team.players) {
-                    const playerMMR = getPlayerMMR(player);
-                    if (playerMMR > highestMMR) {
-                        highestMMR = playerMMR;
-                        captain = player;
-                    }
-                }
-
-                return {
-                    name: `Team ${captain}`,
-                    captain: captain,
-                    players: team.players,
-                    wins: team.wins,
-                    losses: team.losses,
-                    games: team.games
-                };
+        // Tab switching
+        document.querySelectorAll('.playlist-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+                document.querySelectorAll('.playlist-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.playlist-tab-content').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(`tab-${tabName}`).classList.add('active');
             });
+        });
 
-            // Sort by wins descending
-            teams.sort((a, b) => b.wins - a.wins || a.losses - b.losses);
-
-            return teams;
+        // Get team by seed from bracket config
+        function getTeamBySeed(seed) {
+            if (!bracketConfig || !bracketConfig.teams) return null;
+            return bracketConfig.teams.find(t => t.seed === seed);
         }
 
-        function getPlayerMMR(playerName) {
-            // Search MMR data by discord_name
-            for (const [id, data] of Object.entries(mmrData)) {
-                if (data.discord_name && data.discord_name.toLowerCase() === playerName.toLowerCase()) {
-                    return data.mmr || 0;
+        // Get captain emblem by captain name
+        function getCaptainEmblem(captainName) {
+            if (!captainName) return '';
+            // Search emblems by discord_name
+            for (const [id, data] of Object.entries(emblemsData)) {
+                if (data.discord_name && data.discord_name.toLowerCase() === captainName.toLowerCase()) {
+                    return data.emblem_url || '';
                 }
             }
-            return 0;
+            // Also check MMR data for discord_id mapping
+            for (const [id, data] of Object.entries(mmrData)) {
+                if (data.discord_name && data.discord_name.toLowerCase() === captainName.toLowerCase()) {
+                    if (emblemsData[id]) {
+                        return emblemsData[id].emblem_url || '';
+                    }
+                }
+            }
+            return '';
         }
 
-        function renderTeamsTable() {
-            const tbody = document.getElementById('teamsTableBody');
-            tbody.innerHTML = teamsData.map((team, index) => {
-                const placement = index + 1;
-                const rankIcon = placement <= 3 ? getRankIcon(placement) : null;
-                const winRate = ((team.wins / Math.max(1, team.wins + team.losses)) * 100).toFixed(1);
+        // Render the bracket
+        function renderBracket() {
+            const container = document.getElementById('bracketContainer');
+            if (!bracketConfig) {
+                container.innerHTML = '<div class="loading">No bracket data available</div>';
+                return;
+            }
 
-                const playersHtml = team.players.map(p =>
-                    `<span class="player-link" onclick="goToPlayer('${p}')">${p}</span>`
-                ).join(', ');
+            const teams = bracketConfig.teams || [];
+            const series = bracketConfig.series || [];
+            const rounds = bracketConfig.rounds || {};
 
-                return `
-                    <tr>
-                        <td>
-                            <div class="placement-cell">
-                                ${rankIcon ? `<img src="${rankIcon}" class="placement-icon" alt="Place ${placement}">` : ''}
-                                <span>${placement}</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="team-name">${team.name}</div>
-                            <div class="team-players">${playersHtml}</div>
-                        </td>
-                        <td>${team.wins}-${team.losses}</td>
-                        <td>${winRate}%</td>
-                    </tr>
-                `;
-            }).join('');
+            // Build team lookup
+            const teamMap = {};
+            teams.forEach(t => teamMap[t.seed] = t);
+
+            let html = '<div class="bracket-wrapper">';
+
+            // Round labels box
+            html += '<div class="round-labels-box">';
+            for (const [roundKey, roundData] of Object.entries(rounds)) {
+                html += `<div class="round-label-section">`;
+                html += `<div class="round-label-title">${roundData.label}</div>`;
+                html += `<div class="round-games-list">${(roundData.games || []).join('<br>')}</div>`;
+                html += `</div>`;
+            }
+            html += '</div>';
+
+            // Winners Bracket
+            html += '<div class="bracket-section">';
+
+            // Winners R1
+            const winnersR1 = series.filter(s => s.round === 'winners_r1');
+            const winnersSemis = series.filter(s => s.round === 'winners_semis');
+            const grandFinals = series.filter(s => s.round === 'grand_finals');
+
+            html += '<div class="bracket-rounds">';
+
+            // Round 1 matches
+            html += '<div class="bracket-round">';
+            winnersR1.forEach(s => {
+                html += renderSeriesMatch(s, teamMap);
+            });
+            html += '</div>';
+
+            // Connector
+            html += '<div class="bracket-connector"><div class="connector-line"></div></div>';
+
+            // Semifinals
+            html += '<div class="bracket-round">';
+            winnersSemis.forEach(s => {
+                html += renderSeriesMatch(s, teamMap);
+            });
+            html += '</div>';
+
+            // Connector
+            html += '<div class="bracket-connector"><div class="connector-line"></div></div>';
+
+            // Grand Finals
+            html += '<div class="bracket-round">';
+            grandFinals.forEach(s => {
+                html += renderSeriesMatch(s, teamMap);
+            });
+            html += '</div>';
+
+            html += '</div>'; // bracket-rounds
+            html += '</div>'; // bracket-section
+
+            // Losers Bracket Section
+            const losersR1 = series.filter(s => s.round === 'losers_r1');
+            const losersR2 = series.filter(s => s.round === 'losers_r2');
+
+            html += '<div class="bracket-section" style="margin-top: 20px;">';
+
+            // Losers round info boxes
+            html += '<div class="bracket-rounds">';
+
+            if (rounds.losers_r1) {
+                html += '<div class="losers-round-box">';
+                html += `<div class="losers-round-title">${rounds.losers_r1.label}</div>`;
+                html += `<div class="losers-games-list">${(rounds.losers_r1.games || []).join('<br>')}</div>`;
+                html += '</div>';
+            }
+
+            // Losers R1 matches
+            html += '<div class="bracket-round">';
+            losersR1.forEach(s => {
+                html += renderSeriesMatch(s, teamMap);
+            });
+            html += '</div>';
+
+            // Connector
+            html += '<div class="bracket-connector"><div class="connector-line"></div></div>';
+
+            if (rounds.losers_r2) {
+                html += '<div class="losers-round-box">';
+                html += `<div class="losers-round-title">${rounds.losers_r2.label}</div>`;
+                html += `<div class="losers-games-list">${(rounds.losers_r2.games || []).join('<br>')}</div>`;
+                html += '</div>';
+            }
+
+            // Losers R2 matches
+            html += '<div class="bracket-round">';
+            losersR2.forEach(s => {
+                html += renderSeriesMatch(s, teamMap);
+            });
+            html += '</div>';
+
+            html += '</div>'; // bracket-rounds
+            html += '</div>'; // bracket-section
+
+            html += '</div>'; // bracket-wrapper
+
+            container.innerHTML = html;
+
+            // Add click handlers for series matches
+            container.querySelectorAll('.series-match').forEach(match => {
+                match.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    const dropdown = this.nextElementSibling;
+                    if (dropdown && dropdown.classList.contains('series-games-dropdown')) {
+                        dropdown.classList.toggle('show');
+                    }
+                });
+            });
         }
 
+        function renderSeriesMatch(series, teamMap) {
+            const team1 = teamMap[series.team1_seed] || { name: 'TBD', seed: series.team1_seed };
+            const team2 = teamMap[series.team2_seed] || { name: 'TBD', seed: series.team2_seed };
+
+            const team1Emblem = getCaptainEmblem(team1.captain);
+            const team2Emblem = getCaptainEmblem(team2.captain);
+
+            const team1Winner = series.winner_seed === series.team1_seed;
+            const team2Winner = series.winner_seed === series.team2_seed;
+
+            let html = `<div class="series-match" data-series-id="${series.id}">`;
+            html += `<span class="series-number">${series.id}</span>`;
+
+            // Team 1
+            html += `<div class="series-team ${team1Winner ? 'winner' : ''}">`;
+            html += `<span class="team-seed">${team1.seed}</span>`;
+            if (team1Emblem) {
+                html += `<img src="${team1Emblem}" class="team-emblem" alt="">`;
+            }
+            html += `<span class="team-name">${team1.name}</span>`;
+            html += `<span class="series-score">${series.team1_wins}</span>`;
+            html += `</div>`;
+
+            // Team 2
+            html += `<div class="series-team ${team2Winner ? 'winner' : ''}">`;
+            html += `<span class="team-seed">${team2.seed}</span>`;
+            if (team2Emblem) {
+                html += `<img src="${team2Emblem}" class="team-emblem" alt="">`;
+            }
+            html += `<span class="team-name">${team2.name}</span>`;
+            html += `<span class="series-score">${series.team2_wins}</span>`;
+            html += `</div>`;
+
+            html += `</div>`;
+
+            // Games dropdown
+            html += `<div class="series-games-dropdown">`;
+            html += renderSeriesGames(series, team1, team2);
+            html += `</div>`;
+
+            return html;
+        }
+
+        function renderSeriesGames(series, team1, team2) {
+            // Find games for this series from matchesData
+            const roundConfig = bracketConfig.rounds[series.round];
+            if (!roundConfig || !roundConfig.games) {
+                return '<div style="padding: 10px; color: rgba(255,255,255,0.5);">No game data</div>';
+            }
+
+            let html = '';
+            const gameNames = roundConfig.games;
+
+            // For grand finals with bracket reset
+            if (series.bracket_reset) {
+                const midpoint = Math.ceil(gameNames.length / 2);
+                const set1Games = gameNames.slice(0, midpoint);
+                const set2Games = gameNames.slice(midpoint);
+
+                set1Games.forEach((gameName, idx) => {
+                    html += renderGameItem(gameName, idx, series, team1, team2);
+                });
+
+                html += '<div class="reset-divider">BRACKET RESET</div>';
+
+                set2Games.forEach((gameName, idx) => {
+                    html += renderGameItem(gameName, idx + midpoint, series, team1, team2);
+                });
+            } else {
+                gameNames.forEach((gameName, idx) => {
+                    html += renderGameItem(gameName, idx, series, team1, team2);
+                });
+            }
+
+            return html;
+        }
+
+        function renderGameItem(gameName, idx, series, team1, team2) {
+            // Try to find the matching game in matchesData
+            const matchingGame = findMatchingGame(gameName, series);
+
+            let winnerColor = '';
+            let winnerTag = '';
+
+            if (matchingGame) {
+                winnerColor = matchingGame.winner === 'Red' ? 'red-win' : 'blue-win';
+                winnerTag = matchingGame.winner === 'Red'
+                    ? `<span class="game-winner-tag red">RED</span>`
+                    : `<span class="game-winner-tag blue">BLUE</span>`;
+            }
+
+            return `
+                <div class="series-game-item ${winnerColor}">
+                    <span class="game-map-type">${gameName}</span>
+                    ${winnerTag}
+                </div>
+            `;
+        }
+
+        function findMatchingGame(gameName, series) {
+            // Parse game name like "WARLOCK CTF" -> map: Warlock, type includes CTF
+            const parts = gameName.split(' ');
+            if (parts.length < 2) return null;
+
+            const mapPart = parts[0].toLowerCase();
+            const typePart = parts.slice(1).join(' ').toLowerCase();
+
+            // Map name conversions
+            const mapNameMap = {
+                'sanc': 'sanctuary',
+                'beaver': 'beaver creek',
+                'lock': 'lockout'
+            };
+
+            const searchMap = mapNameMap[mapPart] || mapPart;
+
+            for (const match of matchesData) {
+                const matchMap = (match.map || '').toLowerCase();
+                const matchType = (match.gametype || '').toLowerCase();
+
+                if (matchMap.includes(searchMap) || searchMap.includes(matchMap.split(' ')[0])) {
+                    // Check gametype
+                    if (typePart.includes('ctf') && (matchType.includes('flag') || matchType.includes('ctf'))) return match;
+                    if (typePart.includes('ts') && matchType.includes('slayer')) return match;
+                    if (typePart.includes('slayer') && matchType.includes('slayer')) return match;
+                    if (typePart.includes('ball') && (matchType.includes('ball') || matchType.includes('oddball'))) return match;
+                    if (typePart.includes('bomb') && (matchType.includes('bomb') || matchType.includes('assault'))) return match;
+                    if (typePart.includes('koth') && (matchType.includes('king') || matchType.includes('hill'))) return match;
+                }
+            }
+            return null;
+        }
+
+        // Player stats functions
         function renderHeader() {
             const headerRow = document.getElementById('tableHeader');
             headerRow.innerHTML = columns.map(col => {
@@ -574,7 +921,7 @@
 
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = sorted.map(player => {
-                const emblem = emblemsData[player.discord_id]?.emblem_url || '';
+                const emblem = getPlayerEmblem(player.discord_name);
                 const kd = (player.kills / Math.max(1, player.deaths)).toFixed(2);
                 const winRate = ((player.wins / Math.max(1, player.wins + player.losses)) * 100).toFixed(1);
                 const kdClass = kd >= 1.2 ? 'positive' : kd < 0.8 ? 'negative' : 'neutral';
@@ -599,40 +946,71 @@
             }).join('');
         }
 
+        function getPlayerEmblem(playerName) {
+            for (const [id, data] of Object.entries(emblemsData)) {
+                if (data.discord_name && data.discord_name.toLowerCase() === playerName.toLowerCase()) {
+                    return data.emblem_url || '';
+                }
+            }
+            for (const [id, data] of Object.entries(mmrData)) {
+                if (data.discord_name && data.discord_name.toLowerCase() === playerName.toLowerCase()) {
+                    if (emblemsData[id]) {
+                        return emblemsData[id].emblem_url || '';
+                    }
+                }
+            }
+            return '';
+        }
+
         function renderSummary() {
             const totalGames = matchesData.length;
             const totalKills = playersData.reduce((sum, p) => sum + (p.kills || 0), 0);
-            const totalDeaths = playersData.reduce((sum, p) => sum + (p.deaths || 0), 0);
-            const avgKd = (totalKills / Math.max(1, totalDeaths)).toFixed(2);
 
             const summary = document.getElementById('playlistSummary');
-            summary.innerHTML = `
-                <div class="summary-stat">
-                    <div class="value">${teamsData.length}</div>
-                    <div class="label">Teams</div>
-                </div>
-                <div class="summary-stat">
-                    <div class="value">${playersData.length}</div>
-                    <div class="label">Players</div>
-                </div>
-                <div class="summary-stat">
-                    <div class="value">${totalGames}</div>
-                    <div class="label">Games Played</div>
-                </div>
-                <div class="summary-stat">
-                    <div class="value">${totalKills.toLocaleString()}</div>
-                    <div class="label">Total Kills</div>
-                </div>
-            `;
+
+            if (bracketConfig && bracketConfig.teams) {
+                summary.innerHTML = `
+                    <div class="summary-stat">
+                        <div class="value">${bracketConfig.teams.length}</div>
+                        <div class="label">Teams</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value">${playersData.length}</div>
+                        <div class="label">Players</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value">${totalGames}</div>
+                        <div class="label">Games Played</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value">${totalKills.toLocaleString()}</div>
+                        <div class="label">Total Kills</div>
+                    </div>
+                `;
+            } else {
+                summary.innerHTML = `
+                    <div class="summary-stat">
+                        <div class="value">${playersData.length}</div>
+                        <div class="label">Players</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value">${totalGames}</div>
+                        <div class="label">Games Played</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value">${totalKills.toLocaleString()}</div>
+                        <div class="label">Total Kills</div>
+                    </div>
+                `;
+            }
         }
 
-        // Format duration
+        // Games list functions
         function formatDuration(duration) {
             if (!duration) return '0:00';
             return duration;
         }
 
-        // Format date/time
         function formatDateTime(startTime) {
             if (!startTime) return '';
             try {
@@ -649,53 +1027,26 @@
             }
         }
 
-        // Get base gametype name (matches MLG 4v4/Team Hardcore naming conventions)
         function getBaseGametype(variantName, playlist = '') {
             if (!variantName) return 'Unknown';
             const name = variantName.toLowerCase();
-            // MLG/Tournament playlists use "Bomb" for assault
             const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore' ||
                           playlist.toLowerCase().includes('tournament');
 
-            // CTF variants
-            if (name.includes('flag') || name.includes('ctf')) {
-                return 'Capture the Flag';
-            }
-            // Oddball variants
-            if (name.includes('oddball') || name.includes('ball') || name.includes('bawl')) {
-                return 'Oddball';
-            }
-            // King of the Hill variants
-            if (name.includes('king') || name.includes('koth') || name.includes('hill')) {
-                return 'King of the Hill';
-            }
-            // Assault variants - "Bomb" for MLG/Tournament, "Assault" for others
-            if (name.includes('assault') || name.includes('bomb')) {
-                return isMLG ? 'Bomb' : 'Assault';
-            }
-            // Territories variants
-            if (name.includes('territor')) {
-                return 'Territories';
-            }
-            // FFA / Slayer variants
-            if (name.includes('ffa') || name.includes('free for all') || name.includes('rumble')) {
-                return 'Free For All';
-            }
-            // Slayer
-            if (name.includes('slayer') || name.includes(' ts') || name === 'ts' || name.endsWith('ts')) {
-                return 'Team Slayer';
-            }
-            // Default: return original
+            if (name.includes('flag') || name.includes('ctf')) return 'Capture the Flag';
+            if (name.includes('oddball') || name.includes('ball') || name.includes('bawl')) return 'Oddball';
+            if (name.includes('king') || name.includes('koth') || name.includes('hill')) return 'King of the Hill';
+            if (name.includes('assault') || name.includes('bomb')) return isMLG ? 'Bomb' : 'Assault';
+            if (name.includes('territor')) return 'Territories';
+            if (name.includes('ffa') || name.includes('free for all') || name.includes('rumble')) return 'Free For All';
+            if (name.includes('slayer') || name.includes(' ts') || name === 'ts' || name.endsWith('ts')) return 'Team Slayer';
             return variantName;
         }
 
-        // Get gametype with playlist prefix (MLG, 2v2, 1v1)
         function getGametypeWithPrefix(gameType, playlist) {
             if (!playlist) return gameType;
-
             const playlistLower = playlist.toLowerCase();
-            if (playlistLower === 'mlg 4v4' || playlistLower === 'team hardcore' ||
-                playlistLower.includes('tournament')) {
+            if (playlistLower === 'mlg 4v4' || playlistLower === 'team hardcore' || playlistLower.includes('tournament')) {
                 return 'MLG ' + gameType;
             } else if (playlistLower === 'double team') {
                 return '2v2 ' + gameType;
@@ -705,23 +1056,19 @@
             return gameType;
         }
 
-        // Get full display gametype (base + prefix)
         function getDisplayGametype(variantName, playlist) {
             const baseType = getBaseGametype(variantName, playlist);
             return getGametypeWithPrefix(baseType, playlist);
         }
 
-        // Render games list (mirrors main page)
         function renderGamesList() {
             const gamesList = document.getElementById('playlistGamesList');
             if (!gamesList || matchesData.length === 0) {
-                if (gamesList) gamesList.innerHTML = '<div class="loading-message">No games to display</div>';
+                if (gamesList) gamesList.innerHTML = '<div class="loading">No games to display</div>';
                 return;
             }
 
             gamesList.innerHTML = '';
-
-            // Sort by timestamp (newest first)
             const sortedMatches = [...matchesData].sort((a, b) => {
                 const dateA = new Date(a.timestamp || 0);
                 const dateB = new Date(b.timestamp || 0);
@@ -738,29 +1085,22 @@
             const gameDiv = document.createElement('div');
             gameDiv.className = 'game-item';
             gameDiv.id = `playlist-game-${gameIndex}`;
-            gameDiv.setAttribute('data-game-index', gameIndex);
 
             const mapName = match.map || 'Unknown Map';
             const rawGametype = match.gametype || 'Unknown';
             const gametype = getDisplayGametype(rawGametype, playlistConfig?.name || '');
-            const duration = formatDuration(match.duration);
             const dateDisplay = formatDateTime(match.timestamp);
-            const mapImage = mapImages[mapName] || defaultMapImage;
 
-            // Determine winner and score display
             let winnerClass = '';
-            let scoreTagClass = '';
             let teamScoreDisplay = '';
 
             if (match.red_score !== undefined && match.blue_score !== undefined) {
                 if (match.winner === 'Red') {
                     winnerClass = 'winner-red';
-                    scoreTagClass = 'score-tag-red';
                 } else if (match.winner === 'Blue') {
                     winnerClass = 'winner-blue';
-                    scoreTagClass = 'score-tag-blue';
                 }
-                teamScoreDisplay = `<span class="game-meta-tag ${scoreTagClass}">Red: ${match.red_score} - Blue: ${match.blue_score}</span>`;
+                teamScoreDisplay = `<span class="game-meta-tag">Red: ${match.red_score} - Blue: ${match.blue_score}</span>`;
             }
 
             gameDiv.innerHTML = `
@@ -799,18 +1139,13 @@
                 gameItem.classList.remove('expanded');
             } else {
                 gameItem.classList.add('expanded');
-
                 if (!gameContent.innerHTML) {
-                    const match = matchesData.find((m, i) => {
-                        // Find match by sorted order
-                        const sortedMatches = [...matchesData].sort((a, b) => {
-                            const dateA = new Date(a.timestamp || 0);
-                            const dateB = new Date(b.timestamp || 0);
-                            return dateB - dateA;
-                        });
-                        return sortedMatches[gameIndex] === m;
-                    }) || matchesData[gameIndex];
-
+                    const sortedMatches = [...matchesData].sort((a, b) => {
+                        const dateA = new Date(a.timestamp || 0);
+                        const dateB = new Date(b.timestamp || 0);
+                        return dateB - dateA;
+                    });
+                    const match = sortedMatches[gameIndex];
                     if (match) {
                         gameContent.innerHTML = renderGameContent(match, gameIndex);
                     }
@@ -826,7 +1161,6 @@
             const duration = formatDuration(match.duration);
             const formattedTime = formatDateTime(match.timestamp);
 
-            // Team scores
             let teamScoreHtml = '';
             if (match.red_score !== undefined && match.blue_score !== undefined) {
                 const redWinner = match.winner === 'Red';
@@ -841,172 +1175,78 @@
             let html = '<div class="game-details-header">';
             html += `<div class="map-image-container">`;
             html += `<img src="${mapImage}" alt="${mapName}" class="map-image" onerror="this.src='${defaultMapImage}'">`;
-            html += `<div class="map-overlay">`;
-            html += `<div class="map-name">${mapName}</div>`;
-            html += `</div>`;
+            html += `<div class="map-overlay"><div class="map-name">${mapName}</div></div>`;
             html += `</div>`;
             html += `<div class="game-info-panel">`;
             html += `<div class="game-type-title">${gametype}</div>`;
             html += `<div class="game-meta-info">`;
             html += `<span><i class="icon-clock"></i> ${duration}</span>`;
             html += `<span><i class="icon-calendar"></i> ${formattedTime}</span>`;
+            const playlistName = playlistConfig?.name || '';
+            if (playlistName) {
+                html += `<a href="/playlist.html?name=${encodeURIComponent(playlistName)}" class="playlist-link" onclick="event.stopPropagation();">${playlistName}</a>`;
+            }
             html += `</div>`;
             html += teamScoreHtml;
-            html += `</div>`;
-
-            // Theater and download buttons
-            html += '<div class="game-actions">';
-            if (match.theater_url) {
-                html += `<button class="replay-3d-btn" onclick="event.stopPropagation(); openTheater('${match.theater_url}');" title="Halo 2 Theater Mode">`;
-                html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>';
-                html += '<span>Halo 2 Theater Mode</span>';
-                html += '</button>';
-            }
-
-            html += '<div class="game-download-dropdown">';
-            html += '<button class="download-icon-btn" onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle(\'show\');" title="Download game files">';
-            html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
-            html += '</button>';
-            html += '<div class="download-menu">';
-            if (match.public_url) {
-                const statsFilename = match.public_url.split('/').pop();
-                html += `<a href="${match.public_url}" class="download-menu-item" download="${statsFilename}" onclick="event.stopPropagation();">Stats</a>`;
-            } else {
-                html += '<span class="download-menu-item disabled" onclick="event.stopPropagation();">Stats N/A</span>';
-            }
-            if (match.theater_url) {
-                const telemetryFilename = match.theater_url.split('/').pop();
-                html += `<a href="${match.theater_url}" class="download-menu-item" download="${telemetryFilename}" onclick="event.stopPropagation();">Telemetry</a>`;
-            } else {
-                html += '<span class="download-menu-item disabled" onclick="event.stopPropagation();">Telemetry N/A</span>';
-            }
-            html += '</div>';
-            html += '</div>';
-            html += '</div>';
-
-            html += '</div>';
+            html += `</div></div>`;
 
             // Scoreboard
-            html += '<div class="tab-navigation">';
-            html += `<button class="tab-btn active" onclick="switchGameTab(this, 'scoreboard', ${gameIndex})">Scoreboard</button>`;
-            html += '</div>';
+            html += '<div class="scoreboard"><table class="scoreboard-table">';
+            html += '<thead><tr><th>Player</th><th>K</th><th>D</th><th>A</th><th>Score</th></tr></thead><tbody>';
 
-            html += '<div class="tab-content active">';
-            html += renderScoreboard(match);
-            html += '</div>';
-
-            return html;
-        }
-
-        function switchGameTab(btn, tabName, gameIndex) {
-            const parent = btn.closest('.game-details-content');
-            const tabs = parent.querySelectorAll('.tab-content');
-            const buttons = parent.querySelectorAll('.tab-btn');
-
-            buttons.forEach(b => b.classList.remove('active'));
-            tabs.forEach(t => t.classList.remove('active'));
-
-            btn.classList.add('active');
-            const tabIndex = Array.from(buttons).indexOf(btn);
-            tabs[tabIndex].classList.add('active');
-        }
-
-        function renderScoreboard(match) {
             const players = match.player_stats || [];
-
-            // Sort: Red team first, then Blue
             const sortedPlayers = [...players].sort((a, b) => {
                 const teamOrder = { 'Red': 0, 'Blue': 1 };
-                const teamA = teamOrder[a.team] !== undefined ? teamOrder[a.team] : 2;
-                const teamB = teamOrder[b.team] !== undefined ? teamOrder[b.team] : 2;
-                return teamA - teamB;
+                return (teamOrder[a.team] || 2) - (teamOrder[b.team] || 2);
             });
-
-            let html = '<div class="scoreboard">';
-            html += '<table class="scoreboard-table">';
-            html += '<thead><tr>';
-            html += '<th>Player</th>';
-            html += '<th>K</th>';
-            html += '<th>D</th>';
-            html += '<th>A</th>';
-            html += '<th>Score</th>';
-            html += '</tr></thead>';
-            html += '<tbody>';
 
             sortedPlayers.forEach(player => {
                 const teamClass = player.team ? `team-${player.team.toLowerCase()}` : '';
-                const emblemUrl = emblemsData[player.discord_id]?.emblem_url || '';
-
+                const emblemUrl = getPlayerEmblem(player.name);
                 html += `<tr class="${teamClass}">`;
                 html += `<td class="player-cell">`;
-                if (emblemUrl) {
-                    html += `<img src="${emblemUrl}" class="player-emblem scoreboard-emblem" alt="">`;
-                }
-                html += `<span class="player-name clickable-player" onclick="goToPlayer('${player.name}')">${player.name}</span>`;
-                html += `</td>`;
+                if (emblemUrl) html += `<img src="${emblemUrl}" class="player-emblem" alt="">`;
+                html += `<span class="player-name" onclick="goToPlayer('${player.name}')">${player.name}</span></td>`;
                 html += `<td>${player.kills || 0}</td>`;
                 html += `<td>${player.deaths || 0}</td>`;
                 html += `<td>${player.assists || 0}</td>`;
-                html += `<td>${player.score || 0}</td>`;
-                html += '</tr>';
+                html += `<td>${player.score || 0}</td></tr>`;
             });
 
-            html += '</tbody></table>';
-            html += '</div>';
-
+            html += '</tbody></table></div>';
             return html;
-        }
-
-        function openTheater(url) {
-            // Open theater view - could be integrated with main site's theater
-            window.open(url, '_blank');
         }
 
         function goToPlayer(playerName) {
             window.location.href = `/?player=${encodeURIComponent(playerName)}`;
         }
 
-        // Calculate stats from matches data
         function calculateStatsFromMatches(matchesArray) {
             const playerStats = {};
-
             for (const match of matchesArray) {
                 const winner = match.winner;
-
                 for (const playerStat of match.player_stats || []) {
                     const name = playerStat.name;
                     if (!playerStats[name]) {
                         playerStats[name] = {
                             discord_name: name,
-                            wins: 0,
-                            losses: 0,
-                            kills: 0,
-                            deaths: 0,
-                            assists: 0,
-                            headshots: 0
+                            wins: 0, losses: 0, kills: 0, deaths: 0, assists: 0, headshots: 0
                         };
                     }
-
                     const p = playerStats[name];
                     p.kills += playerStat.kills || 0;
                     p.deaths += playerStat.deaths || 0;
                     p.assists += playerStat.assists || 0;
                     p.headshots += playerStat.headshots || 0;
-
-                    if (playerStat.team === winner) {
-                        p.wins++;
-                    } else {
-                        p.losses++;
-                    }
+                    if (playerStat.team === winner) p.wins++;
+                    else p.losses++;
                 }
             }
-
             return { players: playerStats };
         }
 
         async function loadPlaylistStats() {
             const playlistName = getPlaylistName();
-
             if (!playlistName) {
                 showError('No playlist specified in URL.');
                 return;
@@ -1015,60 +1255,41 @@
             document.title = `${playlistName} - CarnageReport.com`;
 
             try {
-                // Load playlists config
                 const playlistsResponse = await fetch('playlists.json');
-                if (!playlistsResponse.ok) {
-                    throw new Error('Could not load playlists config');
-                }
+                if (!playlistsResponse.ok) throw new Error('Could not load playlists config');
                 const playlistsConfig = await playlistsResponse.json();
 
-                // Find the playlist by name (case-insensitive)
                 playlistConfig = playlistsConfig.playlists.find(p =>
                     p.name.toLowerCase() === playlistName.toLowerCase()
                 );
 
-                if (!playlistConfig) {
-                    throw new Error(`Playlist "${playlistName}" not found`);
-                }
+                if (!playlistConfig) throw new Error(`Playlist "${playlistName}" not found`);
 
-                // Load MMR data for team captain detection
+                // Load bracket config if available
+                bracketConfig = playlistConfig.bracket || null;
+
+                // Load MMR and emblems data
                 try {
-                    const mmrResponse = await fetch('MMR.json');
-                    if (mmrResponse.ok) {
-                        mmrData = await mmrResponse.json();
-                    }
+                    const [mmrRes, emblemsRes] = await Promise.all([
+                        fetch('MMR.json'),
+                        fetch('emblems.json')
+                    ]);
+                    if (mmrRes.ok) mmrData = await mmrRes.json();
+                    if (emblemsRes.ok) emblemsData = await emblemsRes.json();
                 } catch (e) {
-                    console.warn('Could not load MMR data:', e);
+                    console.warn('Could not load MMR/emblems:', e);
                 }
 
-                // Load matches data
+                // Load matches
                 const matchesResponse = await fetch(playlistConfig.matches_file);
-                if (!matchesResponse.ok) {
-                    throw new Error(`Matches data for "${playlistName}" not found`);
-                }
+                if (!matchesResponse.ok) throw new Error(`Matches data not found`);
                 const matchesJson = await matchesResponse.json();
                 matchesData = matchesJson.matches || [];
 
-                // Calculate player stats from matches
+                // Calculate stats
                 const statsData = calculateStatsFromMatches(matchesData);
-
-                // Detect teams
-                teamsData = detectTeams(matchesData);
-
-                // Load emblems
-                try {
-                    const emblemsResponse = await fetch('emblems.json');
-                    if (emblemsResponse.ok) {
-                        emblemsData = await emblemsResponse.json();
-                    }
-                } catch (e) {
-                    console.warn('Could not load emblems:', e);
-                }
-
-                // Convert players object to array
-                playersData = Object.entries(statsData.players || {}).map(([discordId, data]) => ({
-                    discord_id: discordId,
-                    ...data
+                playersData = Object.entries(statsData.players || {}).map(([id, data]) => ({
+                    discord_id: id, ...data
                 }));
 
                 // Show content
@@ -1076,20 +1297,20 @@
                 document.getElementById('contentArea').style.display = 'block';
                 document.getElementById('playlistName').textContent = playlistName;
 
-                // Show date if available
                 if (playlistConfig.date) {
                     document.getElementById('playlistDate').textContent = playlistConfig.date;
                 }
 
-                // Hide tabs for non-tournament playlists (no team detection needed)
-                if (!playlistName.toLowerCase().includes('tournament')) {
-                    document.getElementById('playlistTabs').style.display = 'none';
-                    document.getElementById('tab-players').classList.add('active');
-                    document.getElementById('tab-teams').classList.remove('active');
+                // Hide bracket tab for non-tournament playlists
+                if (!bracketConfig) {
+                    document.querySelector('[data-tab="bracket"]').style.display = 'none';
+                    document.querySelector('[data-tab="games"]').classList.add('active');
+                    document.getElementById('tab-games').classList.add('active');
+                    document.getElementById('tab-bracket').classList.remove('active');
                 }
 
                 renderSummary();
-                renderTeamsTable();
+                if (bracketConfig) renderBracket();
                 renderPlayersTable();
                 renderGamesList();
 
@@ -1104,16 +1325,6 @@
             document.getElementById('errorText').textContent = message;
         }
 
-        // Close download menus when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.game-download-dropdown')) {
-                document.querySelectorAll('.download-menu.show').forEach(m => {
-                    m.classList.remove('show');
-                });
-            }
-        });
-
-        // Load on page ready
         document.addEventListener('DOMContentLoaded', loadPlaylistStats);
     </script>
 </body>
