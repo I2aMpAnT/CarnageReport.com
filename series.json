@@ -2195,5 +2195,39 @@
     ],
     "start_time": "12/14/2025 7:24 PM",
     "end_time": "12/14/2025 8:16 PM"
+  },
+  {
+    "series_id": "series_15",
+    "playlist": "Tournament 1",
+    "red_team": [
+      "EpiiiC",
+      "Hammie",
+      "Tech",
+      "show5topper"
+    ],
+    "blue_team": [
+      "Hyrax",
+      "benforrrd",
+      "fluhd",
+      "squattingxbear"
+    ],
+    "games": [
+      {
+        "timestamp": "12/14/2025 8:41 PM",
+        "map": "Midship",
+        "gametype": "Oddball",
+        "winner": "Blue",
+        "source_file": "20251214_205648.xlsx"
+      },
+      {
+        "timestamp": "12/14/2025 8:57 PM",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "winner": "Red",
+        "source_file": "20251214_210320.xlsx"
+      }
+    ],
+    "start_time": "12/14/2025 8:41 PM",
+    "end_time": "12/14/2025 8:57 PM"
   }
 ]

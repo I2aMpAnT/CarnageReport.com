@@ -1006,5 +1006,101 @@
         6
       ]
     }
+  },
+  {
+    "filename": "20251214_205648.xlsx",
+    "timestamp": "12/14/2025 8:41 PM",
+    "map": "Midship",
+    "gametype": "Oddball",
+    "score": "180-202",
+    "winner": "BLUE",
+    "red_team": {
+      "player_names": [
+        "show5topper",
+        "Hammie",
+        "Tech",
+        "EpiiiC"
+      ],
+      "player_ids": [
+        165626999891689474,
+        132652800378142720,
+        260603669924413441,
+        111190770756657152
+      ],
+      "player_ranks": [
+        7,
+        7,
+        7,
+        7
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "squattingxbear",
+        "Hyrax",
+        "fluhd",
+        "benforrrd"
+      ],
+      "player_ids": [
+        174522691917840384,
+        1136095104663306240,
+        334212655613214721,
+        1179648030375424032
+      ],
+      "player_ranks": [
+        6,
+        6,
+        6,
+        6
+      ]
+    }
+  },
+  {
+    "filename": "20251214_210320.xlsx",
+    "timestamp": "12/14/2025 8:57 PM",
+    "map": "Warlock",
+    "gametype": "Team Slayer",
+    "score": "50-45",
+    "winner": "RED",
+    "red_team": {
+      "player_names": [
+        "EpiiiC",
+        "show5topper",
+        "Hammie",
+        "Tech"
+      ],
+      "player_ids": [
+        111190770756657152,
+        165626999891689474,
+        132652800378142720,
+        260603669924413441
+      ],
+      "player_ranks": [
+        7,
+        7,
+        7,
+        7
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "fluhd",
+        "squattingxbear",
+        "benforrrd",
+        "Hyrax"
+      ],
+      "player_ids": [
+        334212655613214721,
+        174522691917840384,
+        1179648030375424032,
+        1136095104663306240
+      ],
+      "player_ranks": [
+        7,
+        7,
+        7,
+        7
+      ]
+    }
   }
 ]
