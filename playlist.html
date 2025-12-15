@@ -364,6 +364,46 @@
             window.location.href = `/?player=${encodeURIComponent(playerName)}`;
         }
 
+        // Calculate stats from matches data
+        function calculateStatsFromMatches(matchesData) {
+            const playerStats = {};
+
+            for (const match of matchesData.matches || []) {
+                const winner = match.winner;
+
+                for (const playerStat of match.player_stats || []) {
+                    const name = playerStat.name;
+                    if (!playerStats[name]) {
+                        playerStats[name] = {
+                            discord_name: name,
+                            wins: 0,
+                            losses: 0,
+                            kills: 0,
+                            deaths: 0,
+                            assists: 0,
+                            headshots: 0,
+                            rank: 0,
+                            xp: 0
+                        };
+                    }
+
+                    const p = playerStats[name];
+                    p.kills += playerStat.kills || 0;
+                    p.deaths += playerStat.deaths || 0;
+                    p.assists += playerStat.assists || 0;
+                    p.headshots += playerStat.headshots || 0;
+
+                    if (playerStat.team === winner) {
+                        p.wins++;
+                    } else {
+                        p.losses++;
+                    }
+                }
+            }
+
+            return { players: playerStats };
+        }
+
         async function loadPlaylistStats() {
             const playlistName = getPlaylistName();
 
@@ -375,7 +415,7 @@
             document.title = `${playlistName} - CarnageReport.com`;
 
             try {
-                // Load playlists config to get the correct stats filename
+                // Load playlists config to get the correct filename
                 const playlistsResponse = await fetch('playlists.json');
                 if (!playlistsResponse.ok) {
                     throw new Error('Could not load playlists config');
@@ -391,12 +431,21 @@
                     throw new Error(`Playlist "${playlistName}" not found`);
                 }
 
-                // Load playlist stats using the configured filename
+                let statsData;
+
+                // Try stats file first, fall back to matches file
                 const statsResponse = await fetch(playlist.stats_file);
-                if (!statsResponse.ok) {
-                    throw new Error(`Stats file for "${playlistName}" not found`);
+                if (statsResponse.ok) {
+                    statsData = await statsResponse.json();
+                } else {
+                    // Load matches file and calculate stats
+                    const matchesResponse = await fetch(playlist.matches_file);
+                    if (!matchesResponse.ok) {
+                        throw new Error(`Data for "${playlistName}" not found`);
+                    }
+                    const matchesData = await matchesResponse.json();
+                    statsData = calculateStatsFromMatches(matchesData);
                 }
-                const statsData = await statsResponse.json();
 
                 // Load emblems
                 try {
