@@ -6,6 +6,7 @@
     <title>Playlist Stats - CarnageReport.com</title>
     <link rel="icon" type="image/x-icon" href="H2CRFinal.ico">
     <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@300;400;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/highway-gothic" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -103,30 +104,6 @@
             min-width: 1100px;
         }
 
-        /* Round labels box */
-        .round-labels-box {
-            background: rgba(100, 100, 100, 0.3);
-            border: 1px solid rgba(168, 212, 255, 0.2);
-            padding: 20px;
-            display: flex;
-            justify-content: space-around;
-            gap: 20px;
-        }
-        .round-label-section {
-            text-align: center;
-        }
-        .round-label-title {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--unsc-blue);
-            font-size: 1rem;
-            margin-bottom: 8px;
-        }
-        .round-games-list {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-        }
 
         /* Winners and Losers sections */
         .bracket-section {
@@ -158,82 +135,69 @@
 
         /* Series match box */
         .series-match {
-            background: rgba(80, 80, 80, 0.6);
-            border: 1px solid rgba(168, 212, 255, 0.2);
-            min-width: 200px;
+            background: rgba(40, 40, 40, 0.9);
+            border: 2px solid rgba(168, 212, 255, 0.2);
+            min-width: 220px;
             cursor: pointer;
             transition: all 0.2s;
         }
         .series-match:hover {
-            border-color: var(--unsc-blue);
-            background: rgba(100, 100, 100, 0.7);
+            background: rgba(60, 60, 60, 0.9);
         }
         .series-match.expanded {
-            border-color: var(--unsc-blue);
+            background: rgba(50, 50, 50, 0.95);
+        }
+        .series-match.winner-red {
+            border: 3px solid #ef4444;
+        }
+        .series-match.winner-blue {
+            border: 3px solid #3b82f6;
         }
 
         /* Team row in series - Halo themed red/blue */
         .series-team {
             display: flex;
             align-items: center;
-            padding: 8px 10px;
-            border-bottom: 1px solid rgba(168, 212, 255, 0.1);
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(80, 80, 80, 0.5);
             gap: 10px;
         }
         .series-team:last-child {
             border-bottom: none;
         }
         .series-team.team-red {
-            background: rgba(239, 68, 68, 0.15);
-            border-left: 3px solid #ef4444;
+            background: rgba(239, 68, 68, 0.2);
         }
         .series-team.team-blue {
-            background: rgba(59, 130, 246, 0.15);
-            border-left: 3px solid #3b82f6;
-        }
-        .series-team.team-red .team-name {
-            color: #ff6b6b;
-        }
-        .series-team.team-blue .team-name {
-            color: #60a5fa;
-        }
-        .series-team.winner {
-            background: rgba(234, 179, 8, 0.25);
-        }
-        .series-team.team-red.winner {
-            background: linear-gradient(90deg, rgba(239, 68, 68, 0.3) 0%, rgba(234, 179, 8, 0.2) 100%);
-        }
-        .series-team.team-blue.winner {
-            background: linear-gradient(90deg, rgba(59, 130, 246, 0.3) 0%, rgba(234, 179, 8, 0.2) 100%);
-        }
-        .series-team.winner .series-score {
-            background: #eab308;
-            color: #000;
+            background: rgba(59, 130, 246, 0.2);
         }
         .team-seed {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.8rem;
-            color: rgba(168, 212, 255, 0.6);
+            font-family: 'Highway Gothic', sans-serif;
+            font-size: 0.85rem;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
             width: 20px;
             text-align: center;
         }
         .team-emblem {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border: 2px solid white;
         }
         .team-name {
             flex: 1;
-            font-family: 'Overpass', sans-serif;
-            font-size: 0.95rem;
-            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Highway Gothic', sans-serif;
+            font-size: 1rem;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
         }
         .series-score {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.9rem;
-            padding: 4px 10px;
-            background: rgba(168, 212, 255, 0.2);
-            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Highway Gothic', sans-serif;
+            font-size: 1rem;
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
         }
 
         /* Series number label */
@@ -241,9 +205,10 @@
             position: absolute;
             top: -10px;
             right: 10px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem;
-            color: rgba(168, 212, 255, 0.5);
+            font-family: 'Highway Gothic', sans-serif;
+            font-size: 0.75rem;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
         }
         .series-match {
             position: relative;
@@ -290,55 +255,37 @@
         }
         .game-map-type {
             flex: 1;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Highway Gothic', sans-serif;
+            font-size: 0.9rem;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
         }
         .game-winner-tag {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            padding: 2px 8px;
+            font-family: 'Highway Gothic', sans-serif;
+            font-size: 0.8rem;
+            padding: 3px 10px;
             border-radius: 2px;
         }
         .game-winner-tag.red {
-            background: rgba(239, 68, 68, 0.3);
-            color: #ef4444;
+            background: rgba(239, 68, 68, 0.4);
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
         }
         .game-winner-tag.blue {
-            background: rgba(59, 130, 246, 0.3);
-            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.4);
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
         }
         .reset-divider {
             text-align: center;
             padding: 8px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.8rem;
-            color: #eab308;
-            border-top: 1px dashed rgba(234, 179, 8, 0.5);
-            border-bottom: 1px dashed rgba(234, 179, 8, 0.5);
-            margin: 5px 0;
-        }
-
-        /* Losers bracket box */
-        .losers-round-box {
-            background: rgba(100, 100, 100, 0.3);
-            border: 1px solid rgba(168, 212, 255, 0.2);
-            padding: 15px;
-            min-width: 180px;
-        }
-        .losers-round-title {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Highway Gothic', sans-serif;
             font-size: 0.85rem;
-            color: var(--unsc-blue);
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .losers-games-list {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-align: center;
-            line-height: 1.5;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
+            border-top: 1px dashed rgba(255, 255, 255, 0.3);
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+            margin: 5px 0;
         }
 
         /* Stats Table */
@@ -649,16 +596,6 @@
 
             let html = '<div class="bracket-wrapper">';
 
-            // Round labels box
-            html += '<div class="round-labels-box">';
-            for (const [roundKey, roundData] of Object.entries(rounds)) {
-                html += `<div class="round-label-section">`;
-                html += `<div class="round-label-title">${roundData.label}</div>`;
-                html += `<div class="round-games-list">${(roundData.games || []).join('<br>')}</div>`;
-                html += `</div>`;
-            }
-            html += '</div>';
-
             // Winners Bracket
             html += '<div class="bracket-section">';
 
@@ -705,15 +642,8 @@
 
             html += '<div class="bracket-section" style="margin-top: 20px;">';
 
-            // Losers round info boxes
+            // Losers bracket matches
             html += '<div class="bracket-rounds">';
-
-            if (rounds.losers_r1) {
-                html += '<div class="losers-round-box">';
-                html += `<div class="losers-round-title">${rounds.losers_r1.label}</div>`;
-                html += `<div class="losers-games-list">${(rounds.losers_r1.games || []).join('<br>')}</div>`;
-                html += '</div>';
-            }
 
             // Losers R1 matches
             html += '<div class="bracket-round">';
@@ -724,13 +654,6 @@
 
             // Connector
             html += '<div class="bracket-connector"><div class="connector-line"></div></div>';
-
-            if (rounds.losers_r2) {
-                html += '<div class="losers-round-box">';
-                html += `<div class="losers-round-title">${rounds.losers_r2.label}</div>`;
-                html += `<div class="losers-games-list">${(rounds.losers_r2.games || []).join('<br>')}</div>`;
-                html += '</div>';
-            }
 
             // Losers R2 matches
             html += '<div class="bracket-round">';
@@ -772,11 +695,16 @@
             const team1DisplayName = team1.captain ? `Team ${team1.captain}` : team1.name;
             const team2DisplayName = team2.captain ? `Team ${team2.captain}` : team2.name;
 
-            let html = `<div class="series-match" data-series-id="${series.id}">`;
+            // Determine winner border class
+            let winnerBorderClass = '';
+            if (team1Winner) winnerBorderClass = 'winner-red';
+            else if (team2Winner) winnerBorderClass = 'winner-blue';
+
+            let html = `<div class="series-match ${winnerBorderClass}" data-series-id="${series.id}">`;
             html += `<span class="series-number">${series.id}</span>`;
 
             // Team 1 (Red team)
-            html += `<div class="series-team team-red ${team1Winner ? 'winner' : ''}">`;
+            html += `<div class="series-team team-red">`;
             html += `<span class="team-seed">${team1.seed}</span>`;
             if (team1Emblem) {
                 html += `<img src="${team1Emblem}" class="team-emblem" alt="">`;
@@ -786,7 +714,7 @@
             html += `</div>`;
 
             // Team 2 (Blue team)
-            html += `<div class="series-team team-blue ${team2Winner ? 'winner' : ''}">`;
+            html += `<div class="series-team team-blue">`;
             html += `<span class="team-seed">${team2.seed}</span>`;
             if (team2Emblem) {
                 html += `<img src="${team2Emblem}" class="team-emblem" alt="">`;
