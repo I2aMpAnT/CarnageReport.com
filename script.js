@@ -5489,6 +5489,173 @@ function closeMedalBreakdown() {
     }
 }
 
+// Show precision headshot breakdown by weapon
+function showPrecisionHeadshotBreakdown() {
+    if (!currentProfilePlayer) return;
+
+    const precisionWeapons = ['battle rifle', 'sniper rifle', 'carbine', 'covenant carbine'];
+    const weaponStats = {};
+
+    currentProfileGames.forEach(game => {
+        if (game.weapons) {
+            const playerWeapons = game.weapons.find(w => w.Player === currentProfilePlayer);
+            if (playerWeapons) {
+                Object.entries(playerWeapons).forEach(([key, value]) => {
+                    const keyLower = key.toLowerCase();
+                    for (const weapon of precisionWeapons) {
+                        if (keyLower.startsWith(weapon)) {
+                            if (!weaponStats[weapon]) {
+                                weaponStats[weapon] = { kills: 0, headshots: 0 };
+                            }
+                            if (keyLower.includes('headshot')) {
+                                weaponStats[weapon].headshots += parseInt(value) || 0;
+                            } else if (keyLower.endsWith('kills')) {
+                                weaponStats[weapon].kills += parseInt(value) || 0;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
+
+    // Sort by most kills
+    const sortedWeapons = Object.entries(weaponStats)
+        .filter(([_, stats]) => stats.kills > 0)
+        .sort((a, b) => b[1].kills - a[1].kills);
+
+    let html = '<div class="weapon-breakdown-overlay" onclick="closePrecisionBreakdown()">';
+    html += '<div class="weapon-breakdown-modal" onclick="event.stopPropagation()">';
+    html += `<div class="weapon-breakdown-header">`;
+    html += `<h2>${currentProfilePlayer} - Precision Headshot %</h2>`;
+    html += `<button class="modal-close" onclick="closePrecisionBreakdown()">&times;</button>`;
+    html += `</div>`;
+    html += '<div class="weapon-breakdown-grid">';
+
+    if (sortedWeapons.length === 0) {
+        html += '<div class="no-data">No precision weapon data available</div>';
+    }
+
+    sortedWeapons.forEach(([weapon, stats]) => {
+        const percent = stats.kills > 0 ? ((stats.headshots / stats.kills) * 100).toFixed(1) : 0;
+        const iconUrl = weaponIcons[weapon] || weaponIcons[weapon.replace('covenant ', '')];
+        const displayName = weapon.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+        html += `<div class="weapon-breakdown-item">`;
+        if (iconUrl) {
+            html += `<img src="${iconUrl}" alt="${weapon}" class="weapon-breakdown-icon">`;
+        } else {
+            html += `<div class="weapon-breakdown-placeholder">${displayName.substring(0, 2).toUpperCase()}</div>`;
+        }
+        html += `<div class="weapon-breakdown-info">`;
+        html += `<div class="weapon-breakdown-name">${displayName}</div>`;
+        html += `<div class="weapon-breakdown-stats">${stats.headshots}/${stats.kills} kills (${percent}% HS)</div>`;
+        html += `</div>`;
+        html += `</div>`;
+    });
+
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    const overlay = document.createElement('div');
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay.firstChild);
+}
+
+function closePrecisionBreakdown() {
+    const overlay = document.querySelector('.weapon-breakdown-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+// Show who team killed the player
+function showBetrayedByBreakdown() {
+    if (!currentProfilePlayer) return;
+
+    const betrayedBy = {};
+
+    currentProfileGames.forEach(game => {
+        const player = game.players.find(p => p.name === currentProfilePlayer);
+        if (!player || !player.team || player.team === 'none') return;
+
+        if (game.kills) {
+            game.kills.forEach(kill => {
+                if (kill.victim === currentProfilePlayer && kill.killer !== currentProfilePlayer) {
+                    const killer = game.players.find(p => p.name === kill.killer);
+                    if (killer && killer.team === player.team) {
+                        betrayedBy[kill.killer] = (betrayedBy[kill.killer] || 0) + 1;
+                    }
+                }
+            });
+        }
+    });
+
+    // Sort by most betrayals
+    const sortedBetrayers = Object.entries(betrayedBy).sort((a, b) => b[1] - a[1]);
+
+    let html = '<div class="weapon-breakdown-overlay" onclick="closeBetrayedBreakdown()">';
+    html += '<div class="weapon-breakdown-modal" onclick="event.stopPropagation()">';
+    html += `<div class="weapon-breakdown-header">`;
+    html += `<h2>${currentProfilePlayer} - Team Killed By</h2>`;
+    html += `<button class="modal-close" onclick="closeBetrayedBreakdown()">&times;</button>`;
+    html += `</div>`;
+    html += '<div class="weapon-breakdown-grid">';
+
+    if (sortedBetrayers.length === 0) {
+        html += '<div class="no-data">No team kill data available</div>';
+    }
+
+    sortedBetrayers.forEach(([betrayer, count]) => {
+        const emblemUrl = getPlayerEmblem(betrayer);
+        const displayName = getDisplayNameForProfile(betrayer);
+
+        html += `<div class="weapon-breakdown-item player-faced-item" onclick="event.stopPropagation(); closeBetrayedBreakdown(); openPlayerProfile('${betrayer.replace(/'/g, "\\'")}')">`;
+        if (emblemUrl) {
+            html += `<div class="emblem-placeholder weapon-breakdown-emblem" data-emblem-params='${JSON.stringify(parseEmblemParams(emblemUrl))}'></div>`;
+        } else {
+            html += `<div class="weapon-breakdown-placeholder">${displayName.substring(0, 2).toUpperCase()}</div>`;
+        }
+        html += `<div class="weapon-breakdown-info">`;
+        html += `<div class="weapon-breakdown-name clickable-player">${displayName}</div>`;
+        html += `<div class="weapon-breakdown-stats">${count} team kill${count !== 1 ? 's' : ''}</div>`;
+        html += `</div>`;
+        html += `</div>`;
+    });
+
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    const overlay = document.createElement('div');
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay.firstChild);
+
+    // Render emblems
+    setTimeout(() => {
+        document.querySelectorAll('.weapon-breakdown-emblem').forEach(el => {
+            const params = JSON.parse(el.dataset.emblemParams || '{}');
+            if (params && typeof generateEmblemDataUrl === 'function') {
+                const dataUrl = generateEmblemDataUrl(params);
+                if (dataUrl) {
+                    el.style.backgroundImage = `url(${dataUrl})`;
+                    el.style.backgroundSize = 'contain';
+                    el.style.backgroundRepeat = 'no-repeat';
+                    el.style.backgroundPosition = 'center';
+                }
+            }
+        });
+    }, 50);
+}
+
+function closeBetrayedBreakdown() {
+    const overlay = document.querySelector('.weapon-breakdown-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
 // Show winrate breakdown by map and gametype
 function showProfileWinrateBreakdown() {
     if (!currentProfilePlayer) return;
@@ -6773,6 +6940,9 @@ function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
     let rankedGames = 0, wins = 0;
     let totalGames = 0, kills = 0, deaths = 0, assists = 0, totalScore = 0, totalMedals = 0;
     let totalBallTime = 0, flagCaptures = 0, flagReturns = 0, flagSteals = 0, bombArms = 0, totalShotsFired = 0;
+    let precisionHeadshots = 0, precisionKills = 0;
+    let timesBetrayed = 0;
+    const precisionWeapons = ['battle rifle', 'sniper rifle', 'carbine', 'covenant carbine'];
 
     gamesData.forEach(game => {
         const player = game.players.find(p => p.name === playerName);
@@ -6820,13 +6990,40 @@ function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
             }
         }
 
-        // Track shots fired from weapons
+        // Track shots fired from weapons and precision headshots
         if (game.weapons) {
             const playerWeapons = game.weapons.find(w => w.Player === playerName);
             if (playerWeapons) {
                 Object.entries(playerWeapons).forEach(([key, value]) => {
+                    const keyLower = key.toLowerCase();
                     if (key.endsWith('shots fired')) {
                         totalShotsFired += parseInt(value) || 0;
+                    }
+                    // Track precision weapon stats
+                    for (const weapon of precisionWeapons) {
+                        if (keyLower.startsWith(weapon)) {
+                            if (keyLower.includes('headshot')) {
+                                precisionHeadshots += parseInt(value) || 0;
+                            } else if (keyLower.endsWith('kills')) {
+                                precisionKills += parseInt(value) || 0;
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Track times betrayed (team killed)
+        if (game.kills) {
+            const playerTeam = player.team;
+            if (playerTeam && playerTeam !== 'none') {
+                game.kills.forEach(kill => {
+                    if (kill.victim === playerName && kill.killer !== playerName) {
+                        // Find the killer's team
+                        const killer = game.players.find(p => p.name === kill.killer);
+                        if (killer && killer.team === playerTeam) {
+                            timesBetrayed++;
+                        }
                     }
                 });
             }
@@ -6866,6 +7063,8 @@ function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
     const seriesWins = rankData ? (rankData.series_wins || 0) : 0;
     const seriesLosses = rankData ? (rankData.series_losses || 0) : 0;
 
+    const headshotPercent = precisionKills > 0 ? ((precisionHeadshots / precisionKills) * 100).toFixed(1) : 0;
+
     return {
         games: totalGames,
         rankedGames,
@@ -6890,7 +7089,11 @@ function calculatePlayerOverallStats(playerName, includeCustomGames = false) {
         flagSteals,
         bombArms,
         totalShotsFired,
-        avgShotsFired: totalGames > 0 ? Math.round(totalShotsFired / totalGames) : 0
+        avgShotsFired: totalGames > 0 ? Math.round(totalShotsFired / totalGames) : 0,
+        precisionHeadshots,
+        precisionKills,
+        headshotPercent,
+        timesBetrayed
     };
 }
 
@@ -6986,6 +7189,18 @@ function renderProfileStats(stats) {
             <div class="stat-value">${stats.avgShotsFired.toLocaleString()}</div>
             <div class="stat-label">Avg Shots/Game</div>
         </div>
+        ${stats.precisionKills > 0 ? `
+        <div class="profile-stat-card clickable-stat" onclick="showPrecisionHeadshotBreakdown()">
+            <div class="stat-value">${stats.headshotPercent}%</div>
+            <div class="stat-label">Precision HS%</div>
+        </div>
+        ` : ''}
+        ${stats.timesBetrayed > 0 ? `
+        <div class="profile-stat-card clickable-stat" onclick="showBetrayedByBreakdown()">
+            <div class="stat-value">${stats.timesBetrayed}</div>
+            <div class="stat-label">Times TK'd</div>
+        </div>
+        ` : ''}
     `;
 }
 
