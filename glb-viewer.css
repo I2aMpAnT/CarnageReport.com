@@ -1056,13 +1056,13 @@ body {
 }
 
 .viewer-container.browser-fullscreen .controls-hint {
-    bottom: 180px;
+    top: 20px;
 }
 
 /* Controls Hint Panel - Collapsible */
 .controls-hint {
     position: fixed;
-    bottom: 100px;
+    top: 70px;
     right: 20px;
     background: rgba(15, 15, 25, 0.9);
     border: 1px solid rgba(0, 200, 255, 0.3);
@@ -1072,8 +1072,8 @@ body {
     z-index: 30;
     backdrop-filter: blur(8px);
     overflow: hidden;
-    min-width: 160px;
-    max-height: calc(100vh - 200px);
+    min-width: 180px;
+    max-height: calc(100vh - 100px);
     overflow-y: auto;
 }
 
@@ -1168,6 +1168,22 @@ body {
     font-size: 10px;
     min-width: 24px;
     text-align: center;
+}
+
+.controls-section-title {
+    color: #00c8ff;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid rgba(0, 200, 255, 0.2);
+}
+
+.controls-section-title:first-child {
+    margin-top: 0;
 }
 
 /* Gamepad Notification */

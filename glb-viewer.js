@@ -416,41 +416,93 @@ function createSkybox(mapName) {
     scene.fog = new THREE.Fog(isSpaceMap ? 0x000005 : 0x1a1a3a, 100, 400);
 }
 
+// Store lights for per-map adjustments
+let sceneLights = {
+    ambient: null,
+    hemi: null,
+    dir: null,
+    fill1: null,
+    fill2: null,
+    fill3: null
+};
+
 function setupLighting() {
     // Strong ambient for interior visibility - key for seeing inside structures
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambientLight);
+    sceneLights.ambient = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(sceneLights.ambient);
 
     // Hemisphere light - softer sky/ground blend
-    const hemiLight = new THREE.HemisphereLight(0xaaccff, 0x444422, 0.4);
-    scene.add(hemiLight);
+    sceneLights.hemi = new THREE.HemisphereLight(0xaaccff, 0x444422, 0.4);
+    scene.add(sceneLights.hemi);
 
     // Main directional light (sun) - reduced to not overpower
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    dirLight.position.set(50, 100, 50);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
-    dirLight.shadow.camera.near = 0.5;
-    dirLight.shadow.camera.far = 500;
-    dirLight.shadow.camera.left = -100;
-    dirLight.shadow.camera.right = 100;
-    dirLight.shadow.camera.top = 100;
-    dirLight.shadow.camera.bottom = -100;
-    scene.add(dirLight);
+    sceneLights.dir = new THREE.DirectionalLight(0xffffff, 0.6);
+    sceneLights.dir.position.set(50, 100, 50);
+    sceneLights.dir.castShadow = true;
+    sceneLights.dir.shadow.mapSize.width = 2048;
+    sceneLights.dir.shadow.mapSize.height = 2048;
+    sceneLights.dir.shadow.camera.near = 0.5;
+    sceneLights.dir.shadow.camera.far = 500;
+    sceneLights.dir.shadow.camera.left = -100;
+    sceneLights.dir.shadow.camera.right = 100;
+    sceneLights.dir.shadow.camera.top = 100;
+    sceneLights.dir.shadow.camera.bottom = -100;
+    scene.add(sceneLights.dir);
 
     // Fill lights from multiple angles to illuminate interiors
-    const fillLight1 = new THREE.DirectionalLight(0xffffee, 0.4);
-    fillLight1.position.set(-50, 20, -50);
-    scene.add(fillLight1);
+    sceneLights.fill1 = new THREE.DirectionalLight(0xffffee, 0.4);
+    sceneLights.fill1.position.set(-50, 20, -50);
+    scene.add(sceneLights.fill1);
 
-    const fillLight2 = new THREE.DirectionalLight(0xeeeeff, 0.4);
-    fillLight2.position.set(50, 20, -50);
-    scene.add(fillLight2);
+    sceneLights.fill2 = new THREE.DirectionalLight(0xeeeeff, 0.4);
+    sceneLights.fill2.position.set(50, 20, -50);
+    scene.add(sceneLights.fill2);
 
-    const fillLight3 = new THREE.DirectionalLight(0xffeedd, 0.3);
-    fillLight3.position.set(0, -30, 0);  // Light from below for under-ramps/platforms
-    scene.add(fillLight3);
+    sceneLights.fill3 = new THREE.DirectionalLight(0xffeedd, 0.3);
+    sceneLights.fill3.position.set(0, -30, 0);  // Light from below for under-ramps/platforms
+    scene.add(sceneLights.fill3);
+}
+
+// Adjust lighting intensity and color for specific maps
+function adjustLightingForMap(mapNameLower) {
+    // Default intensities
+    let multiplier = 1.0;
+
+    // Reset to default colors first
+    if (sceneLights.ambient) sceneLights.ambient.color.setHex(0xffffff);
+    if (sceneLights.hemi) {
+        sceneLights.hemi.color.setHex(0xaaccff);
+        sceneLights.hemi.groundColor.setHex(0x444422);
+    }
+    if (sceneLights.dir) sceneLights.dir.color.setHex(0xffffff);
+    if (sceneLights.fill1) sceneLights.fill1.color.setHex(0xffffee);
+    if (sceneLights.fill2) sceneLights.fill2.color.setHex(0xeeeeff);
+    if (sceneLights.fill3) sceneLights.fill3.color.setHex(0xffeedd);
+
+    // Warlock - reduce brightness and add dark green glow
+    if (mapNameLower === 'warlock') {
+        multiplier = 0.5;
+        // Dark green tint for Warlock's mystical atmosphere
+        const darkGreen = 0x2d5a3d;
+        const greenTint = 0x4a7a5a;
+        if (sceneLights.ambient) sceneLights.ambient.color.setHex(greenTint);
+        if (sceneLights.hemi) {
+            sceneLights.hemi.color.setHex(0x3a6a4a);
+            sceneLights.hemi.groundColor.setHex(0x1a3a2a);
+        }
+        if (sceneLights.dir) sceneLights.dir.color.setHex(greenTint);
+        if (sceneLights.fill1) sceneLights.fill1.color.setHex(darkGreen);
+        if (sceneLights.fill2) sceneLights.fill2.color.setHex(darkGreen);
+        if (sceneLights.fill3) sceneLights.fill3.color.setHex(0x1a4a2a);
+    }
+
+    // Apply multiplier to all lights
+    if (sceneLights.ambient) sceneLights.ambient.intensity = 0.8 * multiplier;
+    if (sceneLights.hemi) sceneLights.hemi.intensity = 0.4 * multiplier;
+    if (sceneLights.dir) sceneLights.dir.intensity = 0.6 * multiplier;
+    if (sceneLights.fill1) sceneLights.fill1.intensity = 0.4 * multiplier;
+    if (sceneLights.fill2) sceneLights.fill2.intensity = 0.4 * multiplier;
+    if (sceneLights.fill3) sceneLights.fill3.intensity = 0.3 * multiplier;
 }
 
 function setupEventListeners() {
@@ -492,6 +544,10 @@ function setupEventListeners() {
     // Heatmap toggle button
     document.getElementById('heatmapBtn')?.addEventListener('click', () => toggleHeatmap());
 
+    // Controls panel toggle and collapse
+    document.getElementById('inputToggleBtn')?.addEventListener('click', toggleInputType);
+    document.getElementById('controlsCollapseBtn')?.addEventListener('click', toggleControlsPanel);
+
     // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
@@ -506,6 +562,31 @@ function setupEventListeners() {
 
     // Pointer lock
     document.addEventListener('pointerlockchange', onPointerLockChange);
+}
+
+// ===== Controls Panel =====
+let showingKeyboard = true;
+
+function toggleInputType() {
+    showingKeyboard = !showingKeyboard;
+    const keyboardControls = document.getElementById('keyboardControls');
+    const controllerControls = document.getElementById('controllerControls');
+    const inputTypeText = document.getElementById('inputTypeText');
+
+    if (showingKeyboard) {
+        keyboardControls.style.display = 'block';
+        controllerControls.style.display = 'none';
+        inputTypeText.textContent = 'Keyboard';
+    } else {
+        keyboardControls.style.display = 'none';
+        controllerControls.style.display = 'block';
+        inputTypeText.textContent = 'Controller';
+    }
+}
+
+function toggleControlsPanel() {
+    const controlsHint = document.getElementById('controls-hint');
+    controlsHint.classList.toggle('collapsed');
 }
 
 // ===== Gamepad Support =====
@@ -1533,6 +1614,9 @@ async function loadMapAndTelemetry() {
             console.warn('GLB not found, using fallback view:', glbError);
             showFallbackMessage();
         }
+
+        // Adjust lighting for specific maps
+        adjustLightingForMap(mapName.toLowerCase());
 
         await createPlayerMarkers();
         initializeTrails();
@@ -2563,6 +2647,9 @@ async function selectMap(selectedMapName) {
         await loadGLB(glbPath, (progress) => {
             loadingProgress.textContent = `${Math.round(progress * 100)}%`;
         });
+
+        // Adjust lighting for specific maps
+        adjustLightingForMap(selectedMapName.toLowerCase());
 
         // Remove old skybox if exists
         const oldSkybox = scene.getObjectByName('skybox');
