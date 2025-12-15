@@ -463,14 +463,37 @@ function setupLighting() {
     scene.add(sceneLights.fill3);
 }
 
-// Adjust lighting intensity for specific maps
+// Adjust lighting intensity and color for specific maps
 function adjustLightingForMap(mapNameLower) {
     // Default intensities
     let multiplier = 1.0;
 
-    // Warlock is too bright - reduce by 50%
+    // Reset to default colors first
+    if (sceneLights.ambient) sceneLights.ambient.color.setHex(0xffffff);
+    if (sceneLights.hemi) {
+        sceneLights.hemi.color.setHex(0xaaccff);
+        sceneLights.hemi.groundColor.setHex(0x444422);
+    }
+    if (sceneLights.dir) sceneLights.dir.color.setHex(0xffffff);
+    if (sceneLights.fill1) sceneLights.fill1.color.setHex(0xffffee);
+    if (sceneLights.fill2) sceneLights.fill2.color.setHex(0xeeeeff);
+    if (sceneLights.fill3) sceneLights.fill3.color.setHex(0xffeedd);
+
+    // Warlock - reduce brightness and add dark green glow
     if (mapNameLower === 'warlock') {
         multiplier = 0.5;
+        // Dark green tint for Warlock's mystical atmosphere
+        const darkGreen = 0x2d5a3d;
+        const greenTint = 0x4a7a5a;
+        if (sceneLights.ambient) sceneLights.ambient.color.setHex(greenTint);
+        if (sceneLights.hemi) {
+            sceneLights.hemi.color.setHex(0x3a6a4a);
+            sceneLights.hemi.groundColor.setHex(0x1a3a2a);
+        }
+        if (sceneLights.dir) sceneLights.dir.color.setHex(greenTint);
+        if (sceneLights.fill1) sceneLights.fill1.color.setHex(darkGreen);
+        if (sceneLights.fill2) sceneLights.fill2.color.setHex(darkGreen);
+        if (sceneLights.fill3) sceneLights.fill3.color.setHex(0x1a4a2a);
     }
 
     // Apply multiplier to all lights
