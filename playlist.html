@@ -689,6 +689,28 @@
             return variantName;
         }
 
+        // Get gametype with playlist prefix (MLG, 2v2, 1v1)
+        function getGametypeWithPrefix(gameType, playlist) {
+            if (!playlist) return gameType;
+
+            const playlistLower = playlist.toLowerCase();
+            if (playlistLower === 'mlg 4v4' || playlistLower === 'team hardcore' ||
+                playlistLower.includes('tournament')) {
+                return 'MLG ' + gameType;
+            } else if (playlistLower === 'double team') {
+                return '2v2 ' + gameType;
+            } else if (playlistLower === 'head to head') {
+                return '1v1 ' + gameType;
+            }
+            return gameType;
+        }
+
+        // Get full display gametype (base + prefix)
+        function getDisplayGametype(variantName, playlist) {
+            const baseType = getBaseGametype(variantName, playlist);
+            return getGametypeWithPrefix(baseType, playlist);
+        }
+
         // Render games list (mirrors main page)
         function renderGamesList() {
             const gamesList = document.getElementById('playlistGamesList');
@@ -720,7 +742,7 @@
 
             const mapName = match.map || 'Unknown Map';
             const rawGametype = match.gametype || 'Unknown';
-            const gametype = getBaseGametype(rawGametype, playlistConfig?.name || '');
+            const gametype = getDisplayGametype(rawGametype, playlistConfig?.name || '');
             const duration = formatDuration(match.duration);
             const dateDisplay = formatDateTime(match.timestamp);
             const mapImage = mapImages[mapName] || defaultMapImage;
@@ -800,7 +822,7 @@
             const mapName = match.map || 'Unknown';
             const mapImage = mapImages[mapName] || defaultMapImage;
             const rawGametype = match.gametype || 'Unknown';
-            const gametype = getBaseGametype(rawGametype, playlistConfig?.name || '');
+            const gametype = getDisplayGametype(rawGametype, playlistConfig?.name || '');
             const duration = formatDuration(match.duration);
             const formattedTime = formatDateTime(match.timestamp);
 
