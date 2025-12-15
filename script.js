@@ -6746,6 +6746,10 @@ function getAllWeapons() {
     });
     // Add melee as a searchable weapon (calculated from medals)
     weapons.add('melee');
+    // Add objective items explicitly (flag, bomb, oddball)
+    weapons.add('flag');
+    weapons.add('bomb');
+    weapons.add('oddball');
     return Array.from(weapons).sort();
 }
 
@@ -6926,7 +6930,7 @@ function showWeaponSearch() {
 
     for (const weapon of weapons) {
         const iconUrl = getWeaponIcon(weapon);
-        html += `<div class="weapon-breakdown-item weapon-search-item" data-weapon="${weapon}" onclick="closeMedalBreakdown(); showWeaponLeaderboard('${weapon}')">`;
+        html += `<div class="weapon-breakdown-item weapon-search-item" data-weapon="${weapon}" onclick="closeMedalBreakdown(); openSearchResultsPage('weapon', '${weapon.replace(/'/g, "\\'")}')">`;
         if (iconUrl) {
             html += `<img src="${iconUrl}" alt="${weapon}" class="weapon-breakdown-icon">`;
         } else {
