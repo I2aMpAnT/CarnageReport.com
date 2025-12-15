@@ -4548,10 +4548,16 @@ function renderWeaponSearchResults(weaponName) {
     const weaponGames = [];
     let playerKillStats = {};
     let playerDeathStats = {};
+    let playerAccuracyStats = {};  // { playerName: { hit: 0, fired: 0 } }
+    let playerHeadshotStats = {}; // { playerName: { headshots: 0, kills: 0 } }
     let mapWeaponKills = {};
     let gametypeWeaponKills = {};
     let totalKills = 0;
     let totalDeaths = 0;
+
+    // Check if this is a precision weapon (has headshots)
+    const precisionWeapons = ['battle rifle', 'sniper rifle', 'carbine', 'covenant carbine', 'beam rifle'];
+    const isPrecisionWeapon = precisionWeapons.some(w => weaponName.toLowerCase().includes(w));
 
     const isMeleeSearch = weaponName.toLowerCase() === 'melee';
 
@@ -4612,6 +4618,9 @@ function renderWeaponSearchResults(weaponName) {
             if (game.weapons) {
                 game.weapons.forEach(playerWeapons => {
                     const playerName = playerWeapons.Player;
+                    let playerHit = 0, playerFired = 0;
+                    let playerHeadshots = 0, playerWeaponKills = 0;
+
                     Object.keys(playerWeapons).forEach(key => {
                         const keyLower = key.toLowerCase();
                         if (keyLower.includes(weaponName.toLowerCase())) {
@@ -4619,6 +4628,7 @@ function renderWeaponSearchResults(weaponName) {
                                 const kills = parseInt(playerWeapons[key]) || 0;
                                 gameWeaponKills += kills;
                                 totalKills += kills;
+                                playerWeaponKills += kills;
 
                                 if (playerName && kills > 0) {
                                     playerKillStats[playerName] = (playerKillStats[playerName] || 0) + kills;
@@ -4630,9 +4640,33 @@ function renderWeaponSearchResults(weaponName) {
                                 if (playerName && deaths > 0) {
                                     playerDeathStats[playerName] = (playerDeathStats[playerName] || 0) + deaths;
                                 }
+                            } else if (keyLower.includes('hit')) {
+                                playerHit += parseInt(playerWeapons[key]) || 0;
+                            } else if (keyLower.includes('fired')) {
+                                playerFired += parseInt(playerWeapons[key]) || 0;
+                            } else if (keyLower.includes('headshot')) {
+                                playerHeadshots += parseInt(playerWeapons[key]) || 0;
                             }
                         }
                     });
+
+                    // Track accuracy for this player (only if they fired shots)
+                    if (playerName && playerFired > 0) {
+                        if (!playerAccuracyStats[playerName]) {
+                            playerAccuracyStats[playerName] = { hit: 0, fired: 0 };
+                        }
+                        playerAccuracyStats[playerName].hit += playerHit;
+                        playerAccuracyStats[playerName].fired += playerFired;
+                    }
+
+                    // Track headshots for precision weapons
+                    if (isPrecisionWeapon && playerName && playerWeaponKills > 0) {
+                        if (!playerHeadshotStats[playerName]) {
+                            playerHeadshotStats[playerName] = { headshots: 0, kills: 0 };
+                        }
+                        playerHeadshotStats[playerName].headshots += playerHeadshots;
+                        playerHeadshotStats[playerName].kills += playerWeaponKills;
+                    }
                 });
             }
 
@@ -4644,9 +4678,15 @@ function renderWeaponSearchResults(weaponName) {
         });
     }
 
-    // Sort by most kills/deaths
+    // Sort leaderboards
     const topKillers = Object.entries(playerKillStats).sort((a, b) => b[1] - a[1]);
     const topVictims = Object.entries(playerDeathStats).sort((a, b) => b[1] - a[1]);
+    const topAccuracy = Object.entries(playerAccuracyStats)
+        .map(([name, data]) => [name, data.fired > 0 ? (data.hit / data.fired * 100) : 0, data])
+        .sort((a, b) => b[1] - a[1]);
+    const topHeadshots = Object.entries(playerHeadshotStats)
+        .map(([name, data]) => [name, data.kills > 0 ? (data.headshots / data.kills * 100) : 0, data])
+        .sort((a, b) => b[1] - a[1]);
 
     window.currentSearchContext = formatWeaponName(weaponName);
 
@@ -4666,14 +4706,21 @@ function renderWeaponSearchResults(weaponName) {
     html += '</div>';
     html += '</div>';
 
-    // Two-column leaderboard
-    html += '<div class="weapon-search-leaderboard">';
+    // Tabbed leaderboard
+    html += '<div class="weapon-leaderboard-tabs">';
+    html += '<div class="accuracy-tabs">';
+    html += '<button class="accuracy-tab-btn active" onclick="switchWeaponLeaderboardTab(\'kills\')">Kills With</button>';
+    html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(\'deaths\')">Killed By</button>';
+    if (!isMeleeSearch) {
+        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(\'accuracy\')">Accuracy</button>';
+    }
+    if (isPrecisionWeapon) {
+        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(\'headshots\')">Headshot %</button>';
+    }
+    html += '</div>';
 
-    // Most Kills column
-    html += '<div class="weapon-search-column">';
-    html += '<div class="section-header">Most Kills</div>';
-    html += '<div class="breakdown-list">';
-    topKillers.slice(0, 10).forEach(([name, kills], index) => {
+    // Helper function to render player item
+    const renderPlayerItem = (name, statValue, statLabel, index) => {
         const displayName = getDisplayNameForProfile(name);
         const discordId = profileNameToDiscordId[name];
         const playerInfo = discordId ? playersData.players?.find(p => p.discord_id === discordId) : null;
@@ -4681,47 +4728,69 @@ function renderWeaponSearchResults(weaponName) {
         const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
         const rank = getRankForPlayer(name);
 
-        html += `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
-        html += `<span class="breakdown-rank">#${index + 1}</span>`;
+        let itemHtml = `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
+        itemHtml += `<span class="breakdown-rank">#${index + 1}</span>`;
         if (emblemParams) {
-            html += `<div class="emblem-placeholder breakdown-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
+            itemHtml += `<div class="emblem-placeholder breakdown-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
         }
-        html += `<span class="breakdown-name">${displayName}</span>`;
+        itemHtml += `<span class="breakdown-name">${displayName}</span>`;
         if (rank) {
-            html += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="breakdown-rank-icon">`;
+            itemHtml += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="breakdown-rank-icon">`;
         }
-        html += `<span class="breakdown-count">${kills}</span>`;
-        html += '</div>';
-    });
-    html += '</div></div>';
+        itemHtml += `<span class="breakdown-count">${statValue}${statLabel ? ' ' + statLabel : ''}</span>`;
+        itemHtml += '</div>';
+        return itemHtml;
+    };
 
-    // Most Deaths column
-    html += '<div class="weapon-search-column">';
-    html += '<div class="section-header">Most Deaths</div>';
+    // Kills tab
+    html += '<div id="weapon-tab-kills" class="weapon-tab-content active">';
     html += '<div class="breakdown-list">';
-    topVictims.slice(0, 10).forEach(([name, deaths], index) => {
-        const displayName = getDisplayNameForProfile(name);
-        const discordId = profileNameToDiscordId[name];
-        const playerInfo = discordId ? playersData.players?.find(p => p.discord_id === discordId) : null;
-        const emblemUrl = playerInfo?.emblem_url || getPlayerEmblemUrl(name);
-        const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
-        const rank = getRankForPlayer(name);
-
-        html += `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
-        html += `<span class="breakdown-rank">#${index + 1}</span>`;
-        if (emblemParams) {
-            html += `<div class="emblem-placeholder breakdown-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
-        }
-        html += `<span class="breakdown-name">${displayName}</span>`;
-        if (rank) {
-            html += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="breakdown-rank-icon">`;
-        }
-        html += `<span class="breakdown-count">${deaths}</span>`;
-        html += '</div>';
+    if (topKillers.length === 0) {
+        html += '<div class="no-data">No kills recorded</div>';
+    }
+    topKillers.slice(0, 15).forEach(([name, kills], index) => {
+        html += renderPlayerItem(name, kills, 'kills', index);
     });
     html += '</div></div>';
 
-    html += '</div>'; // End weapon-search-leaderboard
+    // Deaths tab
+    html += '<div id="weapon-tab-deaths" class="weapon-tab-content" style="display:none;">';
+    html += '<div class="breakdown-list">';
+    if (topVictims.length === 0) {
+        html += '<div class="no-data">No deaths recorded</div>';
+    }
+    topVictims.slice(0, 15).forEach(([name, deaths], index) => {
+        html += renderPlayerItem(name, deaths, 'deaths', index);
+    });
+    html += '</div></div>';
+
+    // Accuracy tab
+    if (!isMeleeSearch) {
+        html += '<div id="weapon-tab-accuracy" class="weapon-tab-content" style="display:none;">';
+        html += '<div class="breakdown-list">';
+        if (topAccuracy.length === 0) {
+            html += '<div class="no-data">No accuracy data recorded</div>';
+        }
+        topAccuracy.slice(0, 15).forEach(([name, acc, data], index) => {
+            html += renderPlayerItem(name, `${acc.toFixed(1)}%`, `(${data.hit}/${data.fired})`, index);
+        });
+        html += '</div></div>';
+    }
+
+    // Headshots tab (precision weapons only)
+    if (isPrecisionWeapon) {
+        html += '<div id="weapon-tab-headshots" class="weapon-tab-content" style="display:none;">';
+        html += '<div class="breakdown-list">';
+        if (topHeadshots.length === 0) {
+            html += '<div class="no-data">No headshot data recorded</div>';
+        }
+        topHeadshots.slice(0, 15).forEach(([name, hsPercent, data], index) => {
+            html += renderPlayerItem(name, `${hsPercent.toFixed(1)}%`, `(${data.headshots}/${data.kills})`, index);
+        });
+        html += '</div></div>';
+    }
+
+    html += '</div>'; // End weapon-leaderboard-tabs
 
     // Breakdowns container for Map and Gametype
     html += '<div class="breakdowns-container">';
@@ -4771,6 +4840,27 @@ function renderWeaponSearchResults(weaponName) {
     html += '</div>';
     return html;
 }
+
+// Switch weapon leaderboard tabs
+window.switchWeaponLeaderboardTab = function(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.weapon-leaderboard-tabs .accuracy-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Update tab content
+    document.querySelectorAll('.weapon-tab-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    const targetTab = document.getElementById(`weapon-tab-${tabName}`);
+    if (targetTab) {
+        targetTab.style.display = 'block';
+    }
+
+    // Load emblems for the newly visible tab
+    loadBreakdownEmblems();
+};
 
 function showMedalLeadersBreakdown() {
     const playerStats = window.currentSearchPlayerStats || {};
