@@ -37,8 +37,8 @@
       "team_size": 4,
       "is_team": true,
       "ranked": true,
-      "matches_file": "tournament_1_matches.json",
-      "stats_file": "tournament_1_stats.json"
+      "matches_file": "Tournament 1_matches.json",
+      "stats_file": "Tournament 1_stats.json"
     }
   ],
   "custom_games": {
