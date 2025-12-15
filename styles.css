@@ -3831,6 +3831,61 @@ header {
     padding: 30px;
 }
 
+/* Accuracy breakdown tabs */
+.accuracy-modal {
+    max-width: 900px;
+}
+
+.accuracy-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.accuracy-tab-btn {
+    background: rgba(168, 212, 255, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--primary-color);
+    padding: 10px 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+}
+
+.accuracy-tab-btn:hover {
+    background: rgba(168, 212, 255, 0.2);
+}
+
+.accuracy-tab-btn.active {
+    background: rgba(168, 212, 255, 0.25);
+    border-color: var(--primary-color);
+}
+
+.accuracy-tab-content {
+    display: none;
+}
+
+.accuracy-tab-content.active {
+    display: block;
+}
+
+.weapon-breakdown-icon.map-icon {
+    width: 64px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.weapon-breakdown-icon.gametype-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
 .weapon-breakdown-header {
     display: flex;
     justify-content: space-between;
@@ -5603,4 +5658,12 @@ header {
 .tournament-card:hover .tournament-arrow {
     transform: translateX(5px);
     color: var(--unsc-blue);
+}
+
+/* Tournament winner label */
+.tournament-winner {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    color: #fbbf24;
+    margin-top: 5px;
 }

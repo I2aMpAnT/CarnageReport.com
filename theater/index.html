@@ -13,6 +13,65 @@
             src: local('Highway Gothic'), local('Interstate'), local('Clearview Highway');
             font-weight: 400;
         }
+        /* Hidden map selector dropdown */
+        .map-name-clickable {
+            cursor: pointer;
+            position: relative;
+        }
+        .map-name-clickable:hover {
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+        .viewer-title {
+            position: relative;
+        }
+        .map-selector-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 25, 35, 0.95);
+            border: 1px solid rgba(168, 212, 255, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 1000;
+            min-width: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .map-selector-header {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: rgba(168, 212, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(168, 212, 255, 0.2);
+        }
+        .map-selector-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .map-selector-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: 'Highway Gothic', sans-serif;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.15s;
+        }
+        .map-selector-item:hover {
+            background: rgba(168, 212, 255, 0.2);
+            color: #fff;
+        }
+        .map-selector-item.current {
+            background: rgba(168, 212, 255, 0.15);
+            color: #00aaff;
+        }
     </style>
 </head>
 <body>
@@ -27,7 +86,13 @@
             </a>
             <div class="viewer-title">
                 <img src="/H2CRFinal.png" alt="Logo" class="viewer-logo">
-                <span id="mapName">Theater Mode</span>
+                <span id="mapName" class="map-name-clickable" onclick="toggleMapSelector()">Theater Mode</span>
+                <div id="mapSelector" class="map-selector-dropdown" style="display: none;">
+                    <div class="map-selector-header">Select Map (Free Look)</div>
+                    <div class="map-selector-list" id="mapSelectorList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
             </div>
             <div class="game-info">
                 <span id="gameType"></span>
@@ -41,6 +106,9 @@
 
             <!-- FPS Counter -->
             <div id="fps-counter" style="position: absolute; top: 10px; left: 10px; color: #00aaff; font-family: 'Share Tech Mono', monospace; font-size: 14px; opacity: 0.7; pointer-events: none; text-shadow: 0 0 2px rgba(0,0,0,0.8);">0 FPS</div>
+
+            <!-- Game Timer -->
+            <div id="game-timer" class="game-timer">00:00</div>
 
             <!-- Loading overlay -->
             <div id="loading-overlay" class="loading-overlay">

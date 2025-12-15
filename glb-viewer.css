@@ -1574,6 +1574,66 @@ body {
     flex-shrink: 0;
 }
 
+/* Trail toggle button in scoreboard */
+.trail-toggle {
+    width: 22px;
+    height: 22px;
+    padding: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.trail-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.trail-toggle.active {
+    background: rgba(0, 170, 255, 0.3);
+    border-color: rgba(0, 170, 255, 0.6);
+    color: #00aaff;
+}
+
+.trail-toggle svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Player K/D display */
+.player-kd {
+    font-family: 'Highway Gothic', 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    min-width: 45px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* Game Timer */
+.game-timer {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Highway Gothic', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    pointer-events: none;
+    z-index: 100;
+    letter-spacing: 2px;
+}
+
 /* Killfeed */
 .killfeed {
     position: absolute;
