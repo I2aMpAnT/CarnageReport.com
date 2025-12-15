@@ -172,7 +172,7 @@
             border-color: var(--unsc-blue);
         }
 
-        /* Team row in series */
+        /* Team row in series - Halo themed red/blue */
         .series-team {
             display: flex;
             align-items: center;
@@ -183,8 +183,28 @@
         .series-team:last-child {
             border-bottom: none;
         }
+        .series-team.team-red {
+            background: rgba(239, 68, 68, 0.15);
+            border-left: 3px solid #ef4444;
+        }
+        .series-team.team-blue {
+            background: rgba(59, 130, 246, 0.15);
+            border-left: 3px solid #3b82f6;
+        }
+        .series-team.team-red .team-name {
+            color: #ff6b6b;
+        }
+        .series-team.team-blue .team-name {
+            color: #60a5fa;
+        }
         .series-team.winner {
-            background: rgba(234, 179, 8, 0.2);
+            background: rgba(234, 179, 8, 0.25);
+        }
+        .series-team.team-red.winner {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.3) 0%, rgba(234, 179, 8, 0.2) 100%);
+        }
+        .series-team.team-blue.winner {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.3) 0%, rgba(234, 179, 8, 0.2) 100%);
         }
         .series-team.winner .series-score {
             background: #eab308;
@@ -748,26 +768,30 @@
             const team1Winner = series.winner_seed === series.team1_seed;
             const team2Winner = series.winner_seed === series.team2_seed;
 
+            // Team display names: "Team {Captain}"
+            const team1DisplayName = team1.captain ? `Team ${team1.captain}` : team1.name;
+            const team2DisplayName = team2.captain ? `Team ${team2.captain}` : team2.name;
+
             let html = `<div class="series-match" data-series-id="${series.id}">`;
             html += `<span class="series-number">${series.id}</span>`;
 
-            // Team 1
-            html += `<div class="series-team ${team1Winner ? 'winner' : ''}">`;
+            // Team 1 (Red team)
+            html += `<div class="series-team team-red ${team1Winner ? 'winner' : ''}">`;
             html += `<span class="team-seed">${team1.seed}</span>`;
             if (team1Emblem) {
                 html += `<img src="${team1Emblem}" class="team-emblem" alt="">`;
             }
-            html += `<span class="team-name">${team1.name}</span>`;
+            html += `<span class="team-name">${team1DisplayName}</span>`;
             html += `<span class="series-score">${series.team1_wins}</span>`;
             html += `</div>`;
 
-            // Team 2
-            html += `<div class="series-team ${team2Winner ? 'winner' : ''}">`;
+            // Team 2 (Blue team)
+            html += `<div class="series-team team-blue ${team2Winner ? 'winner' : ''}">`;
             html += `<span class="team-seed">${team2.seed}</span>`;
             if (team2Emblem) {
                 html += `<img src="${team2Emblem}" class="team-emblem" alt="">`;
             }
-            html += `<span class="team-name">${team2.name}</span>`;
+            html += `<span class="team-name">${team2DisplayName}</span>`;
             html += `<span class="series-score">${series.team2_wins}</span>`;
             html += `</div>`;
 
