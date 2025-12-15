@@ -1550,28 +1550,45 @@ async function createPlayerMarkers() {
 
         if (spartanModel) {
             // Clone the loaded MasterChief model (use SkeletonUtils for skinned meshes)
-            spartanClone = SkeletonUtils.clone(spartanModel);
+            try {
+                spartanClone = SkeletonUtils.clone(spartanModel);
 
-            // Apply team color to the model materials
-            spartanClone.traverse((child) => {
-                if (child.isMesh) {
-                    // Clone the material to avoid affecting other players
-                    child.material = child.material.clone();
-                    child.material.color.setHex(player.color);
-                    child.material.emissive = new THREE.Color(player.color);
-                    child.material.emissiveIntensity = 0.15;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                }
-            });
+                // Apply team color to the model materials
+                spartanClone.traverse((child) => {
+                    if (child.isMesh) {
+                        // Handle both single materials and material arrays
+                        if (Array.isArray(child.material)) {
+                            child.material = child.material.map(mat => {
+                                const clonedMat = mat.clone();
+                                clonedMat.color.setHex(player.color);
+                                clonedMat.emissive = new THREE.Color(player.color);
+                                clonedMat.emissiveIntensity = 0.2;
+                                return clonedMat;
+                            });
+                        } else {
+                            child.material = child.material.clone();
+                            child.material.color.setHex(player.color);
+                            child.material.emissive = new THREE.Color(player.color);
+                            child.material.emissiveIntensity = 0.2;
+                        }
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
 
-            // Scale and position the model appropriately
-            spartanClone.scale.set(1.5, 1.5, 1.5);  // Scale up for visibility
-            spartanClone.position.y = 0;  // Ensure model is at ground level
-            modelContainer.add(spartanClone);
+                // Scale and position the model appropriately
+                spartanClone.scale.set(0.02, 0.02, 0.02);  // Adjust scale for typical GLB models
+                spartanClone.position.y = 0;
+                modelContainer.add(spartanClone);
 
-            console.log('Added Spartan model for player:', player.name);
-        } else {
+                console.log('Added Spartan model for player:', player.name);
+            } catch (cloneError) {
+                console.warn('Failed to clone Spartan model, using fallback:', cloneError);
+                spartanClone = null;
+            }
+        }
+
+        if (!spartanClone) {
             // Fallback geometry if model failed to load
             const bodyGeometry = new THREE.CylinderGeometry(
                 CONFIG.playerMarkerSize * 0.4,
