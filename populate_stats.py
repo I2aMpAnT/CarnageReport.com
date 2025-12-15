@@ -83,6 +83,7 @@ PLAYLIST_MLG_4V4 = 'MLG 4v4'
 PLAYLIST_TEAM_HARDCORE = 'Team Hardcore'
 PLAYLIST_DOUBLE_TEAM = 'Double Team'
 PLAYLIST_HEAD_TO_HEAD = 'Head to Head'
+PLAYLIST_TOURNAMENT_1 = 'Tournament 1'
 
 # Playlist aliases - map alternate names to canonical names
 PLAYLIST_ALIASES = {
@@ -1848,6 +1849,7 @@ def main():
     ranked_games.extend(games_by_playlist.get(PLAYLIST_TEAM_HARDCORE, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_DOUBLE_TEAM, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_HEAD_TO_HEAD, []))
+    ranked_games.extend(games_by_playlist.get(PLAYLIST_TOURNAMENT_1, []))
 
     # Sort ranked games chronologically by START TIME (not end time from filename)
     # This ensures ranks are calculated in the correct order based on when games began
@@ -2430,7 +2432,7 @@ def main():
 
     # Save per-playlist matches and stats
     print("\n  Saving per-playlist files...")
-    all_playlists = [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE, PLAYLIST_DOUBLE_TEAM, PLAYLIST_HEAD_TO_HEAD]
+    all_playlists = [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE, PLAYLIST_DOUBLE_TEAM, PLAYLIST_HEAD_TO_HEAD, PLAYLIST_TOURNAMENT_1]
     playlist_files_saved = []
 
     # Helper function to get display name (discord_name instead of in-game name)
