@@ -330,11 +330,11 @@
             background: linear-gradient(180deg, rgba(168, 212, 255, 0.25) 0%, rgba(168, 212, 255, 0.1) 100%);
         }
         .stats-table th.sorted-asc::after {
-            content: ' \u25B2';
+            content: ' ▲';
             font-size: 0.7em;
         }
         .stats-table th.sorted-desc::after {
-            content: ' \u25BC';
+            content: ' ▼';
             font-size: 0.7em;
         }
         .stats-table td {
@@ -1188,7 +1188,7 @@
         }
 
         function goToPlayer(playerName) {
-            window.location.href = `/?player=${encodeURIComponent(playerName)}`;
+            window.location.href = `/#${encodeURIComponent(playerName)}`;
         }
 
         function calculateStatsFromMatches(matchesArray) {
