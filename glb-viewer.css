@@ -1607,6 +1607,33 @@ body {
     height: 14px;
 }
 
+/* Player K/D display */
+.player-kd {
+    font-family: 'Highway Gothic', 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    min-width: 45px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* Game Timer */
+.game-timer {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Highway Gothic', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    pointer-events: none;
+    z-index: 100;
+    letter-spacing: 2px;
+}
+
 /* Killfeed */
 .killfeed {
     position: absolute;

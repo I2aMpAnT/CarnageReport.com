@@ -784,6 +784,10 @@ function populateScoreboard() {
         const weaponName = pos.currentWeapon || 'Unknown';
         const weaponIconUrl = getWeaponIconUrl(weaponName);
 
+        // Get kills and deaths from telemetry at current time
+        const kills = pos.kills || 0;
+        const deaths = pos.deaths || 0;
+
         const playerDiv = document.createElement('div');
         playerDiv.className = 'scoreboard-player';
 
@@ -801,6 +805,7 @@ function populateScoreboard() {
             </button>
             <img src="${emblemUrl}" class="player-emblem" onerror="this.style.display='none'" />
             <span class="player-name" style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span>
+            <span class="player-kd">${kills} / ${deaths}</span>
             ${weaponHtml}
         `;
 
@@ -1796,6 +1801,12 @@ function updateTimeDisplay() {
     // Update progress bar visual
     const progress = (elapsed / totalDurationMs) * 100;
     document.getElementById('timeline').style.setProperty('--progress', `${progress}%`);
+
+    // Update game timer display
+    const gameTimer = document.getElementById('game-timer');
+    if (gameTimer) {
+        gameTimer.textContent = formatTime(elapsed);
+    }
 }
 
 function formatTime(ms) {
