@@ -1875,5 +1875,133 @@ window.retryLoad = async function() {
     await loadMapAndTelemetry();
 };
 
+// ===== Map Selector (Hidden Feature) =====
+const ALL_MAPS = [
+    'Ascension', 'Backwash', 'Beaver Creek', 'Burial Mounds', 'Coagulation',
+    'Colossus', 'Containment', 'Desolation', 'Elongation', 'Foundation',
+    'Gemini', 'Headlong', 'Ivory Tower', 'Lockout', 'Midship',
+    'Relic', 'Sanctuary', 'Terminal', 'Triplicate', 'Turf',
+    'Warlock', 'Waterworks', 'Zanzibar'
+];
+
+// Populate the map selector dropdown
+function populateMapSelector() {
+    const list = document.getElementById('mapSelectorList');
+    if (!list) return;
+
+    list.innerHTML = '';
+    ALL_MAPS.forEach(map => {
+        const item = document.createElement('div');
+        item.className = 'map-selector-item';
+        if (map.toLowerCase() === mapName.toLowerCase()) {
+            item.classList.add('current');
+        }
+        item.textContent = map;
+        item.onclick = (e) => {
+            e.stopPropagation();
+            selectMap(map);
+        };
+        list.appendChild(item);
+    });
+}
+
+// Toggle map selector dropdown visibility
+window.toggleMapSelector = function() {
+    const dropdown = document.getElementById('mapSelector');
+    if (!dropdown) return;
+
+    const isVisible = dropdown.style.display !== 'none';
+    if (isVisible) {
+        dropdown.style.display = 'none';
+    } else {
+        populateMapSelector();
+        dropdown.style.display = 'block';
+    }
+};
+
+// Select a map from the dropdown (free look mode - no telemetry)
+async function selectMap(selectedMapName) {
+    const dropdown = document.getElementById('mapSelector');
+    if (dropdown) dropdown.style.display = 'none';
+
+    // Stop current playback
+    isPlaying = false;
+    const playIcon = document.getElementById('playIcon');
+    const pauseIcon = document.getElementById('pauseIcon');
+    if (playIcon) playIcon.style.display = 'block';
+    if (pauseIcon) pauseIcon.style.display = 'none';
+
+    // Clear existing telemetry and player markers
+    telemetryData = [];
+    players = [];
+    Object.values(playerMarkers).forEach(marker => {
+        if (marker.mesh) scene.remove(marker.mesh);
+        if (marker.nameLabel) scene.remove(marker.nameLabel);
+        if (marker.trail) scene.remove(marker.trail);
+    });
+    playerMarkers = {};
+
+    // Update state
+    mapName = selectedMapName;
+    telemetryFile = ''; // Free look mode - no telemetry
+    gameInfo = { map: selectedMapName, gameType: 'Free Look', date: '', variant: '' };
+
+    // Update UI
+    document.getElementById('mapName').textContent = selectedMapName;
+    document.getElementById('gameType').textContent = 'Free Look';
+    document.getElementById('gameDate').textContent = '';
+
+    // Clear scoreboard
+    const redPlayers = document.getElementById('red-team-players');
+    const bluePlayers = document.getElementById('blue-team-players');
+    if (redPlayers) redPlayers.innerHTML = '';
+    if (bluePlayers) bluePlayers.innerHTML = '';
+
+    // Remove existing map model
+    if (mapModel) {
+        scene.remove(mapModel);
+        mapModel = null;
+    }
+
+    // Show loading overlay
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loadingText = document.querySelector('.loading-text');
+    const loadingProgress = document.getElementById('loading-progress');
+    loadingOverlay.style.display = 'flex';
+    loadingText.textContent = 'Loading 3D map...';
+    loadingProgress.textContent = '0%';
+
+    try {
+        // Load the new map
+        const glbFilename = mapNameToGlbFilename(selectedMapName);
+        const glbPath = `${CONFIG.mapsPath}${glbFilename}.glb`;
+
+        await loadGLB(glbPath, (progress) => {
+            loadingProgress.textContent = `${Math.round(progress * 100)}%`;
+        });
+
+        loadingOverlay.style.display = 'none';
+        positionCameraToFit();
+
+        // Switch to free view mode
+        viewMode = 'free';
+        document.getElementById('viewModeText').textContent = 'Free';
+    } catch (error) {
+        console.error('Failed to load map:', error);
+        document.getElementById('error-overlay').style.display = 'flex';
+        document.getElementById('error-text').textContent = `Failed to load ${selectedMapName}`;
+        loadingOverlay.style.display = 'none';
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    const dropdown = document.getElementById('mapSelector');
+    const mapNameEl = document.getElementById('mapName');
+    if (dropdown && !dropdown.contains(e.target) && e.target !== mapNameEl) {
+        dropdown.style.display = 'none';
+    }
+});
+
 // ===== Initialize =====
 init();

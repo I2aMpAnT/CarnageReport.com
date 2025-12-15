@@ -507,6 +507,22 @@
             margin: 0 auto;
         }
 
+        /* Bracket info badge in games list */
+        .bracket-info-badge {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-family: 'Highway Gothic', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 15px;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
         .back-link {
             display: inline-flex;
             align-items: center;
@@ -1100,6 +1116,97 @@
             }
         }
 
+        // Bracket game mapping - maps games to their series/round info
+        let bracketGameMapping = {};
+
+        function buildBracketGameMapping() {
+            bracketGameMapping = {};
+            if (!bracketConfig || !bracketConfig.series || !bracketConfig.rounds) return;
+
+            // Sort matches chronologically (oldest first) to process in order
+            const sortedMatches = [...matchesData].sort((a, b) => {
+                const dateA = new Date(a.timestamp || 0);
+                const dateB = new Date(b.timestamp || 0);
+                return dateA - dateB;
+            });
+
+            // Create a unique ID for each match based on timestamp
+            const usedMatches = new Set();
+
+            // Process series in order (they should be in chronological order)
+            for (const series of bracketConfig.series) {
+                const roundConfig = bracketConfig.rounds[series.round];
+                if (!roundConfig || !roundConfig.games) continue;
+
+                const roundLabel = roundConfig.label || series.round;
+                const expectedGames = roundConfig.games;
+                const totalGamesInSeries = series.team1_wins + series.team2_wins;
+
+                let gamesFound = 0;
+                let expectedIdx = 0;
+
+                for (let matchIdx = 0; matchIdx < sortedMatches.length && gamesFound < totalGamesInSeries; matchIdx++) {
+                    const match = sortedMatches[matchIdx];
+                    const matchKey = match.timestamp || matchIdx;
+
+                    // Skip if already assigned
+                    if (usedMatches.has(matchKey)) continue;
+
+                    // Check if this match matches the next expected game in the series
+                    while (expectedIdx < expectedGames.length) {
+                        if (matchGameToExpected(match, expectedGames[expectedIdx])) {
+                            bracketGameMapping[matchKey] = {
+                                round: roundLabel,
+                                gameNumber: gamesFound + 1
+                            };
+                            usedMatches.add(matchKey);
+                            gamesFound++;
+                            expectedIdx++;
+                            break;
+                        }
+                        expectedIdx++;
+                    }
+                }
+            }
+        }
+
+        function matchGameToExpected(match, expectedGameName) {
+            const parts = expectedGameName.split(' ');
+            if (parts.length < 2) return false;
+
+            const mapPart = parts[0].toLowerCase();
+            const typePart = parts.slice(1).join(' ').toLowerCase();
+
+            const mapNameMap = {
+                'sanc': 'sanctuary',
+                'beaver': 'beaver creek',
+                'lock': 'lockout'
+            };
+
+            const searchMap = mapNameMap[mapPart] || mapPart;
+            const matchMap = (match.map || '').toLowerCase();
+            const matchType = (match.gametype || '').toLowerCase();
+
+            if (!(matchMap.includes(searchMap) || searchMap.includes(matchMap.split(' ')[0]))) {
+                return false;
+            }
+
+            // Check gametype
+            if (typePart.includes('ctf') && (matchType.includes('flag') || matchType.includes('ctf'))) return true;
+            if (typePart.includes('ts') && matchType.includes('slayer')) return true;
+            if (typePart.includes('slayer') && matchType.includes('slayer')) return true;
+            if (typePart.includes('ball') && (matchType.includes('ball') || matchType.includes('oddball'))) return true;
+            if (typePart.includes('bomb') && (matchType.includes('bomb') || matchType.includes('assault'))) return true;
+            if (typePart.includes('koth') && (matchType.includes('king') || matchType.includes('hill'))) return true;
+
+            return false;
+        }
+
+        function getBracketInfoForMatch(match) {
+            const matchKey = match.timestamp || '';
+            return bracketGameMapping[matchKey] || null;
+        }
+
         // Games list functions
         function formatDuration(duration) {
             if (!duration) return '0:00';
@@ -1198,6 +1305,15 @@
                 teamScoreDisplay = `<span class="game-meta-tag">Red: ${match.red_score} - Blue: ${match.blue_score}</span>`;
             }
 
+            // Get bracket info for this match (tournament games only)
+            let bracketBadge = '';
+            if (bracketConfig) {
+                const bracketInfo = getBracketInfoForMatch(match);
+                if (bracketInfo) {
+                    bracketBadge = `<span class="bracket-info-badge">${bracketInfo.round} Game ${bracketInfo.gameNumber}</span>`;
+                }
+            }
+
             gameDiv.innerHTML = `
                 <div class="game-header-bar ${winnerClass}" onclick="toggleGameDetails(${gameIndex})">
                     <div class="game-header-left">
@@ -1207,6 +1323,7 @@
                             ${teamScoreDisplay}
                         </div>
                     </div>
+                    ${bracketBadge}
                     <div class="game-header-right">
                         ${dateDisplay ? `<span class="game-meta-tag date-tag">${dateDisplay}</span>` : ''}
                         <div class="expand-icon">▶</div>
@@ -1405,7 +1522,10 @@
                 }
 
                 renderSummary();
-                if (bracketConfig) renderBracket();
+                if (bracketConfig) {
+                    renderBracket();
+                    buildBracketGameMapping();
+                }
                 renderPlayersTable();
                 renderGamesList();
 
