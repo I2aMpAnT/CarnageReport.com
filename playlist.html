@@ -218,6 +218,21 @@
             height: 28px;
         }
 
+        /* Playlist link in game details */
+        .playlist-link {
+            color: var(--unsc-blue);
+            text-decoration: none;
+            padding: 4px 10px;
+            background: rgba(168, 212, 255, 0.15);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .playlist-link:hover {
+            background: rgba(168, 212, 255, 0.3);
+            text-decoration: none;
+        }
+
         /* Games List - mirrors main page */
         .games-list-container {
             max-width: 1200px;
@@ -850,6 +865,10 @@
             html += `<div class="game-meta-info">`;
             html += `<span><i class="icon-clock"></i> ${duration}</span>`;
             html += `<span><i class="icon-calendar"></i> ${formattedTime}</span>`;
+            const playlistName = playlistConfig?.name || '';
+            if (playlistName) {
+                html += `<a href="/playlist.html?name=${encodeURIComponent(playlistName)}" class="playlist-link" onclick="event.stopPropagation();">${playlistName}</a>`;
+            }
             html += `</div>`;
             html += teamScoreHtml;
             html += `</div>`;
