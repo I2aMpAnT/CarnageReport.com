@@ -2029,6 +2029,11 @@ function switchMainTab(tabName, updateHash = true) {
         loadTwitchHub();
     }
 
+    // Load Tournaments when tab is selected
+    if (tabName === 'tournaments') {
+        loadTournaments();
+    }
+
     // Update URL hash for deep linking (e.g., #leaderboard, #twitch)
     if (updateHash) {
         const hashName = getHashNameForTab(tabName);
@@ -2045,6 +2050,7 @@ function getHashNameForTab(tabName) {
     const tabToHash = {
         'games': 'games',
         'leaderboard': 'leaderboard',
+        'tournaments': 'tournaments',
         'twitch': 'twitch',
         'pvp': 'pvp',
         'emblem': 'emblem'
@@ -2058,6 +2064,7 @@ function getTabNameFromHash(hash) {
         'games': 'gamehistory',
         'gamehistory': 'gamehistory',
         'leaderboard': 'leaderboard',
+        'tournaments': 'tournaments',
         'twitch': 'twitch',
         'pvp': 'pvp',
         'emblem': 'emblem'
@@ -7583,3 +7590,57 @@ function hasTelemetryAvailable(game) {
 
 // Initialize telemetry index on page load
 fetchAvailableTelemetryFiles();
+
+// Load and display tournaments
+let tournamentsLoaded = false;
+
+async function loadTournaments() {
+    if (tournamentsLoaded) return;
+
+    const container = document.getElementById('tournamentsList');
+    if (!container) return;
+
+    container.innerHTML = '<div class="loading-message">Loading tournaments...</div>';
+
+    try {
+        const response = await fetch('playlists.json');
+        if (!response.ok) throw new Error('Failed to load playlists');
+
+        const data = await response.json();
+        const tournaments = data.playlists.filter(p => p.bracket);
+
+        if (tournaments.length === 0) {
+            container.innerHTML = '<div class="loading-message">No tournaments available yet.</div>';
+            return;
+        }
+
+        let html = '';
+        for (const tournament of tournaments) {
+            const teamsCount = tournament.bracket?.teams?.length || 0;
+            const tournamentDate = tournament.date || '';
+
+            html += `
+                <a href="/playlist.html?name=${encodeURIComponent(tournament.name)}" class="tournament-card">
+                    <div class="tournament-info">
+                        <div class="tournament-name">${tournament.name}</div>
+                        <div class="tournament-date">${tournamentDate}</div>
+                    </div>
+                    <div class="tournament-stats">
+                        <div class="tournament-stat">
+                            <div class="tournament-stat-value">${teamsCount}</div>
+                            <div class="tournament-stat-label">Teams</div>
+                        </div>
+                    </div>
+                    <span class="tournament-arrow">→</span>
+                </a>
+            `;
+        }
+
+        container.innerHTML = html;
+        tournamentsLoaded = true;
+
+    } catch (error) {
+        console.error('Error loading tournaments:', error);
+        container.innerHTML = '<div class="loading-message">Error loading tournaments.</div>';
+    }
+}
