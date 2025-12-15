@@ -375,10 +375,26 @@
             document.title = `${playlistName} - CarnageReport.com`;
 
             try {
-                // Load playlist stats
-                const statsResponse = await fetch(`${encodeURIComponent(playlistName)}_stats.json`);
-                if (!statsResponse.ok) {
+                // Load playlists config to get the correct stats filename
+                const playlistsResponse = await fetch('playlists.json');
+                if (!playlistsResponse.ok) {
+                    throw new Error('Could not load playlists config');
+                }
+                const playlistsConfig = await playlistsResponse.json();
+
+                // Find the playlist by name (case-insensitive)
+                const playlist = playlistsConfig.playlists.find(p =>
+                    p.name.toLowerCase() === playlistName.toLowerCase()
+                );
+
+                if (!playlist) {
                     throw new Error(`Playlist "${playlistName}" not found`);
+                }
+
+                // Load playlist stats using the configured filename
+                const statsResponse = await fetch(playlist.stats_file);
+                if (!statsResponse.ok) {
+                    throw new Error(`Stats file for "${playlistName}" not found`);
                 }
                 const statsData = await statsResponse.json();
 
