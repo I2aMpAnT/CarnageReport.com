@@ -822,6 +822,90 @@
         "rank_before": 2,
         "rank_after": 2,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 92,
+        "rank_before": 2,
+        "rank_after": 2,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 2:03 AM",
+        "source_file": "20251215_020344.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": -2,
+        "xp_total": 90,
+        "rank_before": 2,
+        "rank_after": 2,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:11 AM",
+        "source_file": "20251215_021119.xlsx",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 190,
+        "rank_before": 2,
+        "rank_after": 3,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:25 AM",
+        "source_file": "20251215_022554.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 290,
+        "rank_before": 3,
+        "rank_after": 4,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:33 AM",
+        "source_file": "20251215_023349.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 390,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:58 AM",
+        "source_file": "20251215_025851.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": -10,
+        "xp_total": 380,
+        "rank_before": 5,
+        "rank_after": 4,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 3:07 AM",
+        "source_file": "20251215_030723.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 480,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
       }
     ]
   },
@@ -1414,18 +1498,6 @@
         "xp_total": 715,
         "rank_before": 8,
         "rank_after": 8,
-        "result": "loss"
-      },
-      {
-        "timestamp": "12/14/2025 9:28 PM",
-        "source_file": "20251214_212841.xlsx",
-        "map": "Beaver Creek",
-        "gametype": "Team Slayer",
-        "playlist": "Tournament 1",
-        "xp_change": -27,
-        "xp_total": 688,
-        "rank_before": 8,
-        "rank_after": 7,
         "result": "loss"
       }
     ]
@@ -3134,6 +3206,54 @@
         "rank_before": 19,
         "rank_after": 20,
         "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:13 AM",
+        "source_file": "20251215_001405.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 12:34 AM",
+        "source_file": "20251215_003500.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:41 AM",
+        "source_file": "20251215_004148.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:56 AM",
+        "source_file": "20251215_005651.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
       }
     ]
   },
@@ -4581,15 +4701,87 @@
         "result": "win"
       },
       {
-        "timestamp": "12/14/2025 9:28 PM",
-        "source_file": "20251214_212841.xlsx",
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 761,
+        "rank_before": 8,
+        "rank_after": 8,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 2:03 AM",
+        "source_file": "20251215_020344.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": -27,
+        "xp_total": 734,
+        "rank_before": 8,
+        "rank_after": 8,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:11 AM",
+        "source_file": "20251215_021119.xlsx",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 834,
+        "rank_before": 8,
+        "rank_after": 9,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:25 AM",
+        "source_file": "20251215_022554.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 934,
+        "rank_before": 9,
+        "rank_after": 10,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:33 AM",
+        "source_file": "20251215_023349.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 1034,
+        "rank_before": 10,
+        "rank_after": 11,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:58 AM",
+        "source_file": "20251215_025851.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": -45,
+        "xp_total": 989,
+        "rank_before": 11,
+        "rank_after": 11,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 3:07 AM",
+        "source_file": "20251215_030723.xlsx",
         "map": "Beaver Creek",
         "gametype": "Team Slayer",
         "playlist": "Tournament 1",
         "xp_change": 100,
-        "xp_total": 861,
-        "rank_before": 8,
-        "rank_after": 9,
+        "xp_total": 1089,
+        "rank_before": 11,
+        "rank_after": 12,
         "result": "win"
       }
     ]
@@ -6394,6 +6586,78 @@
         "rank_before": 7,
         "rank_after": 7,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:13 AM",
+        "source_file": "20251215_001405.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 623,
+        "rank_before": 7,
+        "rank_after": 7,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 12:34 AM",
+        "source_file": "20251215_003500.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 723,
+        "rank_before": 7,
+        "rank_after": 8,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:41 AM",
+        "source_file": "20251215_004148.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 823,
+        "rank_before": 8,
+        "rank_after": 9,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:56 AM",
+        "source_file": "20251215_005651.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 923,
+        "rank_before": 9,
+        "rank_after": 10,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 1:13 AM",
+        "source_file": "20251215_011357.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 923,
+        "rank_before": 10,
+        "rank_after": 10,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:29 AM",
+        "source_file": "20251215_012921.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 923,
+        "rank_before": 10,
+        "rank_after": 10,
+        "result": "tie"
       }
     ]
   },
@@ -8144,16 +8408,160 @@
         "result": "win"
       },
       {
-        "timestamp": "12/14/2025 9:28 PM",
-        "source_file": "20251214_212841.xlsx",
-        "map": "Beaver Creek",
-        "gametype": "Team Slayer",
+        "timestamp": "12/15/2025 12:13 AM",
+        "source_file": "20251215_001405.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 761,
+        "rank_before": 8,
+        "rank_after": 8,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 12:34 AM",
+        "source_file": "20251215_003500.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
         "playlist": "Tournament 1",
         "xp_change": 100,
         "xp_total": 861,
         "rank_before": 8,
         "rank_after": 9,
         "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:41 AM",
+        "source_file": "20251215_004148.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 961,
+        "rank_before": 9,
+        "rank_after": 10,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:56 AM",
+        "source_file": "20251215_005651.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 1061,
+        "rank_before": 10,
+        "rank_after": 11,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 1:13 AM",
+        "source_file": "20251215_011357.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 1061,
+        "rank_before": 11,
+        "rank_after": 11,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:29 AM",
+        "source_file": "20251215_012921.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 1061,
+        "rank_before": 11,
+        "rank_after": 11,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 1061,
+        "rank_before": 11,
+        "rank_after": 11,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 2:03 AM",
+        "source_file": "20251215_020344.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 1161,
+        "rank_before": 11,
+        "rank_after": 12,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:11 AM",
+        "source_file": "20251215_021119.xlsx",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -50,
+        "xp_total": 1111,
+        "rank_before": 12,
+        "rank_after": 12,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:25 AM",
+        "source_file": "20251215_022554.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": -50,
+        "xp_total": 1061,
+        "rank_before": 12,
+        "rank_after": 11,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:33 AM",
+        "source_file": "20251215_023349.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -45,
+        "xp_total": 1016,
+        "rank_before": 11,
+        "rank_after": 11,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:58 AM",
+        "source_file": "20251215_025851.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 1116,
+        "rank_before": 11,
+        "rank_after": 12,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 3:07 AM",
+        "source_file": "20251215_030723.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -50,
+        "xp_total": 1066,
+        "rank_before": 12,
+        "rank_after": 11,
+        "result": "loss"
       }
     ]
   },
@@ -9119,6 +9527,138 @@
         "rank_before": 2,
         "rank_after": 2,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:13 AM",
+        "source_file": "20251215_001405.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 92,
+        "rank_before": 2,
+        "rank_after": 2,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 12:34 AM",
+        "source_file": "20251215_003500.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": -2,
+        "xp_total": 90,
+        "rank_before": 2,
+        "rank_after": 2,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:41 AM",
+        "source_file": "20251215_004148.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -2,
+        "xp_total": 88,
+        "rank_before": 2,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:56 AM",
+        "source_file": "20251215_005651.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 88,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 88,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 2:03 AM",
+        "source_file": "20251215_020344.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 88,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:11 AM",
+        "source_file": "20251215_021119.xlsx",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 188,
+        "rank_before": 1,
+        "rank_after": 2,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:25 AM",
+        "source_file": "20251215_022554.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 288,
+        "rank_before": 2,
+        "rank_after": 3,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:33 AM",
+        "source_file": "20251215_023349.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 388,
+        "rank_before": 3,
+        "rank_after": 4,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:58 AM",
+        "source_file": "20251215_025851.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": -7,
+        "xp_total": 381,
+        "rank_before": 4,
+        "rank_after": 4,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 3:07 AM",
+        "source_file": "20251215_030723.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 481,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
       }
     ]
   },
@@ -11551,15 +12091,159 @@
         "result": "loss"
       },
       {
-        "timestamp": "12/14/2025 9:28 PM",
-        "source_file": "20251214_212841.xlsx",
+        "timestamp": "12/15/2025 12:13 AM",
+        "source_file": "20251215_001405.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 715,
+        "rank_before": 8,
+        "rank_after": 8,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 12:34 AM",
+        "source_file": "20251215_003500.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 815,
+        "rank_before": 8,
+        "rank_after": 9,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:41 AM",
+        "source_file": "20251215_004148.xlsx",
         "map": "Beaver Creek",
         "gametype": "Team Slayer",
         "playlist": "Tournament 1",
-        "xp_change": -27,
-        "xp_total": 688,
-        "rank_before": 8,
-        "rank_after": 7,
+        "xp_change": 100,
+        "xp_total": 915,
+        "rank_before": 9,
+        "rank_after": 10,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:56 AM",
+        "source_file": "20251215_005651.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 1015,
+        "rank_before": 10,
+        "rank_after": 11,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 1:13 AM",
+        "source_file": "20251215_011357.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 1015,
+        "rank_before": 11,
+        "rank_after": 11,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:29 AM",
+        "source_file": "20251215_012921.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 1015,
+        "rank_before": 11,
+        "rank_after": 11,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 1015,
+        "rank_before": 11,
+        "rank_after": 11,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 2:03 AM",
+        "source_file": "20251215_020344.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 1115,
+        "rank_before": 11,
+        "rank_after": 12,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:11 AM",
+        "source_file": "20251215_021119.xlsx",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -50,
+        "xp_total": 1065,
+        "rank_before": 12,
+        "rank_after": 11,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:25 AM",
+        "source_file": "20251215_022554.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": -45,
+        "xp_total": 1020,
+        "rank_before": 11,
+        "rank_after": 11,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:33 AM",
+        "source_file": "20251215_023349.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -45,
+        "xp_total": 975,
+        "rank_before": 11,
+        "rank_after": 10,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:58 AM",
+        "source_file": "20251215_025851.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 1075,
+        "rank_before": 10,
+        "rank_after": 11,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 3:07 AM",
+        "source_file": "20251215_030723.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -45,
+        "xp_total": 1030,
+        "rank_before": 11,
+        "rank_after": 11,
         "result": "loss"
       }
     ]
@@ -12062,6 +12746,174 @@
         "xp_total": 860,
         "rank_before": 10,
         "rank_after": 9,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:13 AM",
+        "source_file": "20251215_001405.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 12:25 AM",
+        "source_file": "20251215_002518.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 12:34 AM",
+        "source_file": "20251215_003500.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:41 AM",
+        "source_file": "20251215_004148.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:56 AM",
+        "source_file": "20251215_005651.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 1:13 AM",
+        "source_file": "20251215_011357.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:29 AM",
+        "source_file": "20251215_012921.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 2:03 AM",
+        "source_file": "20251215_020344.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 100,
+        "rank_before": 1,
+        "rank_after": 2,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:11 AM",
+        "source_file": "20251215_021119.xlsx",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -2,
+        "xp_total": 98,
+        "rank_before": 2,
+        "rank_after": 2,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:25 AM",
+        "source_file": "20251215_022554.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": -2,
+        "xp_total": 96,
+        "rank_before": 2,
+        "rank_after": 2,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:33 AM",
+        "source_file": "20251215_023349.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -2,
+        "xp_total": 94,
+        "rank_before": 2,
+        "rank_after": 2,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:58 AM",
+        "source_file": "20251215_025851.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 194,
+        "rank_before": 2,
+        "rank_after": 3,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 3:07 AM",
+        "source_file": "20251215_030723.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -5,
+        "xp_total": 189,
+        "rank_before": 3,
+        "rank_after": 3,
         "result": "loss"
       }
     ]
@@ -12702,6 +13554,90 @@
         "rank_before": 5,
         "rank_after": 5,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 2:03 AM",
+        "source_file": "20251215_020344.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:11 AM",
+        "source_file": "20251215_021119.xlsx",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 100,
+        "rank_before": 1,
+        "rank_after": 2,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:25 AM",
+        "source_file": "20251215_022554.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 200,
+        "rank_before": 2,
+        "rank_after": 3,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:33 AM",
+        "source_file": "20251215_023349.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 300,
+        "rank_before": 3,
+        "rank_after": 4,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:58 AM",
+        "source_file": "20251215_025851.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": -7,
+        "xp_total": 293,
+        "rank_before": 4,
+        "rank_after": 4,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 3:07 AM",
+        "source_file": "20251215_030723.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 393,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
       }
     ]
   },
@@ -13223,18 +14159,6 @@
         "rank_before": 8,
         "rank_after": 8,
         "result": "loss"
-      },
-      {
-        "timestamp": "12/14/2025 9:28 PM",
-        "source_file": "20251214_212841.xlsx",
-        "map": "Beaver Creek",
-        "gametype": "Team Slayer",
-        "playlist": "Tournament 1",
-        "xp_change": -27,
-        "xp_total": 688,
-        "rank_before": 8,
-        "rank_after": 7,
-        "result": "loss"
       }
     ]
   },
@@ -13683,18 +14607,6 @@
         "xp_total": 715,
         "rank_before": 8,
         "rank_after": 8,
-        "result": "loss"
-      },
-      {
-        "timestamp": "12/14/2025 9:28 PM",
-        "source_file": "20251214_212841.xlsx",
-        "map": "Beaver Creek",
-        "gametype": "Team Slayer",
-        "playlist": "Tournament 1",
-        "xp_change": -27,
-        "xp_total": 688,
-        "rank_before": 8,
-        "rank_after": 7,
         "result": "loss"
       }
     ]
@@ -14261,6 +15173,162 @@
         "rank_before": 3,
         "rank_after": 4,
         "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:13 AM",
+        "source_file": "20251215_001405.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 12:34 AM",
+        "source_file": "20251215_003500.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 100,
+        "rank_before": 1,
+        "rank_after": 2,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:41 AM",
+        "source_file": "20251215_004148.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 200,
+        "rank_before": 2,
+        "rank_after": 3,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 12:56 AM",
+        "source_file": "20251215_005651.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 300,
+        "rank_before": 3,
+        "rank_after": 4,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 1:13 AM",
+        "source_file": "20251215_011357.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 300,
+        "rank_before": 4,
+        "rank_after": 4,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:29 AM",
+        "source_file": "20251215_012921.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 300,
+        "rank_before": 4,
+        "rank_after": 4,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 300,
+        "rank_before": 4,
+        "rank_after": 4,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 2:03 AM",
+        "source_file": "20251215_020344.xlsx",
+        "map": "Midship",
+        "gametype": "Assault",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 400,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 2:11 AM",
+        "source_file": "20251215_021119.xlsx",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -10,
+        "xp_total": 390,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:25 AM",
+        "source_file": "20251215_022554.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": -10,
+        "xp_total": 380,
+        "rank_before": 5,
+        "rank_after": 4,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:33 AM",
+        "source_file": "20251215_023349.xlsx",
+        "map": "Sanctuary",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -7,
+        "xp_total": 373,
+        "rank_before": 4,
+        "rank_after": 4,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 2:58 AM",
+        "source_file": "20251215_025851.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 100,
+        "xp_total": 473,
+        "rank_before": 4,
+        "rank_after": 5,
+        "result": "win"
+      },
+      {
+        "timestamp": "12/15/2025 3:07 AM",
+        "source_file": "20251215_030723.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": -10,
+        "xp_total": 463,
+        "rank_before": 5,
+        "rank_after": 5,
+        "result": "loss"
       }
     ]
   },
@@ -15157,6 +16225,54 @@
         "rank_before": 6,
         "rank_after": 6,
         "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:13 AM",
+        "source_file": "20251215_001405.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 12:34 AM",
+        "source_file": "20251215_003500.xlsx",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:41 AM",
+        "source_file": "20251215_004148.xlsx",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
+      },
+      {
+        "timestamp": "12/15/2025 12:56 AM",
+        "source_file": "20251215_005651.xlsx",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "loss"
       }
     ]
   },
@@ -15455,18 +16571,6 @@
         "rank_before": 7,
         "rank_after": 8,
         "result": "win"
-      },
-      {
-        "timestamp": "12/14/2025 9:28 PM",
-        "source_file": "20251214_212841.xlsx",
-        "map": "Beaver Creek",
-        "gametype": "Team Slayer",
-        "playlist": "Tournament 1",
-        "xp_change": 100,
-        "xp_total": 861,
-        "rank_before": 8,
-        "rank_after": 9,
-        "result": "win"
       }
     ]
   },
@@ -15616,18 +16720,47 @@
         "rank_before": 7,
         "rank_after": 8,
         "result": "win"
-      },
+      }
+    ]
+  },
+  "505525443268448309": {
+    "discord_name": "nan",
+    "history": [
       {
-        "timestamp": "12/14/2025 9:28 PM",
-        "source_file": "20251214_212841.xlsx",
-        "map": "Beaver Creek",
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
         "gametype": "Team Slayer",
         "playlist": "Tournament 1",
-        "xp_change": 100,
-        "xp_total": 861,
-        "rank_before": 8,
-        "rank_after": 9,
-        "result": "win"
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
+      },
+      {
+        "timestamp": "12/15/2025 1:38 AM",
+        "source_file": "20251215_013853.xlsx",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "playlist": "Tournament 1",
+        "xp_change": 0,
+        "xp_total": 0,
+        "rank_before": 1,
+        "rank_after": 1,
+        "result": "tie"
       }
     ]
   }

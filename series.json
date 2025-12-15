@@ -2232,16 +2232,203 @@
         "gametype": "Capture the Flag",
         "winner": "Blue",
         "source_file": "20251214_211718.xlsx"
-      },
-      {
-        "timestamp": "12/14/2025 9:21 PM",
-        "map": "Beaver Creek",
-        "gametype": "Team Slayer",
-        "winner": "Blue",
-        "source_file": "20251214_212841.xlsx"
       }
     ],
     "start_time": "12/14/2025 8:41 PM",
-    "end_time": "12/14/2025 9:21 PM"
+    "end_time": "12/14/2025 9:04 PM"
+  },
+  {
+    "series_id": "series_16",
+    "playlist": "Tournament 1",
+    "red_team": [
+      "I2aMpAnT",
+      "Keylord",
+      "bbwelchs",
+      "sneakybeav3r"
+    ],
+    "blue_team": [
+      "GuNShoT",
+      "Hammie",
+      "Hyrax",
+      "Rinser"
+    ],
+    "games": [
+      {
+        "timestamp": "12/15/2025 12:01 AM",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "winner": null,
+        "source_file": "20251215_001405.xlsx"
+      }
+    ],
+    "start_time": "12/15/2025 12:01 AM",
+    "end_time": "12/15/2025 12:01 AM"
+  },
+  {
+    "series_id": "series_17",
+    "playlist": "Tournament 1",
+    "red_team": [
+      "I2aMpAnT"
+    ],
+    "blue_team": [],
+    "games": [
+      {
+        "timestamp": "12/15/2025 12:25 AM",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "winner": null,
+        "source_file": "20251215_002518.xlsx"
+      }
+    ],
+    "start_time": "12/15/2025 12:25 AM",
+    "end_time": "12/15/2025 12:25 AM"
+  },
+  {
+    "series_id": "series_18",
+    "playlist": "Tournament 1",
+    "red_team": [
+      "I2aMpAnT",
+      "Keylord",
+      "bbwelchs",
+      "sneakybeav3r"
+    ],
+    "blue_team": [
+      "GuNShoT",
+      "Hammie",
+      "Hyrax",
+      "Rinser"
+    ],
+    "games": [
+      {
+        "timestamp": "12/15/2025 12:31 AM",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "winner": "Blue",
+        "source_file": "20251215_003500.xlsx"
+      },
+      {
+        "timestamp": "12/15/2025 12:35 AM",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "winner": "Blue",
+        "source_file": "20251215_004148.xlsx"
+      },
+      {
+        "timestamp": "12/15/2025 12:42 AM",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "winner": "Blue",
+        "source_file": "20251215_005651.xlsx"
+      }
+    ],
+    "start_time": "12/15/2025 12:31 AM",
+    "end_time": "12/15/2025 12:42 AM"
+  },
+  {
+    "series_id": "series_19",
+    "playlist": "Tournament 1",
+    "red_team": [],
+    "blue_team": [],
+    "games": [
+      {
+        "timestamp": "12/15/2025 12:58 AM",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "winner": null,
+        "source_file": "20251215_011357.xlsx"
+      },
+      {
+        "timestamp": "12/15/2025 1:14 AM",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "winner": null,
+        "source_file": "20251215_012921.xlsx"
+      }
+    ],
+    "start_time": "12/15/2025 12:58 AM",
+    "end_time": "12/15/2025 1:14 AM"
+  },
+  {
+    "series_id": "series_20",
+    "playlist": "Tournament 1",
+    "red_team": [
+      "nan",
+      "nan",
+      "nan"
+    ],
+    "blue_team": [],
+    "games": [
+      {
+        "timestamp": "12/15/2025 1:30 AM",
+        "map": "Midship",
+        "gametype": "Team Slayer",
+        "winner": null,
+        "source_file": "20251215_013853.xlsx"
+      }
+    ],
+    "start_time": "12/15/2025 1:30 AM",
+    "end_time": "12/15/2025 1:30 AM"
+  },
+  {
+    "series_id": "series_21",
+    "playlist": "Tournament 1",
+    "red_team": [
+      "KidMode",
+      "fluhd",
+      "gravemindh2",
+      "sneakybeav3r"
+    ],
+    "blue_team": [
+      "GuNShoT",
+      "Hammie",
+      "Hyrax",
+      "I2aMpAnT"
+    ],
+    "games": [
+      {
+        "timestamp": "12/15/2025 1:41 AM",
+        "map": "Midship",
+        "gametype": "Assault",
+        "winner": "Blue",
+        "source_file": "20251215_020344.xlsx"
+      },
+      {
+        "timestamp": "12/15/2025 2:06 AM",
+        "map": "Warlock",
+        "gametype": "Team Slayer",
+        "winner": "Red",
+        "source_file": "20251215_021119.xlsx"
+      },
+      {
+        "timestamp": "12/15/2025 2:11 AM",
+        "map": "Lockout",
+        "gametype": "Oddball",
+        "winner": "Red",
+        "source_file": "20251215_022554.xlsx"
+      },
+      {
+        "timestamp": "12/15/2025 2:26 AM",
+        "map": "Sanctuary",
+        "gametype": "Team Slayer",
+        "winner": "Red",
+        "source_file": "20251215_023349.xlsx"
+      },
+      {
+        "timestamp": "12/15/2025 2:45 AM",
+        "map": "Midship",
+        "gametype": "Capture the Flag",
+        "winner": "Blue",
+        "source_file": "20251215_025851.xlsx"
+      },
+      {
+        "timestamp": "12/15/2025 2:59 AM",
+        "map": "Beaver Creek",
+        "gametype": "Team Slayer",
+        "winner": "Red",
+        "source_file": "20251215_030723.xlsx"
+      }
+    ],
+    "start_time": "12/15/2025 1:41 AM",
+    "end_time": "12/15/2025 2:59 AM"
   }
 ]

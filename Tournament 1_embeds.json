@@ -1152,50 +1152,572 @@
     }
   },
   {
-    "filename": "20251214_212841.xlsx",
-    "timestamp": "12/14/2025 9:21 PM",
-    "map": "Beaver Creek",
-    "gametype": "Team Slayer",
-    "score": "49-50",
-    "winner": "BLUE",
+    "filename": "20251215_001405.xlsx",
+    "timestamp": "12/15/2025 12:01 AM",
+    "map": "Midship",
+    "gametype": "Capture the Flag",
+    "score": "3-3",
+    "winner": "TIE",
     "red_team": {
       "player_names": [
-        "EpiiiC",
-        "Hammie",
-        "show5topper",
-        "Tech"
+        "I2aMpAnT",
+        "bbwelchs",
+        "Keylord",
+        "sneakybeav3r"
       ],
       "player_ids": [
-        111190770756657152,
-        132652800378142720,
-        165626999891689474,
-        260603669924413441
+        884896715432411178,
+        598584495641198592,
+        269681242335739905,
+        274372368686776321
       ],
       "player_ranks": [
-        8,
-        8,
-        8,
-        8
+        1,
+        1,
+        1,
+        2
       ]
     },
     "blue_team": {
       "player_names": [
+        "Rinser",
+        "Hyrax",
+        "Hammie",
+        "GuNShoT"
+      ],
+      "player_ids": [
+        210187331066396672,
+        1136095104663306240,
+        132652800378142720,
+        237407163822112769
+      ],
+      "player_ranks": [
+        7,
+        8,
+        8,
+        1
+      ]
+    }
+  },
+  {
+    "filename": "20251215_002518.xlsx",
+    "timestamp": "12/15/2025 12:25 AM",
+    "map": "Midship",
+    "gametype": "Capture the Flag",
+    "score": "0-0",
+    "winner": "TIE",
+    "red_team": {
+      "player_names": [
+        "I2aMpAnT"
+      ],
+      "player_ids": [
+        884896715432411178
+      ],
+      "player_ranks": [
+        1
+      ]
+    },
+    "blue_team": {
+      "player_names": [],
+      "player_ids": [],
+      "player_ranks": []
+    }
+  },
+  {
+    "filename": "20251215_003500.xlsx",
+    "timestamp": "12/15/2025 12:31 AM",
+    "map": "Midship",
+    "gametype": "Capture the Flag",
+    "score": "1-2",
+    "winner": "BLUE",
+    "red_team": {
+      "player_names": [
+        "bbwelchs",
+        "sneakybeav3r",
+        "Keylord",
+        "I2aMpAnT"
+      ],
+      "player_ids": [
+        598584495641198592,
+        274372368686776321,
+        269681242335739905,
+        884896715432411178
+      ],
+      "player_ranks": [
+        1,
+        2,
+        1,
+        1
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "Rinser",
+        "Hyrax",
+        "Hammie",
+        "GuNShoT"
+      ],
+      "player_ids": [
+        210187331066396672,
+        1136095104663306240,
+        132652800378142720,
+        237407163822112769
+      ],
+      "player_ranks": [
+        7,
+        8,
+        8,
+        1
+      ]
+    }
+  },
+  {
+    "filename": "20251215_004148.xlsx",
+    "timestamp": "12/15/2025 12:35 AM",
+    "map": "Beaver Creek",
+    "gametype": "Team Slayer",
+    "score": "38-50",
+    "winner": "BLUE",
+    "red_team": {
+      "player_names": [
+        "I2aMpAnT",
+        "sneakybeav3r",
+        "bbwelchs",
+        "Keylord"
+      ],
+      "player_ids": [
+        884896715432411178,
+        274372368686776321,
+        598584495641198592,
+        269681242335739905
+      ],
+      "player_ranks": [
+        1,
+        2,
+        1,
+        1
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "GuNShoT",
+        "Hyrax",
+        "Rinser",
+        "Hammie"
+      ],
+      "player_ids": [
+        237407163822112769,
+        1136095104663306240,
+        210187331066396672,
+        132652800378142720
+      ],
+      "player_ranks": [
+        2,
+        9,
+        8,
+        9
+      ]
+    }
+  },
+  {
+    "filename": "20251215_005651.xlsx",
+    "timestamp": "12/15/2025 12:42 AM",
+    "map": "Lockout",
+    "gametype": "Oddball",
+    "score": "189-235",
+    "winner": "BLUE",
+    "red_team": {
+      "player_names": [
+        "bbwelchs",
+        "Keylord",
+        "I2aMpAnT",
+        "sneakybeav3r"
+      ],
+      "player_ids": [
+        598584495641198592,
+        269681242335739905,
+        884896715432411178,
+        274372368686776321
+      ],
+      "player_ranks": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "Hammie",
+        "Hyrax",
+        "Rinser",
+        "GuNShoT"
+      ],
+      "player_ids": [
+        132652800378142720,
+        1136095104663306240,
+        210187331066396672,
+        237407163822112769
+      ],
+      "player_ranks": [
+        10,
+        10,
+        9,
+        3
+      ]
+    }
+  },
+  {
+    "filename": "20251215_011357.xlsx",
+    "timestamp": "12/15/2025 12:58 AM",
+    "map": "Midship",
+    "gametype": "Team Slayer",
+    "score": "0-0",
+    "winner": "TIE",
+    "red_team": {
+      "player_names": [],
+      "player_ids": [],
+      "player_ranks": []
+    },
+    "blue_team": {
+      "player_names": [],
+      "player_ids": [],
+      "player_ranks": []
+    }
+  },
+  {
+    "filename": "20251215_012921.xlsx",
+    "timestamp": "12/15/2025 1:14 AM",
+    "map": "Midship",
+    "gametype": "Team Slayer",
+    "score": "0-0",
+    "winner": "TIE",
+    "red_team": {
+      "player_names": [],
+      "player_ids": [],
+      "player_ranks": []
+    },
+    "blue_team": {
+      "player_names": [],
+      "player_ids": [],
+      "player_ranks": []
+    }
+  },
+  {
+    "filename": "20251215_013853.xlsx",
+    "timestamp": "12/15/2025 1:30 AM",
+    "map": "Midship",
+    "gametype": "Team Slayer",
+    "score": "0-0",
+    "winner": "TIE",
+    "red_team": {
+      "player_names": [
+        "nan",
+        "nan",
+        "nan"
+      ],
+      "player_ids": [
+        null,
+        null,
+        null
+      ],
+      "player_ranks": [
+        1,
+        1,
+        1
+      ]
+    },
+    "blue_team": {
+      "player_names": [],
+      "player_ids": [],
+      "player_ranks": []
+    }
+  },
+  {
+    "filename": "20251215_020344.xlsx",
+    "timestamp": "12/15/2025 1:41 AM",
+    "map": "Midship",
+    "gametype": "Assault",
+    "score": "1-2",
+    "winner": "BLUE",
+    "red_team": {
+      "player_names": [
+        "gravemindh2",
         "fluhd",
-        "squattingxbear",
-        "benforrrd",
+        "sneakybeav3r",
+        "KidMode"
+      ],
+      "player_ids": [
+        null,
+        334212655613214721,
+        274372368686776321,
+        293507586131492864
+      ],
+      "player_ranks": [
+        1,
+        8,
+        1,
+        2
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "I2aMpAnT",
+        "Hammie",
+        "Hyrax",
+        "GuNShoT"
+      ],
+      "player_ids": [
+        884896715432411178,
+        132652800378142720,
+        1136095104663306240,
+        237407163822112769
+      ],
+      "player_ranks": [
+        1,
+        11,
+        11,
+        4
+      ]
+    }
+  },
+  {
+    "filename": "20251215_021119.xlsx",
+    "timestamp": "12/15/2025 2:06 AM",
+    "map": "Warlock",
+    "gametype": "Team Slayer",
+    "score": "50-41",
+    "winner": "RED",
+    "red_team": {
+      "player_names": [
+        "KidMode",
+        "fluhd",
+        "sneakybeav3r",
+        "gravemindh2"
+      ],
+      "player_ids": [
+        293507586131492864,
+        334212655613214721,
+        274372368686776321,
+        null
+      ],
+      "player_ranks": [
+        2,
+        8,
+        1,
+        1
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "GuNShoT",
+        "Hyrax",
+        "Hammie",
+        "I2aMpAnT"
+      ],
+      "player_ids": [
+        237407163822112769,
+        1136095104663306240,
+        132652800378142720,
+        884896715432411178
+      ],
+      "player_ranks": [
+        5,
+        12,
+        12,
+        2
+      ]
+    }
+  },
+  {
+    "filename": "20251215_022554.xlsx",
+    "timestamp": "12/15/2025 2:11 AM",
+    "map": "Lockout",
+    "gametype": "Oddball",
+    "score": "263-192",
+    "winner": "RED",
+    "red_team": {
+      "player_names": [
+        "gravemindh2",
+        "KidMode",
+        "fluhd",
+        "sneakybeav3r"
+      ],
+      "player_ids": [
+        null,
+        293507586131492864,
+        334212655613214721,
+        274372368686776321
+      ],
+      "player_ranks": [
+        2,
+        3,
+        9,
+        2
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "Hammie",
+        "I2aMpAnT",
+        "GuNShoT",
         "Hyrax"
       ],
       "player_ids": [
-        334212655613214721,
-        174522691917840384,
-        1179648030375424032,
+        132652800378142720,
+        884896715432411178,
+        237407163822112769,
         1136095104663306240
       ],
       "player_ranks": [
-        8,
-        8,
-        8,
-        8
+        11,
+        2,
+        5,
+        12
+      ]
+    }
+  },
+  {
+    "filename": "20251215_023349.xlsx",
+    "timestamp": "12/15/2025 2:26 AM",
+    "map": "Sanctuary",
+    "gametype": "Team Slayer",
+    "score": "50-45",
+    "winner": "RED",
+    "red_team": {
+      "player_names": [
+        "gravemindh2",
+        "fluhd",
+        "sneakybeav3r",
+        "KidMode"
+      ],
+      "player_ids": [
+        null,
+        334212655613214721,
+        274372368686776321,
+        293507586131492864
+      ],
+      "player_ranks": [
+        3,
+        10,
+        3,
+        4
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "GuNShoT",
+        "I2aMpAnT",
+        "Hyrax",
+        "Hammie"
+      ],
+      "player_ids": [
+        237407163822112769,
+        884896715432411178,
+        1136095104663306240,
+        132652800378142720
+      ],
+      "player_ranks": [
+        4,
+        2,
+        11,
+        11
+      ]
+    }
+  },
+  {
+    "filename": "20251215_025851.xlsx",
+    "timestamp": "12/15/2025 2:45 AM",
+    "map": "Midship",
+    "gametype": "Capture the Flag",
+    "score": "2-5",
+    "winner": "BLUE",
+    "red_team": {
+      "player_names": [
+        "KidMode",
+        "gravemindh2",
+        "sneakybeav3r",
+        "fluhd"
+      ],
+      "player_ids": [
+        293507586131492864,
+        null,
+        274372368686776321,
+        334212655613214721
+      ],
+      "player_ranks": [
+        5,
+        4,
+        4,
+        11
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "Hammie",
+        "Hyrax",
+        "GuNShoT",
+        "I2aMpAnT"
+      ],
+      "player_ids": [
+        132652800378142720,
+        1136095104663306240,
+        237407163822112769,
+        884896715432411178
+      ],
+      "player_ranks": [
+        10,
+        11,
+        4,
+        2
+      ]
+    }
+  },
+  {
+    "filename": "20251215_030723.xlsx",
+    "timestamp": "12/15/2025 2:59 AM",
+    "map": "Beaver Creek",
+    "gametype": "Team Slayer",
+    "score": "50-49",
+    "winner": "RED",
+    "red_team": {
+      "player_names": [
+        "fluhd",
+        "KidMode",
+        "sneakybeav3r",
+        "gravemindh2"
+      ],
+      "player_ids": [
+        334212655613214721,
+        293507586131492864,
+        274372368686776321,
+        null
+      ],
+      "player_ranks": [
+        11,
+        4,
+        4,
+        4
+      ]
+    },
+    "blue_team": {
+      "player_names": [
+        "GuNShoT",
+        "Hammie",
+        "I2aMpAnT",
+        "Hyrax"
+      ],
+      "player_ids": [
+        237407163822112769,
+        132652800378142720,
+        884896715432411178,
+        1136095104663306240
+      ],
+      "player_ranks": [
+        5,
+        11,
+        3,
+        12
       ]
     }
   }
