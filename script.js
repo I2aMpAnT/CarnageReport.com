@@ -4743,7 +4743,7 @@ function renderWeaponSearchResults(weaponName) {
         const playerInfo = discordId ? playerEmblems[discordId] : null;
         const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(name);
         const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
-        const rank = getRankForPlayer(name);
+        const rank = getRankForProfile(name);
 
         let itemHtml = `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
         itemHtml += `<span class="breakdown-rank">#${index + 1}</span>`;
@@ -6852,7 +6852,7 @@ function showWeaponLeaderboard(weaponName) {
             const playerInfo = discordId ? playerEmblems[discordId] : null;
             const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(player);
             const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
-            const rank = getRankForPlayer(player);
+            const rank = getRankForProfile(player);
 
             html += `<div class="weapon-lb-row">`;
             html += `<span class="weapon-lb-rank">#${i + 1}</span>`;
@@ -6884,7 +6884,7 @@ function showWeaponLeaderboard(weaponName) {
             const playerInfo = discordId ? playerEmblems[discordId] : null;
             const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(player);
             const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
-            const rank = getRankForPlayer(player);
+            const rank = getRankForProfile(player);
 
             html += `<div class="weapon-lb-row">`;
             html += `<span class="weapon-lb-rank">#${i + 1}</span>`;
