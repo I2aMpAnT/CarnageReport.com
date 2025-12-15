@@ -4550,6 +4550,7 @@ function renderWeaponSearchResults(weaponName) {
     let playerDeathStats = {};
     let playerAccuracyStats = {};  // { playerName: { hit: 0, fired: 0 } }
     let playerHeadshotStats = {}; // { playerName: { headshots: 0, kills: 0 } }
+    let playerHeldTimeStats = {}; // { playerName: seconds }
     let mapWeaponKills = {};
     let gametypeWeaponKills = {};
     let totalKills = 0;
@@ -4620,6 +4621,7 @@ function renderWeaponSearchResults(weaponName) {
                     const playerName = playerWeapons.Player;
                     let playerHit = 0, playerFired = 0;
                     let playerHeadshots = 0, playerWeaponKills = 0;
+                    let playerHeldTime = 0;
 
                     Object.keys(playerWeapons).forEach(key => {
                         const keyLower = key.toLowerCase();
@@ -4646,6 +4648,8 @@ function renderWeaponSearchResults(weaponName) {
                                 playerFired += parseInt(playerWeapons[key]) || 0;
                             } else if (keyLower.includes('headshot')) {
                                 playerHeadshots += parseInt(playerWeapons[key]) || 0;
+                            } else if (keyLower.includes('time')) {
+                                playerHeldTime += parseInt(playerWeapons[key]) || 0;
                             }
                         }
                     });
@@ -4667,6 +4671,14 @@ function renderWeaponSearchResults(weaponName) {
                         playerHeadshotStats[playerName].headshots += playerHeadshots;
                         playerHeadshotStats[playerName].kills += playerWeaponKills;
                     }
+
+                    // Track held time
+                    if (playerName && playerHeldTime > 0) {
+                        if (!playerHeldTimeStats[playerName]) {
+                            playerHeldTimeStats[playerName] = 0;
+                        }
+                        playerHeldTimeStats[playerName] += playerHeldTime;
+                    }
                 });
             }
 
@@ -4687,6 +4699,8 @@ function renderWeaponSearchResults(weaponName) {
     const topHeadshots = Object.entries(playerHeadshotStats)
         .map(([name, data]) => [name, data.kills > 0 ? (data.headshots / data.kills * 100) : 0, data])
         .sort((a, b) => b[1] - a[1]);
+    const topHeldTime = Object.entries(playerHeldTimeStats).sort((a, b) => b[1] - a[1]);
+    const hasHeldTimeData = topHeldTime.length > 0;
 
     window.currentSearchContext = formatWeaponName(weaponName);
 
@@ -4709,13 +4723,16 @@ function renderWeaponSearchResults(weaponName) {
     // Tabbed leaderboard
     html += '<div class="weapon-leaderboard-tabs">';
     html += '<div class="accuracy-tabs">';
-    html += '<button class="accuracy-tab-btn active" onclick="switchWeaponLeaderboardTab(\'kills\')">Kills With</button>';
-    html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(\'deaths\')">Killed By</button>';
+    html += '<button class="accuracy-tab-btn active" onclick="switchWeaponLeaderboardTab(this, \'kills\')">Kills With</button>';
+    html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(this, \'deaths\')">Killed By</button>';
     if (!isMeleeSearch) {
-        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(\'accuracy\')">Accuracy</button>';
+        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(this, \'accuracy\')">Accuracy</button>';
     }
     if (isPrecisionWeapon) {
-        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(\'headshots\')">Headshot %</button>';
+        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(this, \'headshots\')">Headshot %</button>';
+    }
+    if (hasHeldTimeData) {
+        html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(this, \'heldtime\')">Held Time</button>';
     }
     html += '</div>';
 
@@ -4790,6 +4807,20 @@ function renderWeaponSearchResults(weaponName) {
         html += '</div></div>';
     }
 
+    // Held Time tab
+    if (hasHeldTimeData) {
+        html += '<div id="weapon-tab-heldtime" class="weapon-tab-content" style="display:none;">';
+        html += '<div class="breakdown-list">';
+        topHeldTime.slice(0, 15).forEach(([name, seconds], index) => {
+            // Format seconds as mm:ss
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            const timeStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+            html += renderPlayerItem(name, timeStr, '', index);
+        });
+        html += '</div></div>';
+    }
+
     html += '</div>'; // End weapon-leaderboard-tabs
 
     // Breakdowns container for Map and Gametype
@@ -4842,12 +4873,12 @@ function renderWeaponSearchResults(weaponName) {
 }
 
 // Switch weapon leaderboard tabs
-window.switchWeaponLeaderboardTab = function(tabName) {
+window.switchWeaponLeaderboardTab = function(btn, tabName) {
     // Update tab buttons
-    document.querySelectorAll('.weapon-leaderboard-tabs .accuracy-tab-btn').forEach(btn => {
-        btn.classList.remove('active');
+    document.querySelectorAll('.weapon-leaderboard-tabs .accuracy-tab-btn').forEach(b => {
+        b.classList.remove('active');
     });
-    event.target.classList.add('active');
+    btn.classList.add('active');
 
     // Update tab content
     document.querySelectorAll('.weapon-tab-content').forEach(content => {

@@ -486,6 +486,9 @@ function setupEventListeners() {
     // Trails toggle button
     document.getElementById('trailsToggleBtn')?.addEventListener('click', () => toggleTrails());
 
+    // Death markers toggle button
+    document.getElementById('deathMarkersBtn')?.addEventListener('click', () => toggleDeathMarkers());
+
     // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
@@ -735,6 +738,9 @@ function onKeyDown(e) {
         case 'KeyL':
             toggleTrails();
             break;
+        case 'KeyD':
+            toggleDeathMarkers();
+            break;
         case 'KeyY':
             cycleViewMode();
             break;
@@ -849,6 +855,11 @@ let showTrails = false;
 let playerTrails = {};  // Trail line objects for each player
 let selectedTrailPlayers = new Set();  // Players with trails enabled
 
+// Death markers
+let showDeathMarkers = false;
+let deathMarkers = [];  // Array of { sprite, position, playerName, team, timeMs }
+let deathEvents = [];   // Raw death events for heatmap: { x, y, z, playerName, team, timeMs }
+
 function toggleTrails() {
     showTrails = !showTrails;
 
@@ -947,6 +958,137 @@ function populateTrailDropdown() {
             const isSelected = selected.includes(player.name);
             setPlayerTrail(player.name, isSelected);
         });
+    });
+}
+
+// Death marker functions
+function toggleDeathMarkers() {
+    showDeathMarkers = !showDeathMarkers;
+
+    if (showDeathMarkers) {
+        buildDeathMarkers();
+    }
+
+    // Update visibility of all death markers
+    deathMarkers.forEach(marker => {
+        marker.sprite.visible = showDeathMarkers && marker.timeMs <= currentTimeMs;
+    });
+
+    updateDeathMarkersButton();
+}
+
+function updateDeathMarkersButton() {
+    const btn = document.getElementById('deathMarkersBtn');
+    if (btn) {
+        btn.classList.toggle('active', showDeathMarkers);
+    }
+}
+
+function createDeathMarkerSprite(color = 0xff0000) {
+    // Create canvas for red X
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+
+    // Draw red X
+    ctx.strokeStyle = '#ff0000';
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+
+    // X shape
+    ctx.beginPath();
+    ctx.moveTo(12, 12);
+    ctx.lineTo(52, 52);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(52, 12);
+    ctx.lineTo(12, 52);
+    ctx.stroke();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+
+    const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: false
+    });
+
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(1.5, 1.5, 1);  // Medium size
+
+    return sprite;
+}
+
+function buildDeathMarkers() {
+    // Clear existing death markers from scene
+    deathMarkers.forEach(marker => {
+        scene.remove(marker.sprite);
+        marker.sprite.material.map.dispose();
+        marker.sprite.material.dispose();
+    });
+    deathMarkers = [];
+    deathEvents = [];
+
+    // Track last death count for each player
+    const lastDeaths = {};
+
+    // Parse telemetry for death events
+    for (const row of telemetryData) {
+        const playerName = row.playerName;
+        const currentDeaths = row.deaths || 0;
+        const prevDeaths = lastDeaths[playerName] || 0;
+
+        // Death occurred when death count increases
+        if (currentDeaths > prevDeaths) {
+            const player = players.find(p => p.name === playerName);
+            const team = player?.team || 'none';
+
+            // Halo X->Three X, Halo Z->Three Y, Halo Y->Three Z
+            const deathPos = {
+                x: row.x,
+                y: row.z + 0.5,  // Slightly above ground
+                z: row.y
+            };
+
+            // Store death event for heatmap
+            deathEvents.push({
+                x: deathPos.x,
+                y: deathPos.y,
+                z: deathPos.z,
+                playerName,
+                team,
+                timeMs: row.gameTimeMs
+            });
+
+            // Create sprite
+            const sprite = createDeathMarkerSprite();
+            sprite.position.set(deathPos.x, deathPos.y, deathPos.z);
+            sprite.visible = showDeathMarkers && row.gameTimeMs <= currentTimeMs;
+            scene.add(sprite);
+
+            deathMarkers.push({
+                sprite,
+                position: deathPos,
+                playerName,
+                team,
+                timeMs: row.gameTimeMs
+            });
+        }
+
+        lastDeaths[playerName] = currentDeaths;
+    }
+
+    console.log(`Created ${deathMarkers.length} death markers`);
+}
+
+function updateDeathMarkersVisibility() {
+    if (!showDeathMarkers) return;
+
+    deathMarkers.forEach(marker => {
+        marker.sprite.visible = marker.timeMs <= currentTimeMs;
     });
 }
 
@@ -1550,28 +1692,45 @@ async function createPlayerMarkers() {
 
         if (spartanModel) {
             // Clone the loaded MasterChief model (use SkeletonUtils for skinned meshes)
-            spartanClone = SkeletonUtils.clone(spartanModel);
+            try {
+                spartanClone = SkeletonUtils.clone(spartanModel);
 
-            // Apply team color to the model materials
-            spartanClone.traverse((child) => {
-                if (child.isMesh) {
-                    // Clone the material to avoid affecting other players
-                    child.material = child.material.clone();
-                    child.material.color.setHex(player.color);
-                    child.material.emissive = new THREE.Color(player.color);
-                    child.material.emissiveIntensity = 0.15;
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                }
-            });
+                // Apply team color to the model materials
+                spartanClone.traverse((child) => {
+                    if (child.isMesh) {
+                        // Handle both single materials and material arrays
+                        if (Array.isArray(child.material)) {
+                            child.material = child.material.map(mat => {
+                                const clonedMat = mat.clone();
+                                clonedMat.color.setHex(player.color);
+                                clonedMat.emissive = new THREE.Color(player.color);
+                                clonedMat.emissiveIntensity = 0.2;
+                                return clonedMat;
+                            });
+                        } else {
+                            child.material = child.material.clone();
+                            child.material.color.setHex(player.color);
+                            child.material.emissive = new THREE.Color(player.color);
+                            child.material.emissiveIntensity = 0.2;
+                        }
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
 
-            // Scale and position the model appropriately
-            spartanClone.scale.set(1.5, 1.5, 1.5);  // Scale up for visibility
-            spartanClone.position.y = 0;  // Ensure model is at ground level
-            modelContainer.add(spartanClone);
+                // Scale and position the model appropriately
+                spartanClone.scale.set(0.02, 0.02, 0.02);  // Adjust scale for typical GLB models
+                spartanClone.position.y = 0;
+                modelContainer.add(spartanClone);
 
-            console.log('Added Spartan model for player:', player.name);
-        } else {
+                console.log('Added Spartan model for player:', player.name);
+            } catch (cloneError) {
+                console.warn('Failed to clone Spartan model, using fallback:', cloneError);
+                spartanClone = null;
+            }
+        }
+
+        if (!spartanClone) {
             // Fallback geometry if model failed to load
             const bodyGeometry = new THREE.CylinderGeometry(
                 CONFIG.playerMarkerSize * 0.4,
@@ -2118,6 +2277,7 @@ function animate() {
         updateTimeDisplay();
         updatePlayerPositions();
         updateTrails();
+        updateDeathMarkersVisibility();
     }
 
     // Update orbit controls
