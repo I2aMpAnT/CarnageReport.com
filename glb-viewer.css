@@ -393,6 +393,52 @@ body {
     border-color: #00c8ff;
 }
 
+/* Trails Control */
+.trails-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.trail-select {
+    background: rgba(20, 20, 35, 0.95);
+    border: 1px solid rgba(0, 200, 255, 0.3);
+    color: #fff;
+    padding: 4px;
+    border-radius: 4px;
+    font-family: 'Overpass', sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    min-width: 120px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.trail-select option {
+    padding: 6px 8px;
+    cursor: pointer;
+}
+
+.trail-select option:checked {
+    background: rgba(0, 170, 255, 0.4);
+    color: #fff;
+}
+
+.trail-select option.red-player {
+    color: #ff6b6b;
+}
+
+.trail-select option.blue-player {
+    color: #6bb5ff;
+}
+
+#trailsToggleBtn.active {
+    background: rgba(0, 170, 255, 0.3);
+    border-color: rgba(0, 170, 255, 0.6);
+    color: #00aaff;
+}
+
 /* Stats Panel */
 .stats-panel {
     position: absolute;
@@ -1576,39 +1622,6 @@ body {
     filter: brightness(0) invert(1) opacity(0.9);
     margin-left: auto;
     flex-shrink: 0;
-}
-
-/* Trail toggle button in scoreboard */
-.trail-toggle {
-    width: 22px;
-    height: 22px;
-    padding: 2px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    flex-shrink: 0;
-}
-
-.trail-toggle:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.trail-toggle.active {
-    background: rgba(0, 170, 255, 0.3);
-    border-color: rgba(0, 170, 255, 0.6);
-    color: #00aaff;
-}
-
-.trail-toggle svg {
-    width: 14px;
-    height: 14px;
 }
 
 /* Player K/D display */
