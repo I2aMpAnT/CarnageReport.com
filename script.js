@@ -6746,6 +6746,10 @@ function getAllWeapons() {
     });
     // Add melee as a searchable weapon (calculated from medals)
     weapons.add('melee');
+    // Add objective items explicitly (flag, bomb, oddball)
+    weapons.add('flag');
+    weapons.add('bomb');
+    weapons.add('oddball');
     return Array.from(weapons).sort();
 }
 
