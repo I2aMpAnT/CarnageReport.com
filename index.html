@@ -53,6 +53,7 @@
             <div class="main-tab-navigation">
                 <button class="main-tab-btn active" id="btn-main-gamehistory" onclick="switchMainTab('gamehistory')">Game History</button>
                 <button class="main-tab-btn" id="btn-main-leaderboard" onclick="switchMainTab('leaderboard')">Leaderboard</button>
+                <button class="main-tab-btn" id="btn-main-tournaments" onclick="switchMainTab('tournaments')">Tournaments</button>
                 <button class="main-tab-btn" id="btn-main-pvp" onclick="switchMainTab('pvp')">PVP</button>
                 <button class="main-tab-btn" id="btn-main-twitch" onclick="switchMainTab('twitch')">Twitch</button>
                 <button class="main-tab-btn" id="btn-main-emblem" onclick="switchMainTab('emblem')">Emblem Generator</button>
@@ -96,6 +97,13 @@
                     </select>
                 </div>
                 <div id="leaderboardContainer"></div>
+            </div>
+
+            <div id="main-tab-tournaments" class="main-tab-content" style="display: none;">
+                <div class="tournaments-container">
+                    <h2 class="tournaments-title">Tournaments</h2>
+                    <div id="tournamentsList" class="tournaments-list"></div>
+                </div>
             </div>
 
             <div id="main-tab-pvp" class="main-tab-content" style="display: none;">
