@@ -4143,8 +4143,11 @@ function openSearchResultsPage(type, name) {
     window.scrollTo(0, 0);
     
     if (type === 'player') {
-        searchResultsTitle.innerHTML = `${getPlayerRankIcon(name, 'small')} ${getDisplayNameForProfile(name)}`;
-        searchResultsContent.innerHTML = renderPlayerSearchResults(name);
+        // Use the unified player profile page instead of separate search results
+        searchResultsPage.style.display = 'none';
+        statsArea.style.display = 'none';
+        openPlayerProfile(name);
+        return;
     } else if (type === 'map') {
         const mapImage = mapImages[name] || defaultMapImage;
         searchResultsTitle.innerHTML = `<img src="${mapImage}" class="title-map-icon" alt="${name}"> ${name}`;
