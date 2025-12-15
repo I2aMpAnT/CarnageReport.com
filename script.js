@@ -6930,7 +6930,7 @@ function showWeaponSearch() {
 
     for (const weapon of weapons) {
         const iconUrl = getWeaponIcon(weapon);
-        html += `<div class="weapon-breakdown-item weapon-search-item" data-weapon="${weapon}" onclick="closeMedalBreakdown(); showWeaponLeaderboard('${weapon}')">`;
+        html += `<div class="weapon-breakdown-item weapon-search-item" data-weapon="${weapon}" onclick="closeMedalBreakdown(); openSearchResultsPage('weapon', '${weapon.replace(/'/g, "\\'")}')">`;
         if (iconUrl) {
             html += `<img src="${iconUrl}" alt="${weapon}" class="weapon-breakdown-icon">`;
         } else {

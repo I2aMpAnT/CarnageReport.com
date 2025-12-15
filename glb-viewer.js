@@ -489,6 +489,9 @@ function setupEventListeners() {
     // Death markers toggle button
     document.getElementById('deathMarkersBtn')?.addEventListener('click', () => toggleDeathMarkers());
 
+    // Heatmap toggle button
+    document.getElementById('heatmapBtn')?.addEventListener('click', () => toggleHeatmap());
+
     // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
@@ -741,6 +744,9 @@ function onKeyDown(e) {
         case 'KeyD':
             toggleDeathMarkers();
             break;
+        case 'KeyH':
+            toggleHeatmap();
+            break;
         case 'KeyY':
             cycleViewMode();
             break;
@@ -798,8 +804,8 @@ function populateScoreboard() {
         const kills = pos.kills || 0;
         const deaths = pos.deaths || 0;
 
-        // Check if player is dead
-        const isDead = marker && marker.deadUntil && currentTimeMs < marker.deadUntil;
+        // Check if player is dead using telemetry isDead field
+        const isDead = pos.isDead || false;
 
         const playerDiv = document.createElement('div');
         playerDiv.className = 'scoreboard-player' + (isDead ? ' dead' : '');
@@ -809,9 +815,9 @@ function populateScoreboard() {
             ? `<img src="${weaponIconUrl}" class="player-weapon-icon" alt="${weaponName}" title="${weaponName}" onerror="this.outerHTML='<span class=\\'player-weapon\\'>${weaponName}</span>'" />`
             : `<span class="player-weapon">${weaponName}</span>`;
 
-        // Emblem or death X
+        // Emblem or death X (no background for dead X)
         const emblemHtml = isDead
-            ? `<div class="player-emblem dead-emblem"><span class="dead-x">✕</span></div>`
+            ? `<span class="dead-x">✕</span>`
             : `<img src="${emblemUrl}" class="player-emblem" onerror="this.style.display='none'" />`;
 
         playerDiv.innerHTML = `
@@ -859,6 +865,13 @@ let selectedTrailPlayers = new Set();  // Players with trails enabled
 let showDeathMarkers = false;
 let deathMarkers = [];  // Array of { sprite, position, playerName, team, timeMs }
 let deathEvents = [];   // Raw death events for heatmap: { x, y, z, playerName, team, timeMs }
+
+// Heatmap
+let showHeatmap = false;
+let heatmapMesh = null;
+let heatmapCanvas = null;
+let heatmapTexture = null;
+let heatmapBounds = null;  // { minX, maxX, minZ, maxZ }
 
 function toggleTrails() {
     showTrails = !showTrails;
@@ -1090,6 +1103,145 @@ function updateDeathMarkersVisibility() {
     deathMarkers.forEach(marker => {
         marker.sprite.visible = marker.timeMs <= currentTimeMs;
     });
+}
+
+// Heatmap functions
+function toggleHeatmap() {
+    showHeatmap = !showHeatmap;
+
+    if (showHeatmap) {
+        buildHeatmap();
+    }
+
+    if (heatmapMesh) {
+        heatmapMesh.visible = showHeatmap;
+    }
+
+    updateHeatmapButton();
+
+    if (showHeatmap) {
+        updateHeatmap();
+    }
+}
+
+function updateHeatmapButton() {
+    const btn = document.getElementById('heatmapBtn');
+    if (btn) {
+        btn.classList.toggle('active', showHeatmap);
+    }
+}
+
+function buildHeatmap() {
+    // First, collect death events if not already done
+    if (deathEvents.length === 0) {
+        buildDeathMarkers();
+    }
+
+    if (deathEvents.length === 0) {
+        console.log('No death events for heatmap');
+        return;
+    }
+
+    // Calculate bounds from all death positions
+    let minX = Infinity, maxX = -Infinity;
+    let minZ = Infinity, maxZ = -Infinity;
+
+    deathEvents.forEach(event => {
+        minX = Math.min(minX, event.x);
+        maxX = Math.max(maxX, event.x);
+        minZ = Math.min(minZ, event.z);
+        maxZ = Math.max(maxZ, event.z);
+    });
+
+    // Add padding
+    const padding = 10;
+    minX -= padding;
+    maxX += padding;
+    minZ -= padding;
+    maxZ += padding;
+
+    heatmapBounds = { minX, maxX, minZ, maxZ };
+
+    // Create canvas for heatmap
+    const canvasSize = 512;
+    heatmapCanvas = document.createElement('canvas');
+    heatmapCanvas.width = canvasSize;
+    heatmapCanvas.height = canvasSize;
+
+    // Create texture and mesh
+    heatmapTexture = new THREE.CanvasTexture(heatmapCanvas);
+    heatmapTexture.colorSpace = THREE.SRGBColorSpace;
+
+    const width = maxX - minX;
+    const height = maxZ - minZ;
+    const geometry = new THREE.PlaneGeometry(width, height);
+    const material = new THREE.MeshBasicMaterial({
+        map: heatmapTexture,
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+        depthWrite: false
+    });
+
+    // Remove old heatmap if exists
+    if (heatmapMesh) {
+        scene.remove(heatmapMesh);
+        heatmapMesh.geometry.dispose();
+        heatmapMesh.material.dispose();
+    }
+
+    heatmapMesh = new THREE.Mesh(geometry, material);
+    heatmapMesh.rotation.x = -Math.PI / 2;  // Lay flat
+    heatmapMesh.position.set((minX + maxX) / 2, 0.5, (minZ + maxZ) / 2);
+    heatmapMesh.visible = showHeatmap;
+    scene.add(heatmapMesh);
+
+    console.log(`Heatmap created with ${deathEvents.length} death events`);
+}
+
+function updateHeatmap() {
+    if (!showHeatmap || !heatmapCanvas || !heatmapBounds) return;
+
+    const ctx = heatmapCanvas.getContext('2d');
+    const canvasSize = heatmapCanvas.width;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvasSize, canvasSize);
+
+    // Get death events up to current time
+    const activeDeaths = deathEvents.filter(e => e.timeMs <= currentTimeMs);
+
+    if (activeDeaths.length === 0) {
+        if (heatmapTexture) heatmapTexture.needsUpdate = true;
+        return;
+    }
+
+    const { minX, maxX, minZ, maxZ } = heatmapBounds;
+    const width = maxX - minX;
+    const height = maxZ - minZ;
+
+    // Draw each death as a radial gradient
+    const radius = 30;  // Radius in pixels
+
+    activeDeaths.forEach(event => {
+        // Convert world coords to canvas coords
+        const canvasX = ((event.x - minX) / width) * canvasSize;
+        const canvasY = ((event.z - minZ) / height) * canvasSize;
+
+        // Create radial gradient (red/orange heat effect)
+        const gradient = ctx.createRadialGradient(canvasX, canvasY, 0, canvasX, canvasY, radius);
+        gradient.addColorStop(0, 'rgba(255, 0, 0, 0.4)');
+        gradient.addColorStop(0.4, 'rgba(255, 100, 0, 0.25)');
+        gradient.addColorStop(1, 'rgba(255, 200, 0, 0)');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(canvasX - radius, canvasY - radius, radius * 2, radius * 2);
+    });
+
+    // Update texture
+    if (heatmapTexture) {
+        heatmapTexture.needsUpdate = true;
+    }
 }
 
 function initializeTrails() {
@@ -1836,20 +1988,16 @@ function createWaypointCanvas(text, color, emblemImage = null, isDead = false) {
     ctx.closePath();
     ctx.fill();
 
-    // Draw emblem box background (white, no border)
+    // Draw emblem box background (white, no border) - only for alive players
     const boxX = 14;
     const boxY = 10;
     const boxSize = 100;
 
-    // White background
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fillRect(boxX, boxY, boxSize, boxSize);
-
     // Draw emblem or death X
     if (isDead) {
-        // Draw bold red X for dead players
+        // Draw bold red X for dead players (no background)
         ctx.strokeStyle = '#ff0000';
-        ctx.lineWidth = 12;
+        ctx.lineWidth = 14;
         ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(boxX + 15, boxY + 15);
@@ -1858,6 +2006,9 @@ function createWaypointCanvas(text, color, emblemImage = null, isDead = false) {
         ctx.lineTo(boxX + 15, boxY + boxSize - 15);
         ctx.stroke();
     } else if (emblemImage && emblemImage.complete) {
+        // White background only for emblem
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        ctx.fillRect(boxX, boxY, boxSize, boxSize);
         ctx.drawImage(emblemImage, boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
     } else {
         // Draw player initial as fallback
@@ -1943,18 +2094,8 @@ function updatePlayerPositions() {
 
             marker.group.visible = true;
 
-            // Track death state - check if deaths increased recently
-            const prevDeaths = marker.lastDeaths || 0;
-            const currentDeaths = pos.deaths || 0;
-            const justDied = currentDeaths > prevDeaths;
-
-            // Set dead state if deaths increased, clear after ~3 seconds
-            if (justDied) {
-                marker.deadUntil = currentTimeMs + 3000;
-            }
-            marker.lastDeaths = currentDeaths;
-
-            const isDead = marker.deadUntil && currentTimeMs < marker.deadUntil;
+            // Use isDead from telemetry - player is dead until they respawn
+            const isDead = pos.isDead || false;
 
             // Update waypoint canvas if death state changed
             if (marker.wasDead !== isDead) {
@@ -2278,6 +2419,7 @@ function animate() {
         updatePlayerPositions();
         updateTrails();
         updateDeathMarkersVisibility();
+        updateHeatmap();
     }
 
     // Update orbit controls
