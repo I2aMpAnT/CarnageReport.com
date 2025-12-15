@@ -43,7 +43,7 @@
       "bracket": {
         "type": "double_elimination",
         "teams": [
-          {"seed": 1, "name": "con", "captain": "Con"},
+          {"seed": 1, "name": "con", "captain": "cOn"},
           {"seed": 2, "name": "epiiic", "captain": "EpiiiC"},
           {"seed": 3, "name": "sneaky", "captain": "sneakybeav3r"},
           {"seed": 4, "name": "flood", "captain": "fluhd"}
