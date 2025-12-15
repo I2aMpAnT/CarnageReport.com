@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 // ===== Configuration =====
 const CONFIG = {
@@ -1504,8 +1505,8 @@ async function createPlayerMarkers() {
         let spartanClone = null;
 
         if (spartanModel) {
-            // Clone the loaded MasterChief model
-            spartanClone = spartanModel.clone();
+            // Clone the loaded MasterChief model (use SkeletonUtils for skinned meshes)
+            spartanClone = SkeletonUtils.clone(spartanModel);
 
             // Apply team color to the model materials
             spartanClone.traverse((child) => {
