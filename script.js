@@ -4740,8 +4740,8 @@ function renderWeaponSearchResults(weaponName) {
     const renderPlayerItem = (name, statValue, statLabel, index) => {
         const displayName = getDisplayNameForProfile(name);
         const discordId = profileNameToDiscordId[name];
-        const playerInfo = discordId ? playersData.players?.find(p => p.discord_id === discordId) : null;
-        const emblemUrl = playerInfo?.emblem_url || getPlayerEmblemUrl(name);
+        const playerInfo = discordId ? playerEmblems[discordId] : null;
+        const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(name);
         const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
         const rank = getRankForPlayer(name);
 
@@ -6849,8 +6849,8 @@ function showWeaponLeaderboard(weaponName) {
             const [player, kills] = topKillers[i];
             const displayName = getDisplayNameForProfile(player);
             const discordId = profileNameToDiscordId[player];
-            const playerInfo = discordId ? playersData.players?.find(p => p.discord_id === discordId) : null;
-            const emblemUrl = playerInfo?.emblem_url || getPlayerEmblemUrl(player);
+            const playerInfo = discordId ? playerEmblems[discordId] : null;
+            const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(player);
             const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
             const rank = getRankForPlayer(player);
 
@@ -6881,8 +6881,8 @@ function showWeaponLeaderboard(weaponName) {
             const [player, deaths] = topVictims[i];
             const displayName = getDisplayNameForProfile(player);
             const discordId = profileNameToDiscordId[player];
-            const playerInfo = discordId ? playersData.players?.find(p => p.discord_id === discordId) : null;
-            const emblemUrl = playerInfo?.emblem_url || getPlayerEmblemUrl(player);
+            const playerInfo = discordId ? playerEmblems[discordId] : null;
+            const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(player);
             const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
             const rank = getRankForPlayer(player);
 
