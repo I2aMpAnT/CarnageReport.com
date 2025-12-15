@@ -492,6 +492,10 @@ function setupEventListeners() {
     // Heatmap toggle button
     document.getElementById('heatmapBtn')?.addEventListener('click', () => toggleHeatmap());
 
+    // Controls panel toggle and collapse
+    document.getElementById('inputToggleBtn')?.addEventListener('click', toggleInputType);
+    document.getElementById('controlsCollapseBtn')?.addEventListener('click', toggleControlsPanel);
+
     // Keyboard controls
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
@@ -506,6 +510,31 @@ function setupEventListeners() {
 
     // Pointer lock
     document.addEventListener('pointerlockchange', onPointerLockChange);
+}
+
+// ===== Controls Panel =====
+let showingKeyboard = true;
+
+function toggleInputType() {
+    showingKeyboard = !showingKeyboard;
+    const keyboardControls = document.getElementById('keyboardControls');
+    const controllerControls = document.getElementById('controllerControls');
+    const inputTypeText = document.getElementById('inputTypeText');
+
+    if (showingKeyboard) {
+        keyboardControls.style.display = 'block';
+        controllerControls.style.display = 'none';
+        inputTypeText.textContent = 'Keyboard';
+    } else {
+        keyboardControls.style.display = 'none';
+        controllerControls.style.display = 'block';
+        inputTypeText.textContent = 'Controller';
+    }
+}
+
+function toggleControlsPanel() {
+    const controlsHint = document.getElementById('controls-hint');
+    controlsHint.classList.toggle('collapsed');
 }
 
 // ===== Gamepad Support =====

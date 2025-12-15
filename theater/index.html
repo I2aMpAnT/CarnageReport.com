@@ -225,9 +225,9 @@
         </div>
 
         <!-- Controls Hint (Collapsible) -->
-        <div id="controls-hint" class="controls-hint">
+        <div id="controls-hint" class="controls-hint collapsed">
             <div class="controls-header">
-                <button class="input-toggle" id="inputToggleBtn" title="Switch Input Type">
+                <button class="input-toggle" id="inputToggleBtn" title="Click to switch input type">
                     <span id="inputTypeText">Keyboard</span>
                 </button>
                 <button class="controls-collapse-btn" id="controlsCollapseBtn" title="Toggle Controls">
@@ -237,36 +237,49 @@
             <div class="controls-content" id="controlsContent">
                 <!-- Keyboard controls (default) -->
                 <div id="keyboardControls">
+                    <div class="controls-section-title">Movement</div>
                     <div><kbd>WASD</kbd> Move</div>
                     <div><kbd>Q</kbd><kbd>E</kbd> Up/Down</div>
                     <div><kbd>Shift</kbd> Sprint</div>
-                    <div><kbd>Mouse</kbd> Look</div>
-                    <div><kbd>Space</kbd> Play/Pause</div>
-                    <div><kbd>&lt;</kbd><kbd>&gt;</kbd> Skip 10s</div>
                     <div><kbd>Z</kbd> Speed Boost</div>
-                    <div><kbd>Tab</kbd> Scoreboard</div>
-                    <div><kbd>K</kbd> Killfeed</div>
-                    <div><kbd>P</kbd> Names</div>
-                    <div><kbd>L</kbd> Trails</div>
+                    <div><kbd>Mouse</kbd> Look Around</div>
+                    <div class="controls-section-title">Playback</div>
+                    <div><kbd>Space</kbd> Play/Pause</div>
+                    <div><kbd>,</kbd><kbd>.</kbd> Skip 10s</div>
+                    <div class="controls-section-title">Camera</div>
                     <div><kbd>Y</kbd> Cycle View</div>
                     <div><kbd>T</kbd> Top-Down</div>
+                    <div><kbd>F</kbd> Fullscreen</div>
                     <div><kbd>[</kbd><kbd>]</kbd> Cycle Player</div>
+                    <div class="controls-section-title">Display</div>
+                    <div><kbd>Tab</kbd> Scoreboard</div>
+                    <div><kbd>K</kbd> Killfeed</div>
+                    <div><kbd>P</kbd> Player Names</div>
+                    <div><kbd>L</kbd> Trails</div>
+                    <div><kbd>D</kbd> Death Markers</div>
+                    <div><kbd>H</kbd> Heatmap</div>
                 </div>
                 <!-- Controller controls -->
                 <div id="controllerControls" style="display: none;">
+                    <div class="controls-section-title">Movement</div>
                     <div><span class="gpad">Left Stick</span> Move</div>
                     <div><span class="gpad">Right Stick</span> Look</div>
                     <div><span class="gpad">LT</span> Sprint</div>
+                    <div><span class="gpad">RT</span> Speed Boost</div>
+                    <div class="controls-section-title">Playback</div>
                     <div><span class="gpad">A</span> Play/Pause</div>
                     <div><span class="gpad">DPad L/R</span> Skip 10s</div>
-                    <div><span class="gpad">RT</span> Speed Boost</div>
+                    <div class="controls-section-title">Camera</div>
+                    <div><span class="gpad">Y</span> Cycle View</div>
+                    <div><span class="gpad">RS Click</span> Top-Down</div>
+                    <div><span class="gpad">Start</span> Fullscreen</div>
+                    <div><span class="gpad">LB</span><span class="gpad">RB</span> Cycle Player</div>
+                    <div class="controls-section-title">Display</div>
                     <div><span class="gpad">Back</span> Scoreboard</div>
                     <div><span class="gpad">DPad Down</span> Killfeed</div>
-                    <div><span class="gpad">X</span> Names</div>
+                    <div><span class="gpad">X</span> Player Names</div>
                     <div><span class="gpad">B</span> Trails</div>
-                    <div><span class="gpad">Y</span> Cycle View</div>
-                    <div><span class="gpad">RS</span> Top-Down</div>
-                    <div><span class="gpad">LB</span><span class="gpad">RB</span> Cycle Player</div>
+                    <div><span class="gpad">DPad Up</span> Death Markers</div>
                 </div>
             </div>
         </div>
