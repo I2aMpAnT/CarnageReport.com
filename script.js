@@ -2579,11 +2579,11 @@ function renderScoreboard(game) {
 
     let html = '<div class="scoreboard">';
 
-    // Determine columns - added Emblem, Grenade, Melee columns
-    let columns = ['', 'Player', 'Score', 'K', 'D', 'A', 'G', 'M', 'K/D'];
+    // Determine columns
+    let columns = ['', 'Player', 'Score', 'K', 'D', 'A', 'K/D'];
 
-    // Build grid template - added emblem, grenade, melee columns
-    let gridTemplate = '40px 2fr 80px 50px 50px 50px 40px 40px 70px';
+    // Build grid template
+    let gridTemplate = '40px 2fr 80px 50px 50px 50px 70px';
 
     // Header
     html += `<div class="scoreboard-header" style="grid-template-columns: ${gridTemplate}">`;
@@ -2624,9 +2624,6 @@ function renderScoreboard(game) {
         html += `<div class="sb-kills">${player.kills || 0}</div>`;
         html += `<div class="sb-deaths">${player.deaths || 0}</div>`;
         html += `<div class="sb-assists">${player.assists || 0}</div>`;
-        const pWeaponStats = playerWeaponStats[player.name] || { grenadeKills: 0, meleeKills: 0 };
-        html += `<div class="sb-grenades" title="Grenade Kills">${pWeaponStats.grenadeKills}</div>`;
-        html += `<div class="sb-melee" title="Melee Kills">${pWeaponStats.meleeKills}</div>`;
         html += `<div class="sb-kd">${calculateKD(player.kills, player.deaths)}</div>`;
 
         html += '</div>';
@@ -2931,9 +2928,20 @@ function renderMedals(game) {
     html += '</div>';
     
     sortedMedals.forEach(playerMedals => {
+        // Get all medals for this player (excluding the 'player' key), sorted by count descending
+        const playerMedalEntries = Object.entries(playerMedals)
+            .filter(([medalKey, count]) => medalKey !== 'player' && (parseInt(count) || 0) > 0)
+            .sort((a, b) => (parseInt(b[1]) || 0) - (parseInt(a[1]) || 0));
+
+        // Filter to only medals we have icons for
+        const validMedals = playerMedalEntries.filter(([medalKey]) => getMedalIcon(medalKey));
+
+        // Skip players with no medals entirely
+        if (validMedals.length === 0) return;
+
         const team = playerTeams[playerMedals.player];
         const teamAttr = team ? `data-team="${team}"` : '';
-        
+
         html += `<div class="medals-row" ${teamAttr}>`;
         const medalPlayerDisplayName = getDisplayNameForProfile(playerMedals.player);
         html += `<div class="medals-player-col clickable-player" data-player="${playerMedals.player}">`;
@@ -2942,32 +2950,17 @@ function renderMedals(game) {
         html += `</div>`;
         html += `<div class="medals-icons-col">`;
 
-        // Get all medals for this player (excluding the 'player' key), sorted by count descending
-        let hasMedals = false;
-        const playerMedalEntries = Object.entries(playerMedals)
-            .filter(([medalKey, count]) => medalKey !== 'player' && (parseInt(count) || 0) > 0)
-            .sort((a, b) => (parseInt(b[1]) || 0) - (parseInt(a[1]) || 0));
-
-        playerMedalEntries.forEach(([medalKey, count]) => {
+        validMedals.forEach(([medalKey, count]) => {
             const medalCount = parseInt(count) || 0;
-
             const iconPath = getMedalIcon(medalKey);
             const medalName = formatMedalName(medalKey);
 
-            // Only display medals we have icons for (skip unknown medals)
-            if (iconPath) {
-                hasMedals = true;
-                html += `<div class="medal-badge" title="${medalName}">`;
-                html += `<img src="${iconPath}" alt="${medalName}" class="medal-icon">`;
-                html += `<span class="medal-count">x${medalCount}</span>`;
-                html += `</div>`;
-            }
+            html += `<div class="medal-badge" title="${medalName}">`;
+            html += `<img src="${iconPath}" alt="${medalName}" class="medal-icon">`;
+            html += `<span class="medal-count">x${medalCount}</span>`;
+            html += `</div>`;
         });
-        
-        if (!hasMedals) {
-            html += `<span class="no-medals">No medals</span>`;
-        }
-        
+
         html += `</div>`;
         html += `</div>`;
     });
