@@ -296,6 +296,125 @@ function setupScene() {
     window.addEventListener('resize', onWindowResize);
 }
 
+// Create skybox based on map type
+function createSkybox(mapName) {
+    // Maps that should have space-only theme (no Halo ring)
+    const spaceMaps = ['midship', 'elongation'];
+    const isSpaceMap = spaceMaps.some(m => mapName.toLowerCase().includes(m));
+
+    // Create skybox using canvas texture
+    const canvas = document.createElement('canvas');
+    canvas.width = 2048;
+    canvas.height = 2048;
+    const ctx = canvas.getContext('2d');
+
+    if (isSpaceMap) {
+        // Pure space theme - dark with lots of stars
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#000005');
+        gradient.addColorStop(0.5, '#0a0a15');
+        gradient.addColorStop(1, '#000005');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Add many stars for space maps
+        for (let i = 0; i < 3000; i++) {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const radius = Math.random() * 1.5 + 0.5;
+            const brightness = Math.random() * 155 + 100;
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${brightness}, ${brightness}, ${brightness + 30}, ${Math.random() * 0.5 + 0.5})`;
+            ctx.fill();
+        }
+
+        // Add some nebula-like glow
+        const nebula = ctx.createRadialGradient(canvas.width * 0.3, canvas.height * 0.4, 0, canvas.width * 0.3, canvas.height * 0.4, 400);
+        nebula.addColorStop(0, 'rgba(80, 50, 120, 0.15)');
+        nebula.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = nebula;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+        // Halo ring theme - blue/purple sky with ring
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#1a1a3a');
+        gradient.addColorStop(0.3, '#2a2a5a');
+        gradient.addColorStop(0.5, '#1a2a4a');
+        gradient.addColorStop(0.7, '#152535');
+        gradient.addColorStop(1, '#0a1520');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Add stars
+        for (let i = 0; i < 1500; i++) {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const radius = Math.random() * 1.2 + 0.3;
+            const brightness = Math.random() * 100 + 155;
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${brightness}, ${brightness}, ${brightness + 20}, ${Math.random() * 0.4 + 0.3})`;
+            ctx.fill();
+        }
+
+        // Draw Halo ring arc across the sky
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height * 0.3);
+
+        // Ring shadow/glow
+        ctx.strokeStyle = 'rgba(80, 150, 200, 0.3)';
+        ctx.lineWidth = 80;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, canvas.width * 0.8, canvas.height * 0.15, 0, Math.PI * 0.1, Math.PI * 0.9);
+        ctx.stroke();
+
+        // Main ring
+        const ringGradient = ctx.createLinearGradient(-canvas.width * 0.8, 0, canvas.width * 0.8, 0);
+        ringGradient.addColorStop(0, 'rgba(100, 150, 180, 0.1)');
+        ringGradient.addColorStop(0.3, 'rgba(140, 180, 200, 0.6)');
+        ringGradient.addColorStop(0.5, 'rgba(180, 210, 230, 0.8)');
+        ringGradient.addColorStop(0.7, 'rgba(140, 180, 200, 0.6)');
+        ringGradient.addColorStop(1, 'rgba(100, 150, 180, 0.1)');
+
+        ctx.strokeStyle = ringGradient;
+        ctx.lineWidth = 25;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, canvas.width * 0.8, canvas.height * 0.15, 0, Math.PI * 0.1, Math.PI * 0.9);
+        ctx.stroke();
+
+        // Ring highlight
+        ctx.strokeStyle = 'rgba(200, 230, 255, 0.4)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(0, -8, canvas.width * 0.8, canvas.height * 0.15, 0, Math.PI * 0.15, Math.PI * 0.85);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    // Create texture from canvas
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+
+    // Create large sphere for skybox
+    const skyGeometry = new THREE.SphereGeometry(500, 32, 32);
+    const skyMaterial = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.BackSide,
+        fog: false
+    });
+    const skyMesh = new THREE.Mesh(skyGeometry, skyMaterial);
+    skyMesh.name = 'skybox';
+    scene.add(skyMesh);
+
+    // Update scene background to match sky
+    scene.background = new THREE.Color(isSpaceMap ? 0x000005 : 0x1a1a3a);
+    scene.fog = new THREE.Fog(isSpaceMap ? 0x000005 : 0x1a1a3a, 100, 400);
+}
+
 function setupLighting() {
     // Strong ambient for interior visibility - key for seeing inside structures
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -673,7 +792,13 @@ function populateScoreboard() {
             ? `<img src="${weaponIconUrl}" class="player-weapon-icon" alt="${weaponName}" title="${weaponName}" onerror="this.outerHTML='<span class=\\'player-weapon\\'>${weaponName}</span>'" />`
             : `<span class="player-weapon">${weaponName}</span>`;
 
+        // Trail toggle - shows a line icon
+        const trailActive = selectedTrailPlayers.has(player.name) ? 'active' : '';
+
         playerDiv.innerHTML = `
+            <button class="trail-toggle ${trailActive}" data-player="${player.name}" onclick="event.stopPropagation(); togglePlayerTrail('${player.name}')" title="Toggle trail for ${player.name}">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M2 12h4l3-9 4 18 3-9h4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
             <img src="${emblemUrl}" class="player-emblem" onerror="this.style.display='none'" />
             <span class="player-name" style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span>
             ${weaponHtml}
@@ -711,21 +836,61 @@ function togglePlayerNames() {
 
 let showTrails = false;
 let playerTrails = {};  // Trail line objects for each player
+let selectedTrailPlayers = new Set();  // Players with trails enabled
 
 function toggleTrails() {
     showTrails = !showTrails;
 
-    // Show/hide all trail lines
-    Object.values(playerTrails).forEach(trail => {
-        if (trail.line) {
-            trail.line.visible = showTrails;
+    if (showTrails) {
+        // If no specific players selected, enable all
+        if (selectedTrailPlayers.size === 0) {
+            players.forEach(p => selectedTrailPlayers.add(p.name));
         }
-    });
+        // Show trails for selected players
+        Object.entries(playerTrails).forEach(([playerName, trail]) => {
+            if (trail.line) {
+                trail.line.visible = selectedTrailPlayers.has(playerName);
+            }
+        });
+        rebuildTrails();
+    } else {
+        // Hide all trail lines
+        Object.values(playerTrails).forEach(trail => {
+            if (trail.line) {
+                trail.line.visible = false;
+            }
+        });
+    }
+    updateTrailToggles();
+}
 
-    // If enabling trails, rebuild them up to current time
+// Toggle trail for specific player
+window.togglePlayerTrail = function(playerName) {
+    if (selectedTrailPlayers.has(playerName)) {
+        selectedTrailPlayers.delete(playerName);
+    } else {
+        selectedTrailPlayers.add(playerName);
+    }
+
+    // Update trail visibility
+    const trail = playerTrails[playerName];
+    if (trail && trail.line) {
+        trail.line.visible = showTrails && selectedTrailPlayers.has(playerName);
+    }
+
+    // Rebuild trails if showing
     if (showTrails) {
         rebuildTrails();
     }
+    updateTrailToggles();
+}
+
+// Update trail toggle UI in scoreboard
+function updateTrailToggles() {
+    document.querySelectorAll('.trail-toggle').forEach(toggle => {
+        const playerName = toggle.dataset.player;
+        toggle.classList.toggle('active', selectedTrailPlayers.has(playerName));
+    });
 }
 
 function initializeTrails() {
@@ -1020,6 +1185,7 @@ async function loadMapAndTelemetry() {
 
         await createPlayerMarkers();
         initializeTrails();
+        createSkybox(mapName);
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
 
@@ -1980,6 +2146,11 @@ async function selectMap(selectedMapName) {
             loadingProgress.textContent = `${Math.round(progress * 100)}%`;
         });
 
+        // Remove old skybox if exists
+        const oldSkybox = scene.getObjectByName('skybox');
+        if (oldSkybox) scene.remove(oldSkybox);
+
+        createSkybox(selectedMapName);
         loadingOverlay.style.display = 'none';
         positionCameraToFit();
 
