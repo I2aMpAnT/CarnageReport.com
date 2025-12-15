@@ -1699,7 +1699,7 @@ function createWaypointCanvas(text, color, emblemImage = null, isDead = false) {
         ctx.lineTo(boxX + 15, boxY + boxSize - 15);
         ctx.stroke();
     } else if (emblemImage && emblemImage.complete) {
-        ctx.drawImage(emblemImage, boxX + 8, boxY + 8, boxSize - 16, boxSize - 16);
+        ctx.drawImage(emblemImage, boxX + 4, boxY + 4, boxSize - 8, boxSize - 8);
     } else {
         // Draw player initial as fallback
         ctx.font = 'bold 50px Orbitron, sans-serif';
