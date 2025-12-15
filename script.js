@@ -4770,8 +4770,8 @@ function renderWeaponSearchResults(weaponName) {
     if (topKillers.length === 0) {
         html += '<div class="no-data">No kills recorded</div>';
     }
-    topKillers.slice(0, 15).forEach(([name, kills], index) => {
-        html += renderPlayerItem(name, kills, 'kills', index);
+    topKillers.forEach(([name, kills], index) => {
+        html += renderPlayerItem(name, kills, '', index);
     });
     html += '</div></div>';
 
@@ -4781,8 +4781,8 @@ function renderWeaponSearchResults(weaponName) {
     if (topVictims.length === 0) {
         html += '<div class="no-data">No deaths recorded</div>';
     }
-    topVictims.slice(0, 15).forEach(([name, deaths], index) => {
-        html += renderPlayerItem(name, deaths, 'deaths', index);
+    topVictims.forEach(([name, deaths], index) => {
+        html += renderPlayerItem(name, deaths, '', index);
     });
     html += '</div></div>';
 
@@ -4793,7 +4793,7 @@ function renderWeaponSearchResults(weaponName) {
         if (topAccuracy.length === 0) {
             html += '<div class="no-data">No accuracy data recorded</div>';
         }
-        topAccuracy.slice(0, 15).forEach(([name, acc, data], index) => {
+        topAccuracy.forEach(([name, acc, data], index) => {
             html += renderPlayerItem(name, `${acc.toFixed(1)}%`, `(${data.hit}/${data.fired})`, index);
         });
         html += '</div></div>';
@@ -4806,7 +4806,7 @@ function renderWeaponSearchResults(weaponName) {
         if (topHeadshots.length === 0) {
             html += '<div class="no-data">No headshot data recorded</div>';
         }
-        topHeadshots.slice(0, 15).forEach(([name, hsPercent, data], index) => {
+        topHeadshots.forEach(([name, hsPercent, data], index) => {
             html += renderPlayerItem(name, `${hsPercent.toFixed(1)}%`, `(${data.headshots}/${data.kills})`, index);
         });
         html += '</div></div>';
@@ -4816,7 +4816,7 @@ function renderWeaponSearchResults(weaponName) {
     if (hasHeldTimeData) {
         html += '<div id="weapon-tab-heldtime" class="weapon-tab-content" style="display:none;">';
         html += '<div class="breakdown-list">';
-        topHeldTime.slice(0, 15).forEach(([name, seconds], index) => {
+        topHeldTime.forEach(([name, seconds], index) => {
             // Format seconds as mm:ss
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
