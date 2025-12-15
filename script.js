@@ -1001,7 +1001,8 @@ function getBaseGametype(variantName, playlist = '', game = null) {
     if (!variantName) return 'Unknown';
     const name = variantName.toLowerCase();
     // MLG playlists use "Bomb" for assault, others use "Assault"
-    const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore' || playlist === 'Tournament';
+    const isMLG = playlist === 'MLG 4v4' || playlist === 'Team Hardcore' ||
+                  (playlist && playlist.toLowerCase().includes('tournament'));
 
     let baseType = '';
 

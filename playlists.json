@@ -37,6 +37,7 @@
       "team_size": 4,
       "is_team": true,
       "ranked": true,
+      "date": "December 14, 2025",
       "matches_file": "Tournament 1_matches.json",
       "stats_file": "Tournament 1_stats.json"
     }
