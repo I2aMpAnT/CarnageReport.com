@@ -788,8 +788,11 @@ function populateScoreboard() {
         const kills = pos.kills || 0;
         const deaths = pos.deaths || 0;
 
+        // Check if player is dead
+        const isDead = marker && marker.deadUntil && currentTimeMs < marker.deadUntil;
+
         const playerDiv = document.createElement('div');
-        playerDiv.className = 'scoreboard-player';
+        playerDiv.className = 'scoreboard-player' + (isDead ? ' dead' : '');
 
         // Use weapon icon if available, otherwise show text
         const weaponHtml = weaponIconUrl
@@ -799,11 +802,16 @@ function populateScoreboard() {
         // Trail toggle - shows a line icon
         const trailActive = selectedTrailPlayers.has(player.name) ? 'active' : '';
 
+        // Emblem or death X
+        const emblemHtml = isDead
+            ? `<div class="player-emblem dead-emblem"><span class="dead-x">✕</span></div>`
+            : `<img src="${emblemUrl}" class="player-emblem" onerror="this.style.display='none'" />`;
+
         playerDiv.innerHTML = `
             <button class="trail-toggle ${trailActive}" data-player="${player.name}" onclick="event.stopPropagation(); togglePlayerTrail('${player.name}')" title="Toggle trail for ${player.name}">
                 <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M2 12h4l3-9 4 18 3-9h4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <img src="${emblemUrl}" class="player-emblem" onerror="this.style.display='none'" />
+            ${emblemHtml}
             <span class="player-name" style="color: #${player.color.toString(16).padStart(6, '0')}">${player.name}</span>
             <span class="player-kd">${kills} / ${deaths}</span>
             ${weaponHtml}
@@ -1566,8 +1574,8 @@ async function createPlayerMarkers() {
             toneMapped: false  // Prevent tone mapping from washing out colors
         });
         const label = new THREE.Sprite(labelMaterial);
-        label.scale.set(2.5, 3.125, 1); // Aspect ratio 128:160
-        label.position.y = CONFIG.playerMarkerHeight + 2;
+        label.scale.set(1.25, 1.5625, 1); // 50% smaller, Aspect ratio 128:160
+        label.position.y = CONFIG.playerMarkerHeight + 1.5;
         group.add(label);
 
         const glow = new THREE.PointLight(player.color, 0.5, 3);
@@ -1604,7 +1612,7 @@ function createLabelCanvas(text, color) {
 }
 
 // Create a Halo-style waypoint canvas with emblem and arrow
-function createWaypointCanvas(text, color, emblemImage = null) {
+function createWaypointCanvas(text, color, emblemImage = null, isDead = false) {
     const canvas = document.createElement('canvas');
     canvas.width = 128;
     canvas.height = 160;
@@ -1624,22 +1632,28 @@ function createWaypointCanvas(text, color, emblemImage = null) {
     ctx.closePath();
     ctx.fill();
 
-    // Draw emblem box background
+    // Draw emblem box background (white, no border)
     const boxX = 14;
     const boxY = 10;
     const boxSize = 100;
 
-    // Dark background (pure black, no blue tint)
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+    // White background
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
     ctx.fillRect(boxX, boxY, boxSize, boxSize);
 
-    // Thin border (1px white)
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(boxX, boxY, boxSize, boxSize);
-
-    // Draw emblem if available
-    if (emblemImage && emblemImage.complete) {
+    // Draw emblem or death X
+    if (isDead) {
+        // Draw bold red X for dead players
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 12;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(boxX + 15, boxY + 15);
+        ctx.lineTo(boxX + boxSize - 15, boxY + boxSize - 15);
+        ctx.moveTo(boxX + boxSize - 15, boxY + 15);
+        ctx.lineTo(boxX + 15, boxY + boxSize - 15);
+        ctx.stroke();
+    } else if (emblemImage && emblemImage.complete) {
         ctx.drawImage(emblemImage, boxX + 8, boxY + 8, boxSize - 16, boxSize - 16);
     } else {
         // Draw player initial as fallback
@@ -1724,6 +1738,30 @@ function updatePlayerPositions() {
             }
 
             marker.group.visible = true;
+
+            // Track death state - check if deaths increased recently
+            const prevDeaths = marker.lastDeaths || 0;
+            const currentDeaths = pos.deaths || 0;
+            const justDied = currentDeaths > prevDeaths;
+
+            // Set dead state if deaths increased, clear after ~3 seconds
+            if (justDied) {
+                marker.deadUntil = currentTimeMs + 3000;
+            }
+            marker.lastDeaths = currentDeaths;
+
+            const isDead = marker.deadUntil && currentTimeMs < marker.deadUntil;
+
+            // Update waypoint canvas if death state changed
+            if (marker.wasDead !== isDead) {
+                marker.wasDead = isDead;
+                const newCanvas = createWaypointCanvas(player.name, player.color, marker.emblemImage, isDead);
+                const newTexture = new THREE.CanvasTexture(newCanvas);
+                newTexture.colorSpace = THREE.SRGBColorSpace;
+                marker.label.material.map.dispose();
+                marker.label.material.map = newTexture;
+                marker.label.material.needsUpdate = true;
+            }
 
             if (liveStatsBody) {
                 const state = pos.isCrouching ? 'Crouching' : (pos.isAirborne ? 'Airborne' : 'Standing');
