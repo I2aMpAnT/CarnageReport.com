@@ -3959,6 +3959,7 @@ header {
     width: 40px;
     height: 40px;
     object-fit: contain;
+    mix-blend-mode: lighten;
 }
 
 .weapon-breakdown-header {
