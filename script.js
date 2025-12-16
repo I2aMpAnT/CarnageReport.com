@@ -1019,9 +1019,9 @@ function getBaseGametype(variantName, playlist = '', game = null) {
     else if (name.includes('king') || name.includes('koth') || name.includes('hill')) {
         baseType = 'King of the Hill';
     }
-    // Assault variants - "Bomb" for MLG playlists, "Assault" for others
+    // Assault variants
     else if (name.includes('assault') || name.includes('bomb')) {
-        baseType = isMLG ? 'Bomb' : 'Assault';
+        baseType = 'Assault';
     }
     // Territories variants
     else if (name.includes('territor')) {
@@ -5838,17 +5838,16 @@ function showSearchAccuracyBreakdown() {
     const byGametype = window.currentSearchAccuracyByGametype || {};
     const byWeapon = window.currentSearchAccuracyByWeapon || {};
 
-    // Gametype icons (using existing assets)
+    // Gametype icons
     const gametypeIcons = {
-        'Capture the Flag': '/assets/medals/MedalFlagScore.png',
-        'Oddball': '/assets/medals/OddballScoreMedal.png',
-        'Team Slayer': '/assets/emblems/bullseye.png',
-        'Slayer': '/assets/emblems/bullseye.png',
-        'King of the Hill': '/assets/medals/MedalKingSpree.png',
-        'Assault': '/assets/medals/weapons/AssaultBomb.png',
-        'Bomb': '/assets/medals/weapons/AssaultBomb.png',
-        'Territories': '/assets/medals/MedalControlSpree.png',
-        'Free For All': '/assets/emblems/bullseye.png'
+        'Capture the Flag': '/assets/gametypes/ctf.jpg',
+        'Oddball': '/assets/gametypes/oddball.jpg',
+        'Team Slayer': '/assets/gametypes/slayer.jpg',
+        'Slayer': '/assets/gametypes/slayer.jpg',
+        'King of the Hill': '/assets/gametypes/koth.jpg',
+        'Assault': '/assets/gametypes/assault.jpg',
+        'Territories': '/assets/gametypes/territories.jpg',
+        'Free For All': '/assets/gametypes/slayer.jpg'
     };
 
     let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
@@ -6147,15 +6146,14 @@ function showProfileAccuracyBreakdown() {
 
     // Gametype icons
     const gametypeIcons = {
-        'Capture the Flag': '/assets/medals/MedalFlagScore.png',
-        'Oddball': '/assets/medals/OddballScoreMedal.png',
-        'Team Slayer': '/assets/emblems/bullseye.png',
-        'Slayer': '/assets/emblems/bullseye.png',
-        'King of the Hill': '/assets/medals/MedalKingSpree.png',
-        'Assault': '/assets/medals/weapons/AssaultBomb.png',
-        'Bomb': '/assets/medals/weapons/AssaultBomb.png',
-        'Territories': '/assets/medals/MedalControlSpree.png',
-        'Free For All': '/assets/emblems/bullseye.png'
+        'Capture the Flag': '/assets/gametypes/ctf.jpg',
+        'Oddball': '/assets/gametypes/oddball.jpg',
+        'Team Slayer': '/assets/gametypes/slayer.jpg',
+        'Slayer': '/assets/gametypes/slayer.jpg',
+        'King of the Hill': '/assets/gametypes/koth.jpg',
+        'Assault': '/assets/gametypes/assault.jpg',
+        'Territories': '/assets/gametypes/territories.jpg',
+        'Free For All': '/assets/gametypes/slayer.jpg'
     };
 
     let html = '<div class="weapon-breakdown-overlay" onclick="closeMedalBreakdown()">';
