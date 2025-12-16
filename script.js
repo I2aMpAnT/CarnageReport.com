@@ -1422,19 +1422,38 @@ async function loadEmblems() {
 
 // Parse emblem parameters from emblem URL or return null if not valid
 function parseEmblemParams(url) {
-    if (!url || (!url.includes('emblem.php') && !url.includes('emblem.html'))) return null;
+    if (!url) return null;
 
     try {
-        const urlParams = new URL(url).searchParams;
-        return {
-            P: parseInt(urlParams.get('P') || 0),
-            S: parseInt(urlParams.get('S') || 0),
-            EP: parseInt(urlParams.get('EP') || 0),
-            ES: parseInt(urlParams.get('ES') || 0),
-            EF: parseInt(urlParams.get('EF') || 0),
-            EB: parseInt(urlParams.get('EB') || 0),
-            ET: parseInt(urlParams.get('ET') || 0)
-        };
+        // Handle new filename format: P11-S0-EP1-ES0-EF8-EB4-ET0.png
+        const filenameMatch = url.match(/P(\d+)-S(\d+)-EP(\d+)-ES(\d+)-EF(\d+)-EB(\d+)-ET(\d+)/);
+        if (filenameMatch) {
+            return {
+                P: parseInt(filenameMatch[1]),
+                S: parseInt(filenameMatch[2]),
+                EP: parseInt(filenameMatch[3]),
+                ES: parseInt(filenameMatch[4]),
+                EF: parseInt(filenameMatch[5]),
+                EB: parseInt(filenameMatch[6]),
+                ET: parseInt(filenameMatch[7])
+            };
+        }
+
+        // Handle old query parameter format: emblem.php?P=11&S=0...
+        if (url.includes('emblem.php') || url.includes('emblem.html')) {
+            const urlParams = new URL(url).searchParams;
+            return {
+                P: parseInt(urlParams.get('P') || 0),
+                S: parseInt(urlParams.get('S') || 0),
+                EP: parseInt(urlParams.get('EP') || 0),
+                ES: parseInt(urlParams.get('ES') || 0),
+                EF: parseInt(urlParams.get('EF') || 0),
+                EB: parseInt(urlParams.get('EB') || 0),
+                ET: parseInt(urlParams.get('ET') || 0)
+            };
+        }
+
+        return null;
     } catch (e) {
         return null;
     }
@@ -4501,14 +4520,11 @@ function renderMedalSearchResults(medalName) {
     html += '<div class="section-header">By Player</div>';
     html += '<div class="breakdown-list">';
     Object.entries(playerMedalCounts).sort((a, b) => b[1] - a[1]).forEach(([name, count], index) => {
-        const rankIcon = getRankIcon(name);
+        const displayName = getDisplayNameForProfile(name);
         const pct = ((count / totalEarned) * 100).toFixed(1);
         html += `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
         html += `<span class="breakdown-rank">#${index + 1}</span>`;
-        if (rankIcon) {
-            html += `<img src="${rankIcon}" class="breakdown-icon" alt="rank">`;
-        }
-        html += `<span class="breakdown-name">${name}</span>`;
+        html += `<span class="breakdown-name">${displayName}</span>`;
         html += `<span class="breakdown-count">${count} (${pct}%)</span>`;
         html += '</div>';
     });
@@ -4756,7 +4772,6 @@ function renderWeaponSearchResults(weaponName) {
         const displayName = getDisplayNameForProfile(name);
         const emblemUrl = getPlayerEmblem(name);
         const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
-        const rank = getRankForProfile(name);
 
         let itemHtml = `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
         itemHtml += `<span class="breakdown-rank">#${index + 1}</span>`;
@@ -4766,9 +4781,6 @@ function renderWeaponSearchResults(weaponName) {
             itemHtml += `<div class="breakdown-emblem-placeholder"></div>`;
         }
         itemHtml += `<span class="breakdown-name">${displayName}</span>`;
-        if (rank) {
-            itemHtml += `<img src="https://r2-cdn.insignia.live/h2-rank/${rank}.png" alt="Rank ${rank}" class="breakdown-rank-icon">`;
-        }
         itemHtml += `<span class="breakdown-count">${statValue}${statLabel ? ' ' + statLabel : ''}</span>`;
         itemHtml += '</div>';
         return itemHtml;
