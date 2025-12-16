@@ -1267,15 +1267,27 @@ function buildDynamicRankHistory() {
 
             const oldXP = playerXP[discordId];
             const rankBefore = calculateRankFromXP(oldXP);
-            const isWinner = player.place === '1st';
+            // Use winner property (set by convertMatchToPlayers based on team result)
+            // Fallback to place === '1st' for FFA/legacy games
+            const isWinner = player.winner === true || player.place === '1st';
+
+            // Check for tie (no winner determined, or player has no team in team game)
+            const isTie = player.winner === undefined || player.winner === null ||
+                          (player.team === 'none' || player.team === '' || player.team === null);
 
             // Calculate XP change
             let xpChange;
-            if (isWinner) {
+            let result;
+            if (isTie) {
+                xpChange = 0;
+                result = 'tie';
+            } else if (isWinner) {
                 xpChange = baseWinXP;
+                result = 'win';
             } else {
                 const lossFactor = getLossFactor(rankBefore);
                 xpChange = Math.round(baseLossXP * lossFactor);
+                result = 'loss';
             }
 
             // Update XP (minimum 0)
@@ -1291,7 +1303,7 @@ function buildDynamicRankHistory() {
                 rank_after: rankAfter,
                 xp_before: oldXP,
                 xp_after: newXP,
-                result: isWinner ? 'win' : 'loss'
+                result: result
             });
         });
     });
@@ -6775,9 +6787,8 @@ function calculatePlayerMeleeKills(playerName) {
 function showWeaponLeaderboard(weaponName) {
     const weaponLower = weaponName.toLowerCase();
 
-    // Calculate kills and deaths for each player with this weapon
+    // Calculate kills for each player with this weapon
     const playerKills = {};
-    const playerDeaths = {};
 
     gamesData.forEach(game => {
         game.weapons?.forEach(weaponData => {
@@ -6792,22 +6803,15 @@ function showWeaponLeaderboard(weaponName) {
                     if (keyLower.includes('kills') && !keyLower.includes('headshot')) {
                         const kills = parseInt(weaponData[key]) || 0;
                         playerKills[player] = (playerKills[player] || 0) + kills;
-                    } else if (keyLower.includes('deaths')) {
-                        const deaths = parseInt(weaponData[key]) || 0;
-                        playerDeaths[player] = (playerDeaths[player] || 0) + deaths;
                     }
                 }
             });
         });
     });
 
-    // Sort by most kills/deaths
+    // Sort by most kills
     const topKillers = Object.entries(playerKills)
         .filter(([_, kills]) => kills > 0)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
-    const topVictims = Object.entries(playerDeaths)
-        .filter(([_, deaths]) => deaths > 0)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
 
@@ -6841,48 +6845,18 @@ function showWeaponLeaderboard(weaponName) {
             const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
             const rank = getRankForProfile(player);
 
-            html += `<div class="weapon-lb-row">`;
+            html += `<div class="weapon-lb-row" onclick="openPlayerProfile('${player.replace(/'/g, "\\'")}')">`;
             html += `<span class="weapon-lb-rank">#${i + 1}</span>`;
             if (emblemParams) {
                 html += `<div class="emblem-placeholder weapon-lb-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
+            } else {
+                html += `<div class="weapon-lb-emblem-placeholder"></div>`;
             }
             html += `<span class="weapon-lb-name">${displayName}</span>`;
             if (rank) {
-                html += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="weapon-lb-rank-icon">`;
+                html += `<img src="https://r2-cdn.insignia.live/h2-rank/${rank}.png" alt="Rank ${rank}" class="weapon-lb-rank-icon">`;
             }
             html += `<span class="weapon-lb-count">${kills}</span>`;
-            html += `</div>`;
-        }
-        html += '</div>';
-    }
-    html += '</div>';
-
-    // Most Deaths column
-    html += '<div class="weapon-leaderboard-column">';
-    html += '<h3>Most Deaths</h3>';
-    if (topVictims.length === 0) {
-        html += '<div class="no-data">No deaths recorded</div>';
-    } else {
-        html += '<div class="weapon-leaderboard-list">';
-        for (let i = 0; i < topVictims.length; i++) {
-            const [player, deaths] = topVictims[i];
-            const displayName = getDisplayNameForProfile(player);
-            const discordId = profileNameToDiscordId[player];
-            const playerInfo = discordId ? playerEmblems[discordId] : null;
-            const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(player);
-            const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
-            const rank = getRankForProfile(player);
-
-            html += `<div class="weapon-lb-row">`;
-            html += `<span class="weapon-lb-rank">#${i + 1}</span>`;
-            if (emblemParams) {
-                html += `<div class="emblem-placeholder weapon-lb-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
-            }
-            html += `<span class="weapon-lb-name">${displayName}</span>`;
-            if (rank) {
-                html += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="weapon-lb-rank-icon">`;
-            }
-            html += `<span class="weapon-lb-count">${deaths}</span>`;
             html += `</div>`;
         }
         html += '</div>';
@@ -8383,11 +8357,25 @@ async function loadTournaments() {
 
             // Find the winner from grand finals
             let winnerName = '';
+            let winnerCaptain = '';
             const grandFinals = tournament.bracket?.series?.find(s => s.round === 'grand_finals');
             if (grandFinals && grandFinals.winner_seed) {
                 const winnerTeam = tournament.bracket.teams?.find(t => t.seed === grandFinals.winner_seed);
                 if (winnerTeam) {
-                    winnerName = `Team ${winnerTeam.captain}`;
+                    winnerCaptain = winnerTeam.captain;
+                    winnerName = `Team ${winnerCaptain}`;
+                }
+            }
+
+            // Get emblem for winner captain
+            let winnerEmblemHtml = '';
+            if (winnerCaptain) {
+                const discordId = profileNameToDiscordId[winnerCaptain];
+                const playerInfo = discordId ? playerEmblems[discordId] : null;
+                const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(winnerCaptain);
+                const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
+                if (emblemParams) {
+                    winnerEmblemHtml = `<div class="emblem-placeholder tournament-winner-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
                 }
             }
 
@@ -8396,8 +8384,8 @@ async function loadTournaments() {
                     <div class="tournament-info">
                         <div class="tournament-name">${tournament.name}</div>
                         <div class="tournament-date">${tournamentDate}</div>
-                        ${winnerName ? `<div class="tournament-winner">Winner: ${winnerName}</div>` : ''}
                     </div>
+                    ${winnerName ? `<div class="tournament-winner">${winnerEmblemHtml}<span>Winner: ${winnerName}</span></div>` : ''}
                     <div class="tournament-stats">
                         <div class="tournament-stat">
                             <div class="tournament-stat-value">${teamsCount}</div>
@@ -8411,6 +8399,9 @@ async function loadTournaments() {
 
         container.innerHTML = html;
         tournamentsLoaded = true;
+
+        // Load emblems for winner display
+        loadBreakdownEmblems();
 
     } catch (error) {
         console.error('Error loading tournaments:', error);
