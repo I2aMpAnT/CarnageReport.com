@@ -4756,13 +4756,19 @@ function renderWeaponSearchResults(weaponName) {
         const displayName = getDisplayNameForProfile(name);
         const emblemUrl = getPlayerEmblem(name);
         const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
+        const rank = getRankForProfile(name);
 
         let itemHtml = `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
         itemHtml += `<span class="breakdown-rank">#${index + 1}</span>`;
         if (emblemParams) {
             itemHtml += `<div class="emblem-placeholder breakdown-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
+        } else {
+            itemHtml += `<div class="breakdown-emblem-placeholder"></div>`;
         }
         itemHtml += `<span class="breakdown-name">${displayName}</span>`;
+        if (rank) {
+            itemHtml += `<img src="https://r2-cdn.insignia.live/h2-rank/${rank}.png" alt="Rank ${rank}" class="breakdown-rank-icon">`;
+        }
         itemHtml += `<span class="breakdown-count">${statValue}${statLabel ? ' ' + statLabel : ''}</span>`;
         itemHtml += '</div>';
         return itemHtml;
