@@ -1267,15 +1267,27 @@ function buildDynamicRankHistory() {
 
             const oldXP = playerXP[discordId];
             const rankBefore = calculateRankFromXP(oldXP);
-            const isWinner = player.place === '1st';
+            // Use winner property (set by convertMatchToPlayers based on team result)
+            // Fallback to place === '1st' for FFA/legacy games
+            const isWinner = player.winner === true || player.place === '1st';
+
+            // Check for tie (no winner determined, or player has no team in team game)
+            const isTie = player.winner === undefined || player.winner === null ||
+                          (player.team === 'none' || player.team === '' || player.team === null);
 
             // Calculate XP change
             let xpChange;
-            if (isWinner) {
+            let result;
+            if (isTie) {
+                xpChange = 0;
+                result = 'tie';
+            } else if (isWinner) {
                 xpChange = baseWinXP;
+                result = 'win';
             } else {
                 const lossFactor = getLossFactor(rankBefore);
                 xpChange = Math.round(baseLossXP * lossFactor);
+                result = 'loss';
             }
 
             // Update XP (minimum 0)
@@ -1291,7 +1303,7 @@ function buildDynamicRankHistory() {
                 rank_after: rankAfter,
                 xp_before: oldXP,
                 xp_after: newXP,
-                result: isWinner ? 'win' : 'loss'
+                result: result
             });
         });
     });
