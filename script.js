@@ -4754,7 +4754,7 @@ function renderWeaponSearchResults(weaponName) {
     // Helper function to render player item
     const renderPlayerItem = (name, statValue, statLabel, index) => {
         const displayName = getDisplayNameForProfile(name);
-        const emblemUrl = getPlayerEmblemUrl(name);
+        const emblemUrl = getPlayerEmblem(name);
         const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
 
         let itemHtml = `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
