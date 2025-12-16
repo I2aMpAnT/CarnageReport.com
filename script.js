@@ -4720,7 +4720,6 @@ function renderWeaponSearchResults(weaponName) {
     }
     html += '<div class="weapon-stats">';
     html += `<div class="stat-card"><div class="stat-label">Total Kills</div><div class="stat-value">${totalKills}</div></div>`;
-    html += `<div class="stat-card"><div class="stat-label">Total Deaths</div><div class="stat-value">${totalDeaths}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Games</div><div class="stat-value">${weaponGames.length}</div></div>`;
     html += '</div>';
     html += '</div>';
@@ -4729,7 +4728,6 @@ function renderWeaponSearchResults(weaponName) {
     html += '<div class="weapon-leaderboard-tabs">';
     html += '<div class="accuracy-tabs">';
     html += '<button class="accuracy-tab-btn active" onclick="switchWeaponLeaderboardTab(this, \'kills\')">Kills With</button>';
-    html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(this, \'deaths\')">Killed By</button>';
     if (!isMeleeSearch) {
         html += '<button class="accuracy-tab-btn" onclick="switchWeaponLeaderboardTab(this, \'accuracy\')">Accuracy</button>';
     }
@@ -4744,11 +4742,8 @@ function renderWeaponSearchResults(weaponName) {
     // Helper function to render player item
     const renderPlayerItem = (name, statValue, statLabel, index) => {
         const displayName = getDisplayNameForProfile(name);
-        const discordId = profileNameToDiscordId[name];
-        const playerInfo = discordId ? playerEmblems[discordId] : null;
-        const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(name);
+        const emblemUrl = getPlayerEmblemUrl(name);
         const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
-        const rank = getRankForProfile(name);
 
         let itemHtml = `<div class="breakdown-item" onclick="openPlayerProfile('${name.replace(/'/g, "\\'")}')">`;
         itemHtml += `<span class="breakdown-rank">#${index + 1}</span>`;
@@ -4756,9 +4751,6 @@ function renderWeaponSearchResults(weaponName) {
             itemHtml += `<div class="emblem-placeholder breakdown-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
         }
         itemHtml += `<span class="breakdown-name">${displayName}</span>`;
-        if (rank) {
-            itemHtml += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="breakdown-rank-icon">`;
-        }
         itemHtml += `<span class="breakdown-count">${statValue}${statLabel ? ' ' + statLabel : ''}</span>`;
         itemHtml += '</div>';
         return itemHtml;
@@ -4775,25 +4767,15 @@ function renderWeaponSearchResults(weaponName) {
     });
     html += '</div></div>';
 
-    // Deaths tab
-    html += '<div id="weapon-tab-deaths" class="weapon-tab-content" style="display:none;">';
-    html += '<div class="breakdown-list">';
-    if (topVictims.length === 0) {
-        html += '<div class="no-data">No deaths recorded</div>';
-    }
-    topVictims.forEach(([name, deaths], index) => {
-        html += renderPlayerItem(name, deaths, '', index);
-    });
-    html += '</div></div>';
-
-    // Accuracy tab
+    // Accuracy tab - filter out 0% accuracy
     if (!isMeleeSearch) {
+        const filteredAccuracy = topAccuracy.filter(([name, acc, data]) => acc > 0);
         html += '<div id="weapon-tab-accuracy" class="weapon-tab-content" style="display:none;">';
         html += '<div class="breakdown-list">';
-        if (topAccuracy.length === 0) {
+        if (filteredAccuracy.length === 0) {
             html += '<div class="no-data">No accuracy data recorded</div>';
         }
-        topAccuracy.forEach(([name, acc, data], index) => {
+        filteredAccuracy.forEach(([name, acc, data], index) => {
             html += renderPlayerItem(name, `${acc.toFixed(1)}%`, `(${data.hit}/${data.fired})`, index);
         });
         html += '</div></div>';
