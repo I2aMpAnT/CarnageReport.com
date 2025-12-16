@@ -8309,94 +8309,27 @@ document.addEventListener('click', function(e) {
 
 // ==================== 3D REPLAY VIEWER ====================
 
-// Cache for available telemetry files
-let availableTelemetryFiles = null;
+// Cache for gameindex (maps source files to theater files)
+let gameIndexCache = null;
 
-// Fetch available telemetry files from stats folder
-async function fetchAvailableTelemetryFiles() {
-    if (availableTelemetryFiles !== null) {
-        return availableTelemetryFiles;
+// Fetch gameindex.json to know which games have theater files
+async function fetchGameIndex() {
+    if (gameIndexCache !== null) {
+        return gameIndexCache;
     }
 
     try {
-        // Try to fetch telemetry index file
-        const response = await fetch('stats/telemetry_index.json');
+        const response = await fetch('gameindex.json');
         if (response.ok) {
-            availableTelemetryFiles = await response.json();
-            return availableTelemetryFiles;
+            gameIndexCache = await response.json();
+            return gameIndexCache;
         }
     } catch (e) {
-        console.log('No telemetry index found, using direct file check');
+        console.log('Failed to load gameindex.json');
     }
 
-    // Fallback: return empty array (will check files directly when needed)
-    availableTelemetryFiles = [];
-    return availableTelemetryFiles;
-}
-
-// Parse game start time to Date object
-function parseGameStartTime(startTimeStr) {
-    if (!startTimeStr) return null;
-
-    // Format: "MM/DD/YYYY HH:MM" or "M/D/YYYY H:MM"
-    const parts = startTimeStr.match(/(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)/);
-    if (!parts) return null;
-
-    const [, month, day, year, hour, minute] = parts;
-    return new Date(year, month - 1, day, hour, minute);
-}
-
-// Convert game start time to telemetry filename format
-function gameTimeToTelemetryFilename(startTimeStr) {
-    const date = parseGameStartTime(startTimeStr);
-    if (!date) return null;
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hour = String(date.getHours()).padStart(2, '0');
-    const minute = String(date.getMinutes()).padStart(2, '0');
-
-    // Telemetry files are named: YYYYMMDD_HHMMSS_theater.csv
-    // We'll match based on date and approximate time (within 5 minutes)
-    return `${year}${month}${day}_${hour}${minute}`;
-}
-
-// Find matching telemetry file for a game
-function findTelemetryFileForGame(game) {
-    // First check if game has a direct theater_url
-    if (game.theater_url && game.theater_url.trim() !== '') {
-        // Extract filename from URL
-        const filename = game.theater_url.split('/').pop();
-        return filename;
-    }
-
-    // Try to match by timestamp
-    const startTime = game.details?.['Start Time'];
-    if (!startTime) return null;
-
-    const prefix = gameTimeToTelemetryFilename(startTime);
-    if (!prefix) return null;
-
-    // If we have an index, search it
-    if (availableTelemetryFiles && availableTelemetryFiles.length > 0) {
-        // Find files that start with the date portion and are within 10 minutes
-        const datePrefix = prefix.substring(0, 8); // YYYYMMDD
-        const timeValue = parseInt(prefix.substring(9)); // HHMM as number
-
-        for (const file of availableTelemetryFiles) {
-            if (file.startsWith(datePrefix)) {
-                const fileTime = parseInt(file.substring(9, 13));
-                // Allow 10 minute window (time could be slightly different)
-                if (Math.abs(fileTime - timeValue) <= 10) {
-                    return file;
-                }
-            }
-        }
-    }
-
-    // Return the expected filename (viewer will handle if not found)
-    return `${prefix}00_theater.csv`;
+    gameIndexCache = {};
+    return gameIndexCache;
 }
 
 // Open 3D replay viewer for a game
@@ -8407,55 +8340,36 @@ function open3DReplay(gameIndex) {
         return;
     }
 
-    // Use source_file prefix for reliable theater loading
-    // This bypasses gameindex.json numbering mismatches
+    // Use source_file prefix for theater loading
     const sourceFile = game.source_file;
     if (sourceFile) {
-        // Extract prefix from source_file (e.g., "20251128_201839.xlsx" -> "20251128_201839")
         const prefix = sourceFile.replace('.xlsx', '');
         window.open(`/theater/${prefix}`, '_blank');
-        return;
     }
+}
 
-    // Fallback: try to derive prefix from game timestamp
-    const startTime = game.details?.['Start Time'];
-    if (startTime) {
-        const prefix = gameTimeToTelemetryFilename(startTime);
-        if (prefix) {
-            window.open(`/theater/${prefix}`, '_blank');
-            return;
+// Check if a game has telemetry available by checking gameindex
+function hasTelemetryAvailable(game) {
+    // Must have source_file to check
+    const sourceFile = game.source_file;
+    if (!sourceFile) return false;
+
+    // Check if gameindex has been loaded
+    if (!gameIndexCache) return false;
+
+    // Look for matching theater file in gameindex
+    const theaterFilename = sourceFile.replace('.xlsx', '_theater.csv');
+    for (const gameData of Object.values(gameIndexCache)) {
+        if (gameData.theater === theaterFilename) {
+            return true;
         }
     }
 
-    console.error('Cannot open theater mode: no source_file or valid timestamp for game:', game);
+    return false;
 }
 
-// Check if a game has telemetry available
-function hasTelemetryAvailable(game) {
-    // Check direct URL first
-    if (game.theater_url && game.theater_url.trim() !== '') {
-        return true;
-    }
-
-    // Check if we can match by timestamp
-    const startTime = game.details?.['Start Time'];
-    if (!startTime) return false;
-
-    const prefix = gameTimeToTelemetryFilename(startTime);
-    if (!prefix) return false;
-
-    // If we have an index, check it
-    if (availableTelemetryFiles && availableTelemetryFiles.length > 0) {
-        const datePrefix = prefix.substring(0, 8);
-        return availableTelemetryFiles.some(f => f.startsWith(datePrefix));
-    }
-
-    // Otherwise assume it might be available (viewer will handle errors)
-    return true;
-}
-
-// Initialize telemetry index on page load
-fetchAvailableTelemetryFiles();
+// Initialize gameindex on page load
+fetchGameIndex();
 
 // Load and display tournaments
 let tournamentsLoaded = false;
