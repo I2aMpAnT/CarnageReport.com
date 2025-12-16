@@ -2199,7 +2199,7 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     const details = game.details;
     const players = game.players;
     
-    let displayGameType = getBaseGametype(details['Game Type'], game.playlist, game);
+    let displayGameType = details['Game Type'] || 'Unknown';
     let mapName = details['Map Name'] || 'Unknown Map';
     let duration = formatDuration(details['Duration'] || '0:00');
     let startTime = details['Start Time'] || '';
@@ -2351,8 +2351,7 @@ function toggleGameDetails(idPrefix, gameNumber) {
 function renderGameContent(game) {
     const mapName = game.details['Map Name'] || 'Unknown';
     const mapImage = mapImages[mapName] || defaultMapImage;
-    const rawGameType = game.details['Game Type'] || 'Unknown';
-    const displayGameType = getBaseGametype(rawGameType, game.playlist, game);
+    const displayGameType = game.details['Game Type'] || 'Unknown';
     const duration = formatDuration(game.details['Duration'] || '0:00');
     const startTime = game.details['Start Time'] || '';
 
@@ -4989,8 +4988,7 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     const details = game.details;
     const players = game.players;
     const mapName = details['Map Name'] || 'Unknown';
-    const rawGameType = details['Game Type'] || 'Unknown';
-    const displayGameType = getBaseGametype(rawGameType, game.playlist, game);
+    const displayGameType = details['Game Type'] || 'Unknown';
     const startTime = details['Start Time'] || '';
 
     // Calculate team scores
