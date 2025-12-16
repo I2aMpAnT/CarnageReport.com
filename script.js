@@ -8357,11 +8357,25 @@ async function loadTournaments() {
 
             // Find the winner from grand finals
             let winnerName = '';
+            let winnerCaptain = '';
             const grandFinals = tournament.bracket?.series?.find(s => s.round === 'grand_finals');
             if (grandFinals && grandFinals.winner_seed) {
                 const winnerTeam = tournament.bracket.teams?.find(t => t.seed === grandFinals.winner_seed);
                 if (winnerTeam) {
-                    winnerName = `Team ${winnerTeam.captain}`;
+                    winnerCaptain = winnerTeam.captain;
+                    winnerName = `Team ${winnerCaptain}`;
+                }
+            }
+
+            // Get emblem for winner captain
+            let winnerEmblemHtml = '';
+            if (winnerCaptain) {
+                const discordId = profileNameToDiscordId[winnerCaptain];
+                const playerInfo = discordId ? playerEmblems[discordId] : null;
+                const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(winnerCaptain);
+                const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
+                if (emblemParams) {
+                    winnerEmblemHtml = `<div class="emblem-placeholder tournament-winner-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
                 }
             }
 
@@ -8370,8 +8384,8 @@ async function loadTournaments() {
                     <div class="tournament-info">
                         <div class="tournament-name">${tournament.name}</div>
                         <div class="tournament-date">${tournamentDate}</div>
-                        ${winnerName ? `<div class="tournament-winner">Winner: ${winnerName}</div>` : ''}
                     </div>
+                    ${winnerName ? `<div class="tournament-winner">${winnerEmblemHtml}<span>Winner: ${winnerName}</span></div>` : ''}
                     <div class="tournament-stats">
                         <div class="tournament-stat">
                             <div class="tournament-stat-value">${teamsCount}</div>
@@ -8385,6 +8399,9 @@ async function loadTournaments() {
 
         container.innerHTML = html;
         tournamentsLoaded = true;
+
+        // Load emblems for winner display
+        loadBreakdownEmblems();
 
     } catch (error) {
         console.error('Error loading tournaments:', error);

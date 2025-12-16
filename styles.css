@@ -5703,10 +5703,25 @@ header {
     color: var(--unsc-blue);
 }
 
-/* Tournament winner label */
+/* Tournament winner label - centered in card */
 .tournament-winner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.85rem;
-    color: #fbbf24;
-    margin-top: 5px;
+    font-size: 0.9rem;
+    color: var(--unsc-blue);
+}
+
+.tournament-winner-emblem {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+.tournament-winner-emblem img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(168, 212, 255, 0.3));
 }
