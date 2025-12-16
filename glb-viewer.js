@@ -167,12 +167,23 @@ let fpsDisplay = 0;
 
 // ===== Initialization =====
 async function init() {
-    await parseUrlParams();
-    setupScene();
-    setupEventListeners();
-    setupGamepad();
-    await loadMapAndTelemetry();
-    animate();
+    try {
+        await parseUrlParams();
+        setupScene();
+        setupEventListeners();
+        setupGamepad();
+        await loadMapAndTelemetry();
+        animate();
+    } catch (error) {
+        console.error('Initialization error:', error);
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const errorOverlay = document.getElementById('error-overlay');
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        if (errorOverlay) {
+            errorOverlay.style.display = 'flex';
+            document.getElementById('error-text').textContent = error.message;
+        }
+    }
 }
 
 async function parseUrlParams() {
@@ -227,14 +238,16 @@ async function parseUrlParams() {
                         variant: foundGame.gametype || ''
                     };
                 } else {
-                    // No match in gameindex - try loading the file directly
-                    console.warn(`No gameindex entry for ${identifier}, attempting direct load`);
-                    mapName = 'Unknown';
-                    telemetryFile = searchFilename;
-                    gameInfo = { map: mapName, gameType: '', date: '', variant: '' };
+                    // No match in gameindex - theater file not available
+                    console.error(`No theater file found for ${identifier}`);
+                    throw new Error('Sorry, it seems this file was lost');
                 }
             }
         } catch (e) {
+            // Rethrow user-facing errors, only catch network/parse errors
+            if (e.message === 'Sorry, it seems this file was lost') {
+                throw e;
+            }
             console.error('Failed to load gameindex.json:', e);
             mapName = 'Unknown';
             telemetryFile = '';
