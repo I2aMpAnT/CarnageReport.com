@@ -8407,16 +8407,27 @@ function open3DReplay(gameIndex) {
         return;
     }
 
-    // Use the stored gameNumber (assigned before filtering) to match gameindex.json
-    // This ensures the correct game is loaded even when games have been filtered out
-    const gameNumber = game.gameNumber;
-    if (!gameNumber) {
-        console.error('Game number not found for game:', game);
+    // Use source_file prefix for reliable theater loading
+    // This bypasses gameindex.json numbering mismatches
+    const sourceFile = game.source_file;
+    if (sourceFile) {
+        // Extract prefix from source_file (e.g., "20251128_201839.xlsx" -> "20251128_201839")
+        const prefix = sourceFile.replace('.xlsx', '');
+        window.open(`/theater/${prefix}`, '_blank');
         return;
     }
 
-    // Open theater mode with simple game number URL
-    window.open(`/theater/${gameNumber}`, '_blank');
+    // Fallback: try to derive prefix from game timestamp
+    const startTime = game.details?.['Start Time'];
+    if (startTime) {
+        const prefix = gameTimeToTelemetryFilename(startTime);
+        if (prefix) {
+            window.open(`/theater/${prefix}`, '_blank');
+            return;
+        }
+    }
+
+    console.error('Cannot open theater mode: no source_file or valid timestamp for game:', game);
 }
 
 // Check if a game has telemetry available
