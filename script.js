@@ -5921,16 +5921,24 @@ function showSearchAccuracyBreakdown() {
     // Weapon tab content
     html += '<div id="accuracy-tab-weapon" class="accuracy-tab-content" style="display:none;">';
     html += '<div class="weapon-breakdown-grid">';
-    const weaponEntries = Object.entries(byWeapon).sort((a, b) => {
-        const accA = a[1].fired > 0 ? (a[1].hit / a[1].fired) : 0;
-        const accB = b[1].fired > 0 ? (b[1].hit / b[1].fired) : 0;
-        return accB - accA;
-    });
+    const weaponEntries = Object.entries(byWeapon)
+        .filter(([weapon, data]) => {
+            // Filter out weapons with no shots fired
+            if (data.fired === 0) return false;
+            // Filter out bogus weapon names
+            if (weapon.toLowerCase().includes('unused')) return false;
+            return true;
+        })
+        .sort((a, b) => {
+            const accA = a[1].fired > 0 ? (a[1].hit / a[1].fired) : 0;
+            const accB = b[1].fired > 0 ? (b[1].hit / b[1].fired) : 0;
+            return accB - accA;
+        });
     if (weaponEntries.length === 0) {
         html += '<div class="no-data">No weapon accuracy data available</div>';
     }
     weaponEntries.forEach(([weapon, data]) => {
-        const acc = data.fired > 0 ? ((data.hit / data.fired) * 100).toFixed(1) : '0.0';
+        const acc = ((data.hit / data.fired) * 100).toFixed(1);
         // Strip " Shots" suffix for icon lookup and display
         const baseWeaponName = weapon.replace(/ shots$/i, '').trim();
         const weaponIcon = getWeaponIcon(baseWeaponName);
@@ -6220,16 +6228,24 @@ function showProfileAccuracyBreakdown() {
     // Weapon tab content
     html += '<div id="accuracy-tab-weapon" class="accuracy-tab-content" style="display:none;">';
     html += '<div class="weapon-breakdown-grid">';
-    const weaponEntries = Object.entries(byWeapon).sort((a, b) => {
-        const accA = a[1].fired > 0 ? (a[1].hit / a[1].fired) : 0;
-        const accB = b[1].fired > 0 ? (b[1].hit / b[1].fired) : 0;
-        return accB - accA;
-    });
+    const weaponEntries = Object.entries(byWeapon)
+        .filter(([weapon, data]) => {
+            // Filter out weapons with no shots fired
+            if (data.fired === 0) return false;
+            // Filter out bogus weapon names
+            if (weapon.toLowerCase().includes('unused')) return false;
+            return true;
+        })
+        .sort((a, b) => {
+            const accA = a[1].fired > 0 ? (a[1].hit / a[1].fired) : 0;
+            const accB = b[1].fired > 0 ? (b[1].hit / b[1].fired) : 0;
+            return accB - accA;
+        });
     if (weaponEntries.length === 0) {
         html += '<div class="no-data">No weapon accuracy data available</div>';
     }
     weaponEntries.forEach(([weapon, data]) => {
-        const acc = data.fired > 0 ? ((data.hit / data.fired) * 100).toFixed(1) : '0.0';
+        const acc = ((data.hit / data.fired) * 100).toFixed(1);
         // Strip " Shots" suffix for icon lookup and display
         const baseWeaponName = weapon.replace(/ shots$/i, '').trim();
         const weaponIcon = getWeaponIcon(baseWeaponName);
