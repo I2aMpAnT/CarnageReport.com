@@ -1056,11 +1056,6 @@ function getBaseGametype(variantName, playlist = '', game = null) {
         return variantName;
     }
 
-    // Add MLG prefix and 2007 suffix for MLG playlists (but not for FFA)
-    if (isMLG && baseType !== 'Free For All') {
-        return `MLG ${baseType} 2007`;
-    }
-
     return baseType;
 }
 
@@ -6281,13 +6276,14 @@ function showProfileWinrateBreakdown() {
         if (!isRankedGame) continue;
 
         const mapName = game.details['Map Name'] || 'Unknown';
-        const gameType = game.details['Game Type'] || 'Unknown';
+        const rawGameType = game.details['Game Type'] || 'Unknown';
+        const gameType = getBaseGametype(rawGameType, game.playlist, game);
         const player = game.players.find(p => p.name === currentProfilePlayer);
         if (!player) continue;
 
         // Determine if player won
         let isWin = false;
-        const isOddball = gameType.toLowerCase().includes('oddball') || gameType.toLowerCase().includes('ball');
+        const isOddball = rawGameType.toLowerCase().includes('oddball') || rawGameType.toLowerCase().includes('ball');
 
         // Check if it's a team game
         const hasTeams = game.players.some(p => isValidTeam(p.team));
