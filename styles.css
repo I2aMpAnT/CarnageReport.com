@@ -3156,53 +3156,89 @@ header {
 .breakdown-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    background: rgba(0, 217, 255, 0.03);
-    border-radius: 4px;
+    gap: 12px;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(168, 212, 255, 0.1);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .breakdown-item:hover {
-    background: rgba(0, 217, 255, 0.1);
+    background: rgba(168, 212, 255, 0.05);
+    border-left: 4px solid var(--unsc-blue);
+    padding-left: 16px;
 }
 
 .breakdown-rank {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
     color: var(--text-secondary);
-    min-width: 24px;
+    min-width: 35px;
 }
 
 .breakdown-icon {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
     flex-shrink: 0;
 }
 
 .breakdown-icon.map-icon {
-    width: 36px;
-    height: 22px;
+    width: 48px;
+    height: 28px;
     object-fit: cover;
-    border-radius: 2px;
+    border-radius: 3px;
+}
+
+.breakdown-emblem {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+.breakdown-emblem img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(168, 212, 255, 0.3));
+}
+
+.breakdown-emblem-placeholder {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    background: rgba(168, 212, 255, 0.1);
+    border: 1px solid rgba(168, 212, 255, 0.2);
+    border-radius: 4px;
+}
+
+.breakdown-rank-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 4px rgba(168, 212, 255, 0.3));
+    flex-shrink: 0;
 }
 
 .breakdown-name {
     flex: 1;
-    font-size: 13px;
-    color: var(--text-primary);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--unsc-blue);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .breakdown-count {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    color: var(--kills-green);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--unsc-blue);
     white-space: nowrap;
+    min-width: 50px;
+    text-align: right;
 }
 
 @media (max-width: 1024px) {
