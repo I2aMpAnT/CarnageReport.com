@@ -6787,9 +6787,8 @@ function calculatePlayerMeleeKills(playerName) {
 function showWeaponLeaderboard(weaponName) {
     const weaponLower = weaponName.toLowerCase();
 
-    // Calculate kills and deaths for each player with this weapon
+    // Calculate kills for each player with this weapon
     const playerKills = {};
-    const playerDeaths = {};
 
     gamesData.forEach(game => {
         game.weapons?.forEach(weaponData => {
@@ -6804,22 +6803,15 @@ function showWeaponLeaderboard(weaponName) {
                     if (keyLower.includes('kills') && !keyLower.includes('headshot')) {
                         const kills = parseInt(weaponData[key]) || 0;
                         playerKills[player] = (playerKills[player] || 0) + kills;
-                    } else if (keyLower.includes('deaths')) {
-                        const deaths = parseInt(weaponData[key]) || 0;
-                        playerDeaths[player] = (playerDeaths[player] || 0) + deaths;
                     }
                 }
             });
         });
     });
 
-    // Sort by most kills/deaths
+    // Sort by most kills
     const topKillers = Object.entries(playerKills)
         .filter(([_, kills]) => kills > 0)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
-    const topVictims = Object.entries(playerDeaths)
-        .filter(([_, deaths]) => deaths > 0)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
 
@@ -6853,48 +6845,18 @@ function showWeaponLeaderboard(weaponName) {
             const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
             const rank = getRankForProfile(player);
 
-            html += `<div class="weapon-lb-row">`;
+            html += `<div class="weapon-lb-row" onclick="openPlayerProfile('${player.replace(/'/g, "\\'")}')">`;
             html += `<span class="weapon-lb-rank">#${i + 1}</span>`;
             if (emblemParams) {
                 html += `<div class="emblem-placeholder weapon-lb-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
+            } else {
+                html += `<div class="weapon-lb-emblem-placeholder"></div>`;
             }
             html += `<span class="weapon-lb-name">${displayName}</span>`;
             if (rank) {
-                html += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="weapon-lb-rank-icon">`;
+                html += `<img src="https://r2-cdn.insignia.live/h2-rank/${rank}.png" alt="Rank ${rank}" class="weapon-lb-rank-icon">`;
             }
             html += `<span class="weapon-lb-count">${kills}</span>`;
-            html += `</div>`;
-        }
-        html += '</div>';
-    }
-    html += '</div>';
-
-    // Most Deaths column
-    html += '<div class="weapon-leaderboard-column">';
-    html += '<h3>Most Deaths</h3>';
-    if (topVictims.length === 0) {
-        html += '<div class="no-data">No deaths recorded</div>';
-    } else {
-        html += '<div class="weapon-leaderboard-list">';
-        for (let i = 0; i < topVictims.length; i++) {
-            const [player, deaths] = topVictims[i];
-            const displayName = getDisplayNameForProfile(player);
-            const discordId = profileNameToDiscordId[player];
-            const playerInfo = discordId ? playerEmblems[discordId] : null;
-            const emblemUrl = playerInfo?.emblem_url || getPlayerEmblem(player);
-            const emblemParams = emblemUrl ? parseEmblemParams(emblemUrl) : null;
-            const rank = getRankForProfile(player);
-
-            html += `<div class="weapon-lb-row">`;
-            html += `<span class="weapon-lb-rank">#${i + 1}</span>`;
-            if (emblemParams) {
-                html += `<div class="emblem-placeholder weapon-lb-emblem" data-emblem-params='${JSON.stringify(emblemParams)}'></div>`;
-            }
-            html += `<span class="weapon-lb-name">${displayName}</span>`;
-            if (rank) {
-                html += `<img src="assets/ranks/${rank}.png" alt="Rank ${rank}" class="weapon-lb-rank-icon">`;
-            }
-            html += `<span class="weapon-lb-count">${deaths}</span>`;
             html += `</div>`;
         }
         html += '</div>';

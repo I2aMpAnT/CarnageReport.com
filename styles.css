@@ -4118,9 +4118,8 @@ header {
 }
 
 .weapon-leaderboard-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
+    display: flex;
+    flex-direction: column;
 }
 
 .weapon-leaderboard-column h3 {
@@ -4146,6 +4145,12 @@ header {
     background: rgba(0, 217, 255, 0.05);
     border: 1px solid var(--border-color);
     border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.weapon-lb-row:hover {
+    background: rgba(0, 217, 255, 0.15);
 }
 
 .weapon-lb-rank {
@@ -4164,6 +4169,15 @@ header {
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+.weapon-lb-emblem-placeholder {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    background: rgba(0, 217, 255, 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
 }
 
 .weapon-lb-name {
