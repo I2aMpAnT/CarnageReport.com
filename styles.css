@@ -1166,7 +1166,7 @@ header {
     gap: 10px;
 }
 
-.sb-score, .sb-kills, .sb-deaths, .sb-assists, .sb-grenades, .sb-melee, .sb-kd {
+.sb-score, .sb-kills, .sb-deaths, .sb-assists, .sb-grenades, .sb-melee, .sb-kd, .sb-kda {
     text-align: center;
     font-family: 'Orbitron', sans-serif;
     font-weight: 600;
@@ -1689,7 +1689,7 @@ header {
 
 .leaderboard-header {
     display: grid;
-    grid-template-columns: 50px 40px 2fr 120px 70px 70px 70px 70px 70px;
+    grid-template-columns: 50px 40px 2fr 120px 70px 70px 70px 70px 70px 70px;
     gap: 12px;
     padding: 12px 20px;
     background: linear-gradient(90deg, rgba(168, 212, 255, 0.15), rgba(168, 212, 255, 0.05));
@@ -1704,13 +1704,19 @@ header {
 
 .leaderboard-row {
     display: grid;
-    grid-template-columns: 50px 40px 2fr 120px 70px 70px 70px 70px 70px;
+    grid-template-columns: 50px 40px 2fr 120px 70px 70px 70px 70px 70px 70px;
     gap: 12px;
     padding: 8px 20px;
     border-bottom: 1px solid rgba(168, 212, 255, 0.1);
     transition: all 0.3s ease;
     cursor: pointer;
     align-items: center;
+}
+
+.lb-kda {
+    text-align: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
 }
 
 .lb-series {
