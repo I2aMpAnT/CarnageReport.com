@@ -2199,7 +2199,7 @@ function createGameItem(game, gameNumber, idPrefix = 'game') {
     const details = game.details;
     const players = game.players;
     
-    let displayGameType = getBaseGametype(details['Game Type'], game.playlist, game);
+    let displayGameType = details['Game Type'] || 'Unknown';
     let mapName = details['Map Name'] || 'Unknown Map';
     let duration = formatDuration(details['Duration'] || '0:00');
     let startTime = details['Start Time'] || '';
@@ -2351,8 +2351,7 @@ function toggleGameDetails(idPrefix, gameNumber) {
 function renderGameContent(game) {
     const mapName = game.details['Map Name'] || 'Unknown';
     const mapImage = mapImages[mapName] || defaultMapImage;
-    const rawGameType = game.details['Game Type'] || 'Unknown';
-    const displayGameType = getBaseGametype(rawGameType, game.playlist, game);
+    const displayGameType = game.details['Game Type'] || 'Unknown';
     const duration = formatDuration(game.details['Duration'] || '0:00');
     const startTime = game.details['Start Time'] || '';
 
@@ -2606,10 +2605,10 @@ function renderScoreboard(game) {
     let html = '<div class="scoreboard">';
 
     // Determine columns
-    let columns = ['', 'Player', 'Score', 'K', 'D', 'A', 'K/D'];
+    let columns = ['', 'Player', 'Score', 'K', 'D', 'A', 'K/D', 'KDA'];
 
     // Build grid template
-    let gridTemplate = '40px 2fr 80px 50px 50px 50px 70px';
+    let gridTemplate = '40px 2fr 80px 50px 50px 50px 70px 70px';
 
     // Header
     html += `<div class="scoreboard-header" style="grid-template-columns: ${gridTemplate}">`;
@@ -2651,6 +2650,7 @@ function renderScoreboard(game) {
         html += `<div class="sb-deaths">${player.deaths || 0}</div>`;
         html += `<div class="sb-assists">${player.assists || 0}</div>`;
         html += `<div class="sb-kd">${calculateKD(player.kills, player.deaths)}</div>`;
+        html += `<div class="sb-kda">${calculateKDA(player.kills || 0, player.deaths || 0, player.assists || 0)}</div>`;
 
         html += '</div>';
     });
@@ -3552,6 +3552,7 @@ function renderLeaderboard(selectedPlaylist = null) {
     html += '<div>Kills</div>';
     html += '<div>Deaths</div>';
     html += '<div>K/D</div>';
+    html += '<div>KDA</div>';
     html += '<div>Assists</div>';
     html += '</div>';
 
@@ -3609,6 +3610,10 @@ function renderLeaderboard(selectedPlaylist = null) {
         html += `<div class="lb-kills">${killsDisplay}</div>`;
         html += `<div class="lb-deaths">${deathsDisplay}</div>`;
         html += `<div class="lb-kd ${kdClass}">${kdDisplay}</div>`;
+        // KDA
+        const kdaDisplay = hasGames ? calculateKDA(player.kills, player.deaths, player.assists) : '<span class="stat-empty">—</span>';
+        const kdaClass = hasGames && parseFloat(calculateKDA(player.kills, player.deaths, player.assists)) >= 1.0 ? 'kd-positive' : (hasGames ? 'kd-negative' : '');
+        html += `<div class="lb-kda ${kdaClass}">${kdaDisplay}</div>`;
         // Assists
         const assistsDisplay = hasGames ? player.assists.toLocaleString() : '<span class="stat-empty">—</span>';
         html += `<div class="lb-assists">${assistsDisplay}</div>`;
@@ -4251,6 +4256,7 @@ function renderPlayerSearchResults(playerName, includeCustomGames = false) {
     html += `<div class="stat-card clickable-stat" onclick="showSearchWeaponKillsBreakdown()"><div class="stat-label">Kills</div><div class="stat-value">${stats.kills}</div><div class="stat-sublabel">${stats.kpg} per game</div></div>`;
     html += `<div class="stat-card clickable-stat" onclick="showSearchWeaponDeathsBreakdown()"><div class="stat-label">Deaths</div><div class="stat-value">${stats.deaths}</div></div>`;
     html += `<div class="stat-card clickable-stat" onclick="showPlayersFacedBreakdown()"><div class="stat-label">K/D</div><div class="stat-value">${stats.kd}</div></div>`;
+    html += `<div class="stat-card"><div class="stat-label">KDA</div><div class="stat-value">${calculateKDA(stats.kills, stats.deaths, stats.assists)}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Assists</div><div class="stat-value">${stats.assists}</div></div>`;
     html += `<div class="stat-card clickable-stat" onclick="showSearchMedalBreakdown()"><div class="stat-label">Total Medals</div><div class="stat-value">${stats.totalMedals}</div></div>`;
     if (stats.precisionKills > 0) {
@@ -4989,8 +4995,7 @@ function renderSearchGameCard(game, gameNumber, highlightPlayer = null) {
     const details = game.details;
     const players = game.players;
     const mapName = details['Map Name'] || 'Unknown';
-    const rawGameType = details['Game Type'] || 'Unknown';
-    const displayGameType = getBaseGametype(rawGameType, game.playlist, game);
+    const displayGameType = details['Game Type'] || 'Unknown';
     const startTime = details['Start Time'] || '';
 
     // Calculate team scores
@@ -5332,6 +5337,7 @@ function renderPlayerModalStats(stats) {
     html += `<div class="stat-card"><div class="stat-label">Total Kills</div><div class="stat-value">${stats.kills}</div><div class="stat-sublabel">${stats.kpg} per game</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Total Deaths</div><div class="stat-value">${stats.deaths}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">K/D Ratio</div><div class="stat-value">${stats.kd}</div></div>`;
+    html += `<div class="stat-card"><div class="stat-label">KDA</div><div class="stat-value">${calculateKDA(stats.kills, stats.deaths, stats.assists)}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Assists</div><div class="stat-value">${stats.assists}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Best Spree</div><div class="stat-value">${stats.bestSpree}</div></div>`;
     html += `<div class="stat-card"><div class="stat-label">Avg Accuracy</div><div class="stat-value">${stats.avgAccuracy}%</div></div>`;
@@ -5522,6 +5528,11 @@ function formatWeaponName(name) {
 function calculateKD(kills, deaths) {
     if (deaths === 0) return kills.toFixed(2);
     return (kills / deaths).toFixed(2);
+}
+
+function calculateKDA(kills, deaths, assists) {
+    if (deaths === 0) return (kills + assists).toFixed(2);
+    return ((kills + assists) / deaths).toFixed(2);
 }
 
 function getPlaceClass(place) {
@@ -7754,6 +7765,10 @@ function renderProfileStats(stats) {
         <div class="profile-stat-card highlight clickable-stat" onclick="showProfileKDBreakdown()">
             <div class="stat-value">${stats.kd}</div>
             <div class="stat-label">K/D Ratio</div>
+        </div>
+        <div class="profile-stat-card highlight">
+            <div class="stat-value">${calculateKDA(stats.kills, stats.deaths, stats.assists)}</div>
+            <div class="stat-label">KDA</div>
         </div>
         <div class="profile-stat-card clickable-stat" onclick="showProfileWeaponKillsBreakdown()">
             <div class="stat-value">${stats.kills}</div>
