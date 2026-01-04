@@ -1035,6 +1035,8 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
     """
     Determine the appropriate playlist for a game based on:
     1. Manual override from manual_playlists.json (highest priority)
+       - null or "Unranked" forces game to be custom/unranked
+       - "Tournament 1" etc. assigns to that playlist
     2. Game duration (must be >= 2 minutes to filter restarts)
     3. Game criteria (player count, team game, valid map/gametype)
 
@@ -1042,6 +1044,7 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
     - Head to Head: 2 players (1v1)
     - Double Team: 4 players + team game (2v2)
     - MLG 4v4: 8 players + team game + valid MLG map/gametype combo
+    - FFA (3+ players, not team game): always unranked/custom
 
     Returns: playlist name string or None if game doesn't qualify for any playlist
     """
@@ -1050,8 +1053,16 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
     # Check manual override first (highest priority)
     if manual_playlists:
         if filename in manual_playlists:
-            # Normalize playlist name (e.g., "Ranked MLG 4v4" -> "MLG 4v4")
-            return normalize_playlist_name(manual_playlists[filename])
+            playlist_value = manual_playlists[filename]
+            # null or "Unranked" forces game to custom/unranked
+            if playlist_value is None or playlist_value == "Unranked":
+                if debug:
+                    print(f"    DEBUG [{filename}]: Manual override -> Unranked")
+                return None
+            # Otherwise normalize and return the playlist name (e.g., Tournament 1)
+            if debug:
+                print(f"    DEBUG [{filename}]: Manual override -> {playlist_value}")
+            return normalize_playlist_name(playlist_value)
 
     # Filter out short games (restarts) - must be at least 2 minutes
     if not is_game_long_enough(file_path):
@@ -1078,6 +1089,12 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
 
     if debug:
         print(f"    DEBUG [{filename}]: players={player_count}, is_team={is_team}, map={map_name}, gametype={base_gametype}")
+
+    # FFA games (3+ players, not a team game) are always custom/unranked
+    if player_count >= 3 and not is_team:
+        if debug:
+            print(f"    DEBUG [{filename}]: FFA game ({player_count} players, no teams) -> Unranked")
+        return None
 
     # Determine playlist based on game criteria alone
     # Priority: MLG 4v4 > Double Team > Head to Head
