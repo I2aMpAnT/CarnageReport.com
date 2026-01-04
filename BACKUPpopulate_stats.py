@@ -2067,6 +2067,9 @@ def main():
                 player_to_id.update(saved_name_to_id)
                 print(f"  Restored {len(saved_name_to_id)} player name->ID mappings from saved state")
 
+    # Track unlinked players for summary report at end
+    unlinked_players = {}  # {player_name: {'mac': mac_or_None, 'files': [list of source files]}}
+
     for game in all_games:
         game_file = game.get('source_file', '')
         game_source_dir = game.get('source_dir', STATS_PUBLIC_DIR)
@@ -2119,8 +2122,18 @@ def main():
                     'total_series': 0,
                     'mmr': 750,
                     'discord_name': player_name,
-                    'rank': 1
+                    'rank': 1,
+                    'mac_linked': False  # Mark as unlinked
                 }
+                # Track unlinked player for summary report
+                player_mac = identity_name_to_mac.get(player_name.lower())
+                if player_name not in unlinked_players:
+                    unlinked_players[player_name] = {'mac': player_mac, 'files': []}
+                if game_file not in unlinked_players[player_name]['files']:
+                    unlinked_players[player_name]['files'].append(game_file)
+                # Update MAC if we found one in this identity file
+                if player_mac and not unlinked_players[player_name]['mac']:
+                    unlinked_players[player_name]['mac'] = player_mac
                 print(f"    Warning: Could not resolve '{player_name}' to Discord ID (in {game_file})")
 
             # Initialize overall stats tracking (from ALL games) - only if not already initialized
@@ -3150,6 +3163,30 @@ def main():
         wins = d.get('wins', 0)
         losses = d.get('losses', 0)
         print(f"  {name:20s} | Rank: {rank:2d} | XP: {xp:4d} | W-L: {wins}-{losses}")
+
+    # Report on unlinked players (players without Discord ID)
+    if unlinked_players:
+        print(f"\n" + "=" * 60)
+        print("UNLINKED PLAYERS REPORT")
+        print("=" * 60)
+        print(f"Found {len(unlinked_players)} players without Discord ID links:")
+        print("")
+        for player_name, info in sorted(unlinked_players.items()):
+            mac = info.get('mac')
+            files = info.get('files', [])
+            mac_display = mac if mac else "NO MAC FOUND"
+            print(f"  Player: {player_name}")
+            print(f"    MAC: {mac_display}")
+            print(f"    Appears in {len(files)} file(s):")
+            for f in files[:5]:  # Show up to 5 files
+                print(f"      - {f}")
+            if len(files) > 5:
+                print(f"      ... and {len(files) - 5} more")
+            print("")
+        print("To link these players, add their MAC address to players.json")
+        print("=" * 60)
+    else:
+        print(f"\nAll players successfully linked to Discord IDs!")
 
     # Note: Website now loads data via fetch() from JSON files
     # No need to embed data in HTML anymore

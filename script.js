@@ -8465,6 +8465,22 @@ async function loadTournaments() {
             return;
         }
 
+        // Load match data to get full team rosters
+        const tournamentMatchData = {};
+        for (const tournament of tournaments) {
+            if (tournament.matches_file) {
+                try {
+                    const matchResp = await fetch(tournament.matches_file);
+                    if (matchResp.ok) {
+                        const matchData = await matchResp.json();
+                        tournamentMatchData[tournament.name] = matchData;
+                    }
+                } catch (e) {
+                    console.warn(`Could not load matches for ${tournament.name}`);
+                }
+            }
+        }
+
         let html = '';
         for (const tournament of tournaments) {
             const teamsCount = tournament.bracket?.teams?.length || 0;
@@ -8473,12 +8489,44 @@ async function loadTournaments() {
             // Find the winner from grand finals
             let winnerName = '';
             let winnerCaptain = '';
+            let winnerTeamMembers = [];
             const grandFinals = tournament.bracket?.series?.find(s => s.round === 'grand_finals');
             if (grandFinals && grandFinals.winner_seed) {
                 const winnerTeam = tournament.bracket.teams?.find(t => t.seed === grandFinals.winner_seed);
                 if (winnerTeam) {
                     winnerCaptain = winnerTeam.captain;
-                    winnerName = `Team ${winnerCaptain}`;
+
+                    // Look up team members from match data
+                    const matchData = tournamentMatchData[tournament.name];
+                    if (matchData && matchData.matches) {
+                        // Find a match where the captain played
+                        for (const match of matchData.matches) {
+                            const redTeam = match.red_team || [];
+                            const blueTeam = match.blue_team || [];
+
+                            // Check if captain is in red or blue team (case-insensitive)
+                            const captainLower = winnerCaptain.toLowerCase();
+                            const inRed = redTeam.some(p => p.toLowerCase() === captainLower);
+                            const inBlue = blueTeam.some(p => p.toLowerCase() === captainLower);
+
+                            if (inRed) {
+                                winnerTeamMembers = redTeam;
+                                break;
+                            } else if (inBlue) {
+                                winnerTeamMembers = blueTeam;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Build winner name with all team members
+                    if (winnerTeamMembers.length > 0) {
+                        // Put captain first, then other members
+                        const otherMembers = winnerTeamMembers.filter(m => m.toLowerCase() !== winnerCaptain.toLowerCase());
+                        winnerName = `Team ${winnerCaptain} + ${otherMembers.join(' + ')}`;
+                    } else {
+                        winnerName = `Team ${winnerCaptain}`;
+                    }
                 }
             }
 
