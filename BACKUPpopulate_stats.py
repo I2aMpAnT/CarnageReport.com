@@ -2942,8 +2942,18 @@ def main():
 
     print("\nDone!")
 
-    # NOTE: Discord bot notification temporarily disabled
-    # See BACKUPpopulate_stats.py for the original with webhook
+    # Trigger Discord bot to refresh ranks
+    print("\nTriggering Discord bot rank refresh...")
+    try:
+        response = requests.post(DISCORD_REFRESH_WEBHOOK, json={
+            "content": "!refresh_ranks_trigger"
+        })
+        if response.status_code == 204:
+            print("  Discord webhook sent successfully!")
+        else:
+            print(f"  Warning: Webhook returned status {response.status_code}")
+    except Exception as e:
+        print(f"  Error sending webhook: {e}")
 
     # Push JSON files to GitHub for website updates
     print("\nPushing stats to GitHub...")
