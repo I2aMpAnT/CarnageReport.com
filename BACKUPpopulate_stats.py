@@ -125,6 +125,7 @@ PLAYLIST_TEAM_HARDCORE = 'Team Hardcore'
 PLAYLIST_DOUBLE_TEAM = 'Double Team'
 PLAYLIST_HEAD_TO_HEAD = 'Head to Head'
 PLAYLIST_TOURNAMENT_1 = 'Tournament 1'
+PLAYLIST_TOURNAMENTS = 'Tournaments'  # Combined aggregate of all Tournament* playlists
 
 # Playlist aliases - map alternate names to canonical names
 PLAYLIST_ALIASES = {
@@ -1963,13 +1964,29 @@ def main():
         print(f"  Unranked (stats only): {len(untagged_games)} games")
     print(f"  Total games: {len(all_games)}")
 
+    # Create combined "Tournaments" playlist from all Tournament* playlists
+    # This aggregates ALL tournament games for a combined leaderboard with its own rank progression
+    tournament_games_combined = []
+    for playlist_name, playlist_games_list in games_by_playlist.items():
+        if playlist_name.startswith('Tournament'):
+            tournament_games_combined.extend(playlist_games_list)
+
+    if tournament_games_combined:
+        # Sort chronologically for proper rank progression
+        tournament_games_combined.sort(key=lambda g: parse_game_timestamp(g.get('details', {}).get('Start Time', '')))
+        games_by_playlist[PLAYLIST_TOURNAMENTS] = tournament_games_combined
+        print(f"  {PLAYLIST_TOURNAMENTS} (combined): {len(tournament_games_combined)} games")
+
     # Ranked games are those with a valid playlist tag
     # Use list() to create a COPY - otherwise extend() mutates the original list in games_by_playlist
     ranked_games = list(games_by_playlist.get(PLAYLIST_MLG_4V4, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_TEAM_HARDCORE, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_DOUBLE_TEAM, []))
     ranked_games.extend(games_by_playlist.get(PLAYLIST_HEAD_TO_HEAD, []))
-    ranked_games.extend(games_by_playlist.get(PLAYLIST_TOURNAMENT_1, []))
+    # Add all Tournament* playlists (Tournament 1, Tournament 2, etc.) but NOT the combined "Tournaments"
+    for pl, games in games_by_playlist.items():
+        if pl.startswith('Tournament') and pl != PLAYLIST_TOURNAMENTS:
+            ranked_games.extend(games)
 
     # Sort ranked games chronologically by START TIME (not end time from filename)
     # This ensures ranks are calculated in the correct order based on when games began
@@ -2367,6 +2384,88 @@ def main():
 
             print(f"    {player_name}: {result} | XP: {old_xp} -> {new_xp} | Rank: {rank_before} -> {new_rank}")
 
+    # STEP 3c: Process combined "Tournaments" playlist for separate rank progression
+    # This tracks XP/rank for the combined tournaments leaderboard (does NOT affect overall stats)
+    if PLAYLIST_TOURNAMENTS in games_by_playlist:
+        tournament_games_for_xp = games_by_playlist[PLAYLIST_TOURNAMENTS]
+        print(f"\n  Processing {len(tournament_games_for_xp)} tournament games for combined Tournaments rank...")
+
+        for game_num, game in enumerate(tournament_games_for_xp, 1):
+            winners, losers = determine_winners_losers(game)
+            game_name = get_base_gametype(game['details'].get('Game Type', 'Unknown'))
+            original_playlist = game.get('playlist')  # Keep reference to original playlist
+
+            print(f"\n  Tournaments Game {game_num} [from {original_playlist}]: {game_name}")
+
+            for player in game['players']:
+                player_name = player['name']
+
+                # Skip dedicated servers
+                if is_dedicated_server(player_name):
+                    continue
+
+                user_id = player_to_id.get(player_name)
+
+                # Skip if not properly resolved
+                if player_name not in player_playlist_xp:
+                    continue
+
+                # Initialize Tournaments playlist tracking if needed
+                if PLAYLIST_TOURNAMENTS not in player_playlist_xp[player_name]:
+                    # Copy rank from individual tournament playlists if they played any
+                    existing_rank = 1
+                    existing_highest = 1
+                    for pl in player_playlist_rank[player_name]:
+                        if pl.startswith('Tournament') and pl != PLAYLIST_TOURNAMENTS:
+                            if player_playlist_rank[player_name].get(pl, 1) > existing_rank:
+                                existing_rank = player_playlist_rank[player_name].get(pl, 1)
+                                existing_highest = player_playlist_highest_rank[player_name].get(pl, 1)
+
+                    player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] = 0
+                    player_playlist_wins[player_name][PLAYLIST_TOURNAMENTS] = 0
+                    player_playlist_losses[player_name][PLAYLIST_TOURNAMENTS] = 0
+                    player_playlist_games[player_name][PLAYLIST_TOURNAMENTS] = 0
+                    player_playlist_rank[player_name][PLAYLIST_TOURNAMENTS] = 1  # Start at rank 1
+                    player_playlist_highest_rank[player_name][PLAYLIST_TOURNAMENTS] = 1
+
+                # Get current XP and rank for Tournaments playlist
+                old_xp = player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS]
+                rank_before = player_playlist_rank[player_name][PLAYLIST_TOURNAMENTS]
+
+                # Determine result and calculate XP change
+                xp_change = 0
+                game_result = 'tie'
+
+                if player_name in winners:
+                    player_playlist_wins[player_name][PLAYLIST_TOURNAMENTS] += 1
+                    player_playlist_games[player_name][PLAYLIST_TOURNAMENTS] += 1
+                    win_factor = get_win_factor(rank_before, win_factors)
+                    xp_change = int(xp_win * win_factor)
+                    player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] += xp_change
+                    result = f"WIN (+{xp_change} @ {int(win_factor*100)}%)"
+                    game_result = 'win'
+                elif player_name in losers:
+                    player_playlist_losses[player_name][PLAYLIST_TOURNAMENTS] += 1
+                    player_playlist_games[player_name][PLAYLIST_TOURNAMENTS] += 1
+                    loss_factor = get_loss_factor(rank_before, loss_factors)
+                    xp_change = int(xp_loss * loss_factor)
+                    player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] += xp_change
+                    if player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] < 0:
+                        player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] = 0
+                    result = f"LOSS ({xp_change} @ {int(loss_factor*100)}%)"
+                    game_result = 'loss'
+                else:
+                    player_playlist_games[player_name][PLAYLIST_TOURNAMENTS] += 1
+                    result = "TIE"
+
+                new_xp = player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS]
+                new_rank = calculate_rank(new_xp, rank_thresholds)
+                player_playlist_rank[player_name][PLAYLIST_TOURNAMENTS] = new_rank
+                if new_rank > player_playlist_highest_rank[player_name][PLAYLIST_TOURNAMENTS]:
+                    player_playlist_highest_rank[player_name][PLAYLIST_TOURNAMENTS] = new_rank
+
+                print(f"    {player_name}: {result} | XP: {old_xp} -> {new_xp} | Rank: {rank_before} -> {new_rank}")
+
     # STEP 4: Update rankstats with final values
     print("\n\nStep 4: Updating rankstats with final values...")
 
@@ -2444,6 +2543,7 @@ def main():
         rankstats[user_id]['headshots'] = total_headshots
 
         # Calculate total wins/losses across all playlists and all aliases
+        # EXCLUDE "Tournaments" aggregate playlist to avoid double-counting
         total_wins = 0
         total_losses = 0
         for player_name in player_names:
@@ -2451,8 +2551,12 @@ def main():
                 player_playlist_wins[player_name] = {}
             if player_name not in player_playlist_losses:
                 player_playlist_losses[player_name] = {}
-            total_wins += sum(player_playlist_wins[player_name].values())
-            total_losses += sum(player_playlist_losses[player_name].values())
+            for pl, wins in player_playlist_wins[player_name].items():
+                if pl != PLAYLIST_TOURNAMENTS:  # Exclude aggregate playlist
+                    total_wins += wins
+            for pl, losses in player_playlist_losses[player_name].items():
+                if pl != PLAYLIST_TOURNAMENTS:  # Exclude aggregate playlist
+                    total_losses += losses
 
         rankstats[user_id]['wins'] = total_wins
         rankstats[user_id]['losses'] = total_losses
@@ -2498,13 +2602,15 @@ def main():
             rankstats[user_id][playlist] = playlist_rank
 
             # Track highest CURRENT rank across all playlists (not peak rank)
-            if playlist_rank > overall_highest_rank:
-                overall_highest_rank = playlist_rank
+            # EXCLUDE "Tournaments" aggregate playlist to avoid double-counting
+            if playlist != PLAYLIST_TOURNAMENTS:
+                if playlist_rank > overall_highest_rank:
+                    overall_highest_rank = playlist_rank
 
-            # Primary playlist is the one with most XP
-            if playlist_xp > primary_xp:
-                primary_xp = playlist_xp
-                primary_playlist = playlist
+                # Primary playlist is the one with most XP
+                if playlist_xp > primary_xp:
+                    primary_xp = playlist_xp
+                    primary_playlist = playlist
 
         # Store playlist details (use 'playlists' key for bot compatibility)
         rankstats[user_id]['playlists'] = playlists_data
@@ -2577,7 +2683,16 @@ def main():
 
     # Save per-playlist matches and stats
     print("\n  Saving per-playlist files...")
-    all_playlists = [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE, PLAYLIST_DOUBLE_TEAM, PLAYLIST_HEAD_TO_HEAD, PLAYLIST_TOURNAMENT_1]
+    # Build playlist list dynamically from games_by_playlist (includes all Tournament* playlists)
+    # Add core playlists first, then any additional playlists found in games
+    all_playlists = [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE, PLAYLIST_DOUBLE_TEAM, PLAYLIST_HEAD_TO_HEAD]
+    # Add all tournament playlists found (Tournament 1, Tournament 2, etc.)
+    for pl in games_by_playlist.keys():
+        if pl.startswith('Tournament') and pl != PLAYLIST_TOURNAMENTS and pl not in all_playlists:
+            all_playlists.append(pl)
+    # Add combined Tournaments playlist last (so individual ones are processed first)
+    if PLAYLIST_TOURNAMENTS in games_by_playlist:
+        all_playlists.append(PLAYLIST_TOURNAMENTS)
     playlist_files_saved = []
 
     # Helper function to get display name (discord_name instead of in-game name)
