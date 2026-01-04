@@ -2136,12 +2136,14 @@ def main():
                     unlinked_players[player_name]['mac'] = player_mac
                 print(f"    Warning: Could not resolve '{player_name}' to Discord ID (in {game_file})")
 
-            # Initialize overall stats tracking (from ALL games) - only if not already initialized
-            if player_name not in player_game_stats:
-                # Check if we have saved state for this player (in incremental mode)
-                if incremental_mode and user_id and user_id in saved_player_state:
+            # Initialize overall stats tracking BY USER_ID (from ALL games)
+            # This ensures stats are properly consolidated across all aliases for the same Discord user
+            user_id = player_to_id[player_name]  # We just set this above
+            if user_id not in player_game_stats:
+                # Check if we have saved state for this user (in incremental mode)
+                if incremental_mode and user_id in saved_player_state:
                     saved = saved_player_state[user_id]
-                    player_game_stats[player_name] = {
+                    player_game_stats[user_id] = {
                         'kills': saved.get('kills', 0),
                         'deaths': saved.get('deaths', 0),
                         'assists': saved.get('assists', 0),
@@ -2149,76 +2151,35 @@ def main():
                         'headshots': saved.get('headshots', 0)
                     }
                     # Restore per-playlist tracking from saved state
-                    player_playlist_xp[player_name] = {}
-                    player_playlist_wins[player_name] = {}
-                    player_playlist_losses[player_name] = {}
-                    player_playlist_games[player_name] = {}
+                    player_playlist_xp[user_id] = {}
+                    player_playlist_wins[user_id] = {}
+                    player_playlist_losses[user_id] = {}
+                    player_playlist_games[user_id] = {}
+                    player_playlist_rank[user_id] = {}
+                    player_playlist_highest_rank[user_id] = {}
                     for pl, pl_state in saved.get('playlists', {}).items():
-                        player_playlist_xp[player_name][pl] = pl_state.get('xp', 0)
-                        player_playlist_wins[player_name][pl] = pl_state.get('wins', 0)
-                        player_playlist_losses[player_name][pl] = pl_state.get('losses', 0)
-                        player_playlist_games[player_name][pl] = pl_state.get('games', 0)
+                        player_playlist_xp[user_id][pl] = pl_state.get('xp', 0)
+                        player_playlist_wins[user_id][pl] = pl_state.get('wins', 0)
+                        player_playlist_losses[user_id][pl] = pl_state.get('losses', 0)
+                        player_playlist_games[user_id][pl] = pl_state.get('games', 0)
+                        player_playlist_rank[user_id][pl] = pl_state.get('rank', 1)
+                        player_playlist_highest_rank[user_id][pl] = pl_state.get('highest_rank', 1)
                 else:
-                    player_game_stats[player_name] = {
+                    player_game_stats[user_id] = {
                         'kills': 0, 'deaths': 0, 'assists': 0,
                         'games': 0, 'headshots': 0
                     }
                     # Initialize per-playlist tracking (only from ranked games)
-                    player_playlist_xp[player_name] = {}
-                    player_playlist_wins[player_name] = {}
-                    player_playlist_losses[player_name] = {}
-                    player_playlist_games[player_name] = {}
+                    player_playlist_xp[user_id] = {}
+                    player_playlist_wins[user_id] = {}
+                    player_playlist_losses[user_id] = {}
+                    player_playlist_games[user_id] = {}
+                    player_playlist_rank[user_id] = {}
+                    player_playlist_highest_rank[user_id] = {}
 
-    # Track current rank per player per playlist
-    player_playlist_rank = {}  # {player_name: {playlist: rank}}
-    # Track highest rank achieved per player per playlist
-    player_playlist_highest_rank = {}  # {player_name: {playlist: highest_rank}}
-    for name in all_player_names:
-        player_playlist_rank[name] = {}
-        player_playlist_highest_rank[name] = {}
-        # In incremental mode, restore saved ranks
-        if incremental_mode and name in player_to_id:
-            user_id = player_to_id[name]
-            if user_id in saved_player_state:
-                for pl, pl_state in saved_player_state[user_id].get('playlists', {}).items():
-                    player_playlist_rank[name][pl] = pl_state.get('rank', 1)
-                    player_playlist_highest_rank[name][pl] = pl_state.get('highest_rank', 1)
-
-    # In incremental mode, restore player XP/rank state from saved state
-    if incremental_mode and saved_player_state:
-        print("\n  Restoring player XP/rank state from saved state...")
-        for user_id, state in saved_player_state.items():
-            # Find player names that map to this user_id
-            for player_name, pid in player_to_id.items():
-                if pid == user_id:
-                    # Initialize dicts for this player if not exists
-                    if player_name not in player_playlist_xp:
-                        player_playlist_xp[player_name] = {}
-                        player_playlist_rank[player_name] = {}
-                        player_playlist_highest_rank[player_name] = {}
-                        player_playlist_wins[player_name] = {}
-                        player_playlist_losses[player_name] = {}
-                        player_playlist_games[player_name] = {}
-                    if player_name not in player_game_stats:
-                        player_game_stats[player_name] = {
-                            'kills': 0, 'deaths': 0, 'assists': 0,
-                            'games': 0, 'headshots': 0
-                        }
-                    # Restore per-playlist XP and rank
-                    for playlist, pl_state in state.get('playlists', {}).items():
-                        player_playlist_xp[player_name][playlist] = pl_state.get('xp', 0)
-                        player_playlist_rank[player_name][playlist] = pl_state.get('rank', 1)
-                        player_playlist_highest_rank[player_name][playlist] = pl_state.get('highest_rank', 1)
-                        player_playlist_wins[player_name][playlist] = pl_state.get('wins', 0)
-                        player_playlist_losses[player_name][playlist] = pl_state.get('losses', 0)
-                        player_playlist_games[player_name][playlist] = pl_state.get('games', 0)
-                    # Restore game stats (kills, deaths, etc.)
-                    if player_name in player_game_stats:
-                        player_game_stats[player_name]['kills'] = state.get('kills', 0)
-                        player_game_stats[player_name]['deaths'] = state.get('deaths', 0)
-                        player_game_stats[player_name]['assists'] = state.get('assists', 0)
-                        player_game_stats[player_name]['headshots'] = state.get('headshots', 0)
-                        player_game_stats[player_name]['games'] = state.get('total_games', 0)
+    # Note: All tracking dictionaries (player_game_stats, player_playlist_xp, etc.) are now keyed by user_id
+    # This ensures stats are properly consolidated across all in-game aliases for the same Discord user
+    # State restoration for incremental mode happens during initialization above
 
     # Initialize rank history tracking (for rankhistory.json)
     # Structure: {discord_id: {"discord_name": str, "history": [...]}}
@@ -2309,37 +2270,22 @@ def main():
 
             user_id = player_to_id.get(player_name)
 
-            # Skip if not properly resolved
-            if player_name not in player_playlist_xp:
+            # Skip if not properly resolved (user_id not in tracking dicts)
+            if not user_id or user_id not in player_playlist_xp:
                 continue
 
-            # Initialize playlist tracking if needed
-            if playlist not in player_playlist_xp[player_name]:
-                # Initialize this alias's playlist stats to 0
-                # DON'T copy from other aliases - XP is summed across all aliases at step 4
-                # Copying would cause double-counting
-                existing_rank = 1
-                existing_highest = 1
-
-                # But DO copy the current rank so they continue at the right rank level
-                if user_id:
-                    for other_name, other_id in player_to_id.items():
-                        if other_id == user_id and other_name != player_name:
-                            if other_name in player_playlist_rank and playlist in player_playlist_rank[other_name]:
-                                existing_rank = player_playlist_rank[other_name].get(playlist, 1)
-                                existing_highest = player_playlist_highest_rank[other_name].get(playlist, 1)
-                                break
-
-                player_playlist_xp[player_name][playlist] = 0
-                player_playlist_wins[player_name][playlist] = 0
-                player_playlist_losses[player_name][playlist] = 0
-                player_playlist_games[player_name][playlist] = 0
-                player_playlist_rank[player_name][playlist] = existing_rank
-                player_playlist_highest_rank[player_name][playlist] = existing_highest
+            # Initialize playlist tracking if needed (now keyed by user_id)
+            if playlist not in player_playlist_xp[user_id]:
+                player_playlist_xp[user_id][playlist] = 0
+                player_playlist_wins[user_id][playlist] = 0
+                player_playlist_losses[user_id][playlist] = 0
+                player_playlist_games[user_id][playlist] = 0
+                player_playlist_rank[user_id][playlist] = 1
+                player_playlist_highest_rank[user_id][playlist] = 1
 
             # Get current XP and rank for this playlist (this is rank_before)
-            old_xp = player_playlist_xp[player_name][playlist]
-            rank_before = player_playlist_rank[player_name][playlist]
+            old_xp = player_playlist_xp[user_id][playlist]
+            rank_before = player_playlist_rank[user_id][playlist]
 
             # Store pre_game_rank on the player dict so it can be included in match data
             player['pre_game_rank'] = rank_before
@@ -2349,36 +2295,36 @@ def main():
             game_result = 'tie'
 
             if player_name in winners:
-                player_playlist_wins[player_name][playlist] += 1
-                player_playlist_games[player_name][playlist] += 1
+                player_playlist_wins[user_id][playlist] += 1
+                player_playlist_games[user_id][playlist] += 1
                 # Apply win factor (high ranks gain less)
                 win_factor = get_win_factor(rank_before, win_factors)
                 xp_change = int(xp_win * win_factor)
-                player_playlist_xp[player_name][playlist] += xp_change
+                player_playlist_xp[user_id][playlist] += xp_change
                 result = f"WIN (+{xp_change} @ {int(win_factor*100)}%)"
                 game_result = 'win'
             elif player_name in losers:
-                player_playlist_losses[player_name][playlist] += 1
-                player_playlist_games[player_name][playlist] += 1
+                player_playlist_losses[user_id][playlist] += 1
+                player_playlist_games[user_id][playlist] += 1
                 # Apply loss factor (low ranks lose less)
                 loss_factor = get_loss_factor(rank_before, loss_factors)
                 xp_change = int(xp_loss * loss_factor)  # xp_loss is negative
-                player_playlist_xp[player_name][playlist] += xp_change
+                player_playlist_xp[user_id][playlist] += xp_change
                 # Ensure XP cannot go below 0
-                if player_playlist_xp[player_name][playlist] < 0:
-                    player_playlist_xp[player_name][playlist] = 0
+                if player_playlist_xp[user_id][playlist] < 0:
+                    player_playlist_xp[user_id][playlist] = 0
                 result = f"LOSS ({xp_change} @ {int(loss_factor*100)}%)"
                 game_result = 'loss'
             else:
-                player_playlist_games[player_name][playlist] += 1
+                player_playlist_games[user_id][playlist] += 1
                 result = "TIE"
 
-            new_xp = player_playlist_xp[player_name][playlist]
+            new_xp = player_playlist_xp[user_id][playlist]
             new_rank = calculate_rank(new_xp, rank_thresholds)
-            player_playlist_rank[player_name][playlist] = new_rank
+            player_playlist_rank[user_id][playlist] = new_rank
             # Track highest rank achieved in this playlist
-            if new_rank > player_playlist_highest_rank[player_name][playlist]:
-                player_playlist_highest_rank[player_name][playlist] = new_rank
+            if new_rank > player_playlist_highest_rank[user_id][playlist]:
+                player_playlist_highest_rank[user_id][playlist] = new_rank
 
             # Add entry to rankhistory for this player
             if user_id:
@@ -2427,70 +2373,61 @@ def main():
 
                 user_id = player_to_id.get(player_name)
 
-                # Skip if not properly resolved
-                if player_name not in player_playlist_xp:
+                # Skip if not properly resolved (user_id not in tracking dicts)
+                if not user_id or user_id not in player_playlist_xp:
                     continue
 
-                # Initialize Tournaments playlist tracking if needed
-                if PLAYLIST_TOURNAMENTS not in player_playlist_xp[player_name]:
-                    # Copy rank from individual tournament playlists if they played any
-                    existing_rank = 1
-                    existing_highest = 1
-                    for pl in player_playlist_rank[player_name]:
-                        if pl.startswith('Tournament') and pl != PLAYLIST_TOURNAMENTS:
-                            if player_playlist_rank[player_name].get(pl, 1) > existing_rank:
-                                existing_rank = player_playlist_rank[player_name].get(pl, 1)
-                                existing_highest = player_playlist_highest_rank[player_name].get(pl, 1)
-
-                    player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] = 0
-                    player_playlist_wins[player_name][PLAYLIST_TOURNAMENTS] = 0
-                    player_playlist_losses[player_name][PLAYLIST_TOURNAMENTS] = 0
-                    player_playlist_games[player_name][PLAYLIST_TOURNAMENTS] = 0
-                    player_playlist_rank[player_name][PLAYLIST_TOURNAMENTS] = 1  # Start at rank 1
-                    player_playlist_highest_rank[player_name][PLAYLIST_TOURNAMENTS] = 1
+                # Initialize Tournaments playlist tracking if needed (keyed by user_id)
+                if PLAYLIST_TOURNAMENTS not in player_playlist_xp[user_id]:
+                    player_playlist_xp[user_id][PLAYLIST_TOURNAMENTS] = 0
+                    player_playlist_wins[user_id][PLAYLIST_TOURNAMENTS] = 0
+                    player_playlist_losses[user_id][PLAYLIST_TOURNAMENTS] = 0
+                    player_playlist_games[user_id][PLAYLIST_TOURNAMENTS] = 0
+                    player_playlist_rank[user_id][PLAYLIST_TOURNAMENTS] = 1
+                    player_playlist_highest_rank[user_id][PLAYLIST_TOURNAMENTS] = 1
 
                 # Get current XP and rank for Tournaments playlist
-                old_xp = player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS]
-                rank_before = player_playlist_rank[player_name][PLAYLIST_TOURNAMENTS]
+                old_xp = player_playlist_xp[user_id][PLAYLIST_TOURNAMENTS]
+                rank_before = player_playlist_rank[user_id][PLAYLIST_TOURNAMENTS]
 
                 # Determine result and calculate XP change
                 xp_change = 0
                 game_result = 'tie'
 
                 if player_name in winners:
-                    player_playlist_wins[player_name][PLAYLIST_TOURNAMENTS] += 1
-                    player_playlist_games[player_name][PLAYLIST_TOURNAMENTS] += 1
+                    player_playlist_wins[user_id][PLAYLIST_TOURNAMENTS] += 1
+                    player_playlist_games[user_id][PLAYLIST_TOURNAMENTS] += 1
                     win_factor = get_win_factor(rank_before, win_factors)
                     xp_change = int(xp_win * win_factor)
-                    player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] += xp_change
+                    player_playlist_xp[user_id][PLAYLIST_TOURNAMENTS] += xp_change
                     result = f"WIN (+{xp_change} @ {int(win_factor*100)}%)"
                     game_result = 'win'
                 elif player_name in losers:
-                    player_playlist_losses[player_name][PLAYLIST_TOURNAMENTS] += 1
-                    player_playlist_games[player_name][PLAYLIST_TOURNAMENTS] += 1
+                    player_playlist_losses[user_id][PLAYLIST_TOURNAMENTS] += 1
+                    player_playlist_games[user_id][PLAYLIST_TOURNAMENTS] += 1
                     loss_factor = get_loss_factor(rank_before, loss_factors)
                     xp_change = int(xp_loss * loss_factor)
-                    player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] += xp_change
-                    if player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] < 0:
-                        player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS] = 0
+                    player_playlist_xp[user_id][PLAYLIST_TOURNAMENTS] += xp_change
+                    if player_playlist_xp[user_id][PLAYLIST_TOURNAMENTS] < 0:
+                        player_playlist_xp[user_id][PLAYLIST_TOURNAMENTS] = 0
                     result = f"LOSS ({xp_change} @ {int(loss_factor*100)}%)"
                     game_result = 'loss'
                 else:
-                    player_playlist_games[player_name][PLAYLIST_TOURNAMENTS] += 1
+                    player_playlist_games[user_id][PLAYLIST_TOURNAMENTS] += 1
                     result = "TIE"
 
-                new_xp = player_playlist_xp[player_name][PLAYLIST_TOURNAMENTS]
+                new_xp = player_playlist_xp[user_id][PLAYLIST_TOURNAMENTS]
                 new_rank = calculate_rank(new_xp, rank_thresholds)
-                player_playlist_rank[player_name][PLAYLIST_TOURNAMENTS] = new_rank
-                if new_rank > player_playlist_highest_rank[player_name][PLAYLIST_TOURNAMENTS]:
-                    player_playlist_highest_rank[player_name][PLAYLIST_TOURNAMENTS] = new_rank
+                player_playlist_rank[user_id][PLAYLIST_TOURNAMENTS] = new_rank
+                if new_rank > player_playlist_highest_rank[user_id][PLAYLIST_TOURNAMENTS]:
+                    player_playlist_highest_rank[user_id][PLAYLIST_TOURNAMENTS] = new_rank
 
                 print(f"    {player_name}: {result} | XP: {old_xp} -> {new_xp} | Rank: {rank_before} -> {new_rank}")
 
     # STEP 4: Update rankstats with final values
     print("\n\nStep 4: Updating rankstats with final values...")
 
-    # Group player names by user_id to consolidate stats for aliases
+    # Build mapping of user_id to player names for reference
     user_id_to_names = {}
     for player_name in all_player_names:
         user_id = player_to_id[player_name]
@@ -2498,12 +2435,15 @@ def main():
             user_id_to_names[user_id] = []
         user_id_to_names[user_id].append(player_name)
 
-    for user_id, player_names in user_id_to_names.items():
+    # Now tracking is by user_id, so we iterate over user_ids directly
+    for user_id in player_game_stats.keys():
+        player_names = user_id_to_names.get(user_id, [])
+
         # Ensure user exists in rankstats
         if user_id not in rankstats:
             # Get player data from players.json
             player_data = players.get(user_id, {})
-            discord_name = player_data.get('discord_name', player_names[0])
+            discord_name = player_data.get('discord_name', player_names[0] if player_names else 'Unknown')
             rankstats[user_id] = {
                 'discord_name': discord_name,
                 'twitch_name': player_data.get('twitch_name', ''),
@@ -2526,67 +2466,30 @@ def main():
                 rankstats[user_id]['twitch_name'] = player_data.get('twitch_name', '')
                 rankstats[user_id]['twitch_url'] = player_data.get('twitch_url', '')
 
-        # Consolidate stats from all aliases for this user
-        total_games = 0
-        total_kills = 0
-        total_deaths = 0
-        total_assists = 0
-        total_headshots = 0
+        # Stats are now tracked directly by user_id - no need to consolidate across aliases
+        stats = player_game_stats[user_id]
+        rankstats[user_id]['total_games'] = stats['games']
+        rankstats[user_id]['kills'] = stats['kills']
+        rankstats[user_id]['deaths'] = stats['deaths']
+        rankstats[user_id]['assists'] = stats['assists']
+        rankstats[user_id]['headshots'] = stats['headshots']
 
-        for player_name in player_names:
-            # Initialize all player dicts if missing
-            if player_name not in player_game_stats:
-                player_game_stats[player_name] = {'kills': 0, 'deaths': 0, 'assists': 0, 'games': 0, 'headshots': 0}
-            if player_name not in player_playlist_xp:
-                player_playlist_xp[player_name] = {}
-            if player_name not in player_playlist_wins:
-                player_playlist_wins[player_name] = {}
-            if player_name not in player_playlist_losses:
-                player_playlist_losses[player_name] = {}
-            if player_name not in player_playlist_games:
-                player_playlist_games[player_name] = {}
-            if player_name not in player_playlist_rank:
-                player_playlist_rank[player_name] = {}
-            if player_name not in player_playlist_highest_rank:
-                player_playlist_highest_rank[player_name] = {}
-            stats = player_game_stats[player_name]
-            total_games += stats['games']
-            total_kills += stats['kills']
-            total_deaths += stats['deaths']
-            total_assists += stats['assists']
-            total_headshots += stats['headshots']
-
-        # Overall stats from ALL games (consolidated)
-        rankstats[user_id]['total_games'] = total_games
-        rankstats[user_id]['kills'] = total_kills
-        rankstats[user_id]['deaths'] = total_deaths
-        rankstats[user_id]['assists'] = total_assists
-        rankstats[user_id]['headshots'] = total_headshots
-
-        # Calculate total wins/losses across all playlists and all aliases
+        # Calculate total wins/losses across all playlists
         # EXCLUDE "Tournaments" aggregate playlist to avoid double-counting
         total_wins = 0
         total_losses = 0
-        for player_name in player_names:
-            if player_name not in player_playlist_wins:
-                player_playlist_wins[player_name] = {}
-            if player_name not in player_playlist_losses:
-                player_playlist_losses[player_name] = {}
-            for pl, wins in player_playlist_wins[player_name].items():
-                if pl != PLAYLIST_TOURNAMENTS:  # Exclude aggregate playlist
-                    total_wins += wins
-            for pl, losses in player_playlist_losses[player_name].items():
-                if pl != PLAYLIST_TOURNAMENTS:  # Exclude aggregate playlist
-                    total_losses += losses
+        for pl, wins in player_playlist_wins.get(user_id, {}).items():
+            if pl != PLAYLIST_TOURNAMENTS:  # Exclude aggregate playlist
+                total_wins += wins
+        for pl, losses in player_playlist_losses.get(user_id, {}).items():
+            if pl != PLAYLIST_TOURNAMENTS:  # Exclude aggregate playlist
+                total_losses += losses
 
         rankstats[user_id]['wins'] = total_wins
         rankstats[user_id]['losses'] = total_losses
 
-        # Per-playlist ranking data (consolidated from all aliases)
-        # First, collect all playlists this user played in across all aliases
-        all_playlists = set()
-        for player_name in player_names:
-            all_playlists.update(player_playlist_xp[player_name].keys())
+        # Per-playlist ranking data (now directly from user_id-keyed dicts)
+        all_playlists = set(player_playlist_xp.get(user_id, {}).keys())
 
         playlists_data = {}
         overall_highest_rank = 1
@@ -2594,19 +2497,12 @@ def main():
         primary_xp = 0
 
         for playlist in all_playlists:
-            # Sum stats across all aliases for this playlist
-            playlist_xp = 0
-            playlist_highest = 1
-            playlist_wins = 0
-            playlist_losses = 0
-            playlist_games = 0
-
-            for player_name in player_names:
-                playlist_xp += player_playlist_xp[player_name].get(playlist, 0)
-                playlist_highest = max(playlist_highest, player_playlist_highest_rank[player_name].get(playlist, 1))
-                playlist_wins += player_playlist_wins[player_name].get(playlist, 0)
-                playlist_losses += player_playlist_losses[player_name].get(playlist, 0)
-                playlist_games += player_playlist_games[player_name].get(playlist, 0)
+            # Stats are already consolidated by user_id - no summing needed
+            playlist_xp = player_playlist_xp[user_id].get(playlist, 0)
+            playlist_highest = player_playlist_highest_rank[user_id].get(playlist, 1)
+            playlist_wins = player_playlist_wins[user_id].get(playlist, 0)
+            playlist_losses = player_playlist_losses[user_id].get(playlist, 0)
+            playlist_games = player_playlist_games[user_id].get(playlist, 0)
 
             playlist_rank = calculate_rank(playlist_xp, rank_thresholds)
 
