@@ -3514,7 +3514,38 @@ function renderLeaderboard(selectedPlaylist = null) {
                 deaths = plData.deaths || data.deaths || 0;
                 assists = plData.assists || data.assists || 0;
                 hasDataForPlaylist = true;
+            } else if (selectedPlaylist === 'all') {
+                // "All Playlists" - aggregate stats from all RANKED playlists only
+                // NEVER includes custom/unranked games - those have no playlist data
+                // Use overall rank (highest current rank in any playlist)
+                // Skip "Tournaments" combined playlist since it would double-count individual tournament playlists
+                rank = data.rank || 1;  // Overall rank = highest current playlist rank
+                wins = 0;
+                losses = 0;
+                games = 0;
+                kills = 0;
+                deaths = 0;
+                assists = 0;
+
+                if (data.playlists) {
+                    Object.entries(data.playlists).forEach(([playlistName, plData]) => {
+                        // Skip "Tournaments" combined playlist to avoid double-counting
+                        if (playlistName === 'Tournaments') return;
+                        wins += plData.wins || 0;
+                        losses += plData.losses || 0;
+                        games += plData.games || 0;
+                        // Per-playlist kill/death stats come from playlist_stats.json
+                        // If not available, we'll aggregate from what we have
+                    });
+                }
+                // Use overall kills/deaths from ranked games (stored in ranks.json)
+                // These are calculated ONLY from ranked games in the backend
+                kills = data.kills || 0;
+                deaths = data.deaths || 0;
+                assists = data.assists || 0;
+                hasDataForPlaylist = (wins > 0 || losses > 0 || games > 0);
             } else {
+                // Fallback for any other case
                 rank = data.rank || 1;
                 wins = data.wins || 0;
                 losses = data.losses || 0;
@@ -3522,7 +3553,7 @@ function renderLeaderboard(selectedPlaylist = null) {
                 kills = data.kills || 0;
                 deaths = data.deaths || 0;
                 assists = data.assists || 0;
-                hasDataForPlaylist = (selectedPlaylist === 'all' && (wins > 0 || losses > 0 || games > 0));
+                hasDataForPlaylist = false;
             }
         }
 
