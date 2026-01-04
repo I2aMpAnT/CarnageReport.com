@@ -1434,8 +1434,8 @@ function parseEmblemParams(url) {
             };
         }
 
-        // Handle old query parameter format: emblem.php?P=11&S=0...
-        if (url.includes('emblem.php') || url.includes('emblem.html')) {
+        // Handle query parameter format: emblem.php?P=11&S=0... or carnagereport.com/?P=10&S=0...
+        if (url.includes('?') && url.includes('P=')) {
             const urlParams = new URL(url).searchParams;
             return {
                 P: parseInt(urlParams.get('P') || 0),
@@ -1453,6 +1453,9 @@ function parseEmblemParams(url) {
         return null;
     }
 }
+
+// Default emblem for players without a logged emblem
+const DEFAULT_EMBLEM_URL = 'https://carnagereport.com/?P=10&S=0&EP=0&ES=1&EF=0&EB=0&ET=0';
 
 // Get emblem URL for a player (by in-game name or discord ID)
 function getPlayerEmblem(playerNameOrId) {
@@ -1487,7 +1490,8 @@ function getPlayerEmblem(playerNameOrId) {
         }
     }
 
-    return null;
+    // Return default emblem if no emblem found
+    return DEFAULT_EMBLEM_URL;
 }
 
 // Build mappings between in-game profile names and discord IDs
