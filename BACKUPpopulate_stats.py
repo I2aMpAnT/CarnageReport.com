@@ -10,10 +10,50 @@ Supports multiple playlists based on active matches from the Discord bot:
 import pandas as pd
 import json
 import os
+import sys
 import requests
 import subprocess
 import pytz
+import logging
 from datetime import datetime
+
+# Set up logging - outputs to both console and timestamped log file
+LOGS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+os.makedirs(LOGS_DIR, exist_ok=True)
+LOG_FILENAME = os.path.join(LOGS_DIR, f"populate_stats_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+
+# Create logger
+logger = logging.getLogger('populate_stats')
+logger.setLevel(logging.DEBUG)
+
+# File handler - captures everything
+file_handler = logging.FileHandler(LOG_FILENAME)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+# Console handler - also captures everything (mirrors file output)
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.DEBUG)
+console_handler.setFormatter(logging.Formatter('%(message)s'))
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
+# Redirect print to logger
+class LoggerWriter:
+    def __init__(self, logger, level):
+        self.logger = logger
+        self.level = level
+    def write(self, message):
+        if message.strip():
+            self.logger.log(self.level, message.strip())
+    def flush(self):
+        pass
+
+sys.stdout = LoggerWriter(logger, logging.INFO)
+sys.stderr = LoggerWriter(logger, logging.ERROR)
+
+print(f"Logging to: {LOG_FILENAME}")
 
 # File paths - VPS stats directories (the only source for game files)
 STATS_PUBLIC_DIR = '/home/carnagereport/stats/public'

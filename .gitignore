@@ -35,3 +35,6 @@ populate_stats_fixed.py
 
 # Large 3D map assets
 maps3D/
+
+# Log files (keep directory via .gitkeep)
+logs/*.log
