@@ -1147,26 +1147,49 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, manua
             print(f"    DEBUG [{filename}]: Matched Double Team (4 players, team)")
         return PLAYLIST_DOUBLE_TEAM
 
-    # Head to Head: 2 players (1v1), score must not exceed 15 (otherwise likely FFA messing around)
+    # Head to Head: 2 players (1v1)
+    # Valid if: score hit 15 (kill limit) OR game lasted ~15 min (time limit)
+    # Invalid if: score > 15 (FFA messing around) or didn't reach either limit
     if player_count == 2:
-        # Check if score exceeds 15 (indicates FFA, not real 1v1)
         try:
             game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
             if len(game_details_df) > 0:
                 row = game_details_df.iloc[0]
-                # Get the winning score (could be Red Score, Blue Score, or highest individual)
+                # Get scores
                 red_score = int(row.get('Red Score', 0) or 0)
                 blue_score = int(row.get('Blue Score', 0) or 0)
                 max_score = max(red_score, blue_score)
+
+                # Get game duration
+                duration_str = str(row.get('Duration', '0:00'))
+                try:
+                    parts = duration_str.split(':')
+                    if len(parts) == 2:
+                        duration_mins = int(parts[0]) + int(parts[1]) / 60
+                    else:
+                        duration_mins = 0
+                except:
+                    duration_mins = 0
+
+                # Invalid: score > 15 (FFA messing around)
                 if max_score > 15:
                     if debug:
                         print(f"    DEBUG [{filename}]: 2-player game but score {max_score} > 15 -> likely FFA, Unranked")
                     return None
-        except:
-            pass  # If we can't read score, allow it
-        if debug:
-            print(f"    DEBUG [{filename}]: Matched Head to Head (2 players)")
-        return PLAYLIST_HEAD_TO_HEAD
+
+                # Valid: someone hit 15 kills OR game lasted ~15 min (14+ min to allow for slight variance)
+                if max_score == 15 or duration_mins >= 14:
+                    if debug:
+                        print(f"    DEBUG [{filename}]: Matched Head to Head (2 players, score={max_score}, duration={duration_mins:.1f}min)")
+                    return PLAYLIST_HEAD_TO_HEAD
+                else:
+                    if debug:
+                        print(f"    DEBUG [{filename}]: 2-player game but score={max_score} < 15 and duration={duration_mins:.1f}min < 14 -> Unranked")
+                    return None
+        except Exception as e:
+            if debug:
+                print(f"    DEBUG [{filename}]: Error checking H2H validity: {e}")
+        return None
 
     # Game doesn't match any ranked playlist criteria
     if debug:
