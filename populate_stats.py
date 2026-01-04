@@ -1036,7 +1036,12 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
     Determine the appropriate playlist for a game based on:
     1. Manual override from manual_playlists.json (highest priority)
     2. Game duration (must be >= 2 minutes to filter restarts)
-    3. Match from Discord bot (matched by timestamp window AND player Discord IDs)
+    3. Game criteria (player count, team game, valid map/gametype)
+
+    Playlists are determined by criteria alone - no Discord bot session required:
+    - Head to Head: 2 players (1v1)
+    - Double Team: 4 players + team game (2v2)
+    - MLG 4v4: 8 players + team game + valid MLG map/gametype combo
 
     Returns: playlist name string or None if game doesn't qualify for any playlist
     """
@@ -1048,78 +1053,59 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
             # Normalize playlist name (e.g., "Ranked MLG 4v4" -> "MLG 4v4")
             return normalize_playlist_name(manual_playlists[filename])
 
-    # Filter out short games (restarts)
+    # Filter out short games (restarts) - must be at least 2 minutes
     if not is_game_long_enough(file_path):
         if debug:
-            print(f"    DEBUG [{filename}]: Game too short")
+            print(f"    DEBUG [{filename}]: Game too short (< 2 min)")
         return None
 
     player_count = get_game_player_count(file_path)
     is_team = is_team_game(file_path)
-    game_players = get_game_players(file_path)
 
-    # Get map, base gametype, and start time from game details
+    # Get map and base gametype from game details
     try:
         game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
         if len(game_details_df) > 0:
             row = game_details_df.iloc[0]
             map_name = str(row.get('Map Name', '')).strip()
             base_gametype = str(row.get('Game Type', '')).strip()
-            game_start_time = row.get('Start Time', '')
         else:
             map_name = ''
             base_gametype = ''
-            game_start_time = ''
     except:
         map_name = ''
         base_gametype = ''
-        game_start_time = ''
 
     if debug:
-        print(f"    DEBUG [{filename}]: players={player_count}, is_team={is_team}, start={game_start_time}")
-        print(f"    DEBUG [{filename}]: game_players={game_players}")
-        print(f"    DEBUG [{filename}]: all_matches count={len(all_matches) if all_matches else 0}")
+        print(f"    DEBUG [{filename}]: players={player_count}, is_team={is_team}, map={map_name}, gametype={base_gametype}")
 
-    # Try to find a matching bot match by timestamp AND player Discord IDs
-    if all_matches:
-        matched_entry = find_match_for_game(game_start_time, all_matches, game_players, ingame_to_discord_id, debug=debug, filename=filename)
+    # Determine playlist based on game criteria alone
+    # Priority: MLG 4v4 > Double Team > Head to Head
 
-        if matched_entry:
-            playlist = matched_entry.get('_playlist') or matched_entry.get('playlist_name', '')
-            playlist = normalize_playlist_name(playlist)  # Convert "Ranked MLG 4v4" -> "MLG 4v4" etc.
+    # MLG 4v4: 8 players, team game, valid map/gametype combo
+    if player_count == 8 and is_team:
+        if is_valid_mlg_combo(map_name, base_gametype):
             if debug:
-                print(f"    DEBUG [{filename}]: Matched playlist={playlist}")
-
-            # Head to Head: 1v1 games
-            if playlist == PLAYLIST_HEAD_TO_HEAD:
-                if player_count == 2:
-                    return PLAYLIST_HEAD_TO_HEAD
-                elif debug:
-                    print(f"    DEBUG [{filename}]: H2H match but player_count={player_count} (need 2)")
-
-            # Double Team: 2v2 team games
-            elif playlist == PLAYLIST_DOUBLE_TEAM:
-                if player_count == 4 and is_team:
-                    return PLAYLIST_DOUBLE_TEAM
-                elif debug:
-                    print(f"    DEBUG [{filename}]: DT match but player_count={player_count}, is_team={is_team}")
-
-            # MLG 4v4 or Team Hardcore: 4v4 team games with valid map + base gametype
-            elif playlist in [PLAYLIST_MLG_4V4, PLAYLIST_TEAM_HARDCORE]:
-                if player_count == 8 and is_team:
-                    if is_valid_mlg_combo(map_name, base_gametype):
-                        return playlist
-                    elif debug:
-                        print(f"    DEBUG [{filename}]: {playlist} match but invalid map/gametype: {map_name}/{base_gametype}")
-                elif debug:
-                    print(f"    DEBUG [{filename}]: {playlist} match but player_count={player_count}, is_team={is_team}")
+                print(f"    DEBUG [{filename}]: Matched MLG 4v4 (8 players, team, valid combo)")
+            return PLAYLIST_MLG_4V4
         elif debug:
-            print(f"    DEBUG [{filename}]: No matching bot entry found")
-    elif debug:
-        print(f"    DEBUG [{filename}]: No bot matches loaded")
+            print(f"    DEBUG [{filename}]: 8-player team game but invalid MLG combo: {map_name}/{base_gametype}")
 
-    # No matching bot session = UNRANKED
-    # Games MUST have a bot session to be tagged with a playlist
+    # Double Team: 4 players, team game (2v2)
+    if player_count == 4 and is_team:
+        if debug:
+            print(f"    DEBUG [{filename}]: Matched Double Team (4 players, team)")
+        return PLAYLIST_DOUBLE_TEAM
+
+    # Head to Head: 2 players (1v1)
+    if player_count == 2:
+        if debug:
+            print(f"    DEBUG [{filename}]: Matched Head to Head (2 players)")
+        return PLAYLIST_HEAD_TO_HEAD
+
+    # Game doesn't match any ranked playlist criteria
+    if debug:
+        print(f"    DEBUG [{filename}]: No playlist match (players={player_count}, is_team={is_team})")
     return None
 
 def build_mac_to_discord_lookup(players):
