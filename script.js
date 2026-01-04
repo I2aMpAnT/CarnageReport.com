@@ -7851,13 +7851,18 @@ function renderProfileStats(stats) {
 }
 
 function getPlayerGames(playerName) {
-    return gamesData.filter(game => 
+    return gamesData.filter(game =>
         game.players.some(p => p.name === playerName)
     ).map((game, idx) => ({
         ...game,
         originalIndex: gamesData.indexOf(game),
         playerData: game.players.find(p => p.name === playerName)
-    }));
+    })).sort((a, b) => {
+        // Sort by date, newest first
+        const dateA = parseGameDateTime(a.details['Start Time']) || new Date(0);
+        const dateB = parseGameDateTime(b.details['Start Time']) || new Date(0);
+        return dateB - dateA;
+    });
 }
 
 function populateProfileFilters() {
