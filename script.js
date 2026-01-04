@@ -3432,8 +3432,13 @@ function renderLeaderboard(selectedPlaylist = null) {
     // Use per-playlist stats if available for specific playlist
     let statsSource = rankstatsData;
     let usePlaylistStats = false;
+    let useTournamentsAggregate = false;
 
-    if (selectedPlaylist !== 'all' && playlistStats[selectedPlaylist]) {
+    // Special handling for "Tournaments" - aggregate all tournament playlists
+    if (selectedPlaylist === 'Tournaments') {
+        useTournamentsAggregate = true;
+        console.log('[DEBUG] Using aggregated tournament stats');
+    } else if (selectedPlaylist !== 'all' && playlistStats[selectedPlaylist]) {
         statsSource = playlistStats[selectedPlaylist];
         usePlaylistStats = true;
         console.log(`[DEBUG] Using per-playlist stats for ${selectedPlaylist}`);
@@ -3452,8 +3457,41 @@ function renderLeaderboard(selectedPlaylist = null) {
 
         // Get rank and stats based on data source
         let rank, wins, losses, games, kills, deaths, assists;
+        let hasDataForPlaylist = false;
 
-        if (usePlaylistStats) {
+        if (useTournamentsAggregate) {
+            // Aggregate stats from all tournament playlists
+            wins = 0;
+            losses = 0;
+            games = 0;
+            kills = 0;
+            deaths = 0;
+            assists = 0;
+            let totalXp = 0;
+            let highestRank = 1;
+
+            if (data.playlists) {
+                Object.entries(data.playlists).forEach(([playlistName, plData]) => {
+                    // Check if this is a tournament playlist (starts with "Tournament")
+                    if (playlistName.startsWith('Tournament')) {
+                        wins += plData.wins || 0;
+                        losses += plData.losses || 0;
+                        games += plData.games || 0;
+                        totalXp += plData.xp || 0;
+                        if ((plData.rank || 1) > highestRank) {
+                            highestRank = plData.rank || 1;
+                        }
+                        hasDataForPlaylist = true;
+                    }
+                });
+            }
+            // Use highest tournament rank as the display rank
+            rank = highestRank;
+            // For kills/deaths/assists, we don't have per-playlist breakdowns, use global
+            kills = data.kills || 0;
+            deaths = data.deaths || 0;
+            assists = data.assists || 0;
+        } else if (usePlaylistStats) {
             // Per-playlist stats file format
             rank = data.rank || 1;
             wins = data.wins || 0;
@@ -3462,6 +3500,7 @@ function renderLeaderboard(selectedPlaylist = null) {
             kills = data.kills || 0;
             deaths = data.deaths || 0;
             assists = data.assists || 0;
+            hasDataForPlaylist = true;
         } else {
             // ranks.json format with playlist data
             const hasSpecificPlaylistData = selectedPlaylist !== 'all' && data.playlists && data.playlists[selectedPlaylist];
@@ -3474,6 +3513,7 @@ function renderLeaderboard(selectedPlaylist = null) {
                 kills = plData.kills || data.kills || 0;
                 deaths = plData.deaths || data.deaths || 0;
                 assists = plData.assists || data.assists || 0;
+                hasDataForPlaylist = true;
             } else {
                 rank = data.rank || 1;
                 wins = data.wins || 0;
@@ -3482,13 +3522,9 @@ function renderLeaderboard(selectedPlaylist = null) {
                 kills = data.kills || 0;
                 deaths = data.deaths || 0;
                 assists = data.assists || 0;
+                hasDataForPlaylist = (selectedPlaylist === 'all' && (wins > 0 || losses > 0 || games > 0));
             }
         }
-
-        // Determine if player has data for this specific playlist
-        const hasDataForPlaylist = usePlaylistStats ||
-            (selectedPlaylist === 'all' && (wins > 0 || losses > 0 || games > 0)) ||
-            (selectedPlaylist !== 'all' && data.playlists && data.playlists[selectedPlaylist]);
 
         // Always get series wins from rankstatsData (not playlist-specific stats)
         const globalData = rankstatsData[discordId] || {};
