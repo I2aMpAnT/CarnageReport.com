@@ -4699,8 +4699,8 @@ header {
     
     .leaderboard-header,
     .leaderboard-row {
-        min-width: 750px;
-        grid-template-columns: 45px 35px 1fr 90px 50px 55px 55px 50px 50px;
+        min-width: 800px;
+        grid-template-columns: 45px 35px 1fr 90px 50px 50px 55px 55px 50px 50px;
         gap: 6px;
         padding: 10px 8px;
     }

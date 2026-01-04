@@ -3615,7 +3615,7 @@ function renderLeaderboard(selectedPlaylist = null) {
     html += '<div></div>'; // Emblem column - no header text
     html += '<div>Player</div>';
     html += '<div>Record</div>';
-    if (showSeries) html += '<div>Series</div>';
+    html += '<div>Series</div>'; // Always show Series column for consistent grid
     html += '<div>Kills</div>';
     html += '<div>Deaths</div>';
     html += '<div>K/D</div>';
@@ -3664,13 +3664,11 @@ function renderLeaderboard(selectedPlaylist = null) {
         html += '</div>';
         html += `<div class="lb-player">${player.displayName}</div>`;
         html += `<div class="lb-record">${recordDisplay}</div>`;
-        // Series wins-losses (only for MLG 4v4 and Team Hardcore)
-        if (showSeries) {
-            const seriesDisplay = (player.seriesWins > 0 || player.seriesLosses > 0)
-                ? `${player.seriesWins}-${player.seriesLosses}`
-                : '<span class="stat-empty">—</span>';
-            html += `<div class="lb-series">${seriesDisplay}</div>`;
-        }
+        // Series wins-losses - always render for consistent grid, show dashes for non-series playlists
+        const seriesDisplay = (showSeries && (player.seriesWins > 0 || player.seriesLosses > 0))
+            ? `${player.seriesWins}-${player.seriesLosses}`
+            : '<span class="stat-empty">—</span>';
+        html += `<div class="lb-series">${seriesDisplay}</div>`;
         // Kills and Deaths
         const killsDisplay = hasGames ? player.kills.toLocaleString() : '<span class="stat-empty">—</span>';
         const deathsDisplay = hasGames ? player.deaths.toLocaleString() : '<span class="stat-empty">—</span>';
