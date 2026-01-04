@@ -2262,14 +2262,15 @@ def main():
         game_name = get_base_gametype(game['details'].get('Game Type', 'Unknown'))
         playlist = game.get('playlist')
 
-        if not playlist:
-            continue  # Skip untagged games for ranking
+        # STRICT CHECK: Only process games with a valid ranked playlist
+        # Games without a playlist or with unranked designations generate ZERO XP
+        if not playlist or playlist.strip() == '':
+            continue  # No playlist = no XP, period
 
-        # Extra safety: Skip explicitly unranked games
-        # Allow any other playlist name (including manual ranked playlists from manualranked.json)
-        unranked_designations = ['Custom Game', 'Unranked', 'custom game', 'unranked']
-        if playlist in unranked_designations:
-            print(f"    SKIPPING unranked game: {game_name}")
+        # Block any explicitly unranked designations
+        unranked_designations = ['Custom Game', 'Unranked', 'custom game', 'unranked', 'Custom', 'custom']
+        if playlist in unranked_designations or playlist.lower().startswith('custom') or playlist.lower().startswith('unranked'):
+            print(f"    BLOCKED (unranked): {game_name} - playlist '{playlist}' generates NO XP")
             continue
 
         # Get game end time for rankhistory timestamp
