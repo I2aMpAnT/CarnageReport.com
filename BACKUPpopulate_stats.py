@@ -2485,10 +2485,11 @@ def main():
         # Store playlist details (use 'playlists' key for bot compatibility)
         rankstats[user_id]['playlists'] = playlists_data
 
-        # For legacy compatibility: use primary playlist's XP/rank as the main one
+        # Overall rank is the highest CURRENT rank across all playlists
+        # XP is from the primary playlist (one with most XP) for display
         if primary_playlist:
             rankstats[user_id]['xp'] = primary_xp
-            rankstats[user_id]['rank'] = calculate_rank(primary_xp, rank_thresholds)
+            rankstats[user_id]['rank'] = overall_highest_rank
         else:
             # No ranked games played
             rankstats[user_id]['xp'] = 0
