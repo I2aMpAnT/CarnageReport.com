@@ -30,6 +30,7 @@ EMBLEMS_FILE = 'emblems.json'
 ACTIVE_MATCHES_FILE = 'active_matches.json'
 RANKHISTORY_FILE = 'rankhistory.json'
 MANUAL_PLAYLISTS_FILE = 'manual_playlists.json'
+MANUAL_UNRANKED_FILE = 'manualunranked.json'
 PROCESSED_STATE_FILE = 'processed_state.json'
 SERIES_FILE = 'series.json'
 GAMEINDEX_FILE = 'gameindex.json'
@@ -674,6 +675,24 @@ def load_manual_playlists():
     except:
         return {}
 
+def load_manual_unranked():
+    """
+    Load manualunranked.json for manually forcing games to be unranked/custom.
+
+    Expected format:
+    {
+        "20251215_011357.xlsx": null,
+        ...
+    }
+
+    Games listed here will always be unranked regardless of other criteria.
+    """
+    try:
+        with open(MANUAL_UNRANKED_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
 def load_processed_state():
     """
     Load processed_state.json which tracks what has been processed.
@@ -1031,14 +1050,13 @@ def find_match_for_game(game_timestamp, all_matches, game_players, ingame_to_dis
     return None
 
 
-def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingame_to_discord_id=None, debug=False):
+def determine_playlist(file_path, all_matches=None, manual_playlists=None, manual_unranked=None, ingame_to_discord_id=None, debug=False):
     """
     Determine the appropriate playlist for a game based on:
-    1. Manual override from manual_playlists.json (highest priority)
-       - null or "Unranked" forces game to be custom/unranked
-       - "Tournament 1" etc. assigns to that playlist
-    2. Game duration (must be >= 2 minutes to filter restarts)
-    3. Game criteria (player count, team game, valid map/gametype)
+    1. Manual unranked from manualunranked.json (highest priority - forces unranked)
+    2. Manual override from manual_playlists.json (e.g., Tournament games)
+    3. Game duration (must be >= 2 minutes to filter restarts)
+    4. Game criteria (player count, team game, valid map/gametype)
 
     Playlists are determined by criteria alone - no Discord bot session required:
     - Head to Head: 2 players (1v1)
@@ -1050,19 +1068,18 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, ingam
     """
     filename = os.path.basename(file_path)
 
-    # Check manual override first (highest priority)
-    if manual_playlists:
-        if filename in manual_playlists:
-            playlist_value = manual_playlists[filename]
-            # null or "Unranked" forces game to custom/unranked
-            if playlist_value is None or playlist_value == "Unranked":
-                if debug:
-                    print(f"    DEBUG [{filename}]: Manual override -> Unranked")
-                return None
-            # Otherwise normalize and return the playlist name (e.g., Tournament 1)
-            if debug:
-                print(f"    DEBUG [{filename}]: Manual override -> {playlist_value}")
-            return normalize_playlist_name(playlist_value)
+    # Check manual unranked first (highest priority - forces game to unranked)
+    if manual_unranked and filename in manual_unranked:
+        if debug:
+            print(f"    DEBUG [{filename}]: Manual unranked override")
+        return None
+
+    # Check manual playlist override (e.g., Tournament games)
+    if manual_playlists and filename in manual_playlists:
+        playlist_value = manual_playlists[filename]
+        if debug:
+            print(f"    DEBUG [{filename}]: Manual override -> {playlist_value}")
+        return normalize_playlist_name(playlist_value)
 
     # Filter out short games (restarts) - must be at least 2 minutes
     if not is_game_long_enough(file_path):
@@ -1720,6 +1737,11 @@ def main():
     if manual_playlists:
         print(f"Loaded {len(manual_playlists)} manual playlist override(s)")
 
+    # Load manual unranked overrides (if any)
+    manual_unranked = load_manual_unranked()
+    if manual_unranked:
+        print(f"Loaded {len(manual_unranked)} manual unranked override(s)")
+
     # Check for changes since last run - use get_all_game_files() which checks all directories
     all_game_files = get_all_game_files()
     stats_files = sorted([f[0] for f in all_game_files])  # Extract just filenames
@@ -1812,7 +1834,7 @@ def main():
 
     for filename, source_dir in all_game_files:
         file_path = os.path.join(source_dir, filename)
-        playlist = determine_playlist(file_path, all_matches, manual_playlists, ingame_to_discord_id, debug=debug_mode)
+        playlist = determine_playlist(file_path, all_matches, manual_playlists, manual_unranked, ingame_to_discord_id, debug=debug_mode)
 
         game = parse_excel_file(file_path)
         game['source_file'] = filename
