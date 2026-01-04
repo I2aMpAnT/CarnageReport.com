@@ -2246,32 +2246,25 @@ def main():
 
             # Initialize playlist tracking if needed
             if playlist not in player_playlist_xp[player_name]:
-                # Check if this user has existing stats from another alias
-                existing_xp = 0
-                existing_wins = 0
-                existing_losses = 0
-                existing_games = 0
+                # Initialize this alias's playlist stats to 0
+                # DON'T copy from other aliases - XP is summed across all aliases at step 4
+                # Copying would cause double-counting
                 existing_rank = 1
                 existing_highest = 1
 
+                # But DO copy the current rank so they continue at the right rank level
                 if user_id:
-                    # Look for any other player names that map to the same user_id
                     for other_name, other_id in player_to_id.items():
                         if other_id == user_id and other_name != player_name:
-                            if other_name in player_playlist_xp and playlist in player_playlist_xp[other_name]:
-                                # Found existing stats from another alias - use them
-                                existing_xp = player_playlist_xp[other_name][playlist]
-                                existing_wins = player_playlist_wins[other_name].get(playlist, 0)
-                                existing_losses = player_playlist_losses[other_name].get(playlist, 0)
-                                existing_games = player_playlist_games[other_name].get(playlist, 0)
+                            if other_name in player_playlist_rank and playlist in player_playlist_rank[other_name]:
                                 existing_rank = player_playlist_rank[other_name].get(playlist, 1)
                                 existing_highest = player_playlist_highest_rank[other_name].get(playlist, 1)
                                 break
 
-                player_playlist_xp[player_name][playlist] = existing_xp
-                player_playlist_wins[player_name][playlist] = existing_wins
-                player_playlist_losses[player_name][playlist] = existing_losses
-                player_playlist_games[player_name][playlist] = existing_games
+                player_playlist_xp[player_name][playlist] = 0
+                player_playlist_wins[player_name][playlist] = 0
+                player_playlist_losses[player_name][playlist] = 0
+                player_playlist_games[player_name][playlist] = 0
                 player_playlist_rank[player_name][playlist] = existing_rank
                 player_playlist_highest_rank[player_name][playlist] = existing_highest
 
