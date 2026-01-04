@@ -29,7 +29,7 @@ PLAYERS_FILE = '/home/carnagereport/bot/players.json'
 EMBLEMS_FILE = 'emblems.json'
 ACTIVE_MATCHES_FILE = 'active_matches.json'
 RANKHISTORY_FILE = 'rankhistory.json'
-MANUAL_PLAYLISTS_FILE = 'manual_playlists.json'
+MANUAL_RANKED_FILE = 'manualranked.json'
 MANUAL_UNRANKED_FILE = 'manualunranked.json'
 PROCESSED_STATE_FILE = 'processed_state.json'
 SERIES_FILE = 'series.json'
@@ -655,22 +655,21 @@ def load_active_matches():
 
     return all_matches if all_matches else None
 
-def load_manual_playlists():
+def load_manual_ranked():
     """
-    Load manual_playlists.json for manually flagging games with a playlist.
+    Load manualranked.json for manually flagging games with a playlist.
 
     Expected format:
     {
-        "20251128_201839.xlsx": "MLG 4v4",
-        "20251128_202256.xlsx": "MLG 4v4",
+        "20251214_170353.xlsx": "Tournament 1",
+        "20251214_170401.xlsx": "Tournament 1",
         ...
     }
 
-    Maps game filename to playlist name. Games listed here will be ranked
-    even without a bot session.
+    Maps game filename to playlist name (e.g., Tournament 1).
     """
     try:
-        with open(MANUAL_PLAYLISTS_FILE, 'r') as f:
+        with open(MANUAL_RANKED_FILE, 'r') as f:
             return json.load(f)
     except:
         return {}
@@ -716,13 +715,13 @@ def save_processed_state(state):
     with open(PROCESSED_STATE_FILE, 'w') as f:
         json.dump(state, f, indent=2)
 
-def get_manual_playlists_hash(manual_playlists):
-    """Get a hash of manual_playlists to detect changes"""
+def get_manual_hash(data):
+    """Get a hash of manual JSON data to detect changes"""
     import hashlib
-    content = json.dumps(manual_playlists, sort_keys=True)
+    content = json.dumps(data, sort_keys=True) if data else ""
     return hashlib.md5(content.encode()).hexdigest()
 
-def check_for_changes(stats_files, manual_playlists, processed_state):
+def check_for_changes(stats_files, manual_playlists, manual_unranked, processed_state):
     """
     Check what needs to be processed.
 
@@ -733,15 +732,27 @@ def check_for_changes(stats_files, manual_playlists, processed_state):
         - changed_playlists: Dict of files whose playlist changed
     """
     old_games = processed_state.get("games", {})
-    old_hash = processed_state.get("manual_playlists_hash", "")
-    new_hash = get_manual_playlists_hash(manual_playlists)
+
+    # Check if manual_playlists.json changed
+    old_playlists_hash = processed_state.get("manual_playlists_hash", "")
+    new_playlists_hash = get_manual_hash(manual_playlists)
+    playlists_changed = old_playlists_hash != new_playlists_hash
+
+    # Check if manualunranked.json changed
+    old_unranked_hash = processed_state.get("manual_unranked_hash", "")
+    new_unranked_hash = get_manual_hash(manual_unranked)
+    unranked_changed = old_unranked_hash != new_unranked_hash
 
     new_files = []
     changed_playlists = {}
 
     for filename in stats_files:
         old_playlist = old_games.get(filename)
-        new_playlist = manual_playlists.get(filename)  # None if not in manual
+        # Check manual unranked first (highest priority)
+        if manual_unranked and filename in manual_unranked:
+            new_playlist = None  # Forced unranked
+        else:
+            new_playlist = manual_playlists.get(filename)  # None if not in manual
 
         if filename not in old_games:
             # Brand new file
@@ -750,9 +761,14 @@ def check_for_changes(stats_files, manual_playlists, processed_state):
             # Playlist assignment changed
             changed_playlists[filename] = {"old": old_playlist, "new": new_playlist}
 
-    # If any old game's playlist changed, we need full rebuild
+    # If any old game's playlist changed OR manual files changed, we need full rebuild
     # (because XP calculations depend on game order and player rank at time)
-    needs_full_rebuild = len(changed_playlists) > 0
+    needs_full_rebuild = len(changed_playlists) > 0 or playlists_changed or unranked_changed
+
+    if playlists_changed:
+        print("  manual_playlists.json changed - full rebuild required")
+    if unranked_changed:
+        print("  manualunranked.json changed - full rebuild required")
 
     return needs_full_rebuild, new_files, changed_playlists
 
@@ -1732,10 +1748,10 @@ def main():
     else:
         print("\nNo bot matches loaded")
 
-    # Load manual playlist overrides (if any)
-    manual_playlists = load_manual_playlists()
+    # Load manual ranked overrides (if any)
+    manual_playlists = load_manual_ranked()
     if manual_playlists:
-        print(f"Loaded {len(manual_playlists)} manual playlist override(s)")
+        print(f"Loaded {len(manual_playlists)} manual ranked override(s) from manualranked.json")
 
     # Load manual unranked overrides (if any)
     manual_unranked = load_manual_unranked()
@@ -1746,11 +1762,11 @@ def main():
     all_game_files = get_all_game_files()
     stats_files = sorted([f[0] for f in all_game_files])  # Extract just filenames
     processed_state = load_processed_state()
-    needs_full_rebuild, new_files, changed_playlists = check_for_changes(stats_files, manual_playlists, processed_state)
+    needs_full_rebuild, new_files, changed_playlists = check_for_changes(stats_files, manual_playlists, manual_unranked, processed_state)
 
-    if not new_files and not changed_playlists:
+    if not new_files and not changed_playlists and not needs_full_rebuild:
         print("\nNo changes detected - nothing to process!")
-        print("  (Add new game files or update manual_playlists.json to trigger processing)")
+        print("  (Add new game files or update manualranked.json/manualunranked.json to trigger processing)")
         # Still regenerate game index in case it's out of sync
         game_count = generate_game_index()
         if game_count:
@@ -2933,7 +2949,8 @@ def main():
 
     new_processed_state = {
         "games": new_games,
-        "manual_playlists_hash": get_manual_playlists_hash(manual_playlists),
+        "manual_playlists_hash": get_manual_hash(manual_playlists),
+        "manual_unranked_hash": get_manual_hash(manual_unranked),
         "player_state": new_player_state,
         "player_name_to_id": player_to_id  # Save name->id mapping for incremental mode
     }
