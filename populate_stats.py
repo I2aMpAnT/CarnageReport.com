@@ -2527,6 +2527,9 @@ def main():
         if not playlist_games:
             continue
 
+        # Sort games chronologically by start time before saving
+        playlist_games.sort(key=lambda g: parse_game_timestamp(g.get('details', {}).get('Start Time', '')))
+
         # Build matches for this playlist
         matches_data = {'playlist': playlist_name, 'matches': []}
         for game in playlist_games:
