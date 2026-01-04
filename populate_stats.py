@@ -2265,6 +2265,13 @@ def main():
         if not playlist:
             continue  # Skip untagged games for ranking
 
+        # Extra safety: Skip explicitly unranked games
+        # Allow any other playlist name (including manual ranked playlists from manualranked.json)
+        unranked_designations = ['Custom Game', 'Unranked', 'custom game', 'unranked']
+        if playlist in unranked_designations:
+            print(f"    SKIPPING unranked game: {game_name}")
+            continue
+
         # Get game end time for rankhistory timestamp
         game_end_time = game['details'].get('End Time', '')
         # Convert "MM/DD/YYYY HH:MM" to ISO format "YYYY-MM-DDTHH:MM:00"
@@ -2626,6 +2633,21 @@ def main():
             rankstats[user_id]['rank'] = 1
 
         rankstats[user_id]['highest_rank'] = overall_highest_rank
+
+    # Debug: Print final calculated stats for verification
+    print("\n  Final player rankings by playlist:")
+    for user_id, data in sorted(rankstats.items(), key=lambda x: x[1].get('discord_name', '')):
+        discord_name = data.get('discord_name', 'Unknown')
+        playlists_info = data.get('playlists', {})
+        if playlists_info:
+            print(f"  {discord_name}:")
+            for pl_name, pl_data in sorted(playlists_info.items()):
+                xp = pl_data.get('xp', 0)
+                rank = pl_data.get('rank', 1)
+                wins = pl_data.get('wins', 0)
+                losses = pl_data.get('losses', 0)
+                if xp > 0 or wins > 0 or losses > 0:
+                    print(f"    {pl_name}: Rank {rank} | XP: {xp} | W-L: {wins}-{losses}")
 
     # STEP 5: Save all data files
     print("\nStep 5: Saving data files...")
