@@ -905,11 +905,15 @@ def get_game_player_count(file_path):
         return 0
 
 def is_team_game(file_path):
-    """Check if a game has Red and Blue teams."""
+    """Check if a game is a valid 2-team game (Red vs Blue only).
+    Games with 3+ teams are considered FFA/custom, not team games."""
     try:
         post_df = pd.read_excel(file_path, sheet_name='Post Game Report')
         teams = post_df['team'].unique().tolist()
-        return 'Red' in teams and 'Blue' in teams
+        # Filter out empty/None teams
+        teams = [t for t in teams if t and str(t).strip()]
+        # Must have exactly Red and Blue (2 teams) - more than 2 teams = FFA/custom
+        return len(teams) == 2 and 'Red' in teams and 'Blue' in teams
     except:
         return False
 
