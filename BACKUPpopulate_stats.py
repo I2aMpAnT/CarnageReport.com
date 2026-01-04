@@ -2042,10 +2042,12 @@ def main():
     # Track cumulative stats per player (from ALL games)
     player_game_stats = {}
     # Track XP per playlist per player (only from ranked games)
-    player_playlist_xp = {}  # {player_name: {playlist: xp}}
-    player_playlist_wins = {}  # {player_name: {playlist: wins}}
-    player_playlist_losses = {}  # {player_name: {playlist: losses}}
-    player_playlist_games = {}  # {player_name: {playlist: games}}
+    player_playlist_xp = {}  # {user_id: {playlist: xp}}
+    player_playlist_wins = {}  # {user_id: {playlist: wins}}
+    player_playlist_losses = {}  # {user_id: {playlist: losses}}
+    player_playlist_games = {}  # {user_id: {playlist: games}}
+    player_playlist_rank = {}  # {user_id: {playlist: current_rank}}
+    player_playlist_highest_rank = {}  # {user_id: {playlist: highest_rank}}
 
     # Parse all identity files and build per-game name->MAC mappings
     # Each identity file covers a session, use it for games in that session
