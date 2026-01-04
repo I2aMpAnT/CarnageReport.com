@@ -2610,6 +2610,10 @@ def main():
 
             playlist_rank = calculate_rank(playlist_xp, rank_thresholds)
 
+            # Ensure highest_rank is at least as high as current rank
+            # (This can happen when XP is summed across multiple player aliases)
+            playlist_highest = max(playlist_highest, playlist_rank)
+
             playlists_data[playlist] = {
                 'xp': playlist_xp,
                 'rank': playlist_rank,
