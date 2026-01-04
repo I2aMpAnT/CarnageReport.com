@@ -1147,8 +1147,23 @@ def determine_playlist(file_path, all_matches=None, manual_playlists=None, manua
             print(f"    DEBUG [{filename}]: Matched Double Team (4 players, team)")
         return PLAYLIST_DOUBLE_TEAM
 
-    # Head to Head: 2 players (1v1)
+    # Head to Head: 2 players (1v1), score must not exceed 15 (otherwise likely FFA messing around)
     if player_count == 2:
+        # Check if score exceeds 15 (indicates FFA, not real 1v1)
+        try:
+            game_details_df = pd.read_excel(file_path, sheet_name='Game Details')
+            if len(game_details_df) > 0:
+                row = game_details_df.iloc[0]
+                # Get the winning score (could be Red Score, Blue Score, or highest individual)
+                red_score = int(row.get('Red Score', 0) or 0)
+                blue_score = int(row.get('Blue Score', 0) or 0)
+                max_score = max(red_score, blue_score)
+                if max_score > 15:
+                    if debug:
+                        print(f"    DEBUG [{filename}]: 2-player game but score {max_score} > 15 -> likely FFA, Unranked")
+                    return None
+        except:
+            pass  # If we can't read score, allow it
         if debug:
             print(f"    DEBUG [{filename}]: Matched Head to Head (2 players)")
         return PLAYLIST_HEAD_TO_HEAD
