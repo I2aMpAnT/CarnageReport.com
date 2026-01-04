@@ -3047,11 +3047,12 @@ def main():
 
         # If game was previously ranked but now unranked (and not a full rebuild),
         # preserve the old playlist assignment
-        if new_playlist is None and old_playlist is not None and not needs_full_rebuild:
+        if new_playlist is None and old_playlist is not None and old_playlist != "Custom Game" and not needs_full_rebuild:
             new_games[filename] = old_playlist
             game['playlist'] = old_playlist  # Also update the game object
         else:
-            new_games[filename] = new_playlist
+            # Store "Custom Game" instead of null for unranked games
+            new_games[filename] = new_playlist if new_playlist else "Custom Game"
 
     new_processed_state = {
         "games": new_games,
