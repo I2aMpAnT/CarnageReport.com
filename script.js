@@ -2637,7 +2637,11 @@ function renderScoreboard(game) {
         }
         html += '</div>';
 
-        const displayName = getDisplayNameForProfile(player.name);
+        let displayName = getDisplayNameForProfile(player.name);
+        // Show "No MAC Linked - (in-game name)" for unlinked players
+        if (displayName === 'No MAC Linked') {
+            displayName = `No MAC Linked - (${player.name})`;
+        }
         html += `<div class="sb-player clickable-player" data-player="${player.name}">`;
         // Don't show rank icon for Custom Games - only ranked playlists
         if (game.playlist && game.playlist !== 'Custom Games') {
