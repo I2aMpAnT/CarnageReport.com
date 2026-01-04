@@ -44128,7 +44128,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "goose",
+          "name": "drugabusegoose_05478",
           "team": "none",
           "kills": 42,
           "deaths": 32,
@@ -44176,7 +44176,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Gava Grunt",
+          "name": "gava9107",
           "team": "none",
           "kills": 19,
           "deaths": 27,
@@ -44271,7 +44271,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "emblem_url": "https://carnagereport.com/emblems/P7-S3-EP7-ES3-EF7-EB9-ET0.png",
           "kills": 19,
           "assists": 10,
@@ -44301,7 +44301,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "emblem_url": "https://carnagereport.com/emblems/P1-S17-EP0-ES2-EF41-EB4-ET0.png",
           "kills": 42,
           "assists": 15,
@@ -44414,7 +44414,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -44468,7 +44468,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "double_kill": 2,
           "triple_kill": 0,
           "killtacular": 0,
@@ -44947,7 +44947,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Gava Grunt",
+          "Player": "gava9107",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -45229,7 +45229,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "goose",
+          "Player": "drugabusegoose_05478",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -45514,64 +45514,64 @@
       "versus": {
         "Hammie": {
           "Hammie": 0,
-          "goose": 10,
+          "drugabusegoose_05478": 10,
           "Tech": 15,
           "Keylord": 5,
-          "Gava Grunt": 9,
+          "gava9107": 9,
           "ll Legend ll": 10,
           "Hypnox": 3
         },
-        "goose": {
+        "drugabusegoose_05478": {
           "Hammie": 7,
-          "goose": 0,
+          "drugabusegoose_05478": 0,
           "Tech": 8,
           "Keylord": 10,
-          "Gava Grunt": 5,
+          "gava9107": 5,
           "ll Legend ll": 10,
           "Hypnox": 2
         },
         "Tech": {
           "Hammie": 12,
-          "goose": 8,
+          "drugabusegoose_05478": 8,
           "Tech": 0,
           "Keylord": 2,
-          "Gava Grunt": 7,
+          "gava9107": 7,
           "ll Legend ll": 3,
           "Hypnox": 0
         },
         "Keylord": {
           "Hammie": 3,
-          "goose": 7,
+          "drugabusegoose_05478": 7,
           "Tech": 3,
           "Keylord": 0,
-          "Gava Grunt": 4,
+          "gava9107": 4,
           "ll Legend ll": 7,
           "Hypnox": 2
         },
-        "Gava Grunt": {
+        "gava9107": {
           "Hammie": 3,
-          "goose": 2,
+          "drugabusegoose_05478": 2,
           "Tech": 8,
           "Keylord": 3,
-          "Gava Grunt": 0,
+          "gava9107": 0,
           "ll Legend ll": 3,
           "Hypnox": 0
         },
         "ll Legend ll": {
           "Hammie": 2,
-          "goose": 5,
+          "drugabusegoose_05478": 5,
           "Tech": 5,
           "Keylord": 2,
-          "Gava Grunt": 1,
+          "gava9107": 1,
           "ll Legend ll": 0,
           "Hypnox": 0
         },
         "Hypnox": {
           "Hammie": 0,
-          "goose": 0,
+          "drugabusegoose_05478": 0,
           "Tech": 0,
           "Keylord": 1,
-          "Gava Grunt": 1,
+          "gava9107": 1,
           "ll Legend ll": 0,
           "Hypnox": 0
         }
@@ -45595,8 +45595,8 @@
       "blue_team": [
         "Hammie",
         "Keylord",
-        "goose",
-        "Gava Grunt"
+        "drugabusegoose_05478",
+        "gava9107"
       ],
       "player_stats": [
         {
@@ -45696,7 +45696,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "goose",
+          "name": "drugabusegoose_05478",
           "team": "Blue",
           "kills": 8,
           "deaths": 8,
@@ -45712,7 +45712,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Gava Grunt",
+          "name": "gava9107",
           "team": "Blue",
           "kills": 3,
           "deaths": 16,
@@ -45775,7 +45775,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "emblem_url": "https://carnagereport.com/emblems/P7-S3-EP7-ES3-EF7-EB9-ET0.png",
           "kills": 3,
           "assists": 2,
@@ -45805,7 +45805,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "emblem_url": "https://carnagereport.com/emblems/P1-S17-EP0-ES2-EF41-EB4-ET0.png",
           "kills": 8,
           "assists": 1,
@@ -45933,7 +45933,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -45987,7 +45987,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -46493,7 +46493,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Gava Grunt",
+          "Player": "gava9107",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -46775,7 +46775,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "goose",
+          "Player": "drugabusegoose_05478",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -47206,8 +47206,8 @@
           "Hypnox": 0,
           "Hammie": 6,
           "Keylord": 3,
-          "goose": 3,
-          "Gava Grunt": 4
+          "drugabusegoose_05478": 3,
+          "gava9107": 4
         },
         "bbwelchs": {
           "Tech": 0,
@@ -47216,8 +47216,8 @@
           "Hypnox": 0,
           "Hammie": 2,
           "Keylord": 2,
-          "goose": 3,
-          "Gava Grunt": 7
+          "drugabusegoose_05478": 3,
+          "gava9107": 7
         },
         "ll Legend ll": {
           "Tech": 0,
@@ -47226,8 +47226,8 @@
           "Hypnox": 0,
           "Hammie": 5,
           "Keylord": 2,
-          "goose": 2,
-          "Gava Grunt": 3
+          "drugabusegoose_05478": 2,
+          "gava9107": 3
         },
         "Hypnox": {
           "Tech": 0,
@@ -47236,8 +47236,8 @@
           "Hypnox": 0,
           "Hammie": 3,
           "Keylord": 3,
-          "goose": 0,
-          "Gava Grunt": 2
+          "drugabusegoose_05478": 0,
+          "gava9107": 2
         },
         "Hammie": {
           "Tech": 4,
@@ -47246,8 +47246,8 @@
           "Hypnox": 4,
           "Hammie": 0,
           "Keylord": 0,
-          "goose": 0,
-          "Gava Grunt": 0
+          "drugabusegoose_05478": 0,
+          "gava9107": 0
         },
         "Keylord": {
           "Tech": 2,
@@ -47256,28 +47256,28 @@
           "Hypnox": 5,
           "Hammie": 0,
           "Keylord": 0,
-          "goose": 0,
-          "Gava Grunt": 0
+          "drugabusegoose_05478": 0,
+          "gava9107": 0
         },
-        "goose": {
+        "drugabusegoose_05478": {
           "Tech": 2,
           "bbwelchs": 2,
           "ll Legend ll": 3,
           "Hypnox": 1,
           "Hammie": 0,
           "Keylord": 0,
-          "goose": 0,
-          "Gava Grunt": 0
+          "drugabusegoose_05478": 0,
+          "gava9107": 0
         },
-        "Gava Grunt": {
+        "gava9107": {
           "Tech": 0,
           "bbwelchs": 0,
           "ll Legend ll": 2,
           "Hypnox": 1,
           "Hammie": 0,
           "Keylord": 0,
-          "goose": 0,
-          "Gava Grunt": 0
+          "drugabusegoose_05478": 0,
+          "gava9107": 0
         }
       },
       "source_file": "20251223_233627.xlsx"
@@ -47299,8 +47299,8 @@
       "blue_team": [
         "Keylord",
         "Hammie",
-        "Gava Grunt",
-        "goose"
+        "gava9107",
+        "drugabusegoose_05478"
       ],
       "player_stats": [
         {
@@ -47400,7 +47400,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Gava Grunt",
+          "name": "gava9107",
           "team": "Blue",
           "kills": 7,
           "deaths": 18,
@@ -47416,7 +47416,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "goose",
+          "name": "drugabusegoose_05478",
           "team": "Blue",
           "kills": 5,
           "deaths": 11,
@@ -47479,7 +47479,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "emblem_url": "https://carnagereport.com/emblems/P7-S3-EP7-ES3-EF7-EB9-ET0.png",
           "kills": 7,
           "assists": 1,
@@ -47509,7 +47509,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "emblem_url": "https://carnagereport.com/emblems/P1-S17-EP0-ES2-EF41-EB4-ET0.png",
           "kills": 5,
           "assists": 0,
@@ -47637,7 +47637,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -47691,7 +47691,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -48197,7 +48197,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Gava Grunt",
+          "Player": "gava9107",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -48479,7 +48479,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "goose",
+          "Player": "drugabusegoose_05478",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -48910,8 +48910,8 @@
           "ll Legend ll": 0,
           "Keylord": 2,
           "Hammie": 2,
-          "Gava Grunt": 6,
-          "goose": 5
+          "gava9107": 6,
+          "drugabusegoose_05478": 5
         },
         "Hypnox": {
           "bbwelchs": 0,
@@ -48920,8 +48920,8 @@
           "ll Legend ll": 0,
           "Keylord": 4,
           "Hammie": 3,
-          "Gava Grunt": 4,
-          "goose": 3
+          "gava9107": 4,
+          "drugabusegoose_05478": 3
         },
         "Tech": {
           "bbwelchs": 0,
@@ -48930,8 +48930,8 @@
           "ll Legend ll": 0,
           "Keylord": 1,
           "Hammie": 4,
-          "Gava Grunt": 5,
-          "goose": 1
+          "gava9107": 5,
+          "drugabusegoose_05478": 1
         },
         "ll Legend ll": {
           "bbwelchs": 0,
@@ -48940,8 +48940,8 @@
           "ll Legend ll": 0,
           "Keylord": 1,
           "Hammie": 4,
-          "Gava Grunt": 3,
-          "goose": 2
+          "gava9107": 3,
+          "drugabusegoose_05478": 2
         },
         "Keylord": {
           "bbwelchs": 5,
@@ -48950,8 +48950,8 @@
           "ll Legend ll": 4,
           "Keylord": 0,
           "Hammie": 0,
-          "Gava Grunt": 0,
-          "goose": 0
+          "gava9107": 0,
+          "drugabusegoose_05478": 0
         },
         "Hammie": {
           "bbwelchs": 5,
@@ -48960,28 +48960,28 @@
           "ll Legend ll": 0,
           "Keylord": 0,
           "Hammie": 0,
-          "Gava Grunt": 0,
-          "goose": 0
+          "gava9107": 0,
+          "drugabusegoose_05478": 0
         },
-        "Gava Grunt": {
+        "gava9107": {
           "bbwelchs": 1,
           "Hypnox": 3,
           "Tech": 1,
           "ll Legend ll": 2,
           "Keylord": 0,
           "Hammie": 0,
-          "Gava Grunt": 0,
-          "goose": 0
+          "gava9107": 0,
+          "drugabusegoose_05478": 0
         },
-        "goose": {
+        "drugabusegoose_05478": {
           "bbwelchs": 1,
           "Hypnox": 1,
           "Tech": 2,
           "ll Legend ll": 1,
           "Keylord": 0,
           "Hammie": 0,
-          "Gava Grunt": 0,
-          "goose": 0
+          "gava9107": 0,
+          "drugabusegoose_05478": 0
         }
       },
       "source_file": "20251223_234444.xlsx"
@@ -49002,8 +49002,8 @@
       ],
       "blue_team": [
         "Hammie",
-        "Gava Grunt",
-        "goose",
+        "gava9107",
+        "drugabusegoose_05478",
         "Keylord"
       ],
       "player_stats": [
@@ -49024,7 +49024,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Gava Grunt",
+          "name": "gava9107",
           "team": "Blue",
           "kills": 13,
           "deaths": 15,
@@ -49040,7 +49040,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "goose",
+          "name": "drugabusegoose_05478",
           "team": "Blue",
           "kills": 12,
           "deaths": 14,
@@ -49183,7 +49183,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "emblem_url": "https://carnagereport.com/emblems/P7-S3-EP7-ES3-EF7-EB9-ET0.png",
           "kills": 13,
           "assists": 1,
@@ -49213,7 +49213,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "emblem_url": "https://carnagereport.com/emblems/P1-S17-EP0-ES2-EF41-EB4-ET0.png",
           "kills": 12,
           "assists": 4,
@@ -49341,7 +49341,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "double_kill": 1,
           "triple_kill": 0,
           "killtacular": 0,
@@ -49395,7 +49395,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -49901,7 +49901,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Gava Grunt",
+          "Player": "gava9107",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -50183,7 +50183,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "goose",
+          "Player": "drugabusegoose_05478",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -50609,28 +50609,28 @@
       "versus": {
         "Hammie": {
           "Hammie": 0,
-          "Gava Grunt": 0,
-          "goose": 0,
+          "gava9107": 0,
+          "drugabusegoose_05478": 0,
           "Keylord": 0,
           "bbwelchs": 6,
           "Hypnox": 5,
           "Tech": 2,
           "ll Legend ll": 2
         },
-        "Gava Grunt": {
+        "gava9107": {
           "Hammie": 0,
-          "Gava Grunt": 0,
-          "goose": 0,
+          "gava9107": 0,
+          "drugabusegoose_05478": 0,
           "Keylord": 0,
           "bbwelchs": 4,
           "Hypnox": 4,
           "Tech": 2,
           "ll Legend ll": 3
         },
-        "goose": {
+        "drugabusegoose_05478": {
           "Hammie": 0,
-          "Gava Grunt": 0,
-          "goose": 0,
+          "gava9107": 0,
+          "drugabusegoose_05478": 0,
           "Keylord": 0,
           "bbwelchs": 1,
           "Hypnox": 7,
@@ -50639,8 +50639,8 @@
         },
         "Keylord": {
           "Hammie": 0,
-          "Gava Grunt": 0,
-          "goose": 0,
+          "gava9107": 0,
+          "drugabusegoose_05478": 0,
           "Keylord": 0,
           "bbwelchs": 2,
           "Hypnox": 3,
@@ -50649,8 +50649,8 @@
         },
         "bbwelchs": {
           "Hammie": 3,
-          "Gava Grunt": 6,
-          "goose": 6,
+          "gava9107": 6,
+          "drugabusegoose_05478": 6,
           "Keylord": 3,
           "bbwelchs": 0,
           "Hypnox": 0,
@@ -50659,8 +50659,8 @@
         },
         "Hypnox": {
           "Hammie": 3,
-          "Gava Grunt": 4,
-          "goose": 4,
+          "gava9107": 4,
+          "drugabusegoose_05478": 4,
           "Keylord": 0,
           "bbwelchs": 0,
           "Hypnox": 0,
@@ -50669,8 +50669,8 @@
         },
         "Tech": {
           "Hammie": 3,
-          "Gava Grunt": 4,
-          "goose": 2,
+          "gava9107": 4,
+          "drugabusegoose_05478": 2,
           "Keylord": 2,
           "bbwelchs": 0,
           "Hypnox": 0,
@@ -50679,8 +50679,8 @@
         },
         "ll Legend ll": {
           "Hammie": 2,
-          "Gava Grunt": 1,
-          "goose": 2,
+          "gava9107": 1,
+          "drugabusegoose_05478": 2,
           "Keylord": 3,
           "bbwelchs": 0,
           "Hypnox": 0,
@@ -50707,8 +50707,8 @@
       "blue_team": [
         "Hammie",
         "Keylord",
-        "Gava Grunt",
-        "goose"
+        "gava9107",
+        "drugabusegoose_05478"
       ],
       "player_stats": [
         {
@@ -50808,7 +50808,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Gava Grunt",
+          "name": "gava9107",
           "team": "Blue",
           "kills": 6,
           "deaths": 13,
@@ -50824,7 +50824,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "goose",
+          "name": "drugabusegoose_05478",
           "team": "Blue",
           "kills": 5,
           "deaths": 14,
@@ -50887,7 +50887,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "emblem_url": "https://carnagereport.com/emblems/P7-S3-EP7-ES3-EF7-EB9-ET0.png",
           "kills": 6,
           "assists": 0,
@@ -50917,7 +50917,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "emblem_url": "https://carnagereport.com/emblems/P1-S17-EP0-ES2-EF41-EB4-ET0.png",
           "kills": 5,
           "assists": 1,
@@ -51045,7 +51045,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -51099,7 +51099,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -51605,7 +51605,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Gava Grunt",
+          "Player": "gava9107",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -51887,7 +51887,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "goose",
+          "Player": "drugabusegoose_05478",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -52318,8 +52318,8 @@
           "ll Legend ll": 0,
           "Hammie": 4,
           "Keylord": 2,
-          "Gava Grunt": 5,
-          "goose": 5
+          "gava9107": 5,
+          "drugabusegoose_05478": 5
         },
         "bbwelchs": {
           "Tech": 0,
@@ -52328,8 +52328,8 @@
           "ll Legend ll": 0,
           "Hammie": 3,
           "Keylord": 5,
-          "Gava Grunt": 1,
-          "goose": 5
+          "gava9107": 1,
+          "drugabusegoose_05478": 5
         },
         "Hypnox": {
           "Tech": 0,
@@ -52338,8 +52338,8 @@
           "ll Legend ll": 0,
           "Hammie": 4,
           "Keylord": 0,
-          "Gava Grunt": 5,
-          "goose": 3
+          "gava9107": 5,
+          "drugabusegoose_05478": 3
         },
         "ll Legend ll": {
           "Tech": 0,
@@ -52348,8 +52348,8 @@
           "ll Legend ll": 0,
           "Hammie": 3,
           "Keylord": 2,
-          "Gava Grunt": 2,
-          "goose": 1
+          "gava9107": 2,
+          "drugabusegoose_05478": 1
         },
         "Hammie": {
           "Tech": 4,
@@ -52358,8 +52358,8 @@
           "ll Legend ll": 6,
           "Hammie": 0,
           "Keylord": 0,
-          "Gava Grunt": 0,
-          "goose": 0
+          "gava9107": 0,
+          "drugabusegoose_05478": 0
         },
         "Keylord": {
           "Tech": 3,
@@ -52368,28 +52368,28 @@
           "ll Legend ll": 4,
           "Hammie": 0,
           "Keylord": 0,
-          "Gava Grunt": 0,
-          "goose": 0
+          "gava9107": 0,
+          "drugabusegoose_05478": 0
         },
-        "Gava Grunt": {
+        "gava9107": {
           "Tech": 2,
           "bbwelchs": 2,
           "Hypnox": 2,
           "ll Legend ll": 0,
           "Hammie": 0,
           "Keylord": 0,
-          "Gava Grunt": 0,
-          "goose": 0
+          "gava9107": 0,
+          "drugabusegoose_05478": 0
         },
-        "goose": {
+        "drugabusegoose_05478": {
           "Tech": 2,
           "bbwelchs": 1,
           "Hypnox": 0,
           "ll Legend ll": 2,
           "Hammie": 0,
           "Keylord": 0,
-          "Gava Grunt": 0,
-          "goose": 0
+          "gava9107": 0,
+          "drugabusegoose_05478": 0
         }
       },
       "source_file": "20251224_000244.xlsx"
@@ -52410,9 +52410,9 @@
       ],
       "blue_team": [
         "Keylord",
-        "Gava Grunt",
+        "gava9107",
         "Hammie",
-        "goose"
+        "drugabusegoose_05478"
       ],
       "player_stats": [
         {
@@ -52496,7 +52496,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "Gava Grunt",
+          "name": "gava9107",
           "team": "Blue",
           "kills": 9,
           "deaths": 17,
@@ -52528,7 +52528,7 @@
           "pre_game_rank": 1
         },
         {
-          "name": "goose",
+          "name": "drugabusegoose_05478",
           "team": "Blue",
           "kills": 6,
           "deaths": 10,
@@ -52591,7 +52591,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "emblem_url": "https://carnagereport.com/emblems/P7-S3-EP7-ES3-EF7-EB9-ET0.png",
           "kills": 9,
           "assists": 2,
@@ -52621,7 +52621,7 @@
           "ctf_flag_saves": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "emblem_url": "https://carnagereport.com/emblems/P1-S17-EP0-ES2-EF41-EB4-ET0.png",
           "kills": 6,
           "assists": 1,
@@ -52749,7 +52749,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "Gava Grunt",
+          "player": "gava9107",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -52803,7 +52803,7 @@
           "bomb_returned": 0
         },
         {
-          "player": "goose",
+          "player": "drugabusegoose_05478",
           "double_kill": 0,
           "triple_kill": 0,
           "killtacular": 0,
@@ -53309,7 +53309,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "Gava Grunt",
+          "Player": "gava9107",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -53591,7 +53591,7 @@
           "oddball shots hit": 0
         },
         {
-          "Player": "goose",
+          "Player": "drugabusegoose_05478",
           "magnum kills": 0,
           "magnum headshot kills": 0,
           "magnum deaths": 0,
@@ -54021,9 +54021,9 @@
           "Hypnox": 0,
           "ll Legend ll": 0,
           "Keylord": 7,
-          "Gava Grunt": 6,
+          "gava9107": 6,
           "Hammie": 5,
-          "goose": 4
+          "drugabusegoose_05478": 4
         },
         "Tech": {
           "bbwelchs": 0,
@@ -54031,9 +54031,9 @@
           "Hypnox": 0,
           "ll Legend ll": 0,
           "Keylord": 2,
-          "Gava Grunt": 8,
+          "gava9107": 8,
           "Hammie": 3,
-          "goose": 2
+          "drugabusegoose_05478": 2
         },
         "Hypnox": {
           "bbwelchs": 0,
@@ -54041,9 +54041,9 @@
           "Hypnox": 0,
           "ll Legend ll": 0,
           "Keylord": 0,
-          "Gava Grunt": 2,
+          "gava9107": 2,
           "Hammie": 3,
-          "goose": 3
+          "drugabusegoose_05478": 3
         },
         "ll Legend ll": {
           "bbwelchs": 0,
@@ -54051,9 +54051,9 @@
           "Hypnox": 0,
           "ll Legend ll": 0,
           "Keylord": 1,
-          "Gava Grunt": 1,
+          "gava9107": 1,
           "Hammie": 2,
-          "goose": 1
+          "drugabusegoose_05478": 1
         },
         "Keylord": {
           "bbwelchs": 4,
@@ -54061,19 +54061,19 @@
           "Hypnox": 3,
           "ll Legend ll": 3,
           "Keylord": 0,
-          "Gava Grunt": 0,
+          "gava9107": 0,
           "Hammie": 0,
-          "goose": 0
+          "drugabusegoose_05478": 0
         },
-        "Gava Grunt": {
+        "gava9107": {
           "bbwelchs": 5,
           "Tech": 1,
           "Hypnox": 0,
           "ll Legend ll": 3,
           "Keylord": 0,
-          "Gava Grunt": 0,
+          "gava9107": 0,
           "Hammie": 0,
-          "goose": 0
+          "drugabusegoose_05478": 0
         },
         "Hammie": {
           "bbwelchs": 3,
@@ -54081,19 +54081,19 @@
           "Hypnox": 1,
           "ll Legend ll": 2,
           "Keylord": 0,
-          "Gava Grunt": 0,
+          "gava9107": 0,
           "Hammie": 0,
-          "goose": 0
+          "drugabusegoose_05478": 0
         },
-        "goose": {
+        "drugabusegoose_05478": {
           "bbwelchs": 3,
           "Tech": 2,
           "Hypnox": 0,
           "ll Legend ll": 1,
           "Keylord": 0,
-          "Gava Grunt": 0,
+          "gava9107": 0,
           "Hammie": 0,
-          "goose": 0
+          "drugabusegoose_05478": 0
         }
       },
       "source_file": "20251224_002142.xlsx"

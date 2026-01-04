@@ -8046,14 +8046,14 @@
       "player_names": [
         "Hammie",
         "Keylord",
-        "goose",
-        "Gava Grunt"
+        "drugabusegoose_05478",
+        "gava9107"
       ],
       "player_ids": [
         132652800378142720,
         null,
-        null,
-        null
+        1324420042494050338,
+        299780772456431627
       ],
       "player_ranks": [
         8,
@@ -8094,14 +8094,14 @@
       "player_names": [
         "Hammie",
         "Keylord",
-        "goose",
-        "Gava Grunt"
+        "drugabusegoose_05478",
+        "gava9107"
       ],
       "player_ids": [
         132652800378142720,
         null,
-        null,
-        null
+        1324420042494050338,
+        299780772456431627
       ],
       "player_ranks": [
         8,
@@ -8141,14 +8141,14 @@
     "blue_team": {
       "player_names": [
         "Keylord",
-        "goose",
-        "Gava Grunt",
+        "drugabusegoose_05478",
+        "gava9107",
         "Hammie"
       ],
       "player_ids": [
         null,
-        null,
-        null,
+        1324420042494050338,
+        299780772456431627,
         132652800378142720
       ],
       "player_ranks": [
@@ -8190,14 +8190,14 @@
       "player_names": [
         "Hammie",
         "Keylord",
-        "Gava Grunt",
-        "goose"
+        "gava9107",
+        "drugabusegoose_05478"
       ],
       "player_ids": [
         132652800378142720,
         null,
-        null,
-        null
+        299780772456431627,
+        1324420042494050338
       ],
       "player_ranks": [
         9,
@@ -8236,14 +8236,14 @@
     },
     "blue_team": {
       "player_names": [
-        "goose",
-        "Gava Grunt",
+        "drugabusegoose_05478",
+        "gava9107",
         "Hammie",
         "Keylord"
       ],
       "player_ids": [
-        null,
-        null,
+        1324420042494050338,
+        299780772456431627,
         132652800378142720,
         null
       ],
@@ -8286,14 +8286,14 @@
       "player_names": [
         "Keylord",
         "Hammie",
-        "Gava Grunt",
-        "goose"
+        "gava9107",
+        "drugabusegoose_05478"
       ],
       "player_ids": [
         null,
         132652800378142720,
-        null,
-        null
+        299780772456431627,
+        1324420042494050338
       ],
       "player_ranks": [
         18,
