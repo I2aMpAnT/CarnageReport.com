@@ -2012,12 +2012,43 @@ def main():
     all_player_names = set()
     player_to_id = {}  # {player_name: discord_id}
 
-    # In incremental mode, restore previous player name -> ID mappings
+    # In incremental mode, check if any previously unlinked players can now be linked
+    # If so, we need a full rebuild to properly attribute their stats to their Discord ID
+    relinked_players = []
     if incremental_mode:
         saved_name_to_id = processed_state.get("player_name_to_id", {})
         if saved_name_to_id:
-            player_to_id.update(saved_name_to_id)
-            print(f"  Restored {len(saved_name_to_id)} player name->ID mappings from saved state")
+            for player_name, old_id in saved_name_to_id.items():
+                # Check if this is a temp ID (not a real Discord ID in players.json)
+                is_temp_id = old_id not in players
+                if is_temp_id:
+                    # Try to re-resolve this player against current players.json
+                    new_id = None
+                    player_lower = player_name.lower()
+                    # Check profile_lookup first (includes aliases from players.json)
+                    if player_lower in profile_lookup:
+                        new_id = profile_lookup[player_lower]
+                    # Check combined_identity (all identity file mappings)
+                    elif player_lower in combined_identity:
+                        mac = combined_identity[player_lower]
+                        if mac in mac_to_discord:
+                            new_id = mac_to_discord[mac]
+
+                    if new_id and new_id in players:
+                        # This player can now be linked - need full rebuild
+                        relinked_players.append((player_name, old_id, new_id))
+
+            if relinked_players:
+                print(f"\n  Found {len(relinked_players)} previously unlinked players with new MAC links:")
+                for name, old_id, new_id in relinked_players:
+                    print(f"    - '{name}': temp ID -> Discord ID {new_id}")
+                print("  -> Triggering full rebuild to properly attribute their stats")
+                incremental_mode = False
+                saved_player_state = {}
+            else:
+                # No re-links needed, restore saved mappings
+                player_to_id.update(saved_name_to_id)
+                print(f"  Restored {len(saved_name_to_id)} player name->ID mappings from saved state")
 
     for game in all_games:
         game_file = game.get('source_file', '')
