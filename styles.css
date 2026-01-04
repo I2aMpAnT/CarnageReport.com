@@ -1702,6 +1702,22 @@ header {
     align-items: center;
 }
 
+/* Sortable leaderboard headers */
+.lb-header-sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.lb-header-sortable:hover {
+    color: var(--primary-color);
+    text-shadow: 0 0 8px rgba(0, 217, 255, 0.5);
+}
+
+.lb-header-sortable.active {
+    color: var(--primary-color);
+}
+
 .leaderboard-row {
     display: grid;
     grid-template-columns: 50px 40px 2fr 120px 70px 70px 70px 70px 70px 70px;

@@ -1850,6 +1850,47 @@ def main():
         game_count = generate_game_index()
         if game_count:
             print(f"  Regenerated {GAMEINDEX_FILE} ({game_count} games indexed)")
+
+        # Even with no new games, check if there are uncommitted JSON files to push
+        # This handles cases where previous push failed
+        print("\nChecking for unpushed changes...")
+        try:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            os.chdir(script_dir)
+
+            # Check for any uncommitted changes to JSON files
+            result = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True)
+            json_changes = [line for line in result.stdout.strip().split('\n') if line.strip() and '.json' in line]
+
+            if json_changes:
+                print(f"  Found {len(json_changes)} uncommitted JSON files:")
+                for change in json_changes[:5]:
+                    print(f"    {change}")
+
+                # Add and commit
+                subprocess.run(['git', 'add', '*.json'], check=True)
+                subprocess.run(['git', 'commit', '-m', 'Push uncommitted JSON files'], check=True)
+
+                # Push with retry
+                max_retries = 4
+                for attempt in range(max_retries):
+                    try:
+                        subprocess.run(['git', 'push', 'origin', 'main', '--force'], check=True, timeout=60)
+                        print("  Pushed uncommitted changes successfully!")
+                        break
+                    except subprocess.CalledProcessError:
+                        if attempt < max_retries - 1:
+                            wait_time = 2 ** (attempt + 1)
+                            print(f"  Push failed, retrying in {wait_time}s...")
+                            import time
+                            time.sleep(wait_time)
+                        else:
+                            print("  Error: Failed to push after retries")
+            else:
+                print("  No uncommitted changes to push")
+        except subprocess.CalledProcessError as e:
+            print(f"  Git check error: {e}")
+
         return
 
     print(f"\nChanges detected:")
@@ -2094,8 +2135,12 @@ def main():
 
             all_player_names.add(player_name)
 
-            # Skip if already resolved
+            # Track files for already-resolved unlinked players
             if player_name in player_to_id:
+                # If this is an unlinked player, track every game file they appear in
+                if player_name in unlinked_players:
+                    if game_file not in unlinked_players[player_name]['files']:
+                        unlinked_players[player_name]['files'].append(game_file)
                 continue
 
             # Resolve player using identity MAC -> Discord ID
@@ -3078,10 +3123,8 @@ def main():
             print(f"  Player: {player_name}")
             print(f"    MAC: {mac_display}")
             print(f"    Appears in {len(files)} file(s):")
-            for f in files[:5]:  # Show up to 5 files
+            for f in files:  # Show ALL files
                 print(f"      - {f}")
-            if len(files) > 5:
-                print(f"      ... and {len(files) - 5} more")
             print("")
         print("To link these players, add their MAC address to players.json")
         print("=" * 60)

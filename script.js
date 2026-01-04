@@ -25,6 +25,10 @@ let discordIdToProfileNames = {};
 // Player emblems data from emblems.json
 let playerEmblems = {};
 
+// Leaderboard sorting state
+let leaderboardSortColumn = 'rank';
+let leaderboardSortAscending = false; // false = descending (high to low)
+
 // Map images - local files from mapimages folder
 const mapImages = {
     'Midship': 'mapimages/Midship.jpeg',
@@ -193,8 +197,9 @@ function getGameTimeRanges() {
                 }
                 if (endDate) {
                     // Get all player discord IDs in this game (for VOD matching)
+                    // Look up discord_id from player name using profileNameToDiscordId mapping
                     const playerDiscordIds = (game.players || [])
-                        .map(p => p.discord_id)
+                        .map(p => p.discord_id || profileNameToDiscordId[p.name])
                         .filter(Boolean);
                     ranges.push({ start: startDate, end: endDate, playerDiscordIds });
                 }
@@ -423,7 +428,8 @@ function findGamesForVod(vod) {
         // Check time overlap
         if (vodStart <= endDate && vodEnd >= startDate) {
             // Check if streamer was in this game by discord ID
-            const gamePlayerDiscordIds = (game.players || []).map(p => p.discord_id).filter(Boolean);
+            // Look up discord_id from player name using profileNameToDiscordId mapping
+            const gamePlayerDiscordIds = (game.players || []).map(p => p.discord_id || profileNameToDiscordId[p.name]).filter(Boolean);
             if (gamePlayerDiscordIds.includes(streamerDiscordId)) {
                 // Calculate timestamp offset from VOD start to game start
                 const offsetSeconds = Math.max(0, Math.floor((startDate - vodStart) / 1000));
@@ -3427,6 +3433,20 @@ async function loadTwitchVodsForGame(gameId, linkedPlayers, gameStartTime, durat
     container.innerHTML = html;
 }
 
+// Sort leaderboard by clicking column headers
+function sortLeaderboardBy(column) {
+    // If clicking the same column, toggle direction
+    if (leaderboardSortColumn === column) {
+        leaderboardSortAscending = !leaderboardSortAscending;
+    } else {
+        // New column - default to descending (high to low)
+        leaderboardSortColumn = column;
+        leaderboardSortAscending = false;
+    }
+    // Re-render the leaderboard with new sort
+    renderLeaderboard();
+}
+
 function renderLeaderboard(selectedPlaylist = null) {
     const leaderboardContainer = document.getElementById('leaderboardContainer');
     if (!leaderboardContainer) return;
@@ -3607,28 +3627,66 @@ function renderLeaderboard(selectedPlaylist = null) {
         });
     }
 
-    // Sort by rank descending (50 at top, 1 at bottom), then by wins, then by K/D
+    // Sort based on current sort column and direction
     filteredPlayers.sort((a, b) => {
-        if (b.rank !== a.rank) return b.rank - a.rank;
-        if (b.wins !== a.wins) return b.wins - a.wins;
-        return parseFloat(b.kd) - parseFloat(a.kd);
+        let comparison = 0;
+        switch (leaderboardSortColumn) {
+            case 'rank':
+                comparison = b.rank - a.rank;
+                break;
+            case 'wins':
+                comparison = b.wins - a.wins;
+                break;
+            case 'losses':
+                comparison = b.losses - a.losses;
+                break;
+            case 'kills':
+                comparison = b.kills - a.kills;
+                break;
+            case 'deaths':
+                comparison = b.deaths - a.deaths;
+                break;
+            case 'kd':
+                comparison = parseFloat(b.kd) - parseFloat(a.kd);
+                break;
+            case 'kda':
+                comparison = parseFloat(b.kda || 0) - parseFloat(a.kda || 0);
+                break;
+            case 'assists':
+                comparison = b.assists - a.assists;
+                break;
+            case 'series':
+                comparison = (b.seriesWins - b.seriesLosses) - (a.seriesWins - a.seriesLosses);
+                break;
+            default:
+                comparison = b.rank - a.rank;
+        }
+        // Flip comparison if ascending
+        return leaderboardSortAscending ? -comparison : comparison;
     });
 
     // Only show series column for MLG 4v4 and Team Hardcore
     const showSeries = selectedPlaylist === 'MLG 4v4' || selectedPlaylist === 'Team Hardcore' || selectedPlaylist === 'all';
 
+    // Helper to create sortable header
+    const sortHeader = (label, column) => {
+        const isActive = leaderboardSortColumn === column;
+        const arrow = isActive ? (leaderboardSortAscending ? ' ▲' : ' ▼') : '';
+        return `<div class="lb-header-sortable${isActive ? ' active' : ''}" onclick="sortLeaderboardBy('${column}')">${label}${arrow}</div>`;
+    };
+
     let html = '<div class="leaderboard">';
     html += '<div class="leaderboard-header">';
-    html += '<div>Rank</div>';
+    html += sortHeader('Rank', 'rank');
     html += '<div></div>'; // Emblem column - no header text
     html += '<div>Player</div>';
     html += '<div>Record</div>';
     html += '<div>Series</div>'; // Always show Series column for consistent grid
-    html += '<div>Kills</div>';
-    html += '<div>Deaths</div>';
-    html += '<div>K/D</div>';
-    html += '<div>KDA</div>';
-    html += '<div>Assists</div>';
+    html += sortHeader('Kills', 'kills');
+    html += sortHeader('Deaths', 'deaths');
+    html += sortHeader('K/D', 'kd');
+    html += sortHeader('KDA', 'kda');
+    html += sortHeader('Assists', 'assists');
     html += '</div>';
 
     if (filteredPlayers.length === 0) {
